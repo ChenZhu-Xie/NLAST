@@ -13,45 +13,45 @@ import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
 from a_Image_Add_Black_border import Image_Add_Black_border
 from b_1_AST import AST
-from B_3_NLA_FDTD import NLA_FDTD
+from B_3_NLA_SSI import NLA_SSI
 from scipy.io import loadmat, savemat
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 
-def Consistency_NLA_FDTD_AST(U1_txt_name = "", 
-                             file_full_name = "Grating.png", 
-                             border_percentage = 0.3, 
-                             phase_only = 0, 
-                             #%%
-                             is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-                             l = 0, p = 0, 
-                             theta_x = 0, theta_y = 0, 
-                             is_H_l = 0, is_H_theta = 0, 
-                             #%%
-                             U1_0_NonZero_size = 1, w0 = 0.3,
-                             z0 = 1, z0_new = 5, deff_structure_sheet_expect = 1.8, is_energy_evolution_on = 1, 
-                             #%%
-                             lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
-                             deff = 30, 
-                             Tx = 10, Ty = 10, Tz = "2*lc", 
-                             mx = 0, my = 0, mz = 0, 
-                             #%%
-                             is_save = 0, is_save_txt = 0, dpi = 100, 
-                             #%%
-                             color_1d = 'b', cmap_2d = 'viridis', 
-                             #%%
-                             ticks_num = 6, is_contourf = 0, 
-                             is_title_on = 1, is_axes_on = 1, 
-                             is_mm = 1, is_propagation = 0, 
-                             #%%
-                             fontsize = 9, 
-                             font = {'family': 'serif',
-                                     'style': 'normal', # 'normal', 'italic', 'oblique'
-                                     'weight': 'normal',
-                                     'color': 'black', # 'black','gray','darkred'
-                                     }, 
-                             #%%
-                             is_self_colorbar = 0, is_colorbar_on = 1, 
-                             is_energy = 1, vmax = 1, vmin = 0):
+def Consistency_NLA_SSI_AST(U1_txt_name = "", 
+                            file_full_name = "Grating.png", 
+                            border_percentage = 0.3, 
+                            phase_only = 0, 
+                            #%%
+                            is_LG = 0, is_Gauss = 0, is_OAM = 0, 
+                            l = 0, p = 0, 
+                            theta_x = 0, theta_y = 0, 
+                            is_H_l = 0, is_H_theta = 0, 
+                            #%%
+                            U1_0_NonZero_size = 1, w0 = 0.3,
+                            z0 = 1, z0_new = 5, deff_structure_sheet_expect = 1.8, is_energy_evolution_on = 1, 
+                            #%%
+                            lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
+                            deff = 30, 
+                            Tx = 10, Ty = 10, Tz = "2*lc", 
+                            mx = 0, my = 0, mz = 0, 
+                            #%%
+                            is_save = 0, is_save_txt = 0, dpi = 100, 
+                            #%%
+                            color_1d = 'b', cmap_2d = 'viridis', 
+                            #%%
+                            ticks_num = 6, is_contourf = 0, 
+                            is_title_on = 1, is_axes_on = 1, 
+                            is_mm = 1, is_propagation = 0, 
+                            #%%
+                            fontsize = 9, 
+                            font = {'family': 'serif',
+                                    'style': 'normal', # 'normal', 'italic', 'oblique'
+                                    'weight': 'normal',
+                                    'color': 'black', # 'black','gray','darkred'
+                                    }, 
+                            #%%
+                            is_self_colorbar = 0, is_colorbar_on = 1, 
+                            is_energy = 1, vmax = 1, vmin = 0):
     
     #%%
     # 非线性 惠更斯 菲涅尔 原理
@@ -142,43 +142,43 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     # U1_txt_full_name = U1_txt_name + (is_save_txt and ".txt" or ".mat")
     # U1_txt_short_name = U1_txt_name.replace('6. AST - ', '')
     
-    NLA_FDTD(U1_txt_name, 
-             file_full_name, 
-             phase_only, 
-             #%%
-             is_LG, is_Gauss, is_OAM, 
-             l, p, 
-             theta_x, theta_y, 
-             is_H_l, is_H_theta, 
-             #%%
-             U1_0_NonZero_size, w0, 
-             z0_new, 0, 1, 
-             deff_structure_sheet_expect, 10, 
-             0, 0, 0, 0, 
-             #%%
-             1, 0, 
-             0, 0, is_energy_evolution_on, 
-             #%%
-             lam1, is_air_pump, is_air, T, 
-             deff, 
-             Tx, Ty, Tz, 
-             mx, my, mz, 
-             #%%
-             is_save, is_save_txt, dpi, 
-             #%%
-             color_1d, cmap_2d, 'rainbow', 
-             10, -65, 2, 
-             #%%
-             ticks_num, is_contourf, 
-             is_title_on, is_axes_on, 
-             is_mm, is_propagation, 
-             #%%
-             fontsize, font, 
-             #%%
-             is_self_colorbar, is_colorbar_on, 
-             is_energy, vmax, vmin)
+    NLA_SSI(U1_txt_name, 
+            file_full_name, 
+            phase_only, 
+            #%%
+            is_LG, is_Gauss, is_OAM, 
+            l, p, 
+            theta_x, theta_y, 
+            is_H_l, is_H_theta, 
+            #%%
+            U1_0_NonZero_size, w0, 
+            z0_new, 0, 1, 
+            deff_structure_sheet_expect, 10, 
+            0, 0, 0, 0, 
+            #%%
+            1, 0, 
+            0, 0, is_energy_evolution_on, 
+            #%%
+            lam1, is_air_pump, is_air, T, 
+            deff, 
+            Tx, Ty, Tz, 
+            mx, my, mz, 
+            #%%
+            is_save, is_save_txt, dpi, 
+            #%%
+            color_1d, cmap_2d, 'rainbow', 
+            10, -65, 2, 
+            #%%
+            ticks_num, is_contourf, 
+            is_title_on, is_axes_on, 
+            is_mm, is_propagation, 
+            #%%
+            fontsize, font, 
+            #%%
+            is_self_colorbar, is_colorbar_on, 
+            is_energy, vmax, vmin)
     
-    U1_NLA_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_new_real)) + "mm" + "_FDTD"
+    U1_NLA_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_new_real)) + "mm" + "_SSI"
     U1_NLA_txt_full_name = U1_NLA_txt_name + (is_save_txt and ".txt" or ".mat")
     # U1_NLA_txt_short_name = U1_NLA_txt_name.replace('6. NLA - ', '')
     U1_NLA_txt_short_name = U1_NLA_txt_name.replace('6. NLA - ', 'NLA - ')
@@ -186,43 +186,43 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     #%%
     # 先倍频 z0 后衍射 z0_new(z0_new_real)
     
-    NLA_FDTD('', 
-             file_full_name, 
-             phase_only, 
-             #%%
-             is_LG, is_Gauss, is_OAM, 
-             l, p, 
-             theta_x, theta_y, 
-             is_H_l, is_H_theta, 
-             #%%
-             U1_0_NonZero_size, w0, 
-             z0, 0, 1, 
-             deff_structure_sheet_expect, 10, 
-             0, 0, 0, 0, 
-             #%%
-             1, 0, 
-             0, 0, is_energy_evolution_on, 
-             #%%
-             lam1, is_air_pump, is_air, T, 
-             deff, 
-             Tx, Ty, Tz, 
-             mx, my, mz, 
-             #%%
-             is_save, is_save_txt, dpi, 
-             #%%
-             color_1d, cmap_2d, 'rainbow', 
-             10, -65, 2, 
-             #%%
-             ticks_num, is_contourf, 
-             is_title_on, is_axes_on, 
-             is_mm, is_propagation, 
-             #%%
-             fontsize, font, 
-             #%%
-             is_self_colorbar, is_colorbar_on, 
-             is_energy, vmax, vmin)
+    NLA_SSI('', 
+            file_full_name, 
+            phase_only, 
+            #%%
+            is_LG, is_Gauss, is_OAM, 
+            l, p, 
+            theta_x, theta_y, 
+            is_H_l, is_H_theta, 
+            #%%
+            U1_0_NonZero_size, w0, 
+            z0, 0, 1, 
+            deff_structure_sheet_expect, 10, 
+            0, 0, 0, 0, 
+            #%%
+            1, 0, 
+            0, 0, is_energy_evolution_on, 
+            #%%
+            lam1, is_air_pump, is_air, T, 
+            deff, 
+            Tx, Ty, Tz, 
+            mx, my, mz, 
+            #%%
+            is_save, is_save_txt, dpi, 
+            #%%
+            color_1d, cmap_2d, 'rainbow', 
+            10, -65, 2, 
+            #%%
+            ticks_num, is_contourf, 
+            is_title_on, is_axes_on, 
+            is_mm, is_propagation, 
+            #%%
+            fontsize, font, 
+            #%%
+            is_self_colorbar, is_colorbar_on, 
+            is_energy, vmax, vmin)
     
-    U2_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_real)) + "mm" + "_FDTD"
+    U2_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_real)) + "mm" + "_SSI"
     # U2_txt_full_name = U2_txt_name + (is_save_txt and ".txt" or ".mat")
     # U2_txt_short_name = U2_txt_name.replace('6. NLA - ', '')
     
@@ -272,43 +272,43 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     Z0_real = Iz * size_PerPixel
     print("Z0_real = {} mm".format(Z0_real))
     
-    NLA_FDTD('', 
-             file_full_name, 
-             phase_only, 
-             #%%
-             is_LG, is_Gauss, is_OAM, 
-             l, p, 
-             theta_x, theta_y, 
-             is_H_l, is_H_theta, 
-             #%%
-             U1_0_NonZero_size, w0, 
-             Z0, 0, 1, 
-             deff_structure_sheet_expect, 10, 
-             0, 0, 0, 0, 
-             #%%
-             1, 0, 
-             0, 0, is_energy_evolution_on, 
-             #%%
-             lam1, is_air_pump, is_air, T, 
-             deff, 
-             Tx, Ty, Tz, 
-             mx, my, mz, 
-             #%%
-             is_save, is_save_txt, dpi, 
-             #%%
-             color_1d, cmap_2d, 'rainbow', 
-             10, -65, 2, 
-             #%%
-             ticks_num, is_contourf, 
-             is_title_on, is_axes_on, 
-             is_mm, is_propagation, 
-             #%%
-             fontsize, font, 
-             #%%
-             is_self_colorbar, is_colorbar_on, 
-             is_energy, vmax, vmin)
+    NLA_SSI('', 
+            file_full_name, 
+            phase_only, 
+            #%%
+            is_LG, is_Gauss, is_OAM, 
+            l, p, 
+            theta_x, theta_y, 
+            is_H_l, is_H_theta, 
+            #%%
+            U1_0_NonZero_size, w0, 
+            Z0, 0, 1, 
+            deff_structure_sheet_expect, 10, 
+            0, 0, 0, 0, 
+            #%%
+            1, 0, 
+            0, 0, is_energy_evolution_on, 
+            #%%
+            lam1, is_air_pump, is_air, T, 
+            deff, 
+            Tx, Ty, Tz, 
+            mx, my, mz, 
+            #%%
+            is_save, is_save_txt, dpi, 
+            #%%
+            color_1d, cmap_2d, 'rainbow', 
+            10, -65, 2, 
+            #%%
+            ticks_num, is_contourf, 
+            is_title_on, is_axes_on, 
+            is_mm, is_propagation, 
+            #%%
+            fontsize, font, 
+            #%%
+            is_self_colorbar, is_colorbar_on, 
+            is_energy, vmax, vmin)
     
-    U2_Z0_txt_name = "6. NLA - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD"
+    U2_Z0_txt_name = "6. NLA - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI"
     U2_Z0_txt_full_name = U2_Z0_txt_name + (is_save_txt and ".txt" or ".mat")
     # U2_Z0_txt_short_name = U2_Z0_txt_name.replace('6. NLA - ', '')
     
@@ -332,16 +332,16 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     print("NLAST - U2_{}mm.total_energy = {}".format(Z0_real, np.sum(U2_Z0_Superposition_amp**2)))
 
     if is_save == 1:
-        if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD"):
-            os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD")
+        if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI"):
+            os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI")
 
     #%%
     #绘图：U2_Z0_Superposition_amp
 
-    U2_Z0_Superposition_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + file_name_extension
+    U2_Z0_Superposition_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-            U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_amp", 
+            U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -350,10 +350,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     #%%
     #绘图：U2_Z0_Superposition_phase
 
-    U2_Z0_Superposition_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + file_name_extension
+    U2_Z0_Superposition_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-            U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_phase", 
+            U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -362,18 +362,18 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     #%%
     # 储存 U2_Z0_Superposition 到 txt 文件
 
-    U2_Z0_Superposition_full_name = "6. NLAST - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + (is_save_txt and ".txt" or ".mat")
+    U2_Z0_Superposition_full_name = "6. NLAST - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + (is_save_txt and ".txt" or ".mat")
     if is_save == 1:
-        U2_Z0_Superposition_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "\\" + U2_Z0_Superposition_full_name
+        U2_Z0_Superposition_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "\\" + U2_Z0_Superposition_full_name
         np.savetxt(U2_Z0_Superposition_txt_address, U2_Z0_Superposition) if is_save_txt else savemat(U2_Z0_Superposition_txt_address, {"U":U2_Z0_Superposition})
 
         #%%
         #再次绘图：U2_Z0_Superposition_amp
     
-        U2_Z0_Superposition_amp_address = location + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + file_name_extension
+        U2_Z0_Superposition_amp_address = location + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + file_name_extension
     
         plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-                U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_amp", 
+                U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_amp", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
@@ -381,10 +381,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
         
         #再次绘图：U2_Z0_Superposition_phase
     
-        U2_Z0_Superposition_phase_address = location + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + file_name_extension
+        U2_Z0_Superposition_phase_address = location + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + file_name_extension
     
         plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-                U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_phase", 
+                U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_phase", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
@@ -409,16 +409,16 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     # print("Plus - U2_{}mm_Superposition_error.rsd = {}".format(Z0_real, np.std(U2_Z0_Superposition_error_amp) / np.mean(U2_Z0_Superposition_error_amp) ))
 
     if is_save == 1:
-        if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error"):
-            os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error")
+        if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error"):
+            os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error")
 
     #%%
     #绘图：U2_Z0_Superposition_error_amp
 
-    U2_Z0_Superposition_error_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
+    U2_Z0_Superposition_error_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-            U2_Z0_Superposition_error_amp, U2_Z0_Superposition_error_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "_amp", 
+            U2_Z0_Superposition_error_amp, U2_Z0_Superposition_error_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -427,10 +427,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     #%%
     #绘图：U2_Z0_Superposition_error_phase
 
-    U2_Z0_Superposition_error_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
+    U2_Z0_Superposition_error_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-            U2_Z0_Superposition_error_phase, U2_Z0_Superposition_error_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "_phase", 
+            U2_Z0_Superposition_error_phase, U2_Z0_Superposition_error_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -439,18 +439,18 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     #%%
     # 储存 U2_Z0_Superposition_error 到 txt 文件
 
-    U2_Z0_Superposition_error_full_name = "6. Plus - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + (is_save_txt and ".txt" or ".mat")
+    U2_Z0_Superposition_error_full_name = "6. Plus - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + (is_save_txt and ".txt" or ".mat")
     if is_save == 1:
-        U2_Z0_Superposition_error_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "\\" + U2_Z0_Superposition_error_full_name
+        U2_Z0_Superposition_error_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "\\" + U2_Z0_Superposition_error_full_name
         np.savetxt(U2_Z0_Superposition_error_txt_address, U2_Z0_Superposition_error) if is_save_txt else savemat(U2_Z0_Superposition_error_txt_address, {"U":U2_Z0_Superposition_error})
 
         #%%
         #再次绘图：U2_Z0_Superposition_error_amp
     
-        U2_Z0_Superposition_error_amp_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
+        U2_Z0_Superposition_error_amp_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
     
         plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-                U2_Z0_Superposition_error_amp, U2_Z0_Superposition_error_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "_amp", 
+                U2_Z0_Superposition_error_amp, U2_Z0_Superposition_error_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "_amp", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
@@ -458,10 +458,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     
         #再次绘图：U2_Z0_Superposition_error_phase
     
-        U2_Z0_Superposition_error_phase_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
+        U2_Z0_Superposition_error_phase_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
     
         plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-                U2_Z0_Superposition_error_phase, U2_Z0_Superposition_error_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "_phase", 
+                U2_Z0_Superposition_error_phase, U2_Z0_Superposition_error_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "_phase", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
@@ -488,16 +488,16 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     # print("Plus - U2_{}mm_Superposition_phase_error.rsd = {}".format(Z0_real, np.std(U2_Z0_Superposition_phase_error) / np.mean(U2_Z0_Superposition_phase_error) ))
 
     if is_save == 1:
-        if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error"):
-            os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error")
+        if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error"):
+            os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error")
 
     #%%
     #绘图：U2_Z0_Superposition_amp_error
 
-    U2_Z0_Superposition_amp_error_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_amp_error" + " = " + "U2_Z0_Superposition_abs__substract__U2_Z0_abs" + file_name_extension
+    U2_Z0_Superposition_amp_error_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_amp_error" + " = " + "U2_Z0_Superposition_abs__substract__U2_Z0_abs" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-            U2_Z0_Superposition_amp_error, U2_Z0_Superposition_amp_error_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_amp_error", 
+            U2_Z0_Superposition_amp_error, U2_Z0_Superposition_amp_error_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_amp_error", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -506,10 +506,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     #%%
     #绘图：U2_Z0_Superposition_phase_error
 
-    U2_Z0_Superposition_phase_error_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_phase_error" + " = " + "U2_Z0_Superposition_angle__substract__U2_Z0_angle" + file_name_extension
+    U2_Z0_Superposition_phase_error_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_phase_error" + " = " + "U2_Z0_Superposition_angle__substract__U2_Z0_angle" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-            U2_Z0_Superposition_phase_error, U2_Z0_Superposition_phase_error_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_phase_error", 
+            U2_Z0_Superposition_phase_error, U2_Z0_Superposition_phase_error_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_phase_error", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -519,10 +519,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
         #%%
         #再次绘图：U2_Z0_Superposition_amp_error
     
-        U2_Z0_Superposition_amp_error_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_amp_error" + " = " + "U2_Z0_Superposition_abs__substract__U2_Z0_abs" + file_name_extension
+        U2_Z0_Superposition_amp_error_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_amp_error" + " = " + "U2_Z0_Superposition_abs__substract__U2_Z0_abs" + file_name_extension
     
         plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-                U2_Z0_Superposition_amp_error, U2_Z0_Superposition_amp_error_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_amp_error", 
+                U2_Z0_Superposition_amp_error, U2_Z0_Superposition_amp_error_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_amp_error", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
@@ -530,10 +530,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     
         #再次绘图：U2_Z0_Superposition_phase_error
     
-        U2_Z0_Superposition_phase_error_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_phase_error" + " = " + "U2_Z0_Superposition_angle__substract__U2_Z0_angle" + file_name_extension
+        U2_Z0_Superposition_phase_error_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_phase_error" + " = " + "U2_Z0_Superposition_angle__substract__U2_Z0_angle" + file_name_extension
     
         plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-                U2_Z0_Superposition_phase_error, U2_Z0_Superposition_phase_error_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_phase_error", 
+                U2_Z0_Superposition_phase_error, U2_Z0_Superposition_phase_error_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_phase_error", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
@@ -560,16 +560,16 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     # print("Plus - U2_{}mm_Superposition_error_relative.rsd = {}".format(Z0_real, np.std(U2_Z0_Superposition_error_relative_amp) / np.mean(U2_Z0_Superposition_error_relative_amp) ))
 
     # if is_save == 1:
-    #     if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative"):
-    #         os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative")
+    #     if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative"):
+    #         os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative")
 
     # #%%
     # #绘图：U2_Z0_Superposition_error_relative_amp
 
-    # U2_Z0_Superposition_error_relative_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
+    # U2_Z0_Superposition_error_relative_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
 
     # plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-    #         U2_Z0_Superposition_error_relative_amp, U2_Z0_Superposition_error_relative_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "_amp", 
+    #         U2_Z0_Superposition_error_relative_amp, U2_Z0_Superposition_error_relative_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_amp", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #         fontsize, font,
@@ -578,10 +578,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     # #%%
     # #绘图：U2_Z0_Superposition_error_relative_phase
 
-    # U2_Z0_Superposition_error_relative_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
+    # U2_Z0_Superposition_error_relative_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
 
     # plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-    #         U2_Z0_Superposition_error_relative_phase, U2_Z0_Superposition_error_relative_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "_phase", 
+    #         U2_Z0_Superposition_error_relative_phase, U2_Z0_Superposition_error_relative_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_phase", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #         fontsize, font,
@@ -590,18 +590,18 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     # #%%
     # # 储存 U2_Z0_Superposition_error_relative 到 txt 文件
 
-    # U2_Z0_Superposition_error_relative_full_name = "6. Plus - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + (is_save_txt and ".txt" or ".mat")
+    # U2_Z0_Superposition_error_relative_full_name = "6. Plus - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + (is_save_txt and ".txt" or ".mat")
     # if is_save == 1:
-    #     U2_Z0_Superposition_error_relative_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "\\" + U2_Z0_Superposition_error_relative_full_name
+    #     U2_Z0_Superposition_error_relative_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "\\" + U2_Z0_Superposition_error_relative_full_name
     #     np.savetxt(U2_Z0_Superposition_error_relative_txt_address, U2_Z0_Superposition_error_relative) if is_save_txt else savemat(U2_Z0_Superposition_error_relative_txt_address, {"U2_Z0_Superposition_error_relative":U2_Z0_Superposition_error_relative})
 
     #     #%%
     #     #再次绘图：U2_Z0_Superposition_error_relative_amp
     
-    #     U2_Z0_Superposition_error_relative_amp_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
+    #     U2_Z0_Superposition_error_relative_amp_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
     
     #     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-    #             U2_Z0_Superposition_error_relative_amp, U2_Z0_Superposition_error_relative_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "_amp", 
+    #             U2_Z0_Superposition_error_relative_amp, U2_Z0_Superposition_error_relative_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_amp", 
     #             is_save, dpi, size_fig,  
     #             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #             fontsize, font,
@@ -609,10 +609,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     
     #     #再次绘图：U2_Z0_Superposition_error_relative_phase
     
-    #     U2_Z0_Superposition_error_relative_phase_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
+    #     U2_Z0_Superposition_error_relative_phase_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
     
     #     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-    #             U2_Z0_Superposition_error_relative_phase, U2_Z0_Superposition_error_relative_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_error_relative" + "_phase", 
+    #             U2_Z0_Superposition_error_relative_phase, U2_Z0_Superposition_error_relative_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_phase", 
     #             is_save, dpi, size_fig,  
     #             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #             fontsize, font,
@@ -637,16 +637,16 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     # print("Plus - U2_{}mm_Superposition_relative_error.rsd = {}".format(Z0_real, np.std(U2_Z0_Superposition_relative_error_amp) / np.mean(U2_Z0_Superposition_relative_error_amp) ))
 
     # if is_save == 1:
-    #     if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error"):
-    #         os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error")
+    #     if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error"):
+    #         os.makedirs("6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error")
 
     # #%%
     # #绘图：U2_Z0_Superposition_relative_error_amp
 
-    # U2_Z0_Superposition_relative_error_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
+    # U2_Z0_Superposition_relative_error_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
 
     # plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-    #         U2_Z0_Superposition_relative_error_amp, U2_Z0_Superposition_relative_error_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "_amp", 
+    #         U2_Z0_Superposition_relative_error_amp, U2_Z0_Superposition_relative_error_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_amp", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #         fontsize, font,
@@ -655,10 +655,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     # #%%
     # #绘图：U2_Z0_Superposition_relative_error_phase
 
-    # U2_Z0_Superposition_relative_error_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
+    # U2_Z0_Superposition_relative_error_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
 
     # plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-    #         U2_Z0_Superposition_relative_error_phase, U2_Z0_Superposition_relative_error_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "_phase", 
+    #         U2_Z0_Superposition_relative_error_phase, U2_Z0_Superposition_relative_error_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_phase", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #         fontsize, font,
@@ -667,18 +667,18 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     # #%%
     # # 储存 U2_Z0_Superposition_relative_error 到 txt 文件
 
-    # U2_Z0_Superposition_relative_error_full_name = "6. Plus - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + (is_save_txt and ".txt" or ".mat")
+    # U2_Z0_Superposition_relative_error_full_name = "6. Plus - U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + (is_save_txt and ".txt" or ".mat")
     # if is_save == 1:
-    #     U2_Z0_Superposition_relative_error_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "\\" + U2_Z0_Superposition_relative_error_full_name
+    #     U2_Z0_Superposition_relative_error_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "\\" + U2_Z0_Superposition_relative_error_full_name
     #     np.savetxt(U2_Z0_Superposition_relative_error_txt_address, U2_Z0_Superposition_relative_error) if is_save_txt else savemat(U2_Z0_Superposition_relative_error_txt_address, {"U2_Z0_Superposition_relative_error":U2_Z0_Superposition_relative_error})
 
     #     #%%
     #     #再次绘图：U2_Z0_Superposition_relative_error_amp
     
-    #     U2_Z0_Superposition_relative_error_amp_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
+    #     U2_Z0_Superposition_relative_error_amp_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + file_name_extension
     
     #     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-    #             U2_Z0_Superposition_relative_error_amp, U2_Z0_Superposition_relative_error_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "_amp", 
+    #             U2_Z0_Superposition_relative_error_amp, U2_Z0_Superposition_relative_error_amp_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_amp", 
     #             is_save, dpi, size_fig,  
     #             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #             fontsize, font,
@@ -686,10 +686,10 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     
     #     #再次绘图：U2_Z0_Superposition_relative_error_phase
     
-    #     U2_Z0_Superposition_relative_error_phase_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
+    #     U2_Z0_Superposition_relative_error_phase_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + file_name_extension
     
     #     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
-    #             U2_Z0_Superposition_relative_error_phase, U2_Z0_Superposition_relative_error_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_FDTD" + "_Superposition_relative_error" + "_phase", 
+    #             U2_Z0_Superposition_relative_error_phase, U2_Z0_Superposition_relative_error_phase_address, "U2_" + str(float('%.2g' % Z0_real)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_phase", 
     #             is_save, dpi, size_fig, 
     #             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #             fontsize, font,
@@ -703,40 +703,40 @@ def Consistency_NLA_FDTD_AST(U1_txt_name = "",
     
     #%%
     
-Consistency_NLA_FDTD_AST(U1_txt_name = "", 
-                         file_full_name = "lena.png", 
-                         border_percentage = 0.3, 
-                         phase_only = 0, 
-                         #%%
-                         is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-                         l = 0, p = 0, 
-                         theta_x = 0, theta_y = 0, 
-                         is_H_l = 0, is_H_theta = 0, 
-                         #%%
-                         U1_0_NonZero_size = 1, w0 = 0, 
-                         z0 = 6, z0_new = 5, deff_structure_sheet_expect = 1, is_energy_evolution_on = 1, 
-                         #%%
-                         lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, 
-                         deff = 30, 
-                         Tx = 10, Ty = 10, Tz = "2*lc", 
-                         mx = 0, my = 0, mz = 0, 
-                         #%%
-                         is_save = 0, is_save_txt = 0, dpi = 100, 
-                         #%%
-                         color_1d = 'b', cmap_2d = 'viridis', 
-                         #%%
-                         ticks_num = 6, is_contourf = 0, 
-                         is_title_on = 1, is_axes_on = 1, 
-                         is_mm = 1, is_propagation = 0, 
-                         #%%
-                         fontsize = 6, 
-                         font = {'family': 'serif',
-                                 'style': 'normal', # 'normal', 'italic', 'oblique'
-                                 'weight': 'normal',
-                                 'color': 'black', # 'black','gray','darkred'
-                                 }, 
-                         #%%
-                         is_self_colorbar = 1, is_colorbar_on = 1, 
-                         is_energy = 0, vmax = 1, vmin = 0)
+Consistency_NLA_SSI_AST(U1_txt_name = "", 
+                        file_full_name = "lena.png", 
+                        border_percentage = 0.3, 
+                        phase_only = 0, 
+                        #%%
+                        is_LG = 0, is_Gauss = 0, is_OAM = 0, 
+                        l = 0, p = 0, 
+                        theta_x = 0, theta_y = 0, 
+                        is_H_l = 0, is_H_theta = 0, 
+                        #%%
+                        U1_0_NonZero_size = 1, w0 = 0, 
+                        z0 = 6, z0_new = 5, deff_structure_sheet_expect = 1, is_energy_evolution_on = 1, 
+                        #%%
+                        lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, 
+                        deff = 30, 
+                        Tx = 10, Ty = 10, Tz = "2*lc", 
+                        mx = 0, my = 0, mz = 0, 
+                        #%%
+                        is_save = 0, is_save_txt = 0, dpi = 100, 
+                        #%%
+                        color_1d = 'b', cmap_2d = 'viridis', 
+                        #%%
+                        ticks_num = 6, is_contourf = 0, 
+                        is_title_on = 1, is_axes_on = 1, 
+                        is_mm = 1, is_propagation = 0, 
+                        #%%
+                        fontsize = 6, 
+                        font = {'family': 'serif',
+                                'style': 'normal', # 'normal', 'italic', 'oblique'
+                                'weight': 'normal',
+                                'color': 'black', # 'black','gray','darkred'
+                                }, 
+                        #%%
+                        is_self_colorbar = 1, is_colorbar_on = 1, 
+                        is_energy = 0, vmax = 1, vmin = 0)
 
 # 注意 colorbar 上的数量级

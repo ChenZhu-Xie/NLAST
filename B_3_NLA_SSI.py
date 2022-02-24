@@ -25,46 +25,46 @@ from fun_pump import pump_LG
 
 #%%
 
-def NLA_FDTD(U1_txt_name = "", 
-             file_full_name = "Grating.png", 
-             phase_only = 0, 
-             #%%
-             is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-             l = 0, p = 0, 
-             theta_x = 0, theta_y = 0, 
-             is_H_l = 0, is_H_theta = 0, 
-             #%%
-             U1_0_NonZero_size = 1, w0 = 0.3, 
-             L0_Crystal_expect = 5, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 2, 
-             deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
-             z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
-             #%%
-             is_bulk = 1, is_no_backgroud = 0, 
-             is_stored = 0, is_show_structure_face = 1, is_energy_evolution_on = 1, 
-             #%%
-             lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
-             deff = 30, 
-             Tx = 10, Ty = 10, Tz = "2*lc", 
-             mx = 0, my = 0, mz = 0, 
-             #%%
-             is_save = 0, is_save_txt = 0, dpi = 100, 
-             #%%
-             color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
-             elev = 10, azim = -65, alpha = 2, 
-             #%%
-             ticks_num = 6, is_contourf = 0, 
-             is_title_on = 1, is_axes_on = 1, 
-             is_mm = 1, is_propagation = 0, 
-             #%%
-             fontsize = 9, 
-             font = {'family': 'serif',
-                     'style': 'normal', # 'normal', 'italic', 'oblique'
-                     'weight': 'normal',
-                     'color': 'black', # 'black','gray','darkred'
-                     }, 
-             #%%
-             is_self_colorbar = 0, is_colorbar_on = 1, 
-             is_energy = 0, vmax = 1, vmin = 0):
+def NLA_SSI(U1_txt_name = "", 
+            file_full_name = "Grating.png", 
+            phase_only = 0, 
+            #%%
+            is_LG = 0, is_Gauss = 0, is_OAM = 0, 
+            l = 0, p = 0, 
+            theta_x = 0, theta_y = 0, 
+            is_H_l = 0, is_H_theta = 0, 
+            #%%
+            U1_0_NonZero_size = 1, w0 = 0.3, 
+            L0_Crystal_expect = 5, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 2, 
+            deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
+            z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
+            #%%
+            is_bulk = 1, is_no_backgroud = 0, 
+            is_stored = 0, is_show_structure_face = 1, is_energy_evolution_on = 1, 
+            #%%
+            lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
+            deff = 30, 
+            Tx = 10, Ty = 10, Tz = "2*lc", 
+            mx = 0, my = 0, mz = 0, 
+            #%%
+            is_save = 0, is_save_txt = 0, dpi = 100, 
+            #%%
+            color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
+            elev = 10, azim = -65, alpha = 2, 
+            #%%
+            ticks_num = 6, is_contourf = 0, 
+            is_title_on = 1, is_axes_on = 1, 
+            is_mm = 1, is_propagation = 0, 
+            #%%
+            fontsize = 9, 
+            font = {'family': 'serif',
+                    'style': 'normal', # 'normal', 'italic', 'oblique'
+                    'weight': 'normal',
+                    'color': 'black', # 'black','gray','darkred'
+                    }, 
+            #%%
+            is_self_colorbar = 0, is_colorbar_on = 1, 
+            is_energy = 0, vmax = 1, vmin = 0):
     # #%%
     # U1_txt_name = ""
     # file_full_name = "l=1.png"
@@ -234,7 +234,7 @@ def NLA_FDTD(U1_txt_name = "",
     k1 = 2 * math.pi * size_PerPixel / (lam1 / 1000 / n1) # lam / 1000 即以 mm 为单位
     
     #%%
-    # 非线性 角谱理论 - FDTD begin
+    # 非线性 角谱理论 - SSI begin
 
     I2_x, I2_y = U1_0.shape[0], U1_0.shape[1]
 
@@ -596,46 +596,46 @@ def NLA_FDTD(U1_txt_name = "",
         
     #%%
 
-    G2_z0_FDTD_shift = G2_z_plus_dz_shift
+    G2_z0_SSI_shift = G2_z_plus_dz_shift
 
-    G2_z0_FDTD_shift_amp = np.abs(G2_z0_FDTD_shift)
-    # print(np.max(G2_z0_FDTD_shift_amp))
-    G2_z0_FDTD_shift_phase = np.angle(G2_z0_FDTD_shift)
+    G2_z0_SSI_shift_amp = np.abs(G2_z0_SSI_shift)
+    # print(np.max(G2_z0_SSI_shift_amp))
+    G2_z0_SSI_shift_phase = np.angle(G2_z0_SSI_shift)
     if is_save == 1:
-        if not os.path.isdir("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift"):
-            os.makedirs("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift")
+        if not os.path.isdir("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift"):
+            os.makedirs("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift")
 
     #%%
-    #绘图：G2_z0_FDTD_shift_amp
+    #绘图：G2_z0_SSI_shift_amp
 
-    G2_z0_FDTD_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
+    G2_z0_SSI_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_amp" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            G2_z0_FDTD_shift_amp, G2_z0_FDTD_shift_amp_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_amp", 
+            G2_z0_SSI_shift_amp, G2_z0_SSI_shift_amp_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
             1, is_colorbar_on, is_energy, vmax, vmin)
 
     #%%
-    #绘图：G2_z0_FDTD_shift_phase
+    #绘图：G2_z0_SSI_shift_phase
 
-    G2_z0_FDTD_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
+    G2_z0_SSI_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_phase" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            G2_z0_FDTD_shift_phase, G2_z0_FDTD_shift_phase_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_phase", 
+            G2_z0_SSI_shift_phase, G2_z0_SSI_shift_phase_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
             1, is_colorbar_on, 0, vmax, vmin)
 
     #%%
-    # 储存 G2_z0_FDTD_shift 到 txt 文件
+    # 储存 G2_z0_SSI_shift 到 txt 文件
 
     if is_save == 1:
-        G2_z0_FDTD_shift_full_name = "5. NLA - G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + (is_save_txt and ".txt" or ".mat")
-        G2_z0_FDTD_shift_txt_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "\\" + G2_z0_FDTD_shift_full_name
-        np.savetxt(G2_z0_FDTD_shift_txt_address, G2_z0_FDTD_shift) if is_save_txt else savemat(G2_z0_FDTD_shift_txt_address, {'G':G2_z0_FDTD_shift})
+        G2_z0_SSI_shift_full_name = "5. NLA - G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + (is_save_txt and ".txt" or ".mat")
+        G2_z0_SSI_shift_txt_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "\\" + G2_z0_SSI_shift_full_name
+        np.savetxt(G2_z0_SSI_shift_txt_address, G2_z0_SSI_shift) if is_save_txt else savemat(G2_z0_SSI_shift_txt_address, {'G':G2_z0_SSI_shift})
 
     #%%    
     # 绘制 G2_z_shift_energy 随 z 演化的 曲线
@@ -645,22 +645,22 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_G2_z_shift_energy = np.max(G2_z_shift_energy)
         vmin_G2_z_shift_energy = np.min(G2_z_shift_energy)
         
-        G2_z_shift_energy_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_energy_evolution" + file_name_extension
+        G2_z_shift_energy_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_energy_evolution" + file_name_extension
         
         plot_1d(sheets_num + 1, size_PerPixel, diz, 
-                G2_z_shift_energy, G2_z_shift_energy_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_energy_evolution", 
+                G2_z_shift_energy, G2_z_shift_energy_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_energy_evolution", 
                 is_save, dpi, size_fig * 10, size_fig, 
                 color_1d, ticks_num, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
                 0, vmax_G2_z_shift_energy, vmin_G2_z_shift_energy)
         
     #%%
-    # G2_z0_FDTD = G2_z0_FDTD(k1_x, k1_y) → IFFT2 → U2(x0, y0, z0) = U2_z0_FDTD
+    # G2_z0_SSI = G2_z0_SSI(k1_x, k1_y) → IFFT2 → U2(x0, y0, z0) = U2_z0_SSI
 
-    G2_z0_FDTD = np.fft.ifftshift(G2_z0_FDTD_shift)
-    U2_z0_FDTD = np.fft.ifft2(G2_z0_FDTD)
+    G2_z0_SSI = np.fft.ifftshift(G2_z0_SSI_shift)
+    U2_z0_SSI = np.fft.ifft2(G2_z0_SSI)
     # 2 维 坐标空间 中的 复标量场，是 i2_x0, i2_y0 的函数
-    # U2_z0_FDTD = U2_z0_FDTD * scale_down_factor # 归一化
+    # U2_z0_SSI = U2_z0_SSI * scale_down_factor # 归一化
 
     #%%
 
@@ -669,16 +669,16 @@ def NLA_FDTD(U1_txt_name = "",
         sheet_th_stored[sheets_stored_num] = sheets_num
         iz_stored[sheets_stored_num] = Iz
         z_stored[sheets_stored_num] = Iz * size_PerPixel
-        G2_z_shift_stored[:, :, sheets_stored_num] = G2_z0_FDTD_shift #　储存的 第一层，实际上不是 G2_0，而是 G2_dz
-        U2_z_stored[:, :, sheets_stored_num] = U2_z0_FDTD #　储存的 第一层，实际上不是 U2_0，而是 U2_dz
+        G2_z_shift_stored[:, :, sheets_stored_num] = G2_z0_SSI_shift #　储存的 第一层，实际上不是 G2_0，而是 G2_dz
+        U2_z_stored[:, :, sheets_stored_num] = U2_z0_SSI #　储存的 第一层，实际上不是 U2_0，而是 U2_dz
         
         #%%
         
         if is_save == 1:
-            if not os.path.isdir("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_stored"):
-                os.makedirs("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_stored")
-            if not os.path.isdir("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_stored"):
-                os.makedirs("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_stored")
+            if not os.path.isdir("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_stored"):
+                os.makedirs("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_stored")
+            if not os.path.isdir("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_stored"):
+                os.makedirs("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_stored")
         
         #-------------------------
         
@@ -687,10 +687,10 @@ def NLA_FDTD(U1_txt_name = "",
         
         for sheet_stored_th in range(sheets_stored_num + 1):
             
-            G2_z_shift_sheet_stored_th_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
+            G2_z_shift_sheet_stored_th_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_SSI_shift" + "_amp" + file_name_extension
             
             plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                    np.abs(G2_z_shift_stored[:, :, sheet_stored_th]), G2_z_shift_sheet_stored_th_amp_address, "G2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_FDTD_shift" + "_amp", 
+                    np.abs(G2_z_shift_stored[:, :, sheet_stored_th]), G2_z_shift_sheet_stored_th_amp_address, "G2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_SSI_shift" + "_amp", 
                     is_save, dpi, size_fig,  
                     cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                     fontsize, font,
@@ -701,10 +701,10 @@ def NLA_FDTD(U1_txt_name = "",
             
         for sheet_stored_th in range(sheets_stored_num + 1):
             
-            G2_z_shift_sheet_stored_th_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
+            G2_z_shift_sheet_stored_th_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_SSI_shift" + "_phase" + file_name_extension
         
             plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                    np.angle(G2_z_shift_stored[:, :, sheet_stored_th]), G2_z_shift_sheet_stored_th_phase_address, "G2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_FDTD_shift" + "_phase", 
+                    np.angle(G2_z_shift_stored[:, :, sheet_stored_th]), G2_z_shift_sheet_stored_th_phase_address, "G2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_SSI_shift" + "_phase", 
                     is_save, dpi, size_fig,  
                     cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                     fontsize, font,
@@ -717,10 +717,10 @@ def NLA_FDTD(U1_txt_name = "",
         
         for sheet_stored_th in range(sheets_stored_num + 1):
             
-            U2_z_sheet_stored_th_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_FDTD" + "_amp" + file_name_extension
+            U2_z_sheet_stored_th_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_SSI" + "_amp" + file_name_extension
         
             plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                    np.abs(U2_z_stored[:, :, sheet_stored_th]), U2_z_sheet_stored_th_amp_address, "U2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_FDTD" + "_amp", 
+                    np.abs(U2_z_stored[:, :, sheet_stored_th]), U2_z_sheet_stored_th_amp_address, "U2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_SSI" + "_amp", 
                     is_save, dpi, size_fig,  
                     cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                     fontsize, font,
@@ -731,10 +731,10 @@ def NLA_FDTD(U1_txt_name = "",
             
         for sheet_stored_th in range(sheets_stored_num + 1):
             
-            U2_z_sheet_stored_th_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_FDTD" + "_phase" + file_name_extension
+            U2_z_sheet_stored_th_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_SSI" + "_phase" + file_name_extension
         
             plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                    np.angle(U2_z_stored[:, :, sheet_stored_th]), U2_z_sheet_stored_th_phase_address, "U2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_FDTD" + "_phase", 
+                    np.angle(U2_z_stored[:, :, sheet_stored_th]), U2_z_sheet_stored_th_phase_address, "U2_" + str(float('%.2g' % z_stored[sheet_stored_th])) + "mm" + "_SSI" + "_phase", 
                     is_save, dpi, size_fig,  
                     cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                     fontsize, font,
@@ -743,7 +743,7 @@ def NLA_FDTD(U1_txt_name = "",
         #%%
         # 这 sheets_stored_num 层 也可以 画成 3D，就是太丑了，所以只 整个 U2_amp 示意一下即可
         
-        # U2_z_sheets_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_sheets_stored" + "_amp" + file_name_extension
+        # U2_z_sheets_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_sheets_stored" + "_amp" + file_name_extension
         
         # plot_3d_XYz(I2_y, I2_x, size_PerPixel, diz, 
         #             sheets_stored_num, U2_z_stored, sheet_th_stored, 
@@ -757,14 +757,14 @@ def NLA_FDTD(U1_txt_name = "",
         #%%
         
         # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
-        # G2_shift_xz_stored[:, sheets_num] = G2_z0_FDTD_shift[:, I2_y // 2 + int(X / size_PerPixel)]
-        # G2_shift_yz_stored[:, sheets_num] = G2_z0_FDTD_shift[I2_x // 2 - int(Y / size_PerPixel), :]
-        # U2_xz_stored[:, sheets_num] = U2_z0_FDTD[:, I2_y // 2 + int(X / size_PerPixel)]
-        # U2_yz_stored[:, sheets_num] = U2_z0_FDTD[I2_x // 2 - int(Y / size_PerPixel), :]
-        G2_shift_YZ_stored[:, sheets_num] = G2_z0_FDTD_shift[:, I2_y // 2 + int(X / size_PerPixel)]
-        G2_shift_XZ_stored[:, sheets_num] = G2_z0_FDTD_shift[I2_x // 2 - int(Y / size_PerPixel), :]
-        U2_YZ_stored[:, sheets_num] = U2_z0_FDTD[:, I2_y // 2 + int(X / size_PerPixel)]
-        U2_XZ_stored[:, sheets_num] = U2_z0_FDTD[I2_x // 2 - int(Y / size_PerPixel), :]
+        # G2_shift_xz_stored[:, sheets_num] = G2_z0_SSI_shift[:, I2_y // 2 + int(X / size_PerPixel)]
+        # G2_shift_yz_stored[:, sheets_num] = G2_z0_SSI_shift[I2_x // 2 - int(Y / size_PerPixel), :]
+        # U2_xz_stored[:, sheets_num] = U2_z0_SSI[:, I2_y // 2 + int(X / size_PerPixel)]
+        # U2_yz_stored[:, sheets_num] = U2_z0_SSI[I2_x // 2 - int(Y / size_PerPixel), :]
+        G2_shift_YZ_stored[:, sheets_num] = G2_z0_SSI_shift[:, I2_y // 2 + int(X / size_PerPixel)]
+        G2_shift_XZ_stored[:, sheets_num] = G2_z0_SSI_shift[I2_x // 2 - int(Y / size_PerPixel), :]
+        U2_YZ_stored[:, sheets_num] = U2_z0_SSI[:, I2_y // 2 + int(X / size_PerPixel)]
+        U2_XZ_stored[:, sheets_num] = U2_z0_SSI[I2_x // 2 - int(Y / size_PerPixel), :]
         
         #%%
         # 再算一下 初始的 场分布，之后 绘 3D 用，因为 开启 多线程后，就不会 储存 中间层 了
@@ -790,29 +790,29 @@ def NLA_FDTD(U1_txt_name = "",
         #%%
         
         if is_save == 1:
-            if not os.path.isdir("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored"):
-                os.makedirs("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored")
-            if not os.path.isdir("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored"):
-                os.makedirs("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored")
+            if not os.path.isdir("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored"):
+                os.makedirs("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored")
+            if not os.path.isdir("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored"):
+                os.makedirs("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored")
         
         #========================= G2_shift_YZ_stored_amp、G2_shift_XZ_stored_amp
         
         vmax_G2_shift_YZ_XZ_stored_amp = np.max([np.max(np.abs(G2_shift_YZ_stored)), np.max(np.abs(G2_shift_XZ_stored))])
         vmin_G2_shift_YZ_XZ_stored_amp = np.min([np.min(np.abs(G2_shift_YZ_stored)), np.min(np.abs(G2_shift_XZ_stored))])
         
-        G2_shift_YZ_stored_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % X)) + "mm" + "_FDTD_shift" + "_YZ" + "_amp" + file_name_extension
+        G2_shift_YZ_stored_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % X)) + "mm" + "_SSI_shift" + "_YZ" + "_amp" + file_name_extension
         
         plot_2d(sheets_num + 1, I2_x, size_PerPixel, diz, 
-                np.abs(G2_shift_YZ_stored), G2_shift_YZ_stored_amp_address, "G2_" + str(float('%.2g' % X)) + "mm" + "_FDTD_shift" + "_YZ" + "_amp", 
+                np.abs(G2_shift_YZ_stored), G2_shift_YZ_stored_amp_address, "G2_" + str(float('%.2g' % X)) + "mm" + "_SSI_shift" + "_YZ" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_shift_YZ_XZ_stored_amp, vmin_G2_shift_YZ_XZ_stored_amp)
         
-        G2_shift_XZ_stored_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD_shift" + "_XZ" + "_amp" + file_name_extension
+        G2_shift_XZ_stored_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % Y)) + "mm" + "_SSI_shift" + "_XZ" + "_amp" + file_name_extension
         
         plot_2d(sheets_num + 1, I2_y, size_PerPixel, diz, 
-                np.abs(G2_shift_XZ_stored), G2_shift_XZ_stored_amp_address, "G2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD_shift" + "_XZ" + "_amp", 
+                np.abs(G2_shift_XZ_stored), G2_shift_XZ_stored_amp_address, "G2_" + str(float('%.2g' % Y)) + "mm" + "_SSI_shift" + "_XZ" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
@@ -823,19 +823,19 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_G2_shift_YZ_XZ_stored_phase = np.max([np.max(np.angle(G2_shift_YZ_stored)), np.max(np.angle(G2_shift_XZ_stored))])
         vmin_G2_shift_YZ_XZ_stored_phase = np.min([np.min(np.angle(G2_shift_YZ_stored)), np.min(np.angle(G2_shift_XZ_stored))])
         
-        G2_shift_YZ_stored_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % X)) + "mm" + "_FDTD_shift" + "_YZ" + "_phase" + file_name_extension
+        G2_shift_YZ_stored_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % X)) + "mm" + "_SSI_shift" + "_YZ" + "_phase" + file_name_extension
         
         plot_2d(sheets_num + 1, I2_x, size_PerPixel, diz, 
-                np.angle(G2_shift_YZ_stored), G2_shift_YZ_stored_phase_address, "G2_" + str(float('%.2g' % X)) + "mm" + "_FDTD_shift" + "_YZ" + "_phase", 
+                np.angle(G2_shift_YZ_stored), G2_shift_YZ_stored_phase_address, "G2_" + str(float('%.2g' % X)) + "mm" + "_SSI_shift" + "_YZ" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, 0, vmax_G2_shift_YZ_XZ_stored_phase, vmin_G2_shift_YZ_XZ_stored_phase)
         
-        G2_shift_XZ_stored_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD_shift" + "_XZ" + "_phase" + file_name_extension
+        G2_shift_XZ_stored_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % Y)) + "mm" + "_SSI_shift" + "_XZ" + "_phase" + file_name_extension
         
         plot_2d(sheets_num + 1, I2_y, size_PerPixel, diz, 
-                np.angle(G2_shift_XZ_stored), G2_shift_XZ_stored_phase_address, "G2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD_shift" + "_XZ" + "_phase", 
+                np.angle(G2_shift_XZ_stored), G2_shift_XZ_stored_phase_address, "G2_" + str(float('%.2g' % Y)) + "mm" + "_SSI_shift" + "_XZ" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
@@ -846,19 +846,19 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_U2_YZ_XZ_stored_amp = np.max([np.max(np.abs(U2_YZ_stored)), np.max(np.abs(U2_XZ_stored))])
         vmin_U2_YZ_XZ_stored_amp = np.min([np.min(np.abs(U2_YZ_stored)), np.min(np.abs(U2_XZ_stored))])
         
-        U2_YZ_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % X)) + "mm" + "_FDTD" + "_YZ" + "_amp" + file_name_extension
+        U2_YZ_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % X)) + "mm" + "_SSI" + "_YZ" + "_amp" + file_name_extension
         
         plot_2d(sheets_num + 1, I2_x, size_PerPixel, diz, 
-                np.abs(U2_YZ_stored), U2_YZ_stored_amp_address, "U2_" + str(float('%.2g' % X)) + "mm" + "_FDTD" + "_YZ" + "_amp", 
+                np.abs(U2_YZ_stored), U2_YZ_stored_amp_address, "U2_" + str(float('%.2g' % X)) + "mm" + "_SSI" + "_YZ" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_YZ_XZ_stored_amp, vmin_U2_YZ_XZ_stored_amp)
         
-        U2_XZ_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD" + "_XZ" + "_amp" + file_name_extension
+        U2_XZ_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % Y)) + "mm" + "_SSI" + "_XZ" + "_amp" + file_name_extension
         
         plot_2d(sheets_num + 1, I2_y, size_PerPixel, diz, 
-                np.abs(U2_XZ_stored), U2_XZ_stored_amp_address, "U2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD" + "_XZ" + "_amp", 
+                np.abs(U2_XZ_stored), U2_XZ_stored_amp_address, "U2_" + str(float('%.2g' % Y)) + "mm" + "_SSI" + "_XZ" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
@@ -869,19 +869,19 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_U2_YZ_XZ_stored_phase = np.max([np.max(np.angle(U2_YZ_stored)), np.max(np.angle(U2_XZ_stored))])
         vmin_U2_YZ_XZ_stored_phase = np.min([np.min(np.angle(U2_YZ_stored)), np.min(np.angle(U2_XZ_stored))])
         
-        U2_YZ_stored_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % X)) + "mm" + "_FDTD" + "_YZ" + "_phase" + file_name_extension
+        U2_YZ_stored_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % X)) + "mm" + "_SSI" + "_YZ" + "_phase" + file_name_extension
         
         plot_2d(sheets_num + 1, I2_x, size_PerPixel, diz, 
-                np.angle(U2_YZ_stored), U2_YZ_stored_phase_address, "U2_" + str(float('%.2g' % X)) + "mm" + "_FDTD" + "_YZ" + "_phase", 
+                np.angle(U2_YZ_stored), U2_YZ_stored_phase_address, "U2_" + str(float('%.2g' % X)) + "mm" + "_SSI" + "_YZ" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, 0, vmax_U2_YZ_XZ_stored_phase, vmin_U2_YZ_XZ_stored_phase)
         
-        U2_XZ_stored_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD" + "_XZ" + "_phase" + file_name_extension
+        U2_XZ_stored_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % Y)) + "mm" + "_SSI" + "_XZ" + "_phase" + file_name_extension
         
         plot_2d(sheets_num + 1, I2_y, size_PerPixel, diz, 
-                np.angle(U2_XZ_stored), U2_XZ_stored_phase_address, "U2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD" + "_XZ" + "_phase", 
+                np.angle(U2_XZ_stored), U2_XZ_stored_phase_address, "U2_" + str(float('%.2g' % Y)) + "mm" + "_SSI" + "_XZ" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
@@ -890,47 +890,47 @@ def NLA_FDTD(U1_txt_name = "",
         #%%
         
         if is_save == 1:
-            if not os.path.isdir("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored"):
-                os.makedirs("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored")
-            if not os.path.isdir("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored"):
-                os.makedirs("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored")
+            if not os.path.isdir("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored"):
+                os.makedirs("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored")
+            if not os.path.isdir("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored"):
+                os.makedirs("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored")
         
         #------------------------- 储存 G2_section_1_shift_amp、G2_section_2_shift_amp、G2_structure_frontface_shift_amp、G2_structure_endface_shift_amp
         
         vmax_G2_section_1_2_front_end_shift_amp = np.max([np.max(np.abs(G2_section_1_shift)), np.max(np.abs(G2_section_2_shift)), np.max(np.abs(G2_structure_frontface_shift)), np.max(np.abs(G2_structure_endface_shift))])
         vmin_G2_section_1_2_front_end_shift_amp = np.min([np.min(np.abs(G2_section_1_shift)), np.min(np.abs(G2_section_2_shift)), np.min(np.abs(G2_structure_frontface_shift)), np.min(np.abs(G2_structure_endface_shift))])
         
-        G2_section_1_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
+        G2_section_1_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI_shift" + "_amp" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.abs(G2_section_1_shift), G2_section_1_shift_amp_address, "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_FDTD_shift" + "_amp", 
+                np.abs(G2_section_1_shift), G2_section_1_shift_amp_address, "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI_shift" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
         
-        G2_section_2_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
+        G2_section_2_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_amp" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.abs(G2_section_2_shift), G2_section_2_shift_amp_address, "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_amp", 
+                np.abs(G2_section_2_shift), G2_section_2_shift_amp_address, "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
         
-        G2_structure_frontface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
+        G2_structure_frontface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_amp" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.abs(G2_structure_frontface_shift), G2_structure_frontface_shift_amp_address, "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD_shift" + "_amp", 
+                np.abs(G2_structure_frontface_shift), G2_structure_frontface_shift_amp_address, "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
         
-        G2_structure_endface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
+        G2_structure_endface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_amp" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.abs(G2_structure_endface_shift), G2_structure_endface_shift_amp_address, "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD_shift" + "_amp", 
+                np.abs(G2_structure_endface_shift), G2_structure_endface_shift_amp_address, "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
@@ -941,37 +941,37 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_G2_section_1_2_front_end_shift_phase = np.max([np.max(np.angle(G2_section_1_shift)), np.max(np.angle(G2_section_2_shift)), np.max(np.angle(G2_structure_frontface_shift)), np.max(np.angle(G2_structure_endface_shift))])
         vmin_G2_section_1_2_front_end_shift_phase = np.min([np.min(np.angle(G2_section_1_shift)), np.min(np.angle(G2_section_2_shift)), np.min(np.angle(G2_structure_frontface_shift)), np.min(np.angle(G2_structure_endface_shift))])
         
-        G2_section_1_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
+        G2_section_1_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI_shift" + "_phase" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.angle(G2_section_1_shift), G2_section_1_shift_phase_address, "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_FDTD_shift" + "_phase", 
+                np.angle(G2_section_1_shift), G2_section_1_shift_phase_address, "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI_shift" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
         
-        G2_section_2_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
+        G2_section_2_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_phase" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.angle(G2_section_2_shift), G2_section_2_shift_phase_address, "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_phase", 
+                np.angle(G2_section_2_shift), G2_section_2_shift_phase_address, "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
         
-        G2_structure_frontface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
+        G2_structure_frontface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_phase" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.angle(G2_structure_frontface_shift), G2_structure_frontface_shift_phase_address, "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD_shift" + "_phase", 
+                np.angle(G2_structure_frontface_shift), G2_structure_frontface_shift_phase_address, "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
         
-        G2_structure_endface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
+        G2_structure_endface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_phase" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.angle(G2_structure_endface_shift), G2_structure_endface_shift_phase_address, "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD_shift" + "_phase", 
+                np.angle(G2_structure_endface_shift), G2_structure_endface_shift_phase_address, "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
@@ -982,37 +982,37 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_U2_section_1_2_front_end_shift_amp = np.max([np.max(np.abs(U2_section_1)), np.max(np.abs(U2_section_2)), np.max(np.abs(U2_structure_frontface)), np.max(np.abs(U2_structure_endface))])
         vmin_U2_section_1_2_front_end_shift_amp = np.min([np.min(np.abs(U2_section_1)), np.min(np.abs(U2_section_2)), np.min(np.abs(U2_structure_frontface)), np.min(np.abs(U2_structure_endface))])
         
-        U2_section_1_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_FDTD" + "_amp" + file_name_extension
+        U2_section_1_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI" + "_amp" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.abs(U2_section_1), U2_section_1_amp_address, "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_FDTD" + "_amp", 
+                np.abs(U2_section_1), U2_section_1_amp_address, "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
         
-        U2_section_2_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_amp" + file_name_extension
+        U2_section_2_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_amp" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.abs(U2_section_2), U2_section_2_amp_address, "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_amp", 
+                np.abs(U2_section_2), U2_section_2_amp_address, "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
         
-        U2_structure_frontface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD" + "_amp" + file_name_extension
+        U2_structure_frontface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_amp" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.abs(U2_structure_frontface), U2_structure_frontface_amp_address, "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD" + "_amp", 
+                np.abs(U2_structure_frontface), U2_structure_frontface_amp_address, "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
         
-        U2_structure_endface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD" + "_amp" + file_name_extension
+        U2_structure_endface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_amp" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.abs(U2_structure_endface), U2_structure_endface_amp_address, "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD" + "_amp", 
+                np.abs(U2_structure_endface), U2_structure_endface_amp_address, "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_amp", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
@@ -1023,37 +1023,37 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_U2_section_1_2_front_end_shift_phase = np.max([np.max(np.angle(U2_section_1)), np.max(np.angle(U2_section_2)), np.max(np.angle(U2_structure_frontface)), np.max(np.angle(U2_structure_endface))])
         vmin_U2_section_1_2_front_end_shift_phase = np.min([np.min(np.angle(U2_section_1)), np.min(np.angle(U2_section_2)), np.min(np.angle(U2_structure_frontface)), np.min(np.angle(U2_structure_endface))])
         
-        U2_section_1_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_FDTD" + "_phase" + file_name_extension
+        U2_section_1_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI" + "_phase" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.angle(U2_section_1), U2_section_1_phase_address, "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_FDTD" + "_phase", 
+                np.angle(U2_section_1), U2_section_1_phase_address, "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
         
-        U2_section_2_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_phase" + file_name_extension
+        U2_section_2_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_phase" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.angle(U2_section_2), U2_section_2_phase_address, "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_phase", 
+                np.angle(U2_section_2), U2_section_2_phase_address, "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
         
-        U2_structure_frontface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD" + "_phase" + file_name_extension
+        U2_structure_frontface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_phase" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.angle(U2_structure_frontface), U2_structure_frontface_phase_address, "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD" + "_phase", 
+                np.angle(U2_structure_frontface), U2_structure_frontface_phase_address, "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
         
-        U2_structure_endface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD" + "_phase" + file_name_extension
+        U2_structure_endface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_phase" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                np.angle(U2_structure_endface), U2_structure_endface_phase_address, "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD" + "_phase", 
+                np.angle(U2_structure_endface), U2_structure_endface_phase_address, "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_phase", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
@@ -1065,12 +1065,12 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_G2_amp = np.max([vmax_G2_shift_YZ_XZ_stored_amp, vmax_G2_section_1_2_front_end_shift_amp])
         vmin_G2_amp = np.min([vmin_G2_shift_YZ_XZ_stored_amp, vmin_G2_section_1_2_front_end_shift_amp])
         
-        G2_shift_XYZ_stored_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_XYZ" + "_amp" + file_name_extension
+        G2_shift_XYZ_stored_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_amp" + file_name_extension
         
         plot_3d_XYZ(sheets_num + 1, I2_y, I2_x, size_PerPixel, diz, 
                     np.abs(G2_shift_YZ_stored), np.abs(G2_shift_XZ_stored), np.abs(G2_section_1_shift), np.abs(G2_section_2_shift), 
                     np.abs(G2_structure_frontface_shift), np.abs(G2_structure_endface_shift), is_show_structure_face, 
-                    G2_shift_XYZ_stored_amp_address, "G2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_XYZ" + "_amp", 
+                    G2_shift_XYZ_stored_amp_address, "G2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_amp", 
                     I2_y // 2 + int(X / size_PerPixel), I2_x // 2 + int(Y / size_PerPixel), sheet_th_section_1, sheet_th_section_2, 
                     sheets_num_frontface, sheets_num_endface - 1, 
                     is_save, dpi, size_fig, 
@@ -1085,12 +1085,12 @@ def NLA_FDTD(U1_txt_name = "",
         # vmax_G2_phase = np.max([vmax_G2_shift_YZ_XZ_stored_phase, vmax_G2_section_1_2_front_end_shift_phase])
         # vmin_G2_phase = np.min([vmin_G2_shift_YZ_XZ_stored_phase, vmin_G2_section_1_2_front_end_shift_phase])
         
-        # G2_shift_XYZ_stored_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_XYZ" + "_phase" + file_name_extension
+        # G2_shift_XYZ_stored_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_phase" + file_name_extension
             
         # plot_3d_XYZ(sheets_num + 1, I2_y, I2_x, size_PerPixel, diz, 
         #             np.angle(G2_shift_YZ_stored), np.angle(G2_shift_XZ_stored), np.angle(G2_section_1_shift), np.angle(G2_section_2_shift), 
         #             np.angle(G2_structure_frontface_shift), np.angle(G2_structure_endface_shift), is_show_structure_face, 
-        #             G2_shift_XYZ_stored_phase_address, "G2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_XYZ" + "_phase", 
+        #             G2_shift_XYZ_stored_phase_address, "G2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_phase", 
         #             I2_y // 2 + int(X / size_PerPixel), I2_x // 2 + int(Y / size_PerPixel), sheet_th_section_1, sheet_th_section_2, 
         #             sheets_num_frontface, sheets_num_endface - 1, 
         #             is_save, dpi, size_fig, 
@@ -1105,12 +1105,12 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_U2_amp = np.max([vmax_U2_YZ_XZ_stored_amp, vmax_U2_section_1_2_front_end_shift_amp])
         vmin_U2_amp = np.min([vmin_U2_YZ_XZ_stored_amp, vmin_U2_section_1_2_front_end_shift_amp])
         
-        U2_XYZ_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_XYZ" + "_amp" + file_name_extension
+        U2_XYZ_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_XYZ" + "_amp" + file_name_extension
             
         plot_3d_XYZ(sheets_num + 1, I2_y, I2_x, size_PerPixel, diz, 
                     np.abs(U2_YZ_stored), np.abs(U2_XZ_stored), np.abs(U2_section_1), np.abs(U2_section_2), 
                     np.abs(U2_structure_frontface), np.abs(U2_structure_endface), is_show_structure_face, 
-                    U2_XYZ_stored_amp_address, "U2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_XYZ" + "_amp", 
+                    U2_XYZ_stored_amp_address, "U2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_XYZ" + "_amp", 
                     I2_y // 2 + int(X / size_PerPixel), I2_x // 2 + int(Y / size_PerPixel), sheet_th_section_1, sheet_th_section_2, 
                     sheets_num_frontface, sheets_num_endface - 1, 
                     is_save, dpi, size_fig, 
@@ -1125,12 +1125,12 @@ def NLA_FDTD(U1_txt_name = "",
         # vmax_U2_phase = np.max([vmax_U2_YZ_XZ_stored_phase, vmax_U2_section_1_2_front_end_shift_phase])
         # vmin_U2_phase = np.min([vmin_U2_YZ_XZ_stored_phase, vmin_U2_section_1_2_front_end_shift_phase])
         
-        # U2_XYZ_stored_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_XYZ" + "_phase" + file_name_extension
+        # U2_XYZ_stored_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_XYZ" + "_phase" + file_name_extension
         
         # plot_3d_XYZ(sheets_num + 1, I2_y, I2_x, size_PerPixel, diz, 
         #             np.angle(U2_YZ_stored), np.angle(U2_XZ_stored), np.angle(U2_section_1), np.angle(U2_section_2), 
         #             np.angle(U2_structure_frontface), np.angle(U2_structure_endface), is_show_structure_face, 
-        #             U2_XYZ_stored_phase_address, "U2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_XYZ" + "_phase", 
+        #             U2_XYZ_stored_phase_address, "U2_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_XYZ" + "_phase", 
         #             I2_y // 2 + int(X / size_PerPixel), I2_x // 2 + int(Y / size_PerPixel), sheet_th_section_1, sheet_th_section_2, 
         #             sheets_num_frontface, sheets_num_endface - 1, 
         #             is_save, dpi, size_fig, 
@@ -1141,76 +1141,76 @@ def NLA_FDTD(U1_txt_name = "",
 
     #%%
 
-    U2_z0_FDTD_amp = np.abs(U2_z0_FDTD)
-    # print(np.max(U2_z0_FDTD_amp))
-    U2_z0_FDTD_phase = np.angle(U2_z0_FDTD)
+    U2_z0_SSI_amp = np.abs(U2_z0_SSI)
+    # print(np.max(U2_z0_SSI_amp))
+    U2_z0_SSI_phase = np.angle(U2_z0_SSI)
 
-    print("NLA - U2_{}mm_FDTD.total_energy = {}".format(z0, np.sum(U2_z0_FDTD_amp**2)))
+    print("NLA - U2_{}mm_SSI.total_energy = {}".format(z0, np.sum(U2_z0_SSI_amp**2)))
 
     if is_save == 1:
-        if not os.path.isdir("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD"):
-            os.makedirs("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD")
+        if not os.path.isdir("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI"):
+            os.makedirs("6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI")
 
     #%%
-    #绘图：U2_z0_FDTD_amp
+    #绘图：U2_z0_SSI_amp
 
-    U2_z0_FDTD_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_amp" + file_name_extension
+    U2_z0_SSI_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_amp" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            U2_z0_FDTD_amp, U2_z0_FDTD_amp_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_amp", 
+            U2_z0_SSI_amp, U2_z0_SSI_amp_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
             1, is_colorbar_on, is_energy, vmax, vmin)
 
     #%%
-    #绘图：U2_z0_FDTD_phase
+    #绘图：U2_z0_SSI_phase
 
-    U2_z0_FDTD_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_phase" + file_name_extension
+    U2_z0_SSI_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_phase" + file_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            U2_z0_FDTD_phase, U2_z0_FDTD_phase_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_phase", 
+            U2_z0_SSI_phase, U2_z0_SSI_phase_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
             1, is_colorbar_on, 0, vmax, vmin)
 
     #%%
-    # 储存 U2_z0_FDTD 到 txt 文件
+    # 储存 U2_z0_SSI 到 txt 文件
 
-    U2_z0_FDTD_full_name = "6. NLA - U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + (is_save_txt and ".txt" or ".mat")
+    U2_z0_SSI_full_name = "6. NLA - U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + (is_save_txt and ".txt" or ".mat")
     if is_save == 1:
-        U2_z0_FDTD_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "\\" + U2_z0_FDTD_full_name
-        np.savetxt(U2_z0_FDTD_txt_address, U2_z0_FDTD) if is_save_txt else savemat(U2_z0_FDTD_txt_address, {'U':U2_z0_FDTD})
+        U2_z0_SSI_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "\\" + U2_z0_SSI_full_name
+        np.savetxt(U2_z0_SSI_txt_address, U2_z0_SSI) if is_save_txt else savemat(U2_z0_SSI_txt_address, {'U':U2_z0_SSI})
         
         #%%
-        #再次绘图：U2_z0_FDTD_amp
+        #再次绘图：U2_z0_SSI_amp
 
-        U2_z0_FDTD_amp_address = location + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_amp" + file_name_extension
+        U2_z0_SSI_amp_address = location + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_amp" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                U2_z0_FDTD_amp, U2_z0_FDTD_amp_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_amp", 
+                U2_z0_SSI_amp, U2_z0_SSI_amp_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_amp", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
                 1, is_colorbar_on, is_energy, vmax, vmin)
 
-        #再次绘图：U2_z0_FDTD_phase
+        #再次绘图：U2_z0_SSI_phase
 
-        U2_z0_FDTD_phase_address = location + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_phase" + file_name_extension
+        U2_z0_SSI_phase_address = location + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_phase" + file_name_extension
 
         plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-                U2_z0_FDTD_phase, U2_z0_FDTD_phase_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_phase", 
+                U2_z0_SSI_phase, U2_z0_SSI_phase_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_phase", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
                 1, is_colorbar_on, 0, vmax, vmin)
 
     #%%
-    # 储存 U2_z0_FDTD 到 txt 文件
+    # 储存 U2_z0_SSI 到 txt 文件
     
     # if is_save == 1:
-    np.savetxt(U2_z0_FDTD_full_name, U2_z0_FDTD) if is_save_txt else savemat(U2_z0_FDTD_full_name, {'U':U2_z0_FDTD})
+    np.savetxt(U2_z0_SSI_full_name, U2_z0_SSI) if is_save_txt else savemat(U2_z0_SSI_full_name, {'U':U2_z0_SSI})
      
     #%%
     # 绘制 U2_z_energy 随 z 演化的 曲线
@@ -1220,53 +1220,53 @@ def NLA_FDTD(U1_txt_name = "",
         vmax_U2_z_energy = np.max(U2_z_energy)
         vmin_U2_z_energy = np.min(U2_z_energy)
         
-        U2_z_energy_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_energy_evolution" + file_name_extension
+        U2_z_energy_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_energy_evolution" + file_name_extension
         
         plot_1d(sheets_num + 1, size_PerPixel, diz, 
-                U2_z_energy, U2_z_energy_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_energy_evolution", 
+                U2_z_energy, U2_z_energy_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_energy_evolution", 
                 is_save, dpi, size_fig * 10, size_fig, 
                 color_1d, ticks_num, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
                 0, vmax_U2_z_energy, vmin_U2_z_energy)
 
 
-# NLA_FDTD(U1_txt_name = "", 
-#           file_full_name = "lena.png", 
-#           phase_only = 0, 
-#           #%%
-#           is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-#           l = 0, p = 0, 
-#           theta_x = -0.5, theta_y = 0, 
-#           is_H_l = 0, is_H_theta = 0, 
-#           #%%
-#           U1_0_NonZero_size = 0.5, w0 = 0, 
-#           L0_Crystal_expect = 15, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
-#           deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
-#           z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
-#           #%%
-#           is_bulk = 1, is_no_backgroud = 0, 
-#           is_stored = 0, is_show_structure_face = 0, is_energy_evolution_on = 1, 
-#           #%%
-#           lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
-#           deff = 30, 
-#           Tx = 10, Ty = 10, Tz = "2*lc", 
-#           mx = 0, my = 0, mz = 0, 
-#           #%%
-#           is_save = 0, is_save_txt = 0, dpi = 100, 
-#           #%%
-#           color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
-#           elev = 10, azim = -65, alpha = 2, 
-#           #%%
-#           ticks_num = 6, is_contourf = 0, 
-#           is_title_on = 1, is_axes_on = 1, 
-#           is_mm = 1, is_propagation = 0, 
-#           #%%
-#           fontsize = 9, 
-#           font = {'family': 'serif',
-#                   'style': 'normal', # 'normal', 'italic', 'oblique'
-#                   'weight': 'normal',
-#                   'color': 'black', # 'black','gray','darkred'
-#                   }, 
-#           #%%
-#           is_self_colorbar = 0, is_colorbar_on = 1, 
-#           is_energy, vmax = 1, vmin = 0)
+NLA_SSI(U1_txt_name = "", 
+        file_full_name = "lena.png", 
+        phase_only = 0, 
+        #%%
+        is_LG = 0, is_Gauss = 0, is_OAM = 0, 
+        l = 0, p = 0, 
+        theta_x = -0.5, theta_y = 0, 
+        is_H_l = 0, is_H_theta = 0, 
+        #%%
+        U1_0_NonZero_size = 0.5, w0 = 0, 
+        L0_Crystal_expect = 15, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
+        deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
+        z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
+        #%%
+        is_bulk = 1, is_no_backgroud = 0, 
+        is_stored = 0, is_show_structure_face = 0, is_energy_evolution_on = 1, 
+        #%%
+        lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
+        deff = 30, 
+        Tx = 10, Ty = 10, Tz = "2*lc", 
+        mx = 0, my = 0, mz = 0, 
+        #%%
+        is_save = 0, is_save_txt = 0, dpi = 100, 
+        #%%
+        color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
+        elev = 10, azim = -65, alpha = 2, 
+        #%%
+        ticks_num = 6, is_contourf = 0, 
+        is_title_on = 1, is_axes_on = 1, 
+        is_mm = 1, is_propagation = 0, 
+        #%%
+        fontsize = 9, 
+        font = {'family': 'serif',
+                'style': 'normal', # 'normal', 'italic', 'oblique'
+                'weight': 'normal',
+                'color': 'black', # 'black','gray','darkred'
+                }, 
+        #%%
+        is_self_colorbar = 0, is_colorbar_on = 1, 
+        is_energy, vmax = 1, vmin = 0)
