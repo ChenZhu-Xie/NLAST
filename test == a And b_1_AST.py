@@ -65,6 +65,7 @@ font = {'family': 'serif',
         }
 #%%
 is_self_colorbar, is_colorbar_on = 0, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
+is_energy = 0
 vmax, vmin = 1, 0
 
 if (type(U1_txt_name) != str) or U1_txt_name == "":
@@ -130,7 +131,7 @@ if (type(U1_txt_name) != str) or U1_txt_name == "":
                    is_save, is_save_txt, dpi, 
                    cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                    fontsize, font, 
-                   1, is_colorbar_on, vmax, vmin) 
+                   1, is_colorbar_on, is_energy, vmax, vmin) 
     
 else:
 
@@ -200,7 +201,7 @@ if is_save == 1:
 #         is_save, dpi, size_fig,  
 #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
 #         fontsize, font,
-#         1, is_colorbar_on, vmax, vmin)
+#         1, is_colorbar_on, is_energy, vmax, vmin)
 
 # #%%
 # #绘图：g1_shift_phase
@@ -212,7 +213,7 @@ if is_save == 1:
 #         is_save, dpi, size_fig,  
 #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
 #         fontsize, font,
-#         1, is_colorbar_on, vmax, vmin)
+#         1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 g1_shift 到 txt 文件
@@ -256,7 +257,7 @@ if is_save == 1:
 #         is_save, dpi, size_fig,  
 #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
 #         fontsize, font,
-#         1, is_colorbar_on, vmax, vmin)
+#         1, is_colorbar_on, is_energy, vmax, vmin)
 
 # #%%
 # #绘图：H1_z0_shift_phase
@@ -268,7 +269,7 @@ if is_save == 1:
 #         is_save, dpi, size_fig,  
 #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
 #         fontsize, font,
-#         1, is_colorbar_on, vmax, vmin)
+#         1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 H1_z0_shift 到 txt 文件
@@ -299,7 +300,7 @@ plot_2d(I1_x, I1_y, size_PerPixel, 0,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, is_energy, vmax, vmin)
 
 #%%
 #绘图：G1_z0_shift_phase
@@ -311,7 +312,7 @@ plot_2d(I1_x, I1_y, size_PerPixel, 0,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 G1_z0_shift 到 txt 文件
@@ -333,7 +334,7 @@ U1_z0_amp = np.abs(U1_z0)
 U1_z0_phase = np.angle(U1_z0)
 
 # print("AST - U1_{}mm.total_amp = {}".format(z0, np.sum(U1_z0_amp)))
-print("AST - U1_{}mm.total_energy = {}".format(z0, np.sum(U1_z0_amp**2)))
+print("AST - U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_{}mm.total_energy = {}".format(z0, np.sum(U1_z0_amp**2)))
 
 if is_save == 1:
     if not os.path.isdir("6. U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm"):
@@ -346,10 +347,10 @@ U1_z0_amp_address = location + "\\" + "6. U" + ((U1_txt_name.find("U2") + 1) and
 
 plot_2d(I1_x, I1_y, size_PerPixel, 0, 
         U1_z0_amp, U1_z0_amp_address, "U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp", 
-        is_save, dpi, size_fig,  
+        is_save, dpi, size_fig, 
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, is_energy, vmax, vmin)
 
 #%%
 #绘图：U1_z0_phase
@@ -361,7 +362,7 @@ plot_2d(I1_x, I1_y, size_PerPixel, 0,
         is_save, dpi, size_fig, 
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 U1_z0 到 txt 文件
@@ -381,7 +382,7 @@ if is_save == 1:
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, is_energy, vmax, vmin)
 
     #再次绘图：U1_z0_phase
 
@@ -392,7 +393,7 @@ if is_save == 1:
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 U1_z0 到 txt 文件

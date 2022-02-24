@@ -65,7 +65,7 @@ def a_to_B_2_nLA_FDTD(U1_txt_name_Structure = "",
                               }, 
                       #%%
                       is_self_colorbar = 0, is_colorbar_on = 1, 
-                      vmax = 1, vmin = 0):
+                      is_energy = 1, vmax = 1, vmin = 0):
     
     #%%
     # a_Image_Add_Black_border
@@ -106,7 +106,7 @@ def a_to_B_2_nLA_FDTD(U1_txt_name_Structure = "",
                   fontsize, font, 
                   #%%
                   is_self_colorbar, is_colorbar_on, 
-                  vmax, vmin)
+                  is_energy, vmax, vmin)
     
     #%%
     # B_3_NLA_FDTD
@@ -145,7 +145,7 @@ def a_to_B_2_nLA_FDTD(U1_txt_name_Structure = "",
              fontsize, font, 
              #%%
              is_self_colorbar, is_colorbar_on, 
-             vmax, vmin)
+             is_energy, vmax, vmin)
 
 a_to_B_2_nLA_FDTD(U1_txt_name_Structure = "", 
                   border_percentage = 0.3, 
@@ -199,4 +199,4 @@ a_to_B_2_nLA_FDTD(U1_txt_name_Structure = "",
                           }, 
                   #%%
                   is_self_colorbar = 0, is_colorbar_on = 1, 
-                  vmax = 1, vmin = 0)
+                  is_energy = 1, vmax = 1, vmin = 0)

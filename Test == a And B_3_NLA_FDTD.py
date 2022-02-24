@@ -27,21 +27,21 @@ from a_Image_Add_Black_border import Image_Add_Black_border
 
 #%%
 U1_txt_name = ""
-file_full_name = "lena.png"
+file_full_name = "grating.png"
 border_percentage = 0.3 # 边框 占图片的 百分比，也即 图片 放大系数
 #%%
 phase_only = 0
-is_LG, is_Gauss, is_OAM = 0, 0, 0
-l, p = 0, 0
-theta_x, theta_y = -0.5, 0
+is_LG, is_Gauss, is_OAM = 0, 1, 1
+l, p = 3, 0
+theta_x, theta_y = 3, 0
 is_H_l, is_H_theta = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
 #%%
 U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
-w0 = 0 # Unit: mm 束腰（z = 0 处）
-L0_Crystal_expect = 15 # Unit: mm 晶体长度
+w0 = 0.28 # Unit: mm 束腰（z = 0 处）
+L0_Crystal_expect = 1 # Unit: mm 晶体长度
 z0_structure_frontface_expect = 0.5 # Unit: mm 结构 前端面，距离 晶体 前端面 的 距离
 deff_structure_length_expect = 1 # Unit: mm 调制区域 z 向长度（类似 z）
 deff_structure_sheet_expect = 1.8 # Unit: μm z 向 切片厚度
@@ -52,13 +52,13 @@ X, Y = 0, 0 # Unit: mm 切片 中心点 平移 矢量（逆着 z 正向看去，
 # X 增加，则 从 G2_z_shift 中 读取的 列 向右移，也就是 xz 面向 列 增加的方向（G2_z_shift 的 右侧）移动
 # Y 增加，则 从 G2_z_shift 中 读取的 行 向上移，也就是 yz 面向 行 减小的方向（G2_z_shift 的 上侧）移动
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
-is_bulk = 1 # 是否 不读取 结构，1 为 不读取，即 均一晶体；0 为 读取结构
+is_bulk = 0 # 是否 不读取 结构，1 为 不读取，即 均一晶体；0 为 读取结构
 is_no_backgroud = 0 # 1 -1 调制，改为 0 -2 调制
 is_stored = 0 # 如果要储存中间结果，则不能多线程，只能单线程
 is_show_structure_face = 0 # 如果要显示 结构 前后端面 的 场分布，就打开这个
 is_energy_evolution_on = 1 # 储存 能量 随 z 演化 的 曲线
 #%%
-lam1 = 0.8 # Unit: um 基波波长
+lam1 = 1.064 # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 #%%
 deff = 30 # pm / V
@@ -94,6 +94,7 @@ font = {'family': 'serif',
         }
 #%%
 is_self_colorbar, is_colorbar_on = 0, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
+is_energy = 0
 vmax, vmin = 1, 0
 
 if (type(U1_txt_name) != str) or U1_txt_name == "":
@@ -159,7 +160,7 @@ if (type(U1_txt_name) != str) or U1_txt_name == "":
                    is_save, is_save_txt, dpi, 
                    cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                    fontsize, font, 
-                   1, is_colorbar_on, vmax, vmin) 
+                   1, is_colorbar_on, is_energy, vmax, vmin) 
     
 else:
     #%%
@@ -581,7 +582,7 @@ plot_2d(I2_x, I2_y, size_PerPixel, diz,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, is_energy, vmax, vmin)
 
 #%%
 #绘图：G2_z0_FDTD_shift_phase
@@ -593,7 +594,7 @@ plot_2d(I2_x, I2_y, size_PerPixel, diz,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 G2_z0_FDTD_shift 到 txt 文件
@@ -618,7 +619,7 @@ if is_energy_evolution_on == 1:
             is_save, dpi, size_fig * 10, size_fig, 
             color_1d, ticks_num, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            vmax_G2_z_shift_energy, vmin_G2_z_shift_energy)
+            0, vmax_G2_z_shift_energy, vmin_G2_z_shift_energy)
     
 #%%
 # G2_z0_FDTD = G2_z0_FDTD(k1_x, k1_y) → IFFT2 → U2(x0, y0, z0) = U2_z0_FDTD
@@ -660,7 +661,7 @@ if is_stored == 1:
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
-                is_self_colorbar, is_colorbar_on, vmax_G2_z_shift_stored_amp, vmin_G2_z_shift_stored_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_z_shift_stored_amp, vmin_G2_z_shift_stored_amp)
         
     vmax_G2_z_shift_stored_phase = np.max(np.angle(G2_z_shift_stored))
     vmin_G2_z_shift_stored_phase = np.min(np.angle(G2_z_shift_stored))
@@ -674,7 +675,7 @@ if is_stored == 1:
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
-                is_self_colorbar, is_colorbar_on, vmax_G2_z_shift_stored_phase, vmin_G2_z_shift_stored_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_G2_z_shift_stored_phase, vmin_G2_z_shift_stored_phase)
     
     #-------------------------    
     
@@ -690,7 +691,7 @@ if is_stored == 1:
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
-                is_self_colorbar, is_colorbar_on, vmax_U2_z_stored_amp, vmin_U2_z_stored_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_z_stored_amp, vmin_U2_z_stored_amp)
         
     vmax_U2_z_stored_phase = np.max(np.angle(U2_z_stored))
     vmin_U2_z_stored_phase = np.min(np.angle(U2_z_stored))
@@ -704,7 +705,7 @@ if is_stored == 1:
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
-                is_self_colorbar, is_colorbar_on, vmax_U2_z_stored_phase, vmin_U2_z_stored_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_U2_z_stored_phase, vmin_U2_z_stored_phase)
     
     #%%
     # 这 sheets_stored_num 层 也可以 画成 3D，就是太丑了，所以只 整个 U2_amp 示意一下即可
@@ -718,7 +719,7 @@ if is_stored == 1:
     #             cmap_3d, elev, azim, alpha, 
     #             ticks_num, is_title_on, is_axes_on, is_mm,  
     #             fontsize, font,
-    #             is_self_colorbar, is_colorbar_on, vmax_U2_z_stored_amp, vmin_U2_z_stored_amp)
+    #             is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_z_stored_amp, vmin_U2_z_stored_amp)
     
     #%%
     
@@ -773,7 +774,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_shift_YZ_XZ_stored_amp, vmin_G2_shift_YZ_XZ_stored_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_shift_YZ_XZ_stored_amp, vmin_G2_shift_YZ_XZ_stored_amp)
     
     G2_shift_XZ_stored_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD_shift" + "_XZ" + "_amp" + file_name_extension
     
@@ -782,7 +783,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_shift_YZ_XZ_stored_amp, vmin_G2_shift_YZ_XZ_stored_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_shift_YZ_XZ_stored_amp, vmin_G2_shift_YZ_XZ_stored_amp)
     
     #------------------------- G2_shift_YZ_stored_phase、G2_shift_XZ_stored_phase
     
@@ -796,7 +797,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_shift_YZ_XZ_stored_phase, vmin_G2_shift_YZ_XZ_stored_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_G2_shift_YZ_XZ_stored_phase, vmin_G2_shift_YZ_XZ_stored_phase)
     
     G2_shift_XZ_stored_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD_shift" + "_XZ" + "_phase" + file_name_extension
     
@@ -805,7 +806,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_shift_YZ_XZ_stored_phase, vmin_G2_shift_YZ_XZ_stored_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_G2_shift_YZ_XZ_stored_phase, vmin_G2_shift_YZ_XZ_stored_phase)
     
     #========================= U2_YZ_stored_amp、U2_XZ_stored_amp
     
@@ -819,7 +820,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_YZ_XZ_stored_amp, vmin_U2_YZ_XZ_stored_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_YZ_XZ_stored_amp, vmin_U2_YZ_XZ_stored_amp)
     
     U2_XZ_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD" + "_XZ" + "_amp" + file_name_extension
     
@@ -828,7 +829,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_YZ_XZ_stored_amp, vmin_U2_YZ_XZ_stored_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_YZ_XZ_stored_amp, vmin_U2_YZ_XZ_stored_amp)
     
     #------------------------- U2_YZ_stored_phase、U2_XZ_stored_phase
     
@@ -842,7 +843,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_YZ_XZ_stored_phase, vmin_U2_YZ_XZ_stored_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_U2_YZ_XZ_stored_phase, vmin_U2_YZ_XZ_stored_phase)
     
     U2_XZ_stored_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD" + "_XZ" + "_phase" + file_name_extension
     
@@ -851,7 +852,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_YZ_XZ_stored_phase, vmin_U2_YZ_XZ_stored_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_U2_YZ_XZ_stored_phase, vmin_U2_YZ_XZ_stored_phase)
     
     #%%
     
@@ -873,7 +874,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
     
     G2_section_2_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
 
@@ -882,7 +883,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
     
     G2_structure_frontface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
 
@@ -891,7 +892,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
     
     G2_structure_endface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
 
@@ -900,7 +901,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
     
     #------------------------- 储存 G2_section_1_shift_phase、G2_section_2_shift_phase、G2_structure_frontface_shift_phase、G2_structure_endface_shift_phase
     
@@ -914,7 +915,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
     
     G2_section_2_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
 
@@ -923,7 +924,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
     
     G2_structure_frontface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
 
@@ -932,7 +933,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
     
     G2_structure_endface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
 
@@ -941,7 +942,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
     
     #------------------------- 储存 U2_section_1_amp、U2_section_2_amp、U2_structure_frontface_amp、U2_structure_endface_amp
     
@@ -955,7 +956,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
     
     U2_section_2_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_amp" + file_name_extension
 
@@ -964,7 +965,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
     
     U2_structure_frontface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD" + "_amp" + file_name_extension
 
@@ -973,7 +974,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
     
     U2_structure_endface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD" + "_amp" + file_name_extension
 
@@ -982,7 +983,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+            is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
     
     #------------------------- 储存 U2_section_1_phase、U2_section_2_phase、U2_structure_frontface_phase、U2_structure_endface_phase
     
@@ -996,7 +997,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
     
     U2_section_2_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_phase" + file_name_extension
 
@@ -1005,7 +1006,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
     
     U2_structure_frontface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD" + "_phase" + file_name_extension
 
@@ -1014,7 +1015,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
     
     U2_structure_endface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD" + "_phase" + file_name_extension
 
@@ -1023,7 +1024,7 @@ if is_stored == 1:
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+            is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
     
     #%%
     # 绘制 G2_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G2_amp（现在 可以 任选位置 了）
@@ -1043,7 +1044,7 @@ if is_stored == 1:
                 cmap_3d, elev, azim, alpha, 
                 ticks_num, is_title_on, is_axes_on, is_mm,  
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_amp, vmin_G2_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_amp, vmin_G2_amp)
     
     #%%
     # 绘制 G2_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G2_phase
@@ -1063,7 +1064,7 @@ if is_stored == 1:
     #             cmap_3d, elev, azim, alpha, 
     #             ticks_num, is_title_on, is_axes_on, is_mm,  
     #             fontsize, font, 
-    #             is_self_colorbar, is_colorbar_on, vmax_G2_phase, vmin_G2_phase)
+    #             is_self_colorbar, is_colorbar_on, 0, vmax_G2_phase, vmin_G2_phase)
     
     #%%
     # 绘制 U2_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 U2_amp
@@ -1083,7 +1084,7 @@ if is_stored == 1:
                 cmap_3d, elev, azim, alpha, 
                 ticks_num, is_title_on, is_axes_on, is_mm,  
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_amp, vmin_U2_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_amp, vmin_U2_amp)
     
     #%%
     # 绘制 U2_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U2_phase
@@ -1103,7 +1104,7 @@ if is_stored == 1:
     #             cmap_3d, elev, azim, alpha, 
     #             ticks_num, is_title_on, is_axes_on, is_mm,  
     #             fontsize, font, 
-    #             is_self_colorbar, is_colorbar_on, vmax_U2_phase, vmin_U2_phase)
+    #             is_self_colorbar, is_colorbar_on, 0, vmax_U2_phase, vmin_U2_phase)
 
 #%%
 
@@ -1127,7 +1128,7 @@ plot_2d(I2_x, I2_y, size_PerPixel, diz,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, is_energy, vmax, vmin)
 
 #%%
 #绘图：U2_z0_FDTD_phase
@@ -1139,7 +1140,7 @@ plot_2d(I2_x, I2_y, size_PerPixel, diz,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 U2_z0_FDTD 到 txt 文件
@@ -1159,7 +1160,7 @@ if is_save == 1:
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, is_energy, vmax, vmin)
 
     #再次绘图：U2_z0_FDTD_phase
 
@@ -1170,14 +1171,14 @@ if is_save == 1:
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 U2_z0_FDTD 到 txt 文件
 
 if is_save == 1:
     np.savetxt(U2_z0_FDTD_full_name, U2_z0_FDTD) if is_save_txt else savemat(U2_z0_FDTD_full_name, {'U':U2_z0_FDTD})
-
+ 
 #%%
 # 绘制 U2_z_energy 随 z 演化的 曲线
     
@@ -1193,4 +1194,4 @@ if is_energy_evolution_on == 1:
             is_save, dpi, size_fig * 10, size_fig, 
             color_1d, ticks_num, is_title_on, is_axes_on, is_mm, 1, 
             fontsize, font, 
-            vmax_U2_z_energy, vmin_U2_z_energy)
+            0, vmax_U2_z_energy, vmin_U2_z_energy)

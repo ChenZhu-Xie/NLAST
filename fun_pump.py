@@ -38,7 +38,7 @@ def pump_LG(file_full_name = "Grating.png",
                     }, 
             #%%
             is_self_colorbar = 0, is_colorbar_on = 1, 
-            vmax = 1, vmin = 0):
+            is_energy = 0, vmax = 1, vmin = 0):
     
     #%%
     file_name = os.path.splitext(file_full_name)[0]
@@ -73,7 +73,10 @@ def pump_LG(file_full_name = "Grating.png",
         Mesh_Ix0_Iy0_shift = Mesh_Ix0_Iy0 - (Ix // 2, Iy // 2)
         r_shift = ( (Mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi))**2 + (Mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi))**2  + 0j )**0.5 * size_PerPixel
         
-        U1_0 = np.power(math.e, - r_shift**2 / w0**2 )
+        if (type(w0) == float or type(w0) == int) and w0 > 0: # 如果 传进来的 w0 既不是 float 也不是 int，或者 w0 <= 0，则 图片为 1
+            U1_0 = np.power(math.e, - r_shift**2 / w0**2 )
+        else:
+            U1_0 = np.ones((Ix,Iy),dtype=np.complex128)
 
     else:
         # 对 实空间 输入场 引入 高斯限制
@@ -186,50 +189,86 @@ def pump_LG(file_full_name = "Grating.png",
     U1_z0 = np.fft.ifft2(G_z0)
     
     #%%
-    U1_0 = U1_z0
+    #绘图：G1_0_amp
+    
+    if is_save == 1:
+        if not os.path.isdir("2. G1_0"):
+            os.makedirs("2. G1_0")
+    
+    G1_0_shift_amp = np.abs(G_z0_shift)
+    G1_0_shift_phase = np.angle(G_z0_shift)
 
-    U1_0_amp = np.abs(U1_0)
-    # print("U1_0_amp.total_amp = {}".format(np.sum(U1_0)))
-    # print("U1_0_amp.total_energy = {}".format(np.sum(U1_0**2)))
-    U1_0_phase = np.angle(U1_0)
+    G1_0_shift_amp_address = location + "\\" + "2. G1_0" + "\\" + "5.1. AST - " + "G1_0_shift_amp" + file_name_extension
 
-    print("AST - U1_0.total_energy = {}".format(np.sum(np.power(U1_0_amp, 2))))
+    plot_2d(Ix, Iy, size_PerPixel, 0, 
+            G1_0_shift_amp, G1_0_shift_amp_address, "G1_0_shift_amp", 
+            is_save, dpi, size_fig,  
+            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            fontsize, font, 
+            1, is_colorbar_on, is_energy, vmax, vmin)
 
+    #%%
+    #绘图：G1_0_phase
+
+    G1_0_shift_phase_address = location + "\\" + "2. G1_0" + "\\" + "5.2. AST - " + "G1_0_shift_phase" + file_name_extension
+
+    plot_2d(Ix, Iy, size_PerPixel, 0, 
+            G1_0_shift_phase, G1_0_shift_phase_address, "G1_0_shift_phase", 
+            is_save, dpi, size_fig,  
+            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            fontsize, font,
+            1, is_colorbar_on, 0, vmax, vmin)
+    
+    #%%
+    # 储存 U1_0 到 txt 文件
+
+    if is_save == 1:
+        G1_0_shift_full_name = "5. AST - G1_0_shift" + (is_save_txt and ".txt" or ".mat")
+        G1_0_shift_txt_address = location + "\\" + "2. G1_0" + "\\" + G1_0_shift_full_name
+        np.savetxt(G1_0_shift_txt_address, G_z0_shift) if is_save_txt else savemat(G1_0_shift_txt_address, {'G':G_z0_shift})
+    
+    #%%
+    
     if is_save == 1:
         if not os.path.isdir("2. U1_0"):
             os.makedirs("2. U1_0")
 
+    U1_0_amp = np.abs(U1_z0)
+    U1_0_phase = np.angle(U1_z0)
+
+    print("AST - U1_0.total_energy = {}".format(np.sum(np.power(U1_0_amp, 2))))
+
     #%%
     #绘图：U1_0_amp
 
-    U1_0_amp_address = location + "\\" + "2. U1_0" + "\\" + "2.1. AST - " + "U1_0_amp" + file_name_extension
+    U1_0_amp_address = location + "\\" + "2. U1_0" + "\\" + "6.1. AST - " + "U1_0_amp" + file_name_extension
 
     plot_2d(Ix, Iy, size_PerPixel, 0, 
             U1_0_amp, U1_0_amp_address, "U1_0_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font, 
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, is_energy, vmax, vmin)
 
     #%%
     #绘图：U1_0_phase
 
-    U1_0_phase_address = location + "\\" + "2. U1_0" + "\\" + "2.2. AST - " + "U1_0_phase" + file_name_extension
+    U1_0_phase_address = location + "\\" + "2. U1_0" + "\\" + "6.2. AST - " + "U1_0_phase" + file_name_extension
 
     plot_2d(Ix, Iy, size_PerPixel, 0, 
             U1_0_phase, U1_0_phase_address, "U1_0_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, 0, vmax, vmin)
     
     #%%
     # 储存 U1_0 到 txt 文件
 
     if is_save == 1:
-        U1_0_full_name = "2. AST - U1_0" + (is_save_txt and ".txt" or ".mat")
+        U1_0_full_name = "6. AST - U1_0" + (is_save_txt and ".txt" or ".mat")
         U1_0_txt_address = location + "\\" + "2. U1_0" + "\\" + U1_0_full_name
-        np.savetxt(U1_0_txt_address, U1_0) if is_save_txt else savemat(U1_0_txt_address, {'U1_0':U1_0})
+        np.savetxt(U1_0_txt_address, U1_z0) if is_save_txt else savemat(U1_0_txt_address, {'U':U1_z0})
         
         #%%
         #再次绘图：U1_0_amp
@@ -241,7 +280,7 @@ def pump_LG(file_full_name = "Grating.png",
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
-                1, is_colorbar_on, vmax, vmin)
+                1, is_colorbar_on, is_energy, vmax, vmin)
     
         #再次绘图：U1_0_phase
     
@@ -252,6 +291,6 @@ def pump_LG(file_full_name = "Grating.png",
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
-                1, is_colorbar_on, vmax, vmin)
+                1, is_colorbar_on, 0, vmax, vmin)
     
     return U1_0

@@ -26,29 +26,29 @@ from a_Image_Add_Black_border import Image_Add_Black_border
 
 #%%
 U1_txt_name = ""
-file_full_name = "lena.png"
+file_full_name = "grating.png"
 border_percentage = 0.3 # 边框 占图片的 百分比，也即 图片 放大系数
 #%%
 phase_only = 0
-is_LG, is_Gauss, is_OAM = 0, 0, 0
-l, p = 0, 0
-theta_x, theta_y = -0.5, 0
+is_LG, is_Gauss, is_OAM = 0, 1, 1
+l, p = 3, 0
+theta_x, theta_y = 0, 0
 is_H_l, is_H_theta = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
 #%%
 U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
-w0 = 0 # Unit: mm 束腰（z = 0 处）
-z0 = 14.9994 # Unit: mm 传播距离
+w0 = 0.28 # Unit: mm 束腰（z = 0 处）
+z0 = 1 # Unit: mm 传播距离
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 #%%
-lam1 = 0.8 # Unit: um 基波波长
+lam1 = 1.064 # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 #%%
 deff = 30 # pm / V
-Tx, Ty, Tz = 10, 10, "2*lc" # Unit: um
-mx, my, mz = 0, 0, 0
+Tx, Ty, Tz = 20.557, 10, 7.099 # Unit: um
+mx, my, mz = -3, 0, 1
 # 倒空间：右, 下 = +, +
 is_linear_convolution = 0 # 0 代表 循环卷积，1 代表 线性卷积
 #%%
@@ -73,6 +73,7 @@ font = {'family': 'serif',
         }
 #%%
 is_self_colorbar, is_colorbar_on = 0, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
+is_energy = 0
 vmax, vmin = 1, 0
 
 if (type(U1_txt_name) != str) or U1_txt_name == "":
@@ -138,7 +139,7 @@ if (type(U1_txt_name) != str) or U1_txt_name == "":
                    is_save, is_save_txt, dpi, 
                    cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                    fontsize, font, 
-                   1, is_colorbar_on, vmax, vmin) 
+                   1, is_colorbar_on, is_energy, vmax, vmin) 
     
 else:
 
@@ -468,7 +469,7 @@ plot_2d(I2_x, I2_y, size_PerPixel, 0,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, is_energy, vmax, vmin)
 
 #%%
 #绘图：G2_z0_shift_phase
@@ -480,7 +481,7 @@ plot_2d(I2_x, I2_y, size_PerPixel, 0,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 G2_z0_shift 到 txt 文件
@@ -517,7 +518,7 @@ plot_2d(I2_x, I2_y, size_PerPixel, 0,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, is_energy, vmax, vmin)
 
 #%%
 #绘图：U2_z0_phase
@@ -529,7 +530,7 @@ plot_2d(I2_x, I2_y, size_PerPixel, 0,
         is_save, dpi, size_fig,  
         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
         fontsize, font,
-        1, is_colorbar_on, vmax, vmin)
+        1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 U2_z0 到 txt 文件
@@ -549,7 +550,7 @@ if is_save == 1:
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, is_energy, vmax, vmin)
 
     #再次绘图：U2_z0_phase
 
@@ -559,8 +560,8 @@ if is_save == 1:
             U2_z0_phase, U2_z0_phase_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            fontsize, font, 
+            1, is_colorbar_on, 0, vmax, vmin)
 
 #%%
 # 储存 U2_z0 到 txt 文件

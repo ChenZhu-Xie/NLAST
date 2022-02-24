@@ -43,7 +43,7 @@ def Refraction_AST__AST(U1_txt_name = "",
                                 }, 
                         #%%
                         is_self_colorbar = 0, is_colorbar_on = 1, 
-                        vmax = 1, vmin = 0):
+                        is_energy = 1, vmax = 1, vmin = 0):
     
     #%%
     # 线性 惠更斯 菲涅尔 原理
@@ -78,7 +78,7 @@ def Refraction_AST__AST(U1_txt_name = "",
     #     fontsize, font, 
     #     #%%
     #     is_self_colorbar, is_colorbar_on, 
-    #     vmax, vmin)
+    #     is_energy, vmax, vmin)
     
     # U1_txt_name = "6. AST - U1_" + str(float('%.2g' % z0_n)) + "mm"
     # # U1_txt_full_name = U1_txt_name + ".txt"
@@ -109,7 +109,7 @@ def Refraction_AST__AST(U1_txt_name = "",
     #     fontsize, font, 
     #     #%%
     #     is_self_colorbar, is_colorbar_on, 
-    #     vmax, vmin)
+    #     is_energy, vmax, vmin)
     
     #%%
     # 先以 1 衍射 z0_1 后 以 n 衍射 z0_n
@@ -139,7 +139,7 @@ def Refraction_AST__AST(U1_txt_name = "",
         fontsize, font, 
         #%%
         is_self_colorbar, is_colorbar_on, 
-        vmax, vmin)
+        is_energy, vmax, vmin)
     
     U1_txt_name = "6. AST - U1_" + str(float('%.2g' % z0_1)) + "mm"
     # U1_txt_full_name = U1_txt_name + ".txt"
@@ -170,7 +170,7 @@ def Refraction_AST__AST(U1_txt_name = "",
         fontsize, font, 
         #%%
         is_self_colorbar, is_colorbar_on, 
-        vmax, vmin)
+        is_energy, vmax, vmin)
     
     #%%
     
@@ -205,4 +205,4 @@ Refraction_AST__AST(U1_txt_name = "",
                             }, 
                     #%%
                     is_self_colorbar = 0, is_colorbar_on = 1, 
-                    vmax = 1, vmin = 0)
+                    is_energy = 1, vmax = 1, vmin = 0)

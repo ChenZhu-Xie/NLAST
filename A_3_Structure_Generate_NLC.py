@@ -61,7 +61,7 @@ def Structure_NLC(U1_txt_name = "",
                           }, 
                   #%%
                   is_self_colorbar = 0, is_colorbar_on = 1, 
-                  vmax = 1, vmin = 0):
+                  is_energy = 0, vmax = 1, vmin = 0):
     # #%%
     # U1_txt_name = ""
     # file_full_name = "l=1.png"
@@ -122,6 +122,7 @@ def Structure_NLC(U1_txt_name = "",
     #         }
     # #%%
     # is_self_colorbar, is_colorbar_on = 0, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
+    # is_energy = 0
     # vmax, vmin = 1, 0
 
     def image_border(src, dst, loc='a', width=3, color=(0, 0, 0, 255)):
@@ -251,7 +252,7 @@ def Structure_NLC(U1_txt_name = "",
                        is_save, is_save_txt, dpi, 
                        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
-                       1, is_colorbar_on, vmax, vmin) 
+                       1, is_colorbar_on, is_energy, vmax, vmin) 
 
     else:
         
@@ -420,7 +421,7 @@ def Structure_NLC(U1_txt_name = "",
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #         fontsize, font,
-    #         0, is_colorbar_on, vmax_structure, vmin_structure)
+    #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
 
     modulation = 1 - is_no_backgroud - Depth * structure
     modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (1 - is_no_backgroud, 1 - is_no_backgroud))
@@ -430,28 +431,30 @@ def Structure_NLC(U1_txt_name = "",
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            0, is_colorbar_on, vmax_modulation, vmin_modulation)
+            0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
 
     #%%
 
-    structure_opposite = 1 - structure
+    if mz != 0:
 
-    # plot_2d(I1_x, I1_y, size_PerPixel, diz, 
-    #         structure_opposite, location + "\\" + "χ2_structure_opposite" + file_name_extension, "χ2_structure_opposite", 
-    #         is_save, dpi, size_fig,  
-    #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-    #         fontsize, font,
-    #         0, is_colorbar_on, vmax_structure, vmin_structure)
-
-    modulation_opposite = 1 - is_no_backgroud - Depth * structure_opposite
-    modulation_opposite_squared = np.pad(modulation_opposite, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (1 - is_no_backgroud, 1 - is_no_backgroud))
-
-    plot_2d(I1_x, I1_y, size_PerPixel, diz, 
-            modulation_opposite_squared, location + "\\" + "χ2_modulation_opposite_squared" + file_name_extension, "χ2_modulation_opposite_squared", 
-            is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            0, is_colorbar_on, vmax_modulation, vmin_modulation)
+        structure_opposite = 1 - structure
+    
+        # plot_2d(I1_x, I1_y, size_PerPixel, diz, 
+        #         structure_opposite, location + "\\" + "χ2_structure_opposite" + file_name_extension, "χ2_structure_opposite", 
+        #         is_save, dpi, size_fig,  
+        #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+        #         fontsize, font,
+        #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
+    
+        modulation_opposite = 1 - is_no_backgroud - Depth * structure_opposite
+        modulation_opposite_squared = np.pad(modulation_opposite, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (1 - is_no_backgroud, 1 - is_no_backgroud))
+    
+        plot_2d(I1_x, I1_y, size_PerPixel, diz, 
+                modulation_opposite_squared, location + "\\" + "χ2_modulation_opposite_squared" + file_name_extension, "χ2_modulation_opposite_squared", 
+                is_save, dpi, size_fig, 
+                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                fontsize, font, 
+                0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
 
     #%%
     # 逐层 绘制 并 输出 structure

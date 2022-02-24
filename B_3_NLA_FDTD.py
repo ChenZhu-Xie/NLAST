@@ -64,7 +64,7 @@ def NLA_FDTD(U1_txt_name = "",
                      }, 
              #%%
              is_self_colorbar = 0, is_colorbar_on = 1, 
-             vmax = 1, vmin = 0):
+             is_energy = 0, vmax = 1, vmin = 0):
     # #%%
     # U1_txt_name = ""
     # file_full_name = "l=1.png"
@@ -132,6 +132,7 @@ def NLA_FDTD(U1_txt_name = "",
     #         }
     # #%%
     # is_self_colorbar, is_colorbar_on = 0, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
+    # is_energy = 0
     # vmax, vmin = 1, 0
 
     if (type(U1_txt_name) != str) or U1_txt_name == "":
@@ -192,7 +193,7 @@ def NLA_FDTD(U1_txt_name = "",
                        is_save, is_save_txt, dpi, 
                        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
-                       1, is_colorbar_on, vmax, vmin) 
+                       1, is_colorbar_on, is_energy, vmax, vmin) 
         
     else:
         #%%
@@ -614,7 +615,7 @@ def NLA_FDTD(U1_txt_name = "",
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, is_energy, vmax, vmin)
 
     #%%
     #绘图：G2_z0_FDTD_shift_phase
@@ -626,7 +627,7 @@ def NLA_FDTD(U1_txt_name = "",
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, 0, vmax, vmin)
 
     #%%
     # 储存 G2_z0_FDTD_shift 到 txt 文件
@@ -651,7 +652,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig * 10, size_fig, 
                 color_1d, ticks_num, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                vmax_G2_z_shift_energy, vmin_G2_z_shift_energy)
+                0, vmax_G2_z_shift_energy, vmin_G2_z_shift_energy)
         
     #%%
     # G2_z0_FDTD = G2_z0_FDTD(k1_x, k1_y) → IFFT2 → U2(x0, y0, z0) = U2_z0_FDTD
@@ -693,7 +694,7 @@ def NLA_FDTD(U1_txt_name = "",
                     is_save, dpi, size_fig,  
                     cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                     fontsize, font,
-                    is_self_colorbar, is_colorbar_on, vmax_G2_z_shift_stored_amp, vmin_G2_z_shift_stored_amp)
+                    is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_z_shift_stored_amp, vmin_G2_z_shift_stored_amp)
             
         vmax_G2_z_shift_stored_phase = np.max(np.angle(G2_z_shift_stored))
         vmin_G2_z_shift_stored_phase = np.min(np.angle(G2_z_shift_stored))
@@ -707,7 +708,7 @@ def NLA_FDTD(U1_txt_name = "",
                     is_save, dpi, size_fig,  
                     cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                     fontsize, font,
-                    is_self_colorbar, is_colorbar_on, vmax_G2_z_shift_stored_phase, vmin_G2_z_shift_stored_phase)
+                    is_self_colorbar, is_colorbar_on, 0, vmax_G2_z_shift_stored_phase, vmin_G2_z_shift_stored_phase)
         
         #-------------------------    
         
@@ -723,7 +724,7 @@ def NLA_FDTD(U1_txt_name = "",
                     is_save, dpi, size_fig,  
                     cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                     fontsize, font,
-                    is_self_colorbar, is_colorbar_on, vmax_U2_z_stored_amp, vmin_U2_z_stored_amp)
+                    is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_z_stored_amp, vmin_U2_z_stored_amp)
             
         vmax_U2_z_stored_phase = np.max(np.angle(U2_z_stored))
         vmin_U2_z_stored_phase = np.min(np.angle(U2_z_stored))
@@ -737,7 +738,7 @@ def NLA_FDTD(U1_txt_name = "",
                     is_save, dpi, size_fig,  
                     cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                     fontsize, font,
-                    is_self_colorbar, is_colorbar_on, vmax_U2_z_stored_phase, vmin_U2_z_stored_phase)
+                    is_self_colorbar, is_colorbar_on, 0, vmax_U2_z_stored_phase, vmin_U2_z_stored_phase)
         
         #%%
         # 这 sheets_stored_num 层 也可以 画成 3D，就是太丑了，所以只 整个 U2_amp 示意一下即可
@@ -751,7 +752,7 @@ def NLA_FDTD(U1_txt_name = "",
         #             cmap_3d, elev, azim, alpha, 
         #             ticks_num, is_title_on, is_axes_on, is_mm,  
         #             fontsize, font,
-        #             is_self_colorbar, is_colorbar_on, vmax_U2_z_stored_amp, vmin_U2_z_stored_amp)
+        #             is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_z_stored_amp, vmin_U2_z_stored_amp)
         
         #%%
         
@@ -806,7 +807,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_shift_YZ_XZ_stored_amp, vmin_G2_shift_YZ_XZ_stored_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_shift_YZ_XZ_stored_amp, vmin_G2_shift_YZ_XZ_stored_amp)
         
         G2_shift_XZ_stored_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD_shift" + "_XZ" + "_amp" + file_name_extension
         
@@ -815,7 +816,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_shift_YZ_XZ_stored_amp, vmin_G2_shift_YZ_XZ_stored_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_shift_YZ_XZ_stored_amp, vmin_G2_shift_YZ_XZ_stored_amp)
         
         #------------------------- G2_shift_YZ_stored_phase、G2_shift_XZ_stored_phase
         
@@ -829,7 +830,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_shift_YZ_XZ_stored_phase, vmin_G2_shift_YZ_XZ_stored_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_G2_shift_YZ_XZ_stored_phase, vmin_G2_shift_YZ_XZ_stored_phase)
         
         G2_shift_XZ_stored_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_YZ_XZ_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD_shift" + "_XZ" + "_phase" + file_name_extension
         
@@ -838,7 +839,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_shift_YZ_XZ_stored_phase, vmin_G2_shift_YZ_XZ_stored_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_G2_shift_YZ_XZ_stored_phase, vmin_G2_shift_YZ_XZ_stored_phase)
         
         #========================= U2_YZ_stored_amp、U2_XZ_stored_amp
         
@@ -852,7 +853,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_YZ_XZ_stored_amp, vmin_U2_YZ_XZ_stored_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_YZ_XZ_stored_amp, vmin_U2_YZ_XZ_stored_amp)
         
         U2_XZ_stored_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD" + "_XZ" + "_amp" + file_name_extension
         
@@ -861,7 +862,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_YZ_XZ_stored_amp, vmin_U2_YZ_XZ_stored_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_YZ_XZ_stored_amp, vmin_U2_YZ_XZ_stored_amp)
         
         #------------------------- U2_YZ_stored_phase、U2_XZ_stored_phase
         
@@ -875,7 +876,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_YZ_XZ_stored_phase, vmin_U2_YZ_XZ_stored_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_U2_YZ_XZ_stored_phase, vmin_U2_YZ_XZ_stored_phase)
         
         U2_XZ_stored_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_YZ_XZ_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % Y)) + "mm" + "_FDTD" + "_XZ" + "_phase" + file_name_extension
         
@@ -884,7 +885,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_YZ_XZ_stored_phase, vmin_U2_YZ_XZ_stored_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_U2_YZ_XZ_stored_phase, vmin_U2_YZ_XZ_stored_phase)
         
         #%%
         
@@ -906,7 +907,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
         
         G2_section_2_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
 
@@ -915,7 +916,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
         
         G2_structure_frontface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
 
@@ -924,7 +925,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
         
         G2_structure_endface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD_shift" + "_amp" + file_name_extension
 
@@ -933,7 +934,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
         
         #------------------------- 储存 G2_section_1_shift_phase、G2_section_2_shift_phase、G2_structure_frontface_shift_phase、G2_structure_endface_shift_phase
         
@@ -947,7 +948,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
         
         G2_section_2_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
 
@@ -956,7 +957,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
         
         G2_structure_frontface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
 
@@ -965,7 +966,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
         
         G2_structure_endface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD_shift" + "_phase" + file_name_extension
 
@@ -974,7 +975,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
         
         #------------------------- 储存 U2_section_1_amp、U2_section_2_amp、U2_structure_frontface_amp、U2_structure_endface_amp
         
@@ -988,7 +989,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
         
         U2_section_2_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_amp" + file_name_extension
 
@@ -997,7 +998,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
         
         U2_structure_frontface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD" + "_amp" + file_name_extension
 
@@ -1006,7 +1007,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
         
         U2_structure_endface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD" + "_amp" + file_name_extension
 
@@ -1015,7 +1016,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
         
         #------------------------- 储存 U2_section_1_phase、U2_section_2_phase、U2_structure_frontface_phase、U2_structure_endface_phase
         
@@ -1029,7 +1030,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
         
         U2_section_2_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_2)) + "mm" + "_FDTD" + "_phase" + file_name_extension
 
@@ -1038,7 +1039,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
         
         U2_structure_frontface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_FDTD" + "_phase" + file_name_extension
 
@@ -1047,7 +1048,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
         
         U2_structure_endface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_FDTD" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_FDTD" + "_phase" + file_name_extension
 
@@ -1056,7 +1057,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
-                is_self_colorbar, is_colorbar_on, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+                is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
         
         #%%
         # 绘制 G2_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G2_amp（现在 可以 任选位置 了）
@@ -1076,7 +1077,7 @@ def NLA_FDTD(U1_txt_name = "",
                     cmap_3d, elev, azim, alpha, 
                     ticks_num, is_title_on, is_axes_on, is_mm,  
                     fontsize, font, 
-                    is_self_colorbar, is_colorbar_on, vmax_G2_amp, vmin_G2_amp)
+                    is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_amp, vmin_G2_amp)
         
         #%%
         # 绘制 G2_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G2_phase
@@ -1096,7 +1097,7 @@ def NLA_FDTD(U1_txt_name = "",
         #             cmap_3d, elev, azim, alpha, 
         #             ticks_num, is_title_on, is_axes_on, is_mm,  
         #             fontsize, font, 
-        #             is_self_colorbar, is_colorbar_on, vmax_G2_phase, vmin_G2_phase)
+        #             is_self_colorbar, is_colorbar_on, 0, vmax_G2_phase, vmin_G2_phase)
         
         #%%
         # 绘制 U2_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 U2_amp
@@ -1116,7 +1117,7 @@ def NLA_FDTD(U1_txt_name = "",
                     cmap_3d, elev, azim, alpha, 
                     ticks_num, is_title_on, is_axes_on, is_mm,  
                     fontsize, font, 
-                    is_self_colorbar, is_colorbar_on, vmax_U2_amp, vmin_U2_amp)
+                    is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_amp, vmin_U2_amp)
         
         #%%
         # 绘制 U2_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U2_phase
@@ -1136,7 +1137,7 @@ def NLA_FDTD(U1_txt_name = "",
         #             cmap_3d, elev, azim, alpha, 
         #             ticks_num, is_title_on, is_axes_on, is_mm,  
         #             fontsize, font, 
-        #             is_self_colorbar, is_colorbar_on, vmax_U2_phase, vmin_U2_phase)
+        #             is_self_colorbar, is_colorbar_on, 0, vmax_U2_phase, vmin_U2_phase)
 
     #%%
 
@@ -1160,7 +1161,7 @@ def NLA_FDTD(U1_txt_name = "",
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, is_energy, vmax, vmin)
 
     #%%
     #绘图：U2_z0_FDTD_phase
@@ -1172,7 +1173,7 @@ def NLA_FDTD(U1_txt_name = "",
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
-            1, is_colorbar_on, vmax, vmin)
+            1, is_colorbar_on, 0, vmax, vmin)
 
     #%%
     # 储存 U2_z0_FDTD 到 txt 文件
@@ -1192,7 +1193,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
-                1, is_colorbar_on, vmax, vmin)
+                1, is_colorbar_on, is_energy, vmax, vmin)
 
         #再次绘图：U2_z0_FDTD_phase
 
@@ -1203,7 +1204,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
-                1, is_colorbar_on, vmax, vmin)
+                1, is_colorbar_on, 0, vmax, vmin)
 
     #%%
     # 储存 U2_z0_FDTD 到 txt 文件
@@ -1226,7 +1227,7 @@ def NLA_FDTD(U1_txt_name = "",
                 is_save, dpi, size_fig * 10, size_fig, 
                 color_1d, ticks_num, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
-                vmax_U2_z_energy, vmin_U2_z_energy)
+                0, vmax_U2_z_energy, vmin_U2_z_energy)
 
 
 # NLA_FDTD(U1_txt_name = "", 
@@ -1268,4 +1269,4 @@ def NLA_FDTD(U1_txt_name = "",
 #                   }, 
 #           #%%
 #           is_self_colorbar = 0, is_colorbar_on = 1, 
-#           vmax = 1, vmin = 0)
+#           is_energy, vmax = 1, vmin = 0)

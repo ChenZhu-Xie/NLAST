@@ -29,7 +29,7 @@ def plot_1d(Iz = 343, size_PerPixel = 0.007, diz = 0.774,
                     'color': 'black', # 'black','gray','darkred'
                     },
             #%%
-            vmax = 1, vmin = 0):
+            is_energy = 1, vmax = 1, vmin = 0):
     
     # #%%
     # Iz = 343
@@ -39,6 +39,7 @@ def plot_1d(Iz = 343, size_PerPixel = 0.007, diz = 0.774,
     # array1D = 0
     # array1D_address = os.path.dirname(os.path.abspath(__file__))
     # array1D_title = ''
+    # is_energy = 1
     # #%%
     # is_save = 0
     # dpi = 100
@@ -67,26 +68,26 @@ def plot_1d(Iz = 343, size_PerPixel = 0.007, diz = 0.774,
     fig, axes = plt.subplots(1, 1, figsize=(size_fig_x, size_fig_y), dpi=dpi)
     fig.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
     if is_title_on:
-        axes.set_title(array1D_title, fontsize=fontsize, fontdict=font)
+        axes.set_title(array1D_title if is_energy != 1 else array1D_title + "_Squared", fontsize=fontsize, fontdict=font)
     
     if is_axes_on == 0:
         axes.axis('off')
     else:
         axes.set_xticks(range(0, Iz, Iz // ticks_num)) # 按理 等价于 np.linspace(0, Ix, ticks_num + 1)，但并不
-        axes.set_yticks([float(format(y, '.2g')) for y in np.linspace(vmin, vmax, ticks_num + 1)]) # 按理 等价于 np.linspace(0, Iy, ticks_num + 1)，但并不
+        axes.set_yticks([float(format(y, '.2g')) for y in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)]) # 按理 等价于 np.linspace(0, Iy, ticks_num + 1)，但并不
         if is_mm == 1: # round(i * size_PerPixel,2) 保留 2 位小数，改为 保留 2 位 有效数字
             if is_propagation == 1:
                 axes.set_xticklabels([float('%.2g' % (i * diz * size_PerPixel)) for i in range(0, Iz, Iz // ticks_num)], fontsize=fontsize, fontdict=font)
             else:
                 axes.set_xticklabels([float('%.2g' % (i * size_PerPixel)) for i in range(- Iz // 2, Iz - Iz // 2, Iz // ticks_num)], fontsize=fontsize, fontdict=font)
-            axes.set_yticklabels([float(format(y, '.2g')) for y in np.linspace(vmin, vmax, ticks_num + 1)], fontsize=fontsize, fontdict=font)
+            axes.set_yticklabels([float(format(y, '.2g')) for y in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)], fontsize=fontsize, fontdict=font)
         else:
             axes.set_xticklabels(range(0, Iz, Iz // ticks_num), fontsize=fontsize, fontdict=font)
-            axes.set_yticklabels([float(format(y, '.2g')) for y in np.linspace(vmin, vmax, ticks_num + 1)], fontsize=fontsize, fontdict=font)
+            axes.set_yticklabels([float(format(y, '.2g')) for y in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)], fontsize=fontsize, fontdict=font)
         axes.set_xlabel('', fontsize=fontsize, fontdict=font) # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         axes.set_ylabel('', fontsize=fontsize, fontdict=font) # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
     
-    img = axes.plot(range(0, Iz), array1D, color=color_1d)
+    img = axes.plot(range(0, Iz), array1D if is_energy != 1 else array1D**2, color=color_1d)
         
     plt.show()
     
@@ -114,7 +115,7 @@ def plot_2d(Ix = 343, Iy = 343, size_PerPixel = 0.007, diz = 0.774,
                     'color': 'black', # 'black','gray','darkred'
                     },
             #%%
-            is_self_colorbar = 1, is_colorbar_on = 1, vmax = 1, vmin = 0):
+            is_self_colorbar = 1, is_colorbar_on = 1, is_energy = 1, vmax = 1, vmin = 0):
     
     # #%%
     # Ix = 343
@@ -125,6 +126,7 @@ def plot_2d(Ix = 343, Iy = 343, size_PerPixel = 0.007, diz = 0.774,
     # array2D = 0
     # array2D_address = os.path.dirname(os.path.abspath(__file__))
     # array2D_title = ''
+    # is_energy = 1
     # #%%
     # is_save = 0
     # dpi = 100
@@ -175,7 +177,7 @@ def plot_2d(Ix = 343, Iy = 343, size_PerPixel = 0.007, diz = 0.774,
     fig, axes = plt.subplots(1, 1, figsize=(size_fig, size_fig), dpi=dpi)
     fig.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
     if is_title_on:
-        axes.set_title(array2D_title, fontsize=fontsize, fontdict=font)
+        axes.set_title(array2D_title if is_energy != 1 else array2D_title + "_Squared", fontsize=fontsize, fontdict=font)
     
     if is_axes_on == 0:
         axes.axis('off')
@@ -200,22 +202,22 @@ def plot_2d(Ix = 343, Iy = 343, size_PerPixel = 0.007, diz = 0.774,
     
     if is_contourf == 1:
         if is_self_colorbar == 1:
-            img = axes.contourf(array2D, cmap=cmap_2d)
+            img = axes.contourf(array2D if is_energy != 1 else array2D**2, cmap=cmap_2d)
         else:
-            img = axes.contourf(array2D, cmap=cmap_2d, vmin=vmin, vmax=vmax)
+            img = axes.contourf(array2D if is_energy != 1 else array2D**2, cmap=cmap_2d, vmin=vmin if is_energy != 1 else vmin**2, vmax=vmax if is_energy != 1 else vmax**2)
     else:
         if is_self_colorbar == 1:
-            img = axes.imshow(array2D, cmap=cmap_2d)
+            img = axes.imshow(array2D if is_energy != 1 else array2D**2, cmap=cmap_2d)
         else:
-            img = axes.imshow(array2D, cmap=cmap_2d, vmin=vmin, vmax=vmax)
+            img = axes.imshow(array2D if is_energy != 1 else array2D**2, cmap=cmap_2d, vmin=vmin if is_energy != 1 else vmin**2, vmax=vmax if is_energy != 1 else vmax**2)
         
     if is_colorbar_on == 1:
         cax = add_right_cax(axes, pad=0.05, width=0.05)
         cb = fig.colorbar(img, cax=cax, extend='both')
         cb.ax.tick_params(labelsize=fontsize) # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
-        if is_self_colorbar != 1: # np.round(np.linspace(vmin, vmax, ticks_num + 1), 2) 保留 2 位小数，改为 保留 2 位 有效数字
-            cb.set_ticks([float(format(x, '.2g')) for x in np.linspace(vmin, vmax, ticks_num + 1)]) # range(vmin, vmax, round((vmax-vmin) / ticks_num ,2)) 其中 range 步长不支持 非整数，只能用 np.arange 或 np.linspace
-            cb.set_ticklabels([float(format(x, '.2g')) for x in np.linspace(vmin, vmax, ticks_num + 1)]) 
+        if is_self_colorbar != 1: # np.round(np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1), 2) 保留 2 位小数，改为 保留 2 位 有效数字
+            cb.set_ticks([float(format(x, '.2g')) for x in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)]) # range(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, round((vmax-vmin) / ticks_num ,2)) 其中 range 步长不支持 非整数，只能用 np.arange 或 np.linspace
+            cb.set_ticklabels([float(format(x, '.2g')) for x in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)]) 
         cb.set_label('', fontsize=fontsize, fontdict=font) # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
     
     plt.show()
@@ -251,7 +253,7 @@ def plot_3d_XYZ(Iz = 700, Iy = 343, Ix = 343, size_PerPixel = 0.007, diz = 0.774
                         'color': 'black', # 'black','gray','darkred'
                         },
                 #%%
-                is_self_colorbar = 1, is_colorbar_on = 1, vmax = 1, vmin = 0):
+                is_self_colorbar = 1, is_colorbar_on = 1, is_energy = 1, vmax = 1, vmin = 0):
     
     # #%%
     # Iz = 700
@@ -268,6 +270,7 @@ def plot_3d_XYZ(Iz = 700, Iy = 343, Ix = 343, size_PerPixel = 0.007, diz = 0.774
     # U_structure_front = 0
     # U_structure_end = 0
     # is_show_structure_face = 1
+    # is_energy = 1
     # #%%
     # img_address = os.path.dirname(os.path.abspath(__file__))
     # img_title = ''
@@ -331,7 +334,7 @@ def plot_3d_XYZ(Iz = 700, Iy = 343, Ix = 343, size_PerPixel = 0.007, diz = 0.774
     axes = fig.add_subplot(111, projection='3d')
     fig.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
     if is_title_on:
-        axes.set_title(img_title, fontsize=fontsize, fontdict=font)
+        axes.set_title(img_title if is_energy != 1 else img_title + "_Squared", fontsize=fontsize, fontdict=font)
     
     if is_axes_on == 0:
         axes.axis('off')
@@ -357,41 +360,41 @@ def plot_3d_XYZ(Iz = 700, Iy = 343, Ix = 343, size_PerPixel = 0.007, diz = 0.774
     if is_self_colorbar == 1:
         i_Z, i_XY = np.meshgrid([i for i in range(Iz)], [j for j in range(Ixy)])
         i_XY = i_XY[::-1]
-        img = axes.scatter3D(i_Z, iX, i_XY, c=U_YZ, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
+        img = axes.scatter3D(i_Z, iX, i_XY, c=U_YZ if is_energy != 1 else U_YZ**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
         i_XY = i_XY[::-1]
-        img = axes.scatter3D(i_Z, i_XY, iY, c=U_XZ, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
+        img = axes.scatter3D(i_Z, i_XY, iY, c=U_XZ if is_energy != 1 else U_XZ**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
         
         i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
         i_Y = i_Y[::-1]
-        img = axes.scatter3D(iZ_1, i_X, i_Y, c=U_1, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
-        img = axes.scatter3D(iZ_2, i_X, i_Y, c=U_2, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
+        img = axes.scatter3D(iZ_1, i_X, i_Y, c=U_1 if is_energy != 1 else U_1**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
+        img = axes.scatter3D(iZ_2, i_X, i_Y, c=U_2 if is_energy != 1 else U_2**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
         
         if is_show_structure_face == 1:
-            img = axes.scatter3D(iZ_structure_front, i_X, i_Y, c=U_structure_front, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
-            img = axes.scatter3D(iZ_structure_end, i_X, i_Y, c=U_structure_end, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
+            img = axes.scatter3D(iZ_structure_front, i_X, i_Y, c=U_structure_front if is_energy != 1 else U_structure_front**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
+            img = axes.scatter3D(iZ_structure_end, i_X, i_Y, c=U_structure_end if is_energy != 1 else U_structure_end**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha))
     else:
         i_Z, i_XY = np.meshgrid([i for i in range(Iz)], [j for j in range(Ixy)])
         i_XY = i_XY[::-1]
-        img = axes.scatter3D(i_Z, iX, i_XY, c=U_YZ, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin, vmax=vmax)
+        img = axes.scatter3D(i_Z, iX, i_XY, c=U_YZ if is_energy != 1 else U_YZ**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin if is_energy != 1 else vmin**2, vmax=vmax if is_energy != 1 else vmax**2)
         i_XY = i_XY[::-1]
-        img = axes.scatter3D(i_Z, i_XY, iY, c=U_XZ, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin, vmax=vmax)
+        img = axes.scatter3D(i_Z, i_XY, iY, c=U_XZ if is_energy != 1 else U_XZ**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin if is_energy != 1 else vmin**2, vmax=vmax if is_energy != 1 else vmax**2)
         
         i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
         i_Y = i_Y[::-1]
-        img = axes.scatter3D(iZ_1, i_X, i_Y, c=U_1, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin, vmax=vmax)
-        img = axes.scatter3D(iZ_2, i_X, i_Y, c=U_2, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin, vmax=vmax)
+        img = axes.scatter3D(iZ_1, i_X, i_Y, c=U_1 if is_energy != 1 else U_1**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin if is_energy != 1 else vmin**2, vmax=vmax if is_energy != 1 else vmax**2)
+        img = axes.scatter3D(iZ_2, i_X, i_Y, c=U_2 if is_energy != 1 else U_2**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin if is_energy != 1 else vmin**2, vmax=vmax if is_energy != 1 else vmax**2)
         
         if is_show_structure_face == 1:
-            img = axes.scatter3D(iZ_structure_front, i_X, i_Y, c=U_structure_front, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin, vmax=vmax)
-            img = axes.scatter3D(iZ_structure_end, i_X, i_Y, c=U_structure_end, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin, vmax=vmax)
+            img = axes.scatter3D(iZ_structure_front, i_X, i_Y, c=U_structure_front if is_energy != 1 else U_structure_front**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin if is_energy != 1 else vmin**2, vmax=vmax if is_energy != 1 else vmax**2)
+            img = axes.scatter3D(iZ_structure_end, i_X, i_Y, c=U_structure_end if is_energy != 1 else U_structure_end**2, cmap=cmap_3d, alpha = math.e**(-1 * alpha), vmin=vmin if is_energy != 1 else vmin**2, vmax=vmax if is_energy != 1 else vmax**2)
         
     if is_colorbar_on == 1:
         cax = add_right_cax(axes, pad=0.05, width=0.05)
         cb = fig.colorbar(img, cax=cax, extend='both')
         cb.ax.tick_params(labelsize=fontsize) # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
-        if is_self_colorbar != 1: # np.round(np.linspace(vmin, vmax, ticks_num + 1), 2) 保留 2 位小数，改为 保留 2 位 有效数字
-            cb.set_ticks([float(format(x, '.2g')) for x in np.linspace(vmin, vmax, ticks_num + 1)]) # range(vmin, vmax, round((vmax-vmin) / ticks_num ,2)) 其中 range 步长不支持 非整数，只能用 np.arange 或 np.linspace
-            cb.set_ticklabels([float(format(x, '.2g')) for x in np.linspace(vmin, vmax, ticks_num + 1)]) 
+        if is_self_colorbar != 1: # np.round(np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1), 2) 保留 2 位小数，改为 保留 2 位 有效数字
+            cb.set_ticks([float(format(x, '.2g')) for x in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)]) # range(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, round((vmax-vmin) / ticks_num ,2)) 其中 range 步长不支持 非整数，只能用 np.arange 或 np.linspace
+            cb.set_ticklabels([float(format(x, '.2g')) for x in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)]) 
         cb.set_label('', fontsize=fontsize, fontdict=font) # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
     
     plt.show()
@@ -422,7 +425,7 @@ def plot_3d_XYz(Iy = 343, Ix = 343, size_PerPixel = 0.007, diz = 0.774,
                         'color': 'black', # 'black','gray','darkred'
                         },
                 #%%
-                is_self_colorbar = 1, is_colorbar_on = 1, vmax = 1, vmin = 0):
+                is_self_colorbar = 1, is_colorbar_on = 1, is_energy = 1, vmax = 1, vmin = 0):
     
     # #%%
     # Iy, Ix = 343, 343
@@ -435,6 +438,7 @@ def plot_3d_XYz(Iy = 343, Ix = 343, size_PerPixel = 0.007, diz = 0.774,
     # #%%
     # img_address = os.path.dirname(os.path.abspath(__file__))
     # img_title = ''
+    # is_energy = 1
     # #%%
     # is_save = 0
     # dpi, size_fig = 100, 3
@@ -483,7 +487,7 @@ def plot_3d_XYz(Iy = 343, Ix = 343, size_PerPixel = 0.007, diz = 0.774,
     axes = fig.add_subplot(111, projection='3d')
     fig.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0, wspace = 0)
     if is_title_on:
-        axes.set_title(img_title, fontsize=fontsize, fontdict=font)
+        axes.set_title(img_title if is_energy != 1 else img_title + "_Squared", fontsize=fontsize, fontdict=font)
     
     if is_axes_on == 0:
         axes.axis('off')
@@ -515,20 +519,20 @@ def plot_3d_XYz(Iy = 343, Ix = 343, size_PerPixel = 0.007, diz = 0.774,
         i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
         i_Y = i_Y[::-1]
         for sheet_stored_th in range(sheets_stored_num + 1):
-            img = axes.scatter3D(sheet_th_stored[sheet_stored_th], i_X, i_Y, c=np.abs(U_z_stored[:, :, sheet_stored_th]), cmap=cmap_3d, alpha = math.e**-3 * math.e**(-1* alpha * sheet_stored_th / sheets_stored_num))
+            img = axes.scatter3D(sheet_th_stored[sheet_stored_th], i_X, i_Y, c=np.abs(U_z_stored[:, :, sheet_stored_th]) if is_energy != 1 else np.abs(U_z_stored[:, :, sheet_stored_th])**2, cmap=cmap_3d, alpha = math.e**-3 * math.e**(-1* alpha * sheet_stored_th / sheets_stored_num))
     else:
         i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
         i_Y = i_Y[::-1]
         for sheet_stored_th in range(sheets_stored_num + 1):
-            img = axes.scatter3D(sheet_th_stored[sheet_stored_th], i_X, i_Y, c=np.abs(U_z_stored[:, :, sheet_stored_th]), cmap=cmap_3d, alpha = math.e**-3 * math.e**(-1* alpha * sheet_stored_th / sheets_stored_num), vmin=vmin, vmax=vmax)
+            img = axes.scatter3D(sheet_th_stored[sheet_stored_th], i_X, i_Y, c=np.abs(U_z_stored[:, :, sheet_stored_th]) if is_energy != 1 else np.abs(U_z_stored[:, :, sheet_stored_th])**2, cmap=cmap_3d, alpha = math.e**-3 * math.e**(-1* alpha * sheet_stored_th / sheets_stored_num), vmin=vmin if is_energy != 1 else vmin**2, vmax=vmax if is_energy != 1 else vmax**2)
         
     if is_colorbar_on == 1:
         cax = add_right_cax(axes, pad=0.05, width=0.05)
         cb = fig.colorbar(img, cax=cax, extend='both')
         cb.ax.tick_params(labelsize=fontsize) # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
-        if is_self_colorbar != 1: # np.round(np.linspace(vmin, vmax, ticks_num + 1), 2) 保留 2 位小数，改为 保留 2 位 有效数字
-            cb.set_ticks([float(format(x, '.2g')) for x in np.linspace(vmin, vmax, ticks_num + 1)]) # range(vmin, vmax, round((vmax-vmin) / ticks_num ,2)) 其中 range 步长不支持 非整数，只能用 np.arange 或 np.linspace
-            cb.set_ticklabels([float(format(x, '.2g')) for x in np.linspace(vmin, vmax, ticks_num + 1)]) 
+        if is_self_colorbar != 1: # np.round(np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1), 2) 保留 2 位小数，改为 保留 2 位 有效数字
+            cb.set_ticks([float(format(x, '.2g')) for x in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)]) # range(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, round((vmax-vmin) / ticks_num ,2)) 其中 range 步长不支持 非整数，只能用 np.arange 或 np.linspace
+            cb.set_ticklabels([float(format(x, '.2g')) for x in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)]) 
         cb.set_label('', fontsize=fontsize, fontdict=font) # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
     
     plt.show()
