@@ -157,30 +157,30 @@ a_to_B_3_NLA_SSI(U1_txt_name_Structure = "",
                  is_H_l_Structure = 0, is_H_theta_Structure = 0, 
                  #%%
                  U1_txt_name = "", 
-                 file_full_name = "lena2.png", 
+                 file_full_name = "lena.png", 
                  phase_only = 0, 
                  #%%
-                 is_LG = 0, is_Gauss = 1, is_OAM = 1, 
-                 l = 2, p = 0, 
+                 is_LG = 0, is_Gauss = 0, is_OAM = 0, 
+                 l = 0, p = 0, 
                  theta_x = 0, theta_y = 0, 
                  is_H_l = 0, is_H_theta = 0, 
                  #%%---------------------------------------------------------------------
                  #%%
-                 U1_0_NonZero_size = 0.5, w0 = 0.28, w0_Structure = 0, deff_structure_size_expect = 0.55, 
-                 L0_Crystal_expect = 1, z0_structure_frontface_expect = 0, deff_structure_length_expect = 1, 
-                 deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
+                 U1_0_NonZero_size = 0.5, w0 = 0.25, w0_Structure = 0, deff_structure_size_expect = 0.55, 
+                 L0_Crystal_expect = 0.27350975548370693, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.27350975548370693, 
+                 deff_structure_sheet_expect = 1, sheets_stored_num = 10, 
                  z0_section_1f_expect = 0, z0_section_2f_expect = 0, X = 0, Y = 0, 
                  Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 2, 
                  #%%
                  is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
                  #%%
                  is_bulk = 0, is_no_backgroud = 0, 
-                 is_stored = 1, is_show_structure_face = 1, is_energy_evolution_on = 1, 
+                 is_stored = 0, is_show_structure_face = 1, is_energy_evolution_on = 1, 
                  #%%
                  lam1 = 1.064, is_air_pump = 0, is_air = 0, T = 25, 
                  deff = 30, 
-                 Tx = 1.97, Ty = 20, Tz = 8.909, 
-                 mx = -1, my = 0, mz = 0, 
+                 Tx = 1.97, Ty = 20, Tz = 6.8, 
+                 mx = 0, my = 0, mz = 1, 
                  #%%
                  is_save = 1, is_save_txt = 0, dpi = 100, 
                  #%%

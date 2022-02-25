@@ -704,7 +704,7 @@ def Consistency_NLA_SSI_AST(U1_txt_name = "",
     #%%
     
 Consistency_NLA_SSI_AST(U1_txt_name = "", 
-                        file_full_name = "lena.png", 
+                        file_full_name = "photographer.png", 
                         border_percentage = 0.3, 
                         phase_only = 0, 
                         #%%
@@ -714,14 +714,14 @@ Consistency_NLA_SSI_AST(U1_txt_name = "",
                         is_H_l = 0, is_H_theta = 0, 
                         #%%
                         U1_0_NonZero_size = 1, w0 = 0, 
-                        z0 = 6, z0_new = 5, deff_structure_sheet_expect = 1, is_energy_evolution_on = 1, 
+                        z0 = 4, z0_new = 2, deff_structure_sheet_expect = 1, is_energy_evolution_on = 1, 
                         #%%
                         lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, 
                         deff = 30, 
                         Tx = 10, Ty = 10, Tz = "2*lc", 
                         mx = 0, my = 0, mz = 0, 
                         #%%
-                        is_save = 0, is_save_txt = 0, dpi = 100, 
+                        is_save = 1, is_save_txt = 0, dpi = 100, 
                         #%%
                         color_1d = 'b', cmap_2d = 'viridis', 
                         #%%
@@ -729,7 +729,7 @@ Consistency_NLA_SSI_AST(U1_txt_name = "",
                         is_title_on = 1, is_axes_on = 1, 
                         is_mm = 1, is_propagation = 0, 
                         #%%
-                        fontsize = 6, 
+                        fontsize = 9, 
                         font = {'family': 'serif',
                                 'style': 'normal', # 'normal', 'italic', 'oblique'
                                 'weight': 'normal',
@@ -737,6 +737,6 @@ Consistency_NLA_SSI_AST(U1_txt_name = "",
                                 }, 
                         #%%
                         is_self_colorbar = 1, is_colorbar_on = 1, 
-                        is_energy = 0, vmax = 1, vmin = 0)
+                        is_energy = 1, vmax = 1, vmin = 0)
 
 # 注意 colorbar 上的数量级

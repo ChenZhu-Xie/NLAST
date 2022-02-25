@@ -23,6 +23,7 @@ from scipy.io import loadmat, savemat
 import time
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
+from fun_NLA import help_find_contours
 from a_Image_Add_Black_border import Image_Add_Black_border
 
 #%%
@@ -336,6 +337,13 @@ sheet_th_section_2f = sheets_num_section_2 - 1
 iz_2 = sheet_th_section_2 * diz
 z0_2 = iz_2 * size_PerPixel
 print("z0_section_2 = {} mm".format(z0_2))
+
+#%%
+# 描边
+
+help_find_contours(dk, Tz, mz, 
+                   U1_0_NonZero_size, w0, z0, size_PerPixel,
+                   is_print = 1)
 
 #%%
 # 线性 角谱理论 - 基波 begin

@@ -22,6 +22,7 @@ from scipy.io import loadmat, savemat
 import time
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
+from fun_NLA import help_find_contours
 
 #%%
 
@@ -291,6 +292,15 @@ def NLA(U1_txt_name = "",
     Gx = 2 * math.pi * mx * size_PerPixel / (Tx / 1000) # Tz / 1000 即以 mm 为单位
     Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000) # Tz / 1000 即以 mm 为单位
     Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000) # Tz / 1000 即以 mm 为单位
+    
+    #%%
+    # 描边
+
+    help_find_contours(dk, Tz, mz, 
+                       U1_0_NonZero_size, w0, z0, size_PerPixel,
+                       is_print = 1)
+    
+    #%%
 
     Mesh_k2_x_k2_y_shift = np.dstack((2 * math.pi * Mesh_n2_x_n2_y_shift[:, :, 0] / I2_x - Gx, 2 * math.pi * Mesh_n2_x_n2_y_shift[:, :, 1] / I2_y - Gy))
     k2_z_shift = (k2**2 - np.square(Mesh_k2_x_k2_y_shift[:, :, 0]) - np.square(Mesh_k2_x_k2_y_shift[:, :, 1]) + 0j )**0.5

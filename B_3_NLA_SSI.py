@@ -22,6 +22,7 @@ from scipy.io import loadmat, savemat
 import time
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
+from fun_NLA import help_find_contours
 
 #%%
 
@@ -370,6 +371,13 @@ def NLA_SSI(U1_txt_name = "",
     iz_2 = sheet_th_section_2 * diz
     z0_2 = iz_2 * size_PerPixel
     print("z0_section_2 = {} mm".format(z0_2))
+    
+    #%%
+    # 描边
+
+    help_find_contours(dk, Tz, mz, 
+                       U1_0_NonZero_size, w0, z0, size_PerPixel,
+                       is_print = 1)
 
     #%%
     # 线性 角谱理论 - 基波 begin
@@ -1230,43 +1238,43 @@ def NLA_SSI(U1_txt_name = "",
                 0, vmax_U2_z_energy, vmin_U2_z_energy)
 
 
-NLA_SSI(U1_txt_name = "", 
-        file_full_name = "lena.png", 
-        phase_only = 0, 
-        #%%
-        is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-        l = 0, p = 0, 
-        theta_x = -0.5, theta_y = 0, 
-        is_H_l = 0, is_H_theta = 0, 
-        #%%
-        U1_0_NonZero_size = 0.5, w0 = 0, 
-        L0_Crystal_expect = 15, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
-        deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
-        z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
-        #%%
-        is_bulk = 1, is_no_backgroud = 0, 
-        is_stored = 0, is_show_structure_face = 0, is_energy_evolution_on = 1, 
-        #%%
-        lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
-        deff = 30, 
-        Tx = 10, Ty = 10, Tz = "2*lc", 
-        mx = 0, my = 0, mz = 0, 
-        #%%
-        is_save = 0, is_save_txt = 0, dpi = 100, 
-        #%%
-        color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
-        elev = 10, azim = -65, alpha = 2, 
-        #%%
-        ticks_num = 6, is_contourf = 0, 
-        is_title_on = 1, is_axes_on = 1, 
-        is_mm = 1, is_propagation = 0, 
-        #%%
-        fontsize = 9, 
-        font = {'family': 'serif',
-                'style': 'normal', # 'normal', 'italic', 'oblique'
-                'weight': 'normal',
-                'color': 'black', # 'black','gray','darkred'
-                }, 
-        #%%
-        is_self_colorbar = 0, is_colorbar_on = 1, 
-        is_energy, vmax = 1, vmin = 0)
+# NLA_SSI(U1_txt_name = "", 
+#         file_full_name = "lena.png", 
+#         phase_only = 0, 
+#         #%%
+#         is_LG = 0, is_Gauss = 0, is_OAM = 0, 
+#         l = 0, p = 0, 
+#         theta_x = -0.5, theta_y = 0, 
+#         is_H_l = 0, is_H_theta = 0, 
+#         #%%
+#         U1_0_NonZero_size = 0.5, w0 = 0, 
+#         L0_Crystal_expect = 15, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
+#         deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
+#         z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
+#         #%%
+#         is_bulk = 1, is_no_backgroud = 0, 
+#         is_stored = 0, is_show_structure_face = 0, is_energy_evolution_on = 1, 
+#         #%%
+#         lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
+#         deff = 30, 
+#         Tx = 10, Ty = 10, Tz = "2*lc", 
+#         mx = 0, my = 0, mz = 0, 
+#         #%%
+#         is_save = 0, is_save_txt = 0, dpi = 100, 
+#         #%%
+#         color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
+#         elev = 10, azim = -65, alpha = 2, 
+#         #%%
+#         ticks_num = 6, is_contourf = 0, 
+#         is_title_on = 1, is_axes_on = 1, 
+#         is_mm = 1, is_propagation = 0, 
+#         #%%
+#         fontsize = 9, 
+#         font = {'family': 'serif',
+#                 'style': 'normal', # 'normal', 'italic', 'oblique'
+#                 'weight': 'normal',
+#                 'color': 'black', # 'black','gray','darkred'
+#                 }, 
+#         #%%
+#         is_self_colorbar = 0, is_colorbar_on = 1, 
+#         is_energy = 1, vmax = 1, vmin = 0)

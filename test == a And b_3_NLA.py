@@ -22,16 +22,17 @@ from scipy.io import loadmat, savemat
 import time
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
+from fun_NLA import help_find_contours
 from a_Image_Add_Black_border import Image_Add_Black_border
 
 #%%
 U1_txt_name = ""
-file_full_name = "grating.png"
+file_full_name = "lena.png"
 border_percentage = 0.3 # 边框 占图片的 百分比，也即 图片 放大系数
 #%%
 phase_only = 0
-is_LG, is_Gauss, is_OAM = 0, 1, 1
-l, p = 3, 0
+is_LG, is_Gauss, is_OAM = 0, 0, 0
+l, p = 0, 0
 theta_x, theta_y = 0, 0
 is_H_l, is_H_theta = 0, 0
 # 正空间：右，下 = +, +
@@ -39,16 +40,16 @@ is_H_l, is_H_theta = 0, 0
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
 #%%
 U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
-w0 = 0.28 # Unit: mm 束腰（z = 0 处）
-z0 = 1 # Unit: mm 传播距离
+w0 = 0 # Unit: mm 束腰（z = 0 处）
+z0 = 0.2739382441081523 # Unit: mm 传播距离
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 #%%
 lam1 = 1.064 # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 #%%
 deff = 30 # pm / V
-Tx, Ty, Tz = 20.557, 10, 7.099 # Unit: um
-mx, my, mz = -3, 0, 1
+Tx, Ty, Tz = 20.557, 10, 6.8 # Unit: um
+mx, my, mz = 0, 0, 1
 # 倒空间：右, 下 = +, +
 is_linear_convolution = 0 # 0 代表 循环卷积，1 代表 线性卷积
 #%%
@@ -252,15 +253,23 @@ Mesh_n2_x_n2_y_shift = Mesh_n2_x_n2_y - (I2_x // 2, I2_y // 2)
 #%%
 # 引入 倒格矢，对 k2 的 方向 进行调整，其实就是对 k2 的 k2x, k2y, k2z 网格的 中心频率 从 (0, 0, k2z) 移到 (Gx, Gy, k2z + Gz)
 
-dk = 2*k1 - k2 # Unit: 1 / mm
-lc = math.pi / abs(dk) * size_PerPixel # Unit: mm
-print("相干长度 = {} μm".format(lc * 1000))
+dk = 2*k1 - k2 # Unit: 1
+lc = math.pi / abs(dk) * size_PerPixel * 1000 # Unit: um
+# print("相干长度 = {} μm".format(lc))
+# print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
+# print("畴宽_max = 相干长度 = {} μm <= 畴宽 = {} μm ".format(lc, Tz/2))
 if (type(Tz) != float and type(Tz) != int) or Tz <= 0: # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
-    Tz = 2*lc * 1000  # Unit: um
+    Tz = 2*lc  # Unit: um
 
 Gx = 2 * math.pi * mx * size_PerPixel / (Tx / 1000) # Tz / 1000 即以 mm 为单位
 Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000) # Tz / 1000 即以 mm 为单位
 Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000) # Tz / 1000 即以 mm 为单位
+
+help_find_contours(dk, Tz, mz, 
+                   U1_0_NonZero_size, w0, z0, size_PerPixel,
+                   is_print = 1)
+
+#%%
 
 Mesh_k2_x_k2_y_shift = np.dstack((2 * math.pi * Mesh_n2_x_n2_y_shift[:, :, 0] / I2_x - Gx, 2 * math.pi * Mesh_n2_x_n2_y_shift[:, :, 1] / I2_y - Gy))
 k2_z_shift = (k2**2 - np.square(Mesh_k2_x_k2_y_shift[:, :, 0]) - np.square(Mesh_k2_x_k2_y_shift[:, :, 1]) + 0j )**0.5
