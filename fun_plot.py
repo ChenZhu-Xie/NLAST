@@ -76,7 +76,7 @@ def plot_1d(Iz = 343, size_PerPixel = 0.007, diz = 0.774,
         axes.set_xticks(range(0, Iz, Iz // ticks_num)) # 按理 等价于 np.linspace(0, Ix, ticks_num + 1)，但并不
         axes.set_yticks([float(format(y, '.2g')) for y in np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1)]) # 按理 等价于 np.linspace(0, Iy, ticks_num + 1)，但并不
         if is_mm == 1: # round(i * size_PerPixel,2) 保留 2 位小数，改为 保留 2 位 有效数字
-            if is_propagation == 1:
+            if is_propagation != 0:
                 axes.set_xticklabels([float('%.2g' % (i * diz * size_PerPixel)) for i in range(0, Iz, Iz // ticks_num)], fontsize=fontsize, fontdict=font)
             else:
                 axes.set_xticklabels([float('%.2g' % (i * size_PerPixel)) for i in range(- Iz // 2, Iz - Iz // 2, Iz // ticks_num)], fontsize=fontsize, fontdict=font)
@@ -187,7 +187,7 @@ def plot_2d(Ix = 343, Iy = 343, size_PerPixel = 0.007, diz = 0.774,
         axes.set_xticks(range(0, Ix, Ix // ticks_num)) # 按理 等价于 np.linspace(0, Ix, ticks_num + 1)，但并不
         axes.set_yticks(range(0, Iy, Iy // ticks_num)) # 按理 等价于 np.linspace(0, Iy, ticks_num + 1)，但并不
         if is_mm == 1: # round(i * size_PerPixel,2) 保留 2 位小数，改为 保留 2 位 有效数字
-            if is_propagation == 1:
+            if is_propagation != 0:
                 axes.set_xticklabels([float('%.2g' % (i * diz * size_PerPixel)) for i in range(0, Ix, Ix // ticks_num)], fontsize=fontsize, fontdict=font)
             else:
                 axes.set_xticklabels([float('%.2g' % (i * size_PerPixel)) for i in range(- Ix // 2, Ix - Ix // 2, Ix // ticks_num)], fontsize=fontsize, fontdict=font)

@@ -721,7 +721,7 @@ Consistency_NLA_SSI_AST(U1_txt_name = "",
                         Tx = 10, Ty = 10, Tz = "2*lc", 
                         mx = 0, my = 0, mz = 0, 
                         #%%
-                        is_save = 1, is_save_txt = 0, dpi = 100, 
+                        is_save = 0, is_save_txt = 0, dpi = 100, 
                         #%%
                         color_1d = 'b', cmap_2d = 'viridis', 
                         #%%

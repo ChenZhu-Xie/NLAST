@@ -299,11 +299,11 @@ Iz = deff_structure_length_expect / size_PerPixel # Iz 对应的是 期望的（
 # deff_structure_length = Iz * size_PerPixel # Unit: mm 调制区域 的 实际纵向尺寸
 # print("deff_structure_length = {} mm".format(deff_structure_length))
 
-sheets_num = int(Iz // diz)
-Iz = sheets_num * diz # Iz 对应的是 实际的（discrete 离散的），而不是 期望的（连续的）。
-deff_structure_length = Iz * size_PerPixel # Unit: mm 调制区域 的 实际纵向尺寸
+sheets_num = int(Iz // diz) + int(np.mod(Iz,diz) == 1)
+# Iz = sheets_num * diz # Iz 对应的是 实际的（discrete 离散的），而不是 期望的（连续的）。
+# deff_structure_length = Iz * size_PerPixel # Unit: mm 调制区域 的 实际纵向尺寸
 # deff_structure_length = sheets_num * diz * size_PerPixel # Unit: mm 调制区域 的 实际纵向尺寸
-print("deff_structure_length = {} mm".format(deff_structure_length))
+# print("deff_structure_length = {} mm".format(deff_structure_length))
 
 #%%
 
@@ -538,7 +538,10 @@ class Customer(threading.Thread):
         """----- 你 需累积的 全局变量，替换 最末一个 g2_z_plus_dz_shift -----"""
             
         """----- your code begin 1 -----"""
-        iz = self.for_th * diz
+        if self.for_th == fors_num - 1:
+            iz = Iz
+        else:
+            iz = self.for_th * diz
         
         if mz != 0: # 如果 要用 Tz，则如下 分层；
         

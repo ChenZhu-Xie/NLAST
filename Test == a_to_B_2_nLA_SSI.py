@@ -33,7 +33,7 @@ def a_to_B_2_nLA_SSI(U1_txt_name_Structure = "",
                      #%%---------------------------------------------------------------------
                      #%%
                      U1_0_NonZero_size = 0.5, w0 = 0.1, w0_Structure = 5, deff_structure_size_expect = 0.4, 
-                     L0_Crystal_expect = 2, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
+                     L0_Crystal = 2, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
                      deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
                      z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
                      Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 1, 
@@ -121,7 +121,7 @@ def a_to_B_2_nLA_SSI(U1_txt_name_Structure = "",
             is_H_l, is_H_theta, 
             #%%
             U1_0_NonZero_size, w0, 
-            L0_Crystal_expect, z0_structure_frontface_expect, deff_structure_length_expect, 
+            L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect, 
             deff_structure_sheet_expect, sheets_stored_num, 
             z0_section_1f_expect, z0_section_2f_expect, X, Y, 
             #%%
@@ -167,7 +167,7 @@ a_to_B_2_nLA_SSI(U1_txt_name_Structure = "",
                  #%%---------------------------------------------------------------------
                  #%%
                  U1_0_NonZero_size = 0.5, w0 = 0.1, w0_Structure = 5, deff_structure_size_expect = 0.4, 
-                 L0_Crystal_expect = 2, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
+                 L0_Crystal = 2, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
                  deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
                  z0_section_1f_expect = 0.5, z0_section_2f_expect = 0.5, X = 0, Y = 0, 
                  Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x*y', Depth = 1, 

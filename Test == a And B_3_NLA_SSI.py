@@ -16,14 +16,15 @@ import math
 # import copy
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = 10E10 #Image 的 默认参数 无法处理那么大的图片
-from n_dispersion import LN_n, KTP_n
 import threading
 # import scipy
 from scipy.io import loadmat, savemat
 import time
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
-from fun_NLA import help_find_contours
+from fun_SSI import Cal_diz, Cal_Iz_frontface, Cal_Iz_structure, Cal_Iz_endface, Cal_Iz, Cal_iz_1, Cal_iz_2
+from fun_linear import Cal_n, Cal_kz
+from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours
 from a_Image_Add_Black_border import Image_Add_Black_border
 
 #%%
@@ -42,10 +43,10 @@ is_H_l, is_H_theta = 0, 0
 #%%
 U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
 w0 = 0.28 # Unit: mm 束腰（z = 0 处）
-L0_Crystal_expect = 1 # Unit: mm 晶体长度
+L0_Crystal = 1 # Unit: mm 晶体长度
 z0_structure_frontface_expect = 0.5 # Unit: mm 结构 前端面，距离 晶体 前端面 的 距离
-deff_structure_length_expect = 1 # Unit: mm 调制区域 z 向长度（类似 z）
-deff_structure_sheet_expect = 1.8 # Unit: μm z 向 切片厚度
+deff_structure_length_expect = 1.1 # Unit: mm 调制区域 z 向长度（类似 z）
+deff_structure_sheet_expect = 1 # Unit: μm z 向 切片厚度
 sheets_stored_num = 10 # 储存片数 （不包含 最末：因为 最末，作为结果 已经单独 呈现了）；每一步 储存的 实际上不是 g_z，而是 g_z+dz
 z0_section_1f_expect = 0 # Unit: mm z 向 需要展示的截面 1 距离晶体前端面 的 距离
 z0_section_2f_expect = 0 # Unit: mm z 向 需要展示的截面 2 距离晶体后端面 的 距离
@@ -53,7 +54,7 @@ X, Y = 0, 0 # Unit: mm 切片 中心点 平移 矢量（逆着 z 正向看去，
 # X 增加，则 从 G2_z_shift 中 读取的 列 向右移，也就是 xz 面向 列 增加的方向（G2_z_shift 的 右侧）移动
 # Y 增加，则 从 G2_z_shift 中 读取的 行 向上移，也就是 yz 面向 行 减小的方向（G2_z_shift 的 上侧）移动
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
-is_bulk = 0 # 是否 不读取 结构，1 为 不读取，即 均一晶体；0 为 读取结构
+is_bulk = 1 # 是否 不读取 结构，1 为 不读取，即 均一晶体；0 为 读取结构
 is_no_backgroud = 0 # 1 -1 调制，改为 0 -2 调制
 is_stored = 0 # 如果要储存中间结果，则不能多线程，只能单线程
 is_show_structure_face = 0 # 如果要显示 结构 前后端面 的 场分布，就打开这个
@@ -142,14 +143,9 @@ if (type(U1_txt_name) != str) or U1_txt_name == "":
     #%%
     # 预处理 输入场
     
-    if is_air_pump == 1:
-        n1 = 1
-    elif is_air_pump == 0:
-        n1 = LN_n(lam1, T, "e")
-    else:
-        n1 = KTP_n(lam1, T, "e")
-
-    k1 = 2 * math.pi * size_PerPixel / (lam1 / 1000 / n1) # lam / 1000 即以 mm 为单位
+    n1, k1 = Cal_n(size_PerPixel, 
+                   is_air, 
+                   lam1, T, p = "e")
     
     U1_0 = pump_LG(file_full_name, 
                    I1_x, I1_y, size_PerPixel, 
@@ -192,14 +188,9 @@ else:
 
 #%%
 
-if is_air == 1:
-    n1 = 1
-elif is_air == 0:
-    n1 = LN_n(lam1, T, "e")
-else:
-    n1 = KTP_n(lam1, T, "e")
-
-k1 = 2 * math.pi * size_PerPixel / (lam1 / 1000 / n1) # lam / 1000 即以 mm 为单位
+n1, k1 = Cal_n(size_PerPixel, 
+               is_air, 
+               lam1, T, p = "e")
 
 #%%
 # 非线性 角谱理论 - SSI begin
@@ -211,138 +202,73 @@ I2_x, I2_y = U1_0.shape[0], U1_0.shape[1]
 
 lam2 = lam1 / 2
 
-if is_air == 1:
-    n2 = 1
-elif is_air == 0:
-    n2 = LN_n(lam2, T, "e")
-else:
-    n2 = KTP_n(lam2, T, "e")
+n2, k2 = Cal_n(size_PerPixel, 
+               is_air, 
+               lam2, T, p = "e")
 
-k2 = 2 * math.pi * size_PerPixel / (lam2 / 1000 / n2) # lam / 1000 即以 mm 为单位
+dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel, 
+                        is_print = 0)
 
-dk = 2*k1 - k2 # Unit: 1 / mm
-lc = math.pi / abs(dk) * size_PerPixel # Unit: mm
-# print("相干长度 = {} μm".format(lc * 1000))
-if (type(Tz) != float and type(Tz) != int) or Tz <= 0: # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
-    Tz = 2*lc * 1000  # Unit: um
-
-Gx = 2 * math.pi * mx * size_PerPixel / (Tx / 1000) # Tz / 1000 即以 mm 为单位
-Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000) # Tz / 1000 即以 mm 为单位
-Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000) # Tz / 1000 即以 mm 为单位
+Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
+                        Tx, Ty, Tz, size_PerPixel, 
+                        is_print = 1)
 
 #%%
 # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
-if mz != 0: # 如过你想 让结构 提供 z 向倒格矢
-    if deff_structure_sheet_expect >= 0.1 * Tz or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.1 * Tz（以保持 良好的 占空比）
-        deff_structure_sheet_expect = 0.1 * Tz # Unit: μm
-else:
-    if deff_structure_sheet_expect >= 0.01 * deff_structure_length_expect * 1000 or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.01 * deff_structure_length_expect（以保持 良好的 精度）
-        deff_structure_sheet_expect = 0.01 * deff_structure_length_expect * 1000 # Unit: μm
-        
-diz = deff_structure_sheet_expect / 1000 / size_PerPixel # Unit: mm
-# diz = int( deff_structure_sheet_expect / 1000 / size_PerPixel )
-deff_structure_sheet = diz * size_PerPixel # Unit: mm 调制区域切片厚度 的 实际纵向尺寸
-# print("deff_structure_sheet = {} mm".format(deff_structure_sheet))
+diz, deff_structure_sheet = Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel, 
+                                    Tz, mz,
+                                    is_print = 1)
 
 #%%
 # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
 
-Iz_frontface = z0_structure_frontface_expect / size_PerPixel
-
-sheets_num_frontface = int(Iz_frontface // diz)
-Iz_frontface = sheets_num_frontface * diz
-z0_structure_frontface = Iz_frontface * size_PerPixel
-print("z0_structure_frontface = {} mm".format(z0_structure_frontface))
+sheets_num_frontface, Iz_frontface, z0_structure_frontface = Cal_Iz_frontface(diz, 
+                                                                              z0_structure_frontface_expect, L0_Crystal, size_PerPixel, 
+                                                                              is_print = 1)
 
 #%%
 # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
 
-Iz_structure = deff_structure_length_expect / size_PerPixel # Iz_structure 对应的是 期望的（连续的），而不是 实际的（discrete 离散的）？不，就得是离散的。
-# Iz_structure = int( deff_structure_length_expect / size_PerPixel )
-# sheets_num = Iz_structure // diz
-# Iz_structure = sheets_num * diz
-# deff_structure_length = Iz_structure * size_PerPixel # Unit: mm 调制区域 的 实际纵向尺寸
-# print("deff_structure_length = {} mm".format(deff_structure_length))
-
-sheets_num_structure = int(Iz_structure // diz)
-Iz_structure = sheets_num_structure * diz # Iz_structure 对应的是 实际的（discrete 离散的），而不是 期望的（连续的）。
-deff_structure_length = Iz_structure * size_PerPixel # Unit: mm 传播距离 = 调制区域 的 实际纵向尺寸
-# deff_structure_length = sheets_num * diz * size_PerPixel # Unit: mm 调制区域 的 实际纵向尺寸
-print("deff_structure_length = {} mm".format(deff_structure_length))
-
-#%%
-# 定义 结构后端面 距离 晶体后端面 的 纵向实际像素、结构后端面 距离 晶体后端面 的 实际纵向尺寸
-
-# Iz_endface = (L0_Crystal_expect - z0_structure_frontface - deff_structure_length) / size_PerPixel
-
-# sheets_num_endface = int(Iz_endface // diz)
-# Iz_endface = sheets_num_endface * diz
-# z0_structure_endface = Iz_endface * size_PerPixel
-# print("z0_structure_endface = {} mm".format(z0_structure_endface))
-
-#%%
-# 定义 晶体 的 纵向实际像素、晶体 的 实际纵向尺寸
-
-# # Iz = (z0_structure_frontface + deff_structure_length + z0_structure_endface) / size_PerPixel
-# Iz = Iz_frontface + Iz_structure + Iz_endface
-
-# # sheets_num = int(Iz // diz)
-# sheets_num = sheets_num_frontface + sheets_num_structure + sheets_num_endface
-# Iz = sheets_num * diz
-# z0 = L0_Crystal = Iz * size_PerPixel
-# print("z0 = L0_Crystal = {} mm".format(L0_Crystal))
+sheets_num_structure, Iz_structure, deff_structure_length = Cal_Iz_structure(diz, 
+                                                                             deff_structure_length_expect, size_PerPixel, 
+                                                                             is_print = 1)
 
 #%%
 # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸
 
-Iz_endface = Iz_frontface + Iz_structure
-
-sheets_num_endface = sheets_num_frontface + sheets_num_structure
-Iz_endface = sheets_num_endface * diz
-z0_structure_endface = Iz_endface * size_PerPixel
-print("z0_structure_endface = {} mm".format(z0_structure_endface))
+sheets_num_endface, Iz_endface, z0_structure_endface = Cal_Iz_endface(sheets_num_frontface, sheets_num_structure, 
+                                                                      Iz_frontface, Iz_structure, diz, 
+                                                                      size_PerPixel, 
+                                                                      is_print = 1)
 
 #%%
 # 定义 晶体 的 纵向实际像素、晶体 的 实际纵向尺寸
 
-Iz = L0_Crystal_expect / size_PerPixel
-
-sheets_num = int(Iz // diz)
-Iz = sheets_num * diz
-z0 = L0_Crystal = Iz * size_PerPixel
-print("z0 = L0_Crystal = {} mm".format(L0_Crystal))
+sheets_num, Iz = Cal_Iz(diz, 
+                        L0_Crystal, size_PerPixel, 
+                        is_print = 1)
+z0 = L0_Crystal
 
 #%%
 # 定义 需要展示的截面 1 距离晶体前端面 的 纵向实际像素、需要展示的截面 1 距离晶体前端面 的 实际纵向尺寸
 
-Iz_1f = z0_section_1f_expect / size_PerPixel
-
-sheets_num_section_1 = int(Iz_1f // diz)
-sheet_th_section_1 = sheets_num_section_1 # 将要计算的是 距离 Iz_1f 最近的（但在其前面的） 那个面，它是 前面一层 的 后端面，所以这里 用的是 e = endface（但是这一层的前端面，所以取消了这里的 e 的标记，容易引起混淆）
-if sheets_num_section_1 == 0:
-    sheets_num_section_1 = 1 # 怕 0 - 1 减出负来了，这样 即使 Iz_1f = 0，前端面也 至少给出的是 dz 处的 场分布
-sheet_th_section_1f = sheets_num_section_1 - 1 # 但需要 前面一层 的 前端面 的 序数 来计算
-iz_1 = sheet_th_section_1 * diz
-z0_1 = iz_1 * size_PerPixel
-print("z0_section_1 = {} mm".format(z0_1))
+sheet_th_section_1, sheet_th_section_1f, iz_1, z0_1 = Cal_iz_1(diz, 
+                                                               z0_section_1f_expect, size_PerPixel, 
+                                                               is_print = 1)
 
 #%%
 # 定义 需要展示的截面 2 距离晶体后端面 的 纵向实际像素、需要展示的截面 2 距离晶体后端面 的 实际纵向尺寸
 
-Iz_2f = z0_section_2f_expect / size_PerPixel
-
-sheets_num_section_2 = sheets_num - int(Iz_2f // diz) # 距离 后端面 的 距离，转换为 距离 前端面 的 距离 （但要稍微 更靠 后端面 一点）
-sheet_th_section_2 = sheets_num_section_2
-sheet_th_section_2f = sheets_num_section_2 - 1
-iz_2 = sheet_th_section_2 * diz
-z0_2 = iz_2 * size_PerPixel
-print("z0_section_2 = {} mm".format(z0_2))
+sheet_th_section_2, sheet_th_section_2f, iz_2, z0_2 = Cal_iz_2(sheets_num, 
+                                                               Iz, diz, 
+                                                               z0_section_2f_expect, size_PerPixel, 
+                                                               is_print = 1)
 
 #%%
-# 描边
+# 提供描边信息
 
-help_find_contours(dk, Tz, mz, 
+Info_find_contours(dk, Tz, mz, 
                    U1_0_NonZero_size, w0, z0, size_PerPixel,
                    is_print = 1)
 
@@ -355,12 +281,7 @@ g1_shift = np.fft.fftshift(g1)
 z1_0 = z0
 i1_z0 = z1_0 / size_PerPixel
 
-n1_x, n1_y = np.meshgrid([i for i in range(I1_x)], [j for j in range(I1_y)])
-Mesh_n1_x_n1_y = np.dstack((n1_x, n1_y))
-Mesh_n1_x_n1_y_shift = Mesh_n1_x_n1_y - (I1_x // 2, I1_y // 2)
-Mesh_k1_x_k1_y_shift = np.dstack((2 * math.pi * Mesh_n1_x_n1_y_shift[:, :, 0] / I1_x, 2 * math.pi * Mesh_n1_x_n1_y_shift[:, :, 1] / I1_y))
-
-k1_z_shift = (k1**2 - np.square(Mesh_k1_x_k1_y_shift[:, :, 0]) - np.square(Mesh_k1_x_k1_y_shift[:, :, 1]) + 0j )**0.5
+k1_z_shift = Cal_kz(I1_x, I1_y, k1)
 H1_z0_shift = np.power(math.e, k1_z_shift * i1_z0 * 1j)
 
 G1_z0_shift = g1_shift * H1_z0_shift
@@ -379,11 +300,7 @@ const = (k2 / size_PerPixel / n2)**2 * deff
 #%%
 # G2_z0_shift
 
-n2_x, n2_y = np.meshgrid([i for i in range(I2_x)], [j for j in range(I2_y)])
-Mesh_n2_x_n2_y = np.dstack((n2_x, n2_y))
-Mesh_n2_x_n2_y_shift = Mesh_n2_x_n2_y - (I2_x // 2, I2_y // 2)
-Mesh_k2_x_k2_y_shift = np.dstack((2 * math.pi * Mesh_n2_x_n2_y_shift[:, :, 0] / I2_x, 2 * math.pi * Mesh_n2_x_n2_y_shift[:, :, 1] / I2_y))
-k2_z_shift = (k2**2 - np.square(Mesh_k2_x_k2_y_shift[:, :, 0]) - np.square(Mesh_k2_x_k2_y_shift[:, :, 1]) + 0j )**0.5
+k2_z_shift = Cal_kz(I2_x, I2_y, k2)
 
 global thread_th, for_th, G2_z_plus_dz_shift # 好怪，作为 被封装 和 被引用的 函数，还得在 这一层 声明 全局变量，光是在 内层 子线程 里声明 的话，没用。
 thread_th = 0 # 生产出的 第几个 / 一共几个 线程，全局
@@ -397,8 +314,10 @@ if is_energy_evolution_on == 1:
 G2_z_shift_energy[0] = np.sum(np.abs(G2_z_plus_dz_shift)**2)
 U2_z_energy[0] = np.sum(np.abs(U2_z_plus_dz)**2)
 
-H2_z_shift_k2_z = (np.power(math.e, k2_z_shift * diz * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
 H2_z_plus_dz_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
+H2_z_shift_k2_z = (np.power(math.e, k2_z_shift * diz * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
+H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
+H2_z_shift_k2_z_temp = (np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
 con = threading.Condition() # 锁不必定义为全局变量
 
 class Producer(threading.Thread):
@@ -495,7 +414,10 @@ class Customer(threading.Thread):
                 if for_th == self.for_th:
                     # print(self.for_th)
                     """----- your code begin 2 -----"""
-                    G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + const * Q2_z_shift * H2_z_shift_k2_z
+                    if self.for_th == fors_num - 1:
+                        G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + const * Q2_z_shift * H2_z_shift_k2_z_temp                    
+                    else:
+                        G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + const * Q2_z_shift * H2_z_shift_k2_z
                     G2_z_plus_dz_shift_temp = G2_z_plus_dz_shift
                     """----- your code end 2 -----"""
                     for_th += 1
@@ -507,7 +429,10 @@ class Customer(threading.Thread):
             
             # print(self.for_th)
             """----- your code begin 2 -----"""
-            G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + const * Q2_z_shift * H2_z_shift_k2_z
+            if self.for_th == fors_num - 1:
+                G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + const * Q2_z_shift * H2_z_shift_k2_z_temp                    
+            else:
+                G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + const * Q2_z_shift * H2_z_shift_k2_z
             G2_z_plus_dz_shift_temp = G2_z_plus_dz_shift
             """----- your code end 2 -----"""
             for_th += 1

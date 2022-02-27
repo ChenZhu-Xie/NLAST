@@ -15,13 +15,15 @@ import math
 # import copy
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = 10E10 #Image 的 默认参数 无法处理那么大的图片
-from n_dispersion import LN_n, KTP_n
 import threading
 # import scipy
 from scipy.io import loadmat, savemat
 import time
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
+from fun_SSI import Cal_diz, Cal_Iz_structure
+from fun_linear import Cal_n
+from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz
 from a_Image_Add_Black_border import Image_Add_Black_border
 
 #%%
@@ -205,14 +207,9 @@ if (type(U1_txt_name) != str) or U1_txt_name == "":
     #%%
     # 预处理 输入场
     
-    if is_air_pump == 1:
-        n1 = 1
-    elif is_air_pump == 0:
-        n1 = LN_n(lam1, T, "e")
-    else:
-        n1 = KTP_n(lam1, T, "e")
-
-    k1 = 2 * math.pi * size_PerPixel / (lam1 / 1000 / n1) # lam / 1000 即以 mm 为单位
+    n1, k1 = Cal_n(size_PerPixel, 
+                   is_air, 
+                   lam1, T, p = "e")
     
     U1_0 = pump_LG(img_squared_resize_full_name, 
                    Ix, Iy, size_PerPixel, 
@@ -241,70 +238,38 @@ else:
 
 #%%
 
-if is_air == 1:
-    n1 = 1
-elif is_air == 0:
-    n1 = LN_n(lam1, T, "e")
-else:
-    n1 = KTP_n(lam1, T, "e")
-
-k1 = 2 * math.pi * size_PerPixel / (lam1 / 1000 / n1) # lam / 1000 即以 mm 为单位 
+n1, k1 = Cal_n(size_PerPixel, 
+               is_air, 
+               lam1, T, p = "e")
 
 #%%
 
 lam2 = lam1 / 2
 
-if is_air == 1:
-    n2 = 1
-elif is_air == 0:
-    n2 = LN_n(lam2, T, "e")
-else:
-    n2 = KTP_n(lam2, T, "e")
-    
-k2 = 2 * math.pi * size_PerPixel / (lam2 / 1000 / n2) # lam / 1000 即以 mm 为单位
+n2, k2 = Cal_n(size_PerPixel, 
+               is_air, 
+               lam2, T, p = "e")
 
-#%%
+dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel, 
+                        is_print = 0)
 
-dk = 2*k1 - k2 # Unit: 1 / mm
-lc = math.pi / abs(dk) * size_PerPixel # Unit: mm
-print("相干长度 = {} μm".format(lc * 1000))
-if (type(Tz) != float and type(Tz) != int) or Tz <= 0: # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
-    Tz = 2*lc * 1000  # Unit: um
-
-Gx = 2 * math.pi * mx * size_PerPixel / (Tx / 1000) # Tz / 1000 即以 mm 为单位
-Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000) # Tz / 1000 即以 mm 为单位
-Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000) # Tz / 1000 即以 mm 为单位
+Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
+                        Tx, Ty, Tz, size_PerPixel, 
+                        is_print = 1)
 
 #%%
 # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
-if mz != 0: # 如过你想 让结构 提供 z 向倒格矢
-    if deff_structure_sheet_expect >= 0.1 * Tz: # 则 deff_structure_sheet_expect 不能超过 0.1 * Tz（以保持 良好的 占空比）
-        deff_structure_sheet_expect = 0.1 * Tz # Unit: μm
-else:
-    if deff_structure_sheet_expect >= 0.01 * deff_structure_length_expect * 1000: # 则 deff_structure_sheet_expect 不能超过 0.01 * deff_structure_length_expect（以保持 良好的 精度）
-        deff_structure_sheet_expect = 0.01 * deff_structure_length_expect * 1000 # Unit: μm
-
-diz = deff_structure_sheet_expect / 1000 / size_PerPixel # Unit: mm
-# diz = int( deff_structure_sheet_expect / 1000 / size_PerPixel )
-deff_structure_sheet = diz * size_PerPixel # Unit: mm 调制区域切片厚度 的 实际纵向尺寸
-# print("deff_structure_sheet = {} mm".format(deff_structure_sheet))
+diz, deff_structure_sheet = Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel, 
+                                    Tz, mz,
+                                    is_print = 1)
 
 #%%
 # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
 
-Iz = deff_structure_length_expect / size_PerPixel # Iz 对应的是 期望的（连续的），而不是 实际的（discrete 离散的）？不，就得是离散的。
-# Iz = int( deff_structure_length_expect / size_PerPixel )
-# sheets_num = Iz // diz
-# Iz = sheets_num * diz
-# deff_structure_length = Iz * size_PerPixel # Unit: mm 调制区域 的 实际纵向尺寸
-# print("deff_structure_length = {} mm".format(deff_structure_length))
-
-sheets_num = int(Iz // diz)
-Iz = sheets_num * diz # Iz 对应的是 实际的（discrete 离散的），而不是 期望的（连续的）。
-deff_structure_length = Iz * size_PerPixel # Unit: mm 调制区域 的 实际纵向尺寸
-# deff_structure_length = sheets_num * diz * size_PerPixel # Unit: mm 调制区域 的 实际纵向尺寸
-print("deff_structure_length = {} mm".format(deff_structure_length))
+sheets_num, Iz, deff_structure_length = Cal_Iz_structure(diz, 
+                                                         deff_structure_length_expect, size_PerPixel, 
+                                                         is_print = 1)
 
 #%%
 
@@ -539,7 +504,10 @@ class Customer(threading.Thread):
         """----- 你 需累积的 全局变量，替换 最末一个 g2_z_plus_dz_shift -----"""
             
         """----- your code begin 1 -----"""
-        iz = self.for_th * diz
+        if self.for_th == fors_num - 1:
+            iz = Iz
+        else:
+            iz = self.for_th * diz
         
         if mz != 0: # 如果 要用 Tz，则如下 分层；
         

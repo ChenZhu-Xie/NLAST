@@ -8,17 +8,39 @@ Created on Fri Feb 25 20:23:31 2022
 import math
 import numpy as np
 
-#%%
 
-def help_find_contours(dk, Tz, mz, 
+def Cal_lc_SHG(k1, k2, Tz, size_PerPixel, 
+               is_print = 1):
+    
+    dk = 2*k1 - k2 # Unit: 1 / mm
+    lc = math.pi / abs(dk) * size_PerPixel # Unit: mm
+    is_print and print("相干长度 = {} μm".format(lc * 1000))
+    
+    if (type(Tz) != float and type(Tz) != int) or Tz <= 0: # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
+        Tz = 2*lc * 1000  # Unit: um
+        
+    return dk, lc, Tz
+
+def Cal_GxGyGz(mx, my, mz,
+               Tx, Ty, Tz, size_PerPixel, 
+               is_print = 1):
+    
+    Gx = 2 * math.pi * mx * size_PerPixel / (Tx / 1000) # Tz / 1000 即以 mm 为单位
+    Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000) # Tz / 1000 即以 mm 为单位
+    Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000) # Tz / 1000 即以 mm 为单位
+        
+    return Gx, Gy, Gz
+
+#%%
+# 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
+
+def Info_find_contours(dk, Tz, mz, 
                        U1_0_NonZero_size, w0, z0, size_PerPixel,
                        is_print = 1):
     
-    # 提供 查找 边缘的，参数的 暗示信息 msg
-    
     #%%
     # 描边
-    if is_print == 1:
+    if is_print == 1: # 由于这个 函数不 return，只提供信息；因此 如果不 print，相当于什么都没做
         
         lc = math.pi / abs(dk) * size_PerPixel * 1000 # Unit: um
         # print("相干长度 = {} μm".format(lc))

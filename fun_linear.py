@@ -8,6 +8,7 @@ Created on Wed Dec 22 21:37:19 2021
 #%%
 
 import math
+import numpy as np
 
 #%%
 
@@ -45,3 +46,33 @@ def KTP_n(lam, T, p = "z"):
 # print("KTP_nx = {}".format(KTP_n(lam, T, "x")))
 # print("KTP_ne = {}".format(KTP_n(lam, T, "e")))
 # print("KTP_no = {}".format(KTP_n(lam, T, "o")))
+
+#%%
+# 计算 折射率、波矢
+
+def Cal_n(size_PerPixel, 
+          is_air, 
+          lam, T, p = "e"):
+    
+    if is_air == 1:
+        n = 1
+    elif is_air == 0:
+        n = LN_n(lam, T, p)
+    else:
+        n = KTP_n(lam, T, p)
+
+    k = 2 * math.pi * size_PerPixel / (lam / 1000 / n) # lam / 1000 即以 mm 为单位
+    
+    return n, k
+
+# 生成 kz 网格
+
+def Cal_kz(Ix, Iy, k):
+    
+    nx, ny = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
+    Mesh_nx_ny = np.dstack((nx, ny))
+    Mesh_nx_ny_shift = Mesh_nx_ny - (Ix // 2, Iy // 2)
+    Mesh_kx_ky_shift = np.dstack((2 * math.pi * Mesh_nx_ny_shift[:, :, 0] / Ix, 2 * math.pi * Mesh_nx_ny_shift[:, :, 1] / Iy))
+    kz_shift = (k**2 - Mesh_kx_ky_shift[:, :, 0]**2 - Mesh_kx_ky_shift[:, :, 1]**2 + 0j )**0.5
+    
+    return kz_shift
