@@ -9,13 +9,13 @@ Created on Mon Nov  1 14:38:57 2021
 
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
-from a_Image_Add_Black_border import Image_Add_Black_border
+from fun_img_Resize import image_Add_black_border
 from b_1_AST import AST
 
-def Refraction_AST__AST(U1_txt_name = "", 
-                        file_full_name = "Grating.png", 
+def Refraction_AST__AST(U1_name = "", 
+                        img_full_name = "Grating.png", 
                         border_percentage = 0.3, 
-                        phase_only = 0, 
+                        is_phase_only = 0, 
                         #%%
                         is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                         l = 0, p = 0, 
@@ -48,14 +48,16 @@ def Refraction_AST__AST(U1_txt_name = "",
     #%%
     # 线性 惠更斯 菲涅尔 原理
     
-    Image_Add_Black_border(file_full_name, border_percentage)
+    image_Add_black_border(img_full_name, 
+                           border_percentage, 
+                           is_print = 1, )
     
     #%%
     # 先以 n 衍射 z0_n 后 以 1 衍射 z0_1
     
     # AST('', 
-    #     file_full_name, 
-    #     phase_only, 
+    #     img_full_name, 
+    #     is_phase_only, 
     #     #%%
     #     is_LG, is_Gauss, is_OAM, 
     #     l, p, 
@@ -80,13 +82,13 @@ def Refraction_AST__AST(U1_txt_name = "",
     #     is_self_colorbar, is_colorbar_on, 
     #     is_energy, vmax, vmin)
     
-    # U1_txt_name = "6. AST - U1_" + str(float('%.2g' % z0_n)) + "mm"
-    # # U1_txt_full_name = U1_txt_name + ".txt"
-    # # U1_txt_short_name = U1_txt_name.replace('6. AST - ', '')
+    # U1_name = "6. AST - U1_" + str(float('%.2g' % z0_n)) + "mm"
+    # # U1_full_name = U1_name + ".txt"
+    # # U1_short_name = U1_name.replace('6. AST - ', '')
     
-    # AST(U1_txt_name, 
-    #     file_full_name, 
-    #     phase_only, 
+    # AST(U1_name, 
+    #     img_full_name, 
+    #     is_phase_only, 
     #     #%%
     #     is_LG, is_Gauss, is_OAM, 
     #     l, p, 
@@ -115,8 +117,8 @@ def Refraction_AST__AST(U1_txt_name = "",
     # 先以 1 衍射 z0_1 后 以 n 衍射 z0_n
     
     AST('', 
-        file_full_name, 
-        phase_only, 
+        img_full_name, 
+        is_phase_only, 
         #%%
         is_LG, is_Gauss, is_OAM, 
         l, p, 
@@ -141,13 +143,13 @@ def Refraction_AST__AST(U1_txt_name = "",
         is_self_colorbar, is_colorbar_on, 
         is_energy, vmax, vmin)
     
-    U1_txt_name = "6. AST - U1_" + str(float('%.2g' % z0_1)) + "mm"
-    # U1_txt_full_name = U1_txt_name + ".txt"
-    # U1_txt_short_name = U1_txt_name.replace('6. AST - ', '')
+    U1_name = "6. AST - U1_" + str(float('%.2g' % z0_1)) + "mm"
+    # U1_full_name = U1_name + ".txt"
+    # U1_short_name = U1_name.replace('6. AST - ', '')
     
-    AST(U1_txt_name, 
-        file_full_name, 
-        phase_only, 
+    AST(U1_name, 
+        img_full_name, 
+        is_phase_only, 
         #%%
         is_LG, is_Gauss, is_OAM, 
         l, p, 
@@ -174,10 +176,10 @@ def Refraction_AST__AST(U1_txt_name = "",
     
     #%%
     
-Refraction_AST__AST(U1_txt_name = "", 
-                    file_full_name = "Grating.png", 
+Refraction_AST__AST(U1_name = "", 
+                    img_full_name = "Grating.png", 
                     border_percentage = 0.3, 
-                    phase_only = 0, 
+                    is_phase_only = 0, 
                     #%%
                     is_LG = 0, is_Gauss = 1, is_OAM = 1, 
                     l = 3, p = 0, 

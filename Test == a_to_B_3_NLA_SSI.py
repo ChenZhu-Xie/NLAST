@@ -9,22 +9,22 @@ Created on Mon Nov  1 14:38:57 2021
 
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
-from a_Image_Add_Black_border import Image_Add_Black_border
-from A_3_Structure_Generate_NLC import Structure_NLC
+from fun_img_Resize import image_Add_black_border
+from A_3_structure_Generate_NLC import structure_NLC
 from B_3_NLA_SSI import NLA_SSI
 
-def a_to_B_3_NLA_SSI(U1_txt_name_Structure = "", 
+def a_to_B_3_NLA_SSI(U1_name_Structure = "", 
                      border_percentage = 0.3, 
-                     phase_only_Structure = 0, 
+                     is_phase_only_Structure = 0, 
                      #%%
                      is_LG_Structure = 0, is_Gauss_Structure = 1, is_OAM_Structure = 1, 
                      l_Structure = 0, p_Structure = 0, 
                      theta_x_Structure = 0, theta_y_Structure = 0, 
                      is_H_l_Structure = 0, is_H_theta_Structure = 0, 
                      #%%
-                     U1_txt_name = "", 
-                     file_full_name = "l=1.png", 
-                     phase_only = 0, 
+                     U1_name = "", 
+                     img_full_name = "l=1.png", 
+                     is_phase_only = 0, 
                      #%%
                      is_LG = 0, is_Gauss = 1, is_OAM = 1, 
                      l = 1, p = 0, 
@@ -70,14 +70,16 @@ def a_to_B_3_NLA_SSI(U1_txt_name_Structure = "",
     #%%
     # a_Image_Add_Black_border
     
-    Image_Add_Black_border(file_full_name, border_percentage)
+    image_Add_black_border(img_full_name, 
+                           border_percentage, 
+                           is_print = 1, )
     
     #%%
     # A_3_Structure_Generate_NLC
     
-    Structure_NLC(U1_txt_name_Structure, 
-                  file_full_name, 
-                  phase_only_Structure, 
+    structure_NLC(U1_name_Structure, 
+                  img_full_name, 
+                  is_phase_only_Structure, 
                   #%%
                   is_LG_Structure, is_Gauss_Structure, is_OAM_Structure, 
                   l_Structure, p_Structure, 
@@ -111,9 +113,9 @@ def a_to_B_3_NLA_SSI(U1_txt_name_Structure = "",
     #%%
     # B_3_NLA_SSI
     
-    NLA_SSI(U1_txt_name, 
-            file_full_name, 
-            phase_only, 
+    NLA_SSI(U1_name, 
+            img_full_name, 
+            is_phase_only, 
             #%%
             is_LG, is_Gauss, is_OAM, 
             l, p, 
@@ -147,18 +149,18 @@ def a_to_B_3_NLA_SSI(U1_txt_name_Structure = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin)
 
-a_to_B_3_NLA_SSI(U1_txt_name_Structure = "", 
+a_to_B_3_NLA_SSI(U1_name_Structure = "", 
                  border_percentage = 0.1, 
-                 phase_only_Structure = 0, 
+                 is_phase_only_Structure = 0, 
                  #%%
                  is_LG_Structure = 0, is_Gauss_Structure = 1, is_OAM_Structure = 0, 
                  l_Structure = 0, p_Structure = 0, 
                  theta_x_Structure = 0, theta_y_Structure = 0, 
                  is_H_l_Structure = 0, is_H_theta_Structure = 0, 
                  #%%
-                 U1_txt_name = "", 
-                 file_full_name = "lena.png", 
-                 phase_only = 0, 
+                 U1_name = "", 
+                 img_full_name = "lena.png", 
+                 is_phase_only = 0, 
                  #%%
                  is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                  l = 0, p = 0, 

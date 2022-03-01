@@ -148,9 +148,20 @@ def Cal_iz_2(sheets_num,
     
     return sheet_th_section_2, sheet_th_section_2f, iz_2, z0_2
 
+#%%
+# 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
 
-
-
+def Cal_IxIy(I1_x, I1_y, 
+             deff_structure_size_expect, size_PerPixel, 
+             is_print = 1):
+    
+    Ix, Iy = int( deff_structure_size_expect / size_PerPixel ), int( deff_structure_size_expect / size_PerPixel )
+    # Ix, Iy 需要与 I1_x, I1_y 同奇偶性，这样 加边框 才好加（对称地加 而不用考虑 左右两边加的量 可能不一样）
+    Ix, Iy = Ix + np.mod(I1_x - Ix,2), Iy + np.mod(I1_y - Iy,2)
+    deff_structure_size = Ix * size_PerPixel # Unit: mm 不包含 边框，调制区域 的 实际横向尺寸
+    is_print and print("deff_structure_size = {} mm".format(deff_structure_size))
+    
+    return Ix, Iy, deff_structure_size
 
 
 

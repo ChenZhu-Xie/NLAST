@@ -9,6 +9,7 @@ Created on Wed Dec 22 21:37:19 2021
 
 import math
 import numpy as np
+from fun_array_Generate import mesh_shift
 
 #%%
 
@@ -69,10 +70,9 @@ def Cal_n(size_PerPixel,
 
 def Cal_kz(Ix, Iy, k):
     
-    nx, ny = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-    Mesh_nx_ny = np.dstack((nx, ny))
-    Mesh_nx_ny_shift = Mesh_nx_ny - (Ix // 2, Iy // 2)
-    Mesh_kx_ky_shift = np.dstack((2 * math.pi * Mesh_nx_ny_shift[:, :, 0] / Ix, 2 * math.pi * Mesh_nx_ny_shift[:, :, 1] / Iy))
-    kz_shift = (k**2 - Mesh_kx_ky_shift[:, :, 0]**2 - Mesh_kx_ky_shift[:, :, 1]**2 + 0j )**0.5
+    mesh_nx_ny_shift = mesh_shift(Ix, Iy)
+    mesh_kx_ky_shift = np.dstack((2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Ix, 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Iy))
     
-    return kz_shift
+    kz_shift = (k**2 - mesh_kx_ky_shift[:, :, 0]**2 - mesh_kx_ky_shift[:, :, 1]**2 + 0j )**0.5
+    
+    return kz_shift, mesh_kx_ky_shift

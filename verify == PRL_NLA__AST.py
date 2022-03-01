@@ -9,14 +9,14 @@ Created on Mon Nov  1 14:38:57 2021
 
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
-from a_Image_Add_Black_border import Image_Add_Black_border
+from fun_img_Resize import image_Add_black_border
 from b_1_AST import AST
 from b_3_NLA import NLA
 
-def PRL_NLA__AST(U1_txt_name = "", 
-                 file_full_name = "Grating.png", 
+def PRL_NLA__AST(U1_name = "", 
+                 img_full_name = "Grating.png", 
                  border_percentage = 0.3, 
-                 phase_only = 0, 
+                 is_phase_only = 0, 
                  #%%
                  is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                  l = 0, p = 0, 
@@ -52,14 +52,16 @@ def PRL_NLA__AST(U1_txt_name = "",
     #%%
     # start
     
-    Image_Add_Black_border(file_full_name, border_percentage)
+    image_Add_black_border(img_full_name, 
+                           border_percentage, 
+                           is_print = 1, )
     
     #%%
     # 先晶体内 倍频 z0_NLA，后空气中 衍射 z0_AST
     
     NLA('', 
-        file_full_name, 
-        phase_only, 
+        img_full_name, 
+        is_phase_only, 
         #%%
         is_LG, is_Gauss, is_OAM, 
         l, p, 
@@ -92,8 +94,8 @@ def PRL_NLA__AST(U1_txt_name = "",
     # U2_txt_short_name = U2_txt_name.replace('6. NLA - ', '')
     
     AST(U2_txt_name, 
-        file_full_name, 
-        phase_only, 
+        img_full_name, 
+        is_phase_only, 
         #%%
         is_LG, is_Gauss, is_OAM, 
         l, p, 
@@ -126,13 +128,13 @@ def PRL_NLA__AST(U1_txt_name = "",
     #%%
 
 # 基波 1 度 斜向上（图右），倍频 -1 度 斜向下（图左）。   
-# PRL_NLA__AST(file_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, phase_only = 0, is_H_theta = 0, theta_x = 1, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 0.1, z0_AST = 5, X = 0, Y = 0, lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 9.98, Ty = 10, Tz = 17.997, mx = -1, my = 0, mz = 1, is_linear_convolution = 0, save = 0, dpi = 100)
-# PRL_NLA__AST(file_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, phase_only = 0, is_H_theta = 0, theta_x = 1, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 1, z0_AST = 20, X = 0, Y = 0, lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 9.98, Ty = 10, Tz = 17.997, mx = -1, my = 0, mz = 1, is_linear_convolution = 0, save = 0, dpi = 100)
+# PRL_NLA__AST(img_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, is_phase_only = 0, is_H_theta = 0, theta_x = 1, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 0.1, z0_AST = 5, X = 0, Y = 0, lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 9.98, Ty = 10, Tz = 17.997, mx = -1, my = 0, mz = 1, is_linear_convolution = 0, save = 0, dpi = 100)
+# PRL_NLA__AST(img_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, is_phase_only = 0, is_H_theta = 0, theta_x = 1, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 1, z0_AST = 20, X = 0, Y = 0, lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 9.98, Ty = 10, Tz = 17.997, mx = -1, my = 0, mz = 1, is_linear_convolution = 0, save = 0, dpi = 100)
 # 基波 1 度 斜向上（图右），倍频 0 度 不偏（正中）。
-PRL_NLA__AST(U1_txt_name = "", 
-             file_full_name = "Grating.png", 
+PRL_NLA__AST(U1_name = "", 
+             img_full_name = "Grating.png", 
              border_percentage = 0.3, 
-             phase_only = 0, 
+             is_phase_only = 0, 
              #%%
              is_LG = 0, is_Gauss = 1, is_OAM = 1, 
              l = 3, p = 0, 
@@ -164,8 +166,8 @@ PRL_NLA__AST(U1_txt_name = "",
              #%%
              is_self_colorbar = 0, is_colorbar_on = 1, 
              is_energy = 1, vmax = 1, vmin = 0)
-# PRL_NLA__AST(file_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, phase_only = 0, is_H_theta = 0, theta_x = 1, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 2, z0_AST = 15, X = 0, Y = 0, lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 20.155, Ty = 10, Tz = 17.885, mx = -1, my = 0, mz = 1, is_linear_convolution = 0, save = 0, dpi = 100)
+# PRL_NLA__AST(img_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, is_phase_only = 0, is_H_theta = 0, theta_x = 1, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 2, z0_AST = 15, X = 0, Y = 0, lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 20.155, Ty = 10, Tz = 17.885, mx = -1, my = 0, mz = 1, is_linear_convolution = 0, save = 0, dpi = 100)
 # 基波 0 度 不偏（正中），倍频 1 度 斜向上（图右）。
-# PRL_NLA__AST(file_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, phase_only = 0, is_H_theta = 0, theta_x = 0, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 0.1, z0_AST = 5, X = 0, Y = 0, lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 19.769, Ty = 10, Tz = 18.139, mx = 1, my = 0, mz = 1, is_linear_convolution = 0, save = 0, dpi = 100)
+# PRL_NLA__AST(img_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, is_phase_only = 0, is_H_theta = 0, theta_x = 0, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 0.1, z0_AST = 5, X = 0, Y = 0, lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 19.769, Ty = 10, Tz = 18.139, mx = 1, my = 0, mz = 1, is_linear_convolution = 0, save = 0, dpi = 100)
 
-# PRL_NLA__AST(file_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, phase_only = 0, is_H_theta = 0, theta_x = 8, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 0.1, z0_AST = 5, X = 0, Y = 0, lam1 = 2, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 4.737, Ty = 10, Tz = 18.139, mx = 1, my = 0, mz = 0, is_linear_convolution = 0, save = 0, dpi = 100)
+# PRL_NLA__AST(img_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, is_phase_only = 0, is_H_theta = 0, theta_x = 8, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 0.1, z0_AST = 5, X = 0, Y = 0, lam1 = 2, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 4.737, Ty = 10, Tz = 18.139, mx = 1, my = 0, mz = 0, is_linear_convolution = 0, save = 0, dpi = 100)

@@ -11,16 +11,17 @@ import os
 import cv2
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
-from a_Image_Add_Black_border import Image_Add_Black_border
+from scipy.io import loadmat, savemat
+from fun_os import U_Read
+from fun_img_Resize import image_Add_black_border
+from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from b_1_AST import AST
 from b_3_NLA import NLA
-from scipy.io import loadmat, savemat
-from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 
-def Contours_NLA_AST(U1_txt_name = "", 
-                     file_full_name = "Grating.png", 
+def Contours_NLA_AST(U1_name = "", 
+                     img_full_name = "Grating.png", 
                      border_percentage = 0.3, 
-                     phase_only = 0, 
+                     is_phase_only = 0, 
                      #%%
                      is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                      l = 0, p = 0, 
@@ -56,14 +57,16 @@ def Contours_NLA_AST(U1_txt_name = "",
     #%%
     # 非线性 描边
     
-    Image_Add_Black_border(file_full_name, border_percentage)
+    image_Add_black_border(img_full_name, 
+                           border_percentage, 
+                           is_print = 1, )
     
     #%%
     # 先空气中 衍射 z0_AST，后晶体内 倍频 z0_NLA
     
     AST('', 
-        file_full_name, 
-        phase_only, 
+        img_full_name, 
+        is_phase_only, 
         #%%
         is_LG, is_Gauss, is_OAM, 
         l, p, 
@@ -88,13 +91,13 @@ def Contours_NLA_AST(U1_txt_name = "",
         is_self_colorbar, is_colorbar_on, 
         is_energy, vmax, vmin)
     
-    U1_txt_name = "6. AST - U1_" + str(float('%.2g' % z0_AST)) + "mm"
-    # U1_txt_full_name = U1_txt_name + ".txt"
-    # U1_txt_short_name = U1_txt_name.replace('6. AST - ', '')
+    U1_name = "6. AST - U1_" + str(float('%.2g' % z0_AST)) + "mm"
+    # U1_full_name = U1_name + ".txt"
+    # U1_short_name = U1_name.replace('6. AST - ', '')
     
-    NLA(U1_txt_name, 
-        file_full_name, 
-        phase_only, 
+    NLA(U1_name, 
+        img_full_name, 
+        is_phase_only, 
         #%%
         is_LG, is_Gauss, is_OAM, 
         l, p, 
@@ -131,8 +134,8 @@ def Contours_NLA_AST(U1_txt_name = "",
     # 先晶体内 倍频 z0_NLA，后空气中 衍射 z0_AST
     
     NLA('', 
-        file_full_name, 
-        phase_only, 
+        img_full_name, 
+        is_phase_only, 
         #%%
         is_LG, is_Gauss, is_OAM, 
         l, p, 
@@ -165,8 +168,8 @@ def Contours_NLA_AST(U1_txt_name = "",
     # U2_txt_short_name = U2_txt_name.replace('6. NLA - ', '')
     
     AST(U2_txt_name, 
-        file_full_name, 
-        phase_only, 
+        img_full_name, 
+        is_phase_only, 
         #%%
         is_LG, is_Gauss, is_OAM, 
         l, p, 
@@ -192,7 +195,7 @@ def Contours_NLA_AST(U1_txt_name = "",
         is_energy, vmax, vmin)
     
     U2_AST_txt_name = "6. AST - U2_" + str(float('%.2g' % z0_AST)) + "mm"
-    U2_AST_txt_full_name = U2_AST_txt_name + (is_save_txt and ".txt" or ".mat")
+    # U2_AST_txt_full_name = U2_AST_txt_name + (is_save_txt and ".txt" or ".mat")
     # U2_AST_txt_short_name = U2_AST_txt_name.replace('6. AST - ', '')
     U2_AST_txt_short_name = U2_AST_txt_name.replace('6. AST - ', 'AST - ')
     
@@ -202,7 +205,11 @@ def Contours_NLA_AST(U1_txt_name = "",
     Z0 = z0_AST + z0_NLA
     
     U1_NLA = np.loadtxt(U1_NLA_txt_full_name, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U1_NLA_txt_full_name)['U'] # 加载 复振幅场
-    U2_AST = np.loadtxt(U2_AST_txt_full_name, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U2_AST_txt_full_name)['U'] # 加载 复振幅场
+    # U2_AST = np.loadtxt(U2_AST_txt_full_name, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U2_AST_txt_full_name)['U'] # 加载 复振幅场
+    location = os.path.dirname(os.path.abspath(__file__))
+    img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I2_x, I2_y, U2_AST = U_Read(U2_AST_txt_name, img_full_name, 
+                                                                                                    U1_0_NonZero_size, dpi, 
+                                                                                                    is_save_txt, )
     
     U2_Z0_Superposition = U1_NLA + U2_AST
     
@@ -215,27 +222,11 @@ def Contours_NLA_AST(U1_txt_name = "",
     if is_save == 1:
         if not os.path.isdir("6. U2_" + str(float('%.2g' % Z0)) + "mm"):
             os.makedirs("6. U2_" + str(float('%.2g' % Z0)) + "mm")
-    
-    #%%
-    # 路径设定
-    
-    size_fig = U2_Z0_Superposition.shape[0] / dpi
-    
-    file_name = os.path.splitext(file_full_name)[0]
-    file_name_extension = os.path.splitext(file_full_name)[1]
-    
-    location = os.path.dirname(os.path.abspath(__file__))
-    file_squared_address = location + "\\" + "1." + file_name + "_squared" + file_name_extension
-    
-    img_squared = cv2.imdecode(np.fromfile(file_squared_address, dtype=np.uint8), 0) # 按 相对路径 + 灰度图 读取图片
-    
-    size_PerPixel = U1_0_NonZero_size / img_squared.shape[0] # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
-    I2_x, I2_y = U2_Z0_Superposition.shape[0], U2_Z0_Superposition.shape[1]
 
     #%%
     #绘图：U2_Z0_Superposition_amp
 
-    U2_Z0_Superposition_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + file_name_extension
+    U2_Z0_Superposition_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + img_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
             U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp", 
@@ -247,7 +238,7 @@ def Contours_NLA_AST(U1_txt_name = "",
     #%%
     #绘图：U2_Z0_Superposition_phase
 
-    U2_Z0_Superposition_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + file_name_extension
+    U2_Z0_Superposition_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + img_name_extension
 
     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
             U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase", 
@@ -267,7 +258,7 @@ def Contours_NLA_AST(U1_txt_name = "",
         #%%
         #再次绘图：U2_Z0_Superposition_amp
     
-        U2_Z0_Superposition_amp_address = location + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + file_name_extension
+        U2_Z0_Superposition_amp_address = location + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + img_name_extension
     
         plot_2d(I2_x, I2_y, size_PerPixel, 0, 
                 U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp", 
@@ -278,7 +269,7 @@ def Contours_NLA_AST(U1_txt_name = "",
         
         #再次绘图：U2_Z0_Superposition_phase
     
-        U2_Z0_Superposition_phase_address = location + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + file_name_extension
+        U2_Z0_Superposition_phase_address = location + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + img_name_extension
     
         plot_2d(I2_x, I2_y, size_PerPixel, 0, 
                 U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase", 
@@ -295,10 +286,10 @@ def Contours_NLA_AST(U1_txt_name = "",
     
 #%%
     
-Contours_NLA_AST(U1_txt_name = "", 
-                 file_full_name = "grating.png", 
+Contours_NLA_AST(U1_name = "", 
+                 img_full_name = "grating.png", 
                  border_percentage = 0.3, 
-                 phase_only = 0, 
+                 is_phase_only = 0, 
                  #%%
                  is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                  l = 0, p = 0, 

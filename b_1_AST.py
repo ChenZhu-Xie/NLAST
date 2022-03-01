@@ -8,24 +8,22 @@ Created on Sun Dec 26 22:09:04 2021
 #%%
 
 import os
-import cv2
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
 import math
 # import copy
-from PIL import Image
-Image.MAX_IMAGE_PIXELS = 10E10 #Image 的 默认参数 无法处理那么大的图片
-from n_dispersion import LN_n, KTP_n
 # import scipy
-from scipy.io import loadmat, savemat
+from scipy.io import savemat
+from fun_os import img_squared_bordered_Read, U_Read
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
+from fun_linear import Cal_n, Cal_kz
 
 #%%
 
-def AST(U1_txt_name = "", 
-        file_full_name = "Grating.png", 
-        phase_only = 0, 
+def AST(U1_name = "", 
+        img_full_name = "Grating.png", 
+        is_phase_only = 0, 
         #%%
         is_LG = 0, is_Gauss = 0, is_OAM = 0, 
         l = 0, p = 0, 
@@ -56,10 +54,10 @@ def AST(U1_txt_name = "",
         is_energy = 0, vmax = 1, vmin = 0):
     
     # #%%
-    # U1_txt_name = ""
-    # file_full_name = "lena.png"
+    # U1_name = ""
+    # img_full_name = "lena.png"
     # #%%
-    # phase_only = 0
+    # is_phase_only = 0
     # is_LG, is_Gauss, is_OAM = 0, 1, 1
     # l, p = 1, 0
     # theta_x, theta_y = 1, 0
@@ -100,55 +98,27 @@ def AST(U1_txt_name = "",
     # is_energy = 0
     # vmax, vmin = 1, 0
     
-    if (type(U1_txt_name) != str) or U1_txt_name == "":
+    #%%
+    
+    location = os.path.dirname(os.path.abspath(__file__)) # 其实不需要，默认就是在 相对路径下 读，只需要 文件名 即可
+
+    if (type(U1_name) != str) or U1_name == "":
+        
         #%%
         # 导入 方形，以及 加边框 的 图片
-    
-        file_name = os.path.splitext(file_full_name)[0]
-        file_name_extension = os.path.splitext(file_full_name)[1]
-    
-        location = os.path.dirname(os.path.abspath(__file__))
-        file_squared_address = location + "\\" + "1." + file_name + "_squared" + file_name_extension
-        file_squared_bordered_address = location + "\\" + "2." + file_name + "_squared" + "_bordered" + file_name_extension
-    
-        img_squared = cv2.imdecode(np.fromfile(file_squared_address, dtype=np.uint8), 0) # 按 相对路径 + 灰度图 读取图片
-        img_squared_bordered = cv2.imdecode(np.fromfile(file_squared_bordered_address, dtype=np.uint8), 0) # 按 相对路径 + 灰度图 读取图片
-    
-        size_fig = img_squared_bordered.shape[0] / dpi
-    
-        #%%
-        # 线性 角谱理论 - 基波 begin
-    
-        size_PerPixel = U1_0_NonZero_size / img_squared.shape[0] # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
-        I1_x, I1_y = img_squared_bordered.shape[0], img_squared_bordered.shape[1]
-        U1_size = I1_x * size_PerPixel # Unit: mm 包含 边框 后，图片 的 实际尺寸
-        print("U1_size = U2_size = {} mm".format(U1_size))
-        # print("U1_size = {} mm".format(U1_size))
-        # print("%f mm" %(U1_size))
-    
-        #%%
-        # U1_0 = U(x, y, 0) = img_squared_bordered
-    
-        # I_img_squared_bordered = np.empty([I1_x, I1_y], dtype=np.uint64)
-        # I_img_squared_bordered = copy.deepcopy(img_squared_bordered) # 但这 深拷贝 也不行，因为把 最底层的 数据类型 uint8 也拷贝了，我 tm 无语，不如直接 astype 算了
-        if phase_only == 1:
-            U1_0 = np.power(math.e, (img_squared_bordered.astype(np.complex128()) / 255 * 2 * math.pi - math.pi) * 1j) # 变成相位图
-        else:
-            U1_0 = img_squared_bordered.astype(np.complex128)
+        
+        img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(img_full_name, 
+                                                                                                                         U1_0_NonZero_size, dpi, 
+                                                                                                                         is_phase_only)
         
         #%%
         # 预处理 输入场
         
-        if is_air_pump == 1:
-            n1 = 1
-        elif is_air_pump == 0:
-            n1 = LN_n(lam1, T, "e")
-        else:
-            n1 = KTP_n(lam1, T, "e")
-
-        k1 = 2 * math.pi * size_PerPixel / (lam1 / 1000 / n1) # lam / 1000 即以 mm 为单位
+        n1, k1 = Cal_n(size_PerPixel, 
+                       is_air, 
+                       lam1, T, p = "e")
         
-        U1_0 = pump_LG(file_full_name, 
+        U1_0 = pump_LG(img_full_name, 
                        I1_x, I1_y, size_PerPixel, 
                        U1_0, w0, k1, 0, 
                        is_LG, is_Gauss, is_OAM, 
@@ -158,50 +128,26 @@ def AST(U1_txt_name = "",
                        is_save, is_save_txt, dpi, 
                        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
-                       1, is_colorbar_on, is_energy, vmax, vmin) 
+                       1, is_colorbar_on, is_energy, vmax, vmin, 
+                       is_print = 1, ) 
         
     else:
-    
-        #%%
-        # 导入 方形，以及 加边框 的 图片
-        
-        U1_txt_full_name = U1_txt_name + (is_save_txt and ".txt" or ".mat")
-        U1_txt_short_name = U1_txt_name.replace('6. AST - ', '')
-        
-        file_name = os.path.splitext(file_full_name)[0]
-        file_name_extension = os.path.splitext(file_full_name)[1]
-
-        location = os.path.dirname(os.path.abspath(__file__))
-        file_squared_address = location + "\\" + "1." + file_name + "_squared" + file_name_extension
-
-        img_squared = cv2.imdecode(np.fromfile(file_squared_address, dtype=np.uint8), 0) # 按 相对路径 + 灰度图 读取图片
-        U1_0 = np.loadtxt(U1_txt_full_name, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U1_txt_full_name)['U'] # 加载 复振幅场
-
-        size_fig = U1_0.shape[0] / dpi
 
         #%%
-        # 线性 角谱理论 - 基波 begin
-
-        size_PerPixel = U1_0_NonZero_size / img_squared.shape[0] # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
-        I1_x, I1_y = U1_0.shape[0], U1_0.shape[1]
-        # U1_size = I1_x * size_PerPixel # Unit: mm 包含 边框 后，图片 的 实际尺寸
-        # print("U1_size = U2_size = {} mm".format(U1_size))
-        # print("U1_size = {} mm".format(U1_size))
-        # print("%f mm" %(U1_size))
+        # 导入 方形 的 图片，以及 U
+        
+        img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = U_Read(U1_name, img_full_name, 
+                                                                                                      U1_0_NonZero_size, dpi, 
+                                                                                                      is_save_txt, )
         
     #%%
     
-    if U1_txt_name.find("U2") != -1: # 如果找到了 U2 字样
+    if U1_name.find("U2") != -1: # 如果找到了 U2 字样
         lam1 = lam1 / 2
 
-    if is_air == 1:
-        n1 = 1
-    elif is_air == 0:
-        n1 = LN_n(lam1, T, "e")
-    else:
-        n1 = KTP_n(lam1, T, "e")
-
-    k1 = 2 * math.pi * size_PerPixel / (lam1 / 1000 / n1) # lam / 1000 即以 mm 为单位
+    n1, k1 = Cal_n(size_PerPixel, 
+                   is_air, 
+                   lam1, T, p = "e")
 
     #%%
     # U1_0 = U(x, y, 0) → FFT2 → g1_shift(k1_x, k1_y) = g1_shift
@@ -215,16 +161,16 @@ def AST(U1_txt_name = "",
     g1_shift_phase = np.angle(g1_shift)
 
     if is_save == 1:
-        if not os.path.isdir("3. g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift"):
-            os.makedirs("3. g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift")
+        if not os.path.isdir("3. g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift"):
+            os.makedirs("3. g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift")
      
     # #%%
     # #绘图：g1_shift_amp
 
-    # g1_shift_amp_address = location + "\\" + "3. g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift" + "\\" + "3.1. AST - " + "g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift" + "_amp" + file_name_extension
+    # g1_shift_amp_address = location + "\\" + "3. g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "\\" + "3.1. AST - " + "g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "_amp" + img_name_extension
 
     # plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-    #         g1_shift_amp, g1_shift_amp_address, "g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift" + "_amp", 
+    #         g1_shift_amp, g1_shift_amp_address, "g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "_amp", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #         fontsize, font,
@@ -233,10 +179,10 @@ def AST(U1_txt_name = "",
     # #%%
     # #绘图：g1_shift_phase
 
-    # g1_shift_phase_address = location + "\\" + "3. g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift" + "\\" + "3.1. AST - " + "g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift" + "_phase" + file_name_extension
+    # g1_shift_phase_address = location + "\\" + "3. g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "\\" + "3.1. AST - " + "g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "_phase" + img_name_extension
 
     # plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-    #         g1_shift_phase, g1_shift_phase_address, "g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift" + "_phase", 
+    #         g1_shift_phase, g1_shift_phase_address, "g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "_phase", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #         fontsize, font,
@@ -246,8 +192,8 @@ def AST(U1_txt_name = "",
     # 储存 g1_shift 到 txt 文件
 
     if is_save == 1:
-        g1_shift_full_name = "3. AST - g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift" + (is_save_txt and ".txt" or ".mat")
-        g1_shift_txt_address = location + "\\" + "3. g" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_shift" + "\\" + g1_shift_full_name
+        g1_shift_full_name = "3. AST - g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + (is_save_txt and ".txt" or ".mat")
+        g1_shift_txt_address = location + "\\" + "3. g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "\\" + g1_shift_full_name
         np.savetxt(g1_shift_txt_address, g1_shift) if is_save_txt else savemat(g1_shift_txt_address, {"g":g1_shift})
         
     #%%
@@ -256,31 +202,23 @@ def AST(U1_txt_name = "",
     z1_0 = z0
     i1_z0 = z1_0 / size_PerPixel
 
-    n1_x, n1_y = np.meshgrid([i for i in range(I1_x)], [j for j in range(I1_y)])
-    Mesh_n1_x_n1_y = np.dstack((n1_x, n1_y))
-    Mesh_n1_x_n1_y_shift = Mesh_n1_x_n1_y - (I1_x // 2, I1_y // 2)
-    Mesh_k1_x_k1_y_shift = np.dstack((2 * math.pi * Mesh_n1_x_n1_y_shift[:, :, 0] / I1_x, 2 * math.pi * Mesh_n1_x_n1_y_shift[:, :, 1] / I1_y))
-
-    # k = 2 * math.pi * n / lam # Unit: 1 / um 并不在 计算 中 使用
-    # lam_pixels = lam / 1000 / size_PerPixel # Unit: pixels 一个波长内，占有几个像素点；本身可在 直接计算中使用，且用起来更方便，但为了形式对称，弃用了之
-
-    k1_z_shift = (k1**2 - np.square(Mesh_k1_x_k1_y_shift[:, :, 0]) - np.square(Mesh_k1_x_k1_y_shift[:, :, 1]) + 0j )**0.5
+    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
     H1_z0_shift = np.power(math.e, k1_z_shift * i1_z0 * 1j)
 
     H1_z0_shift_amp = np.abs(H1_z0_shift)
     H1_z0_shift_phase = np.angle(H1_z0_shift)
 
     if is_save == 1:
-        if not os.path.isdir("4. H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift"):
-            os.makedirs("4. H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift")
+        if not os.path.isdir("4. H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift"):
+            os.makedirs("4. H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift")
 
     # #%%
     # #绘图：H1_z0_shift_amp
 
-    # H1_z0_shift_amp_address = location + "\\" + "4. H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.1. AST - " + "H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp" + file_name_extension
+    # H1_z0_shift_amp_address = location + "\\" + "4. H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.1. AST - " + "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp" + img_name_extension
 
     # plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-    #         H1_z0_shift_amp, H1_z0_shift_amp_address, "H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp", 
+    #         H1_z0_shift_amp, H1_z0_shift_amp_address, "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #         fontsize, font,
@@ -289,10 +227,10 @@ def AST(U1_txt_name = "",
     # #%%
     # #绘图：H1_z0_shift_phase
 
-    # H1_z0_shift_phase_address = location + "\\" + "4. H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.2. AST - " + "H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase" + file_name_extension
+    # H1_z0_shift_phase_address = location + "\\" + "4. H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.2. AST - " + "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase" + img_name_extension
 
     # plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-    #         H1_z0_shift_phase, H1_z0_shift_phase_address, "H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase", 
+    #         H1_z0_shift_phase, H1_z0_shift_phase_address, "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
     #         fontsize, font,
@@ -302,8 +240,8 @@ def AST(U1_txt_name = "",
     # 储存 H1_z0_shift 到 txt 文件
 
     if is_save == 1:
-        H1_z0_shift_full_name = "4. AST - H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + (is_save_txt and ".txt" or ".mat")
-        H1_z0_shift_txt_address = location + "\\" + "4. H" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + H1_z0_shift_full_name
+        H1_z0_shift_full_name = "4. AST - H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + (is_save_txt and ".txt" or ".mat")
+        H1_z0_shift_txt_address = location + "\\" + "4. H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + H1_z0_shift_full_name
         np.savetxt(H1_z0_shift_txt_address, H1_z0_shift) if is_save_txt else savemat(H1_z0_shift_txt_address, {'H':H1_z0_shift})
         
     #%%
@@ -314,16 +252,16 @@ def AST(U1_txt_name = "",
     G1_z0_shift_phase = np.angle(G1_z0_shift)
 
     if is_save == 1:
-        if not os.path.isdir("5. G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift"):
-            os.makedirs("5. G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift")
+        if not os.path.isdir("5. G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift"):
+            os.makedirs("5. G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift")
 
     #%%
     #绘图：G1_z0_shift_amp
 
-    G1_z0_shift_amp_address = location + "\\" + "5. G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "5.1. AST - " + "G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp" + file_name_extension
+    G1_z0_shift_amp_address = location + "\\" + "5. G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "5.1. AST - " + "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp" + img_name_extension
 
     plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-            G1_z0_shift_amp, G1_z0_shift_amp_address, "G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp", 
+            G1_z0_shift_amp, G1_z0_shift_amp_address, "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -332,10 +270,10 @@ def AST(U1_txt_name = "",
     #%%
     #绘图：G1_z0_shift_phase
 
-    G1_z0_shift_phase_address = location + "\\" + "5. G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "5.2. AST - " + "G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase" + file_name_extension
+    G1_z0_shift_phase_address = location + "\\" + "5. G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "5.2. AST - " + "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase" + img_name_extension
 
     plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-            G1_z0_shift_phase, G1_z0_shift_phase_address, "G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase", 
+            G1_z0_shift_phase, G1_z0_shift_phase_address, "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -345,8 +283,8 @@ def AST(U1_txt_name = "",
     # 储存 G1_z0_shift 到 txt 文件
 
     if is_save == 1:
-        G1_z0_shift_full_name = "5. AST - G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + (is_save_txt and ".txt" or ".mat")
-        G1_z0_shift_txt_address = location + "\\" + "5. G" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + G1_z0_shift_full_name
+        G1_z0_shift_full_name = "5. AST - G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + (is_save_txt and ".txt" or ".mat")
+        G1_z0_shift_txt_address = location + "\\" + "5. G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + G1_z0_shift_full_name
         np.savetxt(G1_z0_shift_txt_address, G1_z0_shift) if is_save_txt else savemat(G1_z0_shift_txt_address, {'G':G1_z0_shift})
         
     #%%
@@ -361,19 +299,19 @@ def AST(U1_txt_name = "",
     U1_z0_phase = np.angle(U1_z0)
 
     # print("AST - U1_{}mm.total_amp = {}".format(z0, np.sum(U1_z0_amp)))
-    print("AST - U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_{}mm.total_energy = {}".format(z0, np.sum(U1_z0_amp**2)))
+    print("AST - U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_{}mm.total_energy = {}".format(z0, np.sum(U1_z0_amp**2)))
 
     if is_save == 1:
-        if not os.path.isdir("6. U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm"):
-            os.makedirs("6. U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm")
+        if not os.path.isdir("6. U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm"):
+            os.makedirs("6. U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm")
 
     #%%
     #绘图：U1_z0_amp
 
-    U1_z0_amp_address = location + "\\" + "6. U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "\\" + "6.1. AST - " + "U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp" + file_name_extension
+    U1_z0_amp_address = location + "\\" + "6. U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "\\" + "6.1. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp" + img_name_extension
 
     plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-            U1_z0_amp, U1_z0_amp_address, "U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp", 
+            U1_z0_amp, U1_z0_amp_address, "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp", 
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -382,10 +320,10 @@ def AST(U1_txt_name = "",
     #%%
     #绘图：U1_z0_phase
 
-    U1_z0_phase_address = location + "\\" + "6. U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "\\" + "6.2. AST - " + "U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase" + file_name_extension
+    U1_z0_phase_address = location + "\\" + "6. U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "\\" + "6.2. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase" + img_name_extension
 
     plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-            U1_z0_phase, U1_z0_phase_address, "U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase", 
+            U1_z0_phase, U1_z0_phase_address, "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase", 
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
             fontsize, font,
@@ -394,18 +332,18 @@ def AST(U1_txt_name = "",
     #%%
     # 储存 U1_z0 到 txt 文件
 
-    U1_z0_full_name = "6. AST - U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + (is_save_txt and ".txt" or ".mat")
+    U1_z0_full_name = "6. AST - U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + (is_save_txt and ".txt" or ".mat")
     if is_save == 1:
-        U1_z0_txt_address = location + "\\" + "6. U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "\\" + U1_z0_full_name
+        U1_z0_txt_address = location + "\\" + "6. U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "\\" + U1_z0_full_name
         np.savetxt(U1_z0_txt_address, U1_z0) if is_save_txt else savemat(U1_z0_txt_address, {'U':U1_z0})
 
         #%%
         #再次绘图：U1_z0_amp
     
-        U1_z0_amp_address = location + "\\" + "6.1. AST - " + "U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp" + file_name_extension
+        U1_z0_amp_address = location + "\\" + "6.1. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp" + img_name_extension
     
         plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-                U1_z0_amp, U1_z0_amp_address, "U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp", 
+                U1_z0_amp, U1_z0_amp_address, "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,
@@ -413,10 +351,10 @@ def AST(U1_txt_name = "",
     
         #再次绘图：U1_z0_phase
     
-        U1_z0_phase_address = location + "\\" + "6.2. AST - " + "U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase" + file_name_extension
+        U1_z0_phase_address = location + "\\" + "6.2. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase" + img_name_extension
     
         plot_2d(I1_x, I1_y, size_PerPixel, 0, 
-                U1_z0_phase, U1_z0_phase_address, "U" + ((U1_txt_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase", 
+                U1_z0_phase, U1_z0_phase_address, "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font,

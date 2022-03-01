@@ -11,6 +11,8 @@ import scipy.stats
 from scipy.io import savemat
 import math
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
+from fun_array_Generate import mesh_shift
+from fun_linear import Cal_kz
 
 def pump_LG(file_full_name = "Grating.png", 
             #%%
@@ -38,7 +40,8 @@ def pump_LG(file_full_name = "Grating.png",
                     }, 
             #%%
             is_self_colorbar = 0, is_colorbar_on = 1, 
-            is_energy = 0, vmax = 1, vmin = 0):
+            is_energy = 0, vmax = 1, vmin = 0, 
+            is_print = 1, ):
     
     #%%
     file_name = os.path.splitext(file_full_name)[0]
@@ -51,10 +54,8 @@ def pump_LG(file_full_name = "Grating.png",
     if is_LG == 1:
         # 将 实空间 输入场 变为 束腰 z = 0 处的 LG 光束
         
-        Ix0, Iy0 = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-        Mesh_Ix0_Iy0 = np.dstack((Ix0, Iy0))
-        Mesh_Ix0_Iy0_shift = Mesh_Ix0_Iy0 - (Ix // 2, Iy // 2)
-        r_shift = ( (Mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi))**2 + (Mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi))**2  + 0j )**0.5 * size_PerPixel
+        mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
+        r_shift = ( (mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi))**2 + (mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi))**2  + 0j )**0.5 * size_PerPixel
         
         C_LG_pl = ( 2/math.pi * math.factorial(p)/math.factorial( p + abs(l) ) )**0.5
         x = 2**0.5 * r_shift/w0
@@ -68,10 +69,8 @@ def pump_LG(file_full_name = "Grating.png",
     if is_Gauss == 1 and is_LG == 0:
         # 将 实空间 输入场 变为 束腰 z = 0 处的 高斯光束
         
-        Ix0, Iy0 = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-        Mesh_Ix0_Iy0 = np.dstack((Ix0, Iy0))
-        Mesh_Ix0_Iy0_shift = Mesh_Ix0_Iy0 - (Ix // 2, Iy // 2)
-        r_shift = ( (Mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi))**2 + (Mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi))**2  + 0j )**0.5 * size_PerPixel
+        mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
+        r_shift = ( (mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi))**2 + (mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi))**2  + 0j )**0.5 * size_PerPixel
         
         if (type(w0) == float or type(w0) == int) and w0 > 0: # 如果 传进来的 w0 既不是 float 也不是 int，或者 w0 <= 0，则 图片为 1
             U1_0 = np.power(math.e, - r_shift**2 / w0**2 )
@@ -83,10 +82,8 @@ def pump_LG(file_full_name = "Grating.png",
         
         if (type(w0) == float or type(w0) == int) and w0 > 0: # 如果 传进来的 w0 既不是 float 也不是 int，或者 w0 <= 0，则表示 不对原图 引入 高斯限制
         
-            Ix0, Iy0 = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-            Mesh_Ix0_Iy0 = np.dstack((Ix0, Iy0))
-            Mesh_Ix0_Iy0_shift = Mesh_Ix0_Iy0 - (Ix // 2, Iy // 2)
-            r_shift = ( (Mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi))**2 + (Mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi))**2  + 0j )**0.5 * size_PerPixel
+            mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
+            r_shift = ( (mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi))**2 + (mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi))**2  + 0j )**0.5 * size_PerPixel
             
             U1_0 = U1_0 * np.power(math.e, - r_shift**2 / w0**2 )
 
@@ -97,10 +94,8 @@ def pump_LG(file_full_name = "Grating.png",
         # 高斯则 乘以 额外螺旋相位，非高斯 才直接 更改原场：高斯 已经 更改原场 了
         # 将输入场 在实空间 改为 纯相位 的 OAM
         
-        Ix0, Iy0 = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-        Mesh_Ix0_Iy0 = np.dstack((Ix0, Iy0))
-        Mesh_Ix0_Iy0_shift = Mesh_Ix0_Iy0 - (Ix // 2, Iy // 2)
-        U1_0 = np.power(math.e, l * np.arctan2(Mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi), Mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi)) * 1j)
+        mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
+        U1_0 = np.power(math.e, l * np.arctan2(mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi), mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi)) * 1j)
         
     else:
         # 对输入场 引入 额外的 螺旋相位
@@ -111,10 +106,8 @@ def pump_LG(file_full_name = "Grating.png",
             G = np.fft.fft2(U1_0)
             G_shift = np.fft.fftshift(G)
             
-            n1_x0, n1_y0 = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-            Mesh_n1_x0_n1_y0 = np.dstack((n1_x0, n1_y0))
-            Mesh_n1_x0_n1_y0_shift = Mesh_n1_x0_n1_y0 - (Ix // 2, Iy // 2)
-            H_shift = np.power(math.e, l * np.arctan2(Mesh_n1_x0_n1_y0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi), Mesh_n1_x0_n1_y0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi)) * 1j)
+            mesh_n1_x0_n1_y0_shift = mesh_shift(Ix, Iy)
+            H_shift = np.power(math.e, l * np.arctan2(mesh_n1_x0_n1_y0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi), mesh_n1_x0_n1_y0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi)) * 1j)
             
             G_shift = G_shift * H_shift
             G = np.fft.ifftshift(G_shift)
@@ -124,9 +117,9 @@ def pump_LG(file_full_name = "Grating.png",
             # 对 实空间 引入额外螺旋相位
             
             Ix0, Iy0 = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-            Mesh_Ix0_Iy0 = np.dstack((Ix0, Iy0))
-            Mesh_Ix0_Iy0_shift = Mesh_Ix0_Iy0 - (Ix // 2, Iy // 2)
-            U1_0 = U1_0 * np.power(math.e, l * np.arctan2(Mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi), Mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi)) * 1j)
+            mesh_Ix0_Iy0 = np.dstack((Ix0, Iy0))
+            mesh_Ix0_Iy0_shift = mesh_Ix0_Iy0 - (Ix // 2, Iy // 2)
+            U1_0 = U1_0 * np.power(math.e, l * np.arctan2(mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi), mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi)) * 1j)
             # θx 增大时，y = x 这个 45 度 的 线，会 越来越 偏向 x 轴 正向。
 
     #%%
@@ -140,12 +133,10 @@ def pump_LG(file_full_name = "Grating.png",
         G = np.fft.fft2(U1_0)
         G_shift = np.fft.fftshift(G)
 
-        n1_x0, n1_y0 = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-        Mesh_n1_x0_n1_y0 = np.dstack((n1_x0, n1_y0))
-        Mesh_n1_x0_n1_y0_shift = Mesh_n1_x0_n1_y0 - (Ix // 2, Iy // 2)
+        mesh_n1_x0_n1_y0_shift = mesh_shift(Ix, Iy)
         
         # k_shift = (k**2 - Kx**2 - Ky**2 + 0j )**0.5
-        H_shift = np.power(math.e, ( Kx * Mesh_n1_x0_n1_y0_shift[:, :, 0] + Ky * Mesh_n1_x0_n1_y0_shift[:, :, 1] ) * 1j)
+        H_shift = np.power(math.e, ( Kx * mesh_n1_x0_n1_y0_shift[:, :, 0] + Ky * mesh_n1_x0_n1_y0_shift[:, :, 1] ) * 1j)
         # 本该 H_shift 的 e 指数 的 相位部分，还要 加上 k_shift * i1_z0 的，不过这里 i1_z0 = i1_0 = 0，所以加了 等于没加
         
         G_shift = G_shift * H_shift
@@ -156,13 +147,11 @@ def pump_LG(file_full_name = "Grating.png",
     else:
         # 对 实空间 引入额外倾斜相位
         
-        Ix0, Iy0 = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-        Mesh_Ix0_Iy0 = np.dstack((Ix0, Iy0))
-        Mesh_Ix0_Iy0_shift = Mesh_Ix0_Iy0 - (Ix // 2, Iy // 2)
+        mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
         
         # k_shift = (k**2 - Kx**2 - Ky**2 + 0j )**0.5
-        U1_0 = U1_0 * np.power(math.e, ( Kx * Mesh_Ix0_Iy0_shift[:, :, 0] + Ky * Mesh_Ix0_Iy0_shift[:, :, 1] ) * 1j)
-        # Mesh_Ix0_Iy0_shift[:, :, 0] 只与 第 2 个参数 有关，
+        U1_0 = U1_0 * np.power(math.e, ( Kx * mesh_Ix0_Iy0_shift[:, :, 0] + Ky * mesh_Ix0_Iy0_shift[:, :, 1] ) * 1j)
+        # mesh_Ix0_Iy0_shift[:, :, 0] 只与 第 2 个参数 有关，
         # 则 对于 第 1 个参数 而言，对于 不同的 第 1 个参数，都 引入了 相同的 倾斜相位。
         # 也就是 对于 同一列 的 不同的行，其 倾斜相位 是相同的
         # 因此 倾斜相位 也 只与 列 相关，也就是 只与 第 2 个参数 有关，所以 与 x 有关。
@@ -176,12 +165,7 @@ def pump_LG(file_full_name = "Grating.png",
     z0 = z
     i_z0 = z0 / size_PerPixel
 
-    nx, ny = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
-    Mesh_nx_ny = np.dstack((nx, ny))
-    Mesh_nx_ny_shift = Mesh_nx_ny - (Ix // 2, Iy // 2)
-    Mesh_kx_ky_shift = np.dstack((2 * math.pi * Mesh_nx_ny_shift[:, :, 0] / Ix, 2 * math.pi * Mesh_nx_ny_shift[:, :, 1] / Iy))
-
-    kz_shift = (k**2 - np.square(Mesh_kx_ky_shift[:, :, 0]) - np.square(Mesh_kx_ky_shift[:, :, 1]) + 0j )**0.5
+    kz_shift, mesh_kx_ky_shift = Cal_kz(Ix, Iy, k)
     H_z0_shift = np.power(math.e, kz_shift * i_z0 * 1j)
     
     G_z0_shift = g_shift * H_z0_shift
@@ -236,7 +220,7 @@ def pump_LG(file_full_name = "Grating.png",
     U1_0_amp = np.abs(U1_z0)
     U1_0_phase = np.angle(U1_z0)
 
-    print("AST - U1_0.total_energy = {}".format(np.sum(np.power(U1_0_amp, 2))))
+    is_print and print("AST - U1_0.total_energy = {}".format(np.sum(np.power(U1_0_amp, 2))))
 
     #%%
     #绘图：U1_0_amp

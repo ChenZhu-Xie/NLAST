@@ -8,6 +8,33 @@ Created on Fri Feb 25 20:23:31 2022
 import math
 import numpy as np
 
+#%%
+
+def Sinc(x):
+    return np.nan_to_num( np.sin(x) / x ) + np.isnan( np.sin(x) / x ).astype(np.int8)
+
+#%%
+
+def Cosc(x):
+    return np.nan_to_num( (np.cos(x) - 1) / x )
+# return np.nan_to_num( (np.cos(x) - 1) / x ) * ( 1 - np.isnan( (np.cos(x) - 1) / x ).astype(np.int8) ) 不够聪明
+
+#%%
+# 定义 对于 kz 的 类似 Sinc 的 函数：( e^ikz - 1 ) / kz
+
+def Eikz(x):
+    return Cosc(x) + 1j * Sinc(x)
+
+#%%
+# 定义 m 级次 的 倒格波 系数 Cm
+
+def C_m(m):
+    if m == 0:
+        return 1
+    else:
+        return Sinc(math.pi*m / 2) - Sinc(math.pi*m)
+
+#%%
 
 def Cal_lc_SHG(k1, k2, Tz, size_PerPixel, 
                is_print = 1):
@@ -21,6 +48,8 @@ def Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
         
     return dk, lc, Tz
 
+#%%
+
 def Cal_GxGyGz(mx, my, mz,
                Tx, Ty, Tz, size_PerPixel, 
                is_print = 1):
@@ -32,10 +61,44 @@ def Cal_GxGyGz(mx, my, mz,
     return Gx, Gy, Gz
 
 #%%
+
+def Cal_dk_z_Q_shift_SHG(k1, 
+                         k1_z_shift, k2_z_shift, 
+                         mesh_k1_x_k1_y_shift, mesh_k2_x_k2_y_shift, 
+                         n2_x, n2_y, 
+                         Gx, Gy, Gz, ):
+    
+    dk_x_shift = mesh_k2_x_k2_y_shift[n2_x, n2_y, 0] - mesh_k1_x_k1_y_shift[:, :, 0] - Gy
+    # 其实 mesh_k2_x_k2_y_shift[:, :, 0]、mesh_n2_x_n2_y_shift[:, :, 0]、mesh_n2_x_n2_y[:, :, 0]、 n2_x 均只和 y，即 [:, :] 中的 第 2 个数字 有关，
+    # 只由 列 y、ky 决定，与行 即 x、kx 无关
+    # 而 Gy 得与 列 y、ky 发生关系,
+    # 所以是 - Gy 而不是 Gx
+    # 并且这里的 dk_x_shift 应写为 dk_y_shift
+    dk_y_shift = mesh_k2_x_k2_y_shift[n2_x, n2_y, 1] - mesh_k1_x_k1_y_shift[:, :, 1] - Gx
+    k1_z_shift_dk_x_dk_y = (k1**2 - dk_x_shift**2 - dk_y_shift**2 + 0j )**0.5
+    
+    dk_z_shift = k1_z_shift + k1_z_shift_dk_x_dk_y - k2_z_shift[n2_x, n2_y]
+    dk_z_Q_shift = dk_z_shift + Gz
+    
+    return dk_z_Q_shift
+    
+#%%
+
+def Cal_roll_xy(nx, ny, 
+                Ix, Iy, 
+                Gx, Gy, ):
+    
+    roll_x = np.floor( nx + Ix//2 - (Ix - 1) - Gy / (2 * math.pi) * Iy ).astype(np.int64)
+    roll_y = np.floor( ny + Iy//2 - (Iy - 1) - Gx / (2 * math.pi) * Ix ).astype(np.int64)
+    # 之后要平移列，而 Gx 才与列有关...
+    
+    return roll_x, roll_y
+
+#%%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 
 def Info_find_contours(dk, Tz, mz, 
-                       U1_0_NonZero_size, w0, z0, size_PerPixel,
+                       U_NonZero_size, w0, z0, size_PerPixel,
                        is_print = 1):
     
     #%%
@@ -58,7 +121,7 @@ def Info_find_contours(dk, Tz, mz,
         if (type(w0) == float or type(w0) == int) and w0 > 0: # 如果引入了 高斯限制
             wc = w0
         else:
-            wc = U1_0_NonZero_size / 2
+            wc = U_NonZero_size / 2
     
         #%%
     
