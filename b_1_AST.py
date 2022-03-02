@@ -51,7 +51,9 @@ def AST(U1_name = "",
                 }, 
         #%%
         is_self_colorbar = 0, is_colorbar_on = 1, 
-        is_energy = 0, vmax = 1, vmin = 0):
+        is_energy = 0, vmax = 1, vmin = 0, 
+        #%%
+        is_print = 1, ):
     
     # #%%
     # U1_name = ""
@@ -129,7 +131,7 @@ def AST(U1_name = "",
                        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
                        1, is_colorbar_on, is_energy, vmax, vmin, 
-                       is_print = 1, ) 
+                       is_print, ) 
         
     else:
 

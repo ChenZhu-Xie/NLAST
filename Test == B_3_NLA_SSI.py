@@ -18,12 +18,12 @@ from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
 from fun_SSI import Cal_diz, Cal_Iz_frontface, Cal_Iz_structure, Cal_Iz_endface, Cal_Iz, Cal_iz_1, Cal_iz_2
 from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours
+from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG
 from fun_thread import my_thread
 
 #%%
 U1_name = ""
-img_full_name = "grating.png"
+img_full_name = "lena.png"
 border_percentage = 0.3 # 边框 占图片的 百分比，也即 图片 放大系数
 #%%
 is_phase_only = 0
@@ -39,7 +39,7 @@ U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
 w0 = 0.28 # Unit: mm 束腰（z = 0 处）
 L0_Crystal = 1 # Unit: mm 晶体长度
 z0_structure_frontface_expect = 0.5 # Unit: mm 结构 前端面，距离 晶体 前端面 的 距离
-deff_structure_length_expect = 1.1 # Unit: mm 调制区域 z 向长度（类似 z）
+deff_structure_length_expect = 1 # Unit: mm 调制区域 z 向长度（类似 z）
 deff_structure_sheet_expect = 1 # Unit: μm z 向 切片厚度
 sheets_stored_num = 10 # 储存片数 （不包含 最末：因为 最末，作为结果 已经单独 呈现了）；每一步 储存的 实际上不是 g_z，而是 g_z+dz
 z0_section_1f_expect = 0 # Unit: mm z 向 需要展示的截面 1 距离晶体前端面 的 距离
@@ -92,6 +92,9 @@ font = {'family': 'serif',
 is_self_colorbar, is_colorbar_on = 0, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
 is_energy = 0
 vmax, vmin = 1, 0
+#%%
+is_print = 1
+is_contours = 1
 
 #%%
 
@@ -103,7 +106,7 @@ if (type(U1_name) != str) or U1_name == "":
     
     image_Add_black_border(img_full_name, 
                            border_percentage, 
-                           is_print = 1, )
+                           is_print, )
     
     #%%
     # 导入 方形，以及 加边框 的 图片
@@ -130,7 +133,7 @@ if (type(U1_name) != str) or U1_name == "":
                    cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                    fontsize, font, 
                    1, is_colorbar_on, is_energy, vmax, vmin, 
-                   is_print = 1, ) 
+                   is_print, ) 
     
 else:
 
@@ -148,6 +151,14 @@ n1, k1 = Cal_n(size_PerPixel,
                lam1, T, p = "e")
 
 #%%
+# 线性 角谱理论 - 基波 begin
+
+g1 = np.fft.fft2(U1_0)
+g1_shift = np.fft.fftshift(g1)
+
+k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
+
+#%%
 # 非线性 角谱理论 - SSI begin
 
 I2_x, I2_y = U1_0.shape[0], U1_0.shape[1]
@@ -161,33 +172,44 @@ n2, k2 = Cal_n(size_PerPixel,
                is_air, 
                lam2, T, p = "e")
 
+k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I2_x, I2_y, k2)
+
+#%%
+# 提供描边信息，并覆盖值
+
+L0_Crystal, Tz = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+                                        L0_Crystal, size_PerPixel,
+                                        is_print, is_contours)
+
+#%%
+
 dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel, 
                         is_print = 0)
 
 Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                         Tx, Ty, Tz, size_PerPixel, 
-                        is_print = 1)
+                        is_print)
 
 #%%
 # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
 diz, deff_structure_sheet = Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel, 
                                     Tz, mz,
-                                    is_print = 1)
+                                    is_print)
 
 #%%
 # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
 
 sheets_num_frontface, Iz_frontface, z0_structure_frontface = Cal_Iz_frontface(diz, 
                                                                               z0_structure_frontface_expect, L0_Crystal, size_PerPixel, 
-                                                                              is_print = 1)
+                                                                              is_print)
 
 #%%
 # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
 
 sheets_num_structure, Iz_structure, deff_structure_length = Cal_Iz_structure(diz, 
                                                                              deff_structure_length_expect, size_PerPixel, 
-                                                                             is_print = 1)
+                                                                             is_print)
 
 #%%
 # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸
@@ -195,14 +217,14 @@ sheets_num_structure, Iz_structure, deff_structure_length = Cal_Iz_structure(diz
 sheets_num_endface, Iz_endface, z0_structure_endface = Cal_Iz_endface(sheets_num_frontface, sheets_num_structure, 
                                                                       Iz_frontface, Iz_structure, diz, 
                                                                       size_PerPixel, 
-                                                                      is_print = 1)
+                                                                      is_print)
 
 #%%
 # 定义 晶体 的 纵向实际像素、晶体 的 实际纵向尺寸
 
 sheets_num, Iz = Cal_Iz(diz, 
                         L0_Crystal, size_PerPixel, 
-                        is_print = 1)
+                        is_print)
 z0 = L0_Crystal
 
 #%%
@@ -210,7 +232,7 @@ z0 = L0_Crystal
 
 sheet_th_section_1, sheet_th_section_1f, iz_1, z0_1 = Cal_iz_1(diz, 
                                                                z0_section_1f_expect, size_PerPixel, 
-                                                               is_print = 1)
+                                                               is_print)
 
 #%%
 # 定义 需要展示的截面 2 距离晶体后端面 的 纵向实际像素、需要展示的截面 2 距离晶体后端面 的 实际纵向尺寸
@@ -218,30 +240,7 @@ sheet_th_section_1, sheet_th_section_1f, iz_1, z0_1 = Cal_iz_1(diz,
 sheet_th_section_2, sheet_th_section_2f, iz_2, z0_2 = Cal_iz_2(sheets_num, 
                                                                Iz, diz, 
                                                                z0_section_2f_expect, size_PerPixel, 
-                                                               is_print = 1)
-
-#%%
-# 提供描边信息
-
-Info_find_contours(dk, Tz, mz, 
-                   U1_0_NonZero_size, w0, z0, size_PerPixel,
-                   is_print = 1)
-
-#%%
-# 线性 角谱理论 - 基波 begin
-
-g1 = np.fft.fft2(U1_0)
-g1_shift = np.fft.fftshift(g1)
-
-z1_0 = z0
-i1_z0 = z1_0 / size_PerPixel
-
-k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
-H1_z0_shift = np.power(math.e, k1_z_shift * i1_z0 * 1j)
-
-G1_z0_shift = g1_shift * H1_z0_shift
-G1_z0 = np.fft.ifftshift(G1_z0_shift)
-U1_z0 = np.fft.ifft2(G1_z0)
+                                                               is_print)
 
 #%%
 # const
@@ -297,6 +296,8 @@ def Cal_Q2_z_shift(for_th, fors_num, *arg, ):
             modulation_squared_full_name = str(for_th - sheets_num_frontface) + ".mat"
             modulation_squared_address = location + "\\" + "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name
             modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
+        else:
+            modulation_squared_z = 1 - is_no_backgroud
     else:
         modulation_squared_z = 1 - is_no_backgroud
     
@@ -366,7 +367,7 @@ def After_G2_z_plus_dz_shift_temp(for_th, fors_num, G2_z_plus_dz_shift_temp, *ar
 
 my_thread(10, sheets_num, 
           Cal_Q2_z_shift, Cal_G2_z_plus_dz_shift, After_G2_z_plus_dz_shift_temp, 
-          is_ordered = 1, is_print = 1, )
+          is_ordered = 1, is_print = is_print, )
     
 #%%
 

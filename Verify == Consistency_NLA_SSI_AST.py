@@ -51,7 +51,9 @@ def Consistency_NLA_SSI_AST(U1_name = "",
                                     }, 
                             #%%
                             is_self_colorbar = 0, is_colorbar_on = 1, 
-                            is_energy = 1, vmax = 1, vmin = 0):
+                            is_energy = 1, vmax = 1, vmin = 0, 
+                            #%%
+                            is_print = 1, is_contours = 1, ):
     
     #%%
 
@@ -62,7 +64,7 @@ def Consistency_NLA_SSI_AST(U1_name = "",
     
     image_Add_black_border(img_full_name, 
                            border_percentage, 
-                           is_print = 1, )
+                           is_print, )
     
     #%%
     # 路径设定
@@ -99,7 +101,9 @@ def Consistency_NLA_SSI_AST(U1_name = "",
         fontsize, font, 
         #%%
         is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin)
+        is_energy, vmax, vmin, 
+        #%%
+        is_print, )
     
     U1_name = "6. AST - U1_" + str(float('%.2g' % z0)) + "mm"
     # U1_full_name = U1_name + (is_save_txt and ".txt" or ".mat")
@@ -139,7 +143,9 @@ def Consistency_NLA_SSI_AST(U1_name = "",
             fontsize, font, 
             #%%
             is_self_colorbar, is_colorbar_on, 
-            is_energy, vmax, vmin)
+            is_energy, vmax, vmin, 
+            #%%
+            is_print, is_contours, )
     
     U1_NLA_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_new)) + "mm" + "_SSI"
     U1_NLA_txt_full_name = U1_NLA_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -183,7 +189,9 @@ def Consistency_NLA_SSI_AST(U1_name = "",
             fontsize, font, 
             #%%
             is_self_colorbar, is_colorbar_on, 
-            is_energy, vmax, vmin)
+            is_energy, vmax, vmin, 
+            #%%
+            is_print, is_contours, )
     
     U2_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI"
     # U2_txt_full_name = U2_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -214,7 +222,9 @@ def Consistency_NLA_SSI_AST(U1_name = "",
         fontsize, font, 
         #%%
         is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin)
+        is_energy, vmax, vmin, 
+        #%%
+        is_print, )
     
     U2_AST_txt_name = "6. AST - U2_" + str(float('%.2g' % z0_new)) + "mm"
     U2_AST_txt_full_name = U2_AST_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -263,7 +273,9 @@ def Consistency_NLA_SSI_AST(U1_name = "",
             fontsize, font, 
             #%%
             is_self_colorbar, is_colorbar_on, 
-            is_energy, vmax, vmin)
+            is_energy, vmax, vmin, 
+            #%%
+            is_print, is_contours, )
     
     U2_Z0_txt_name = "6. NLA - U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI"
     U2_Z0_txt_full_name = U2_Z0_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -694,6 +706,8 @@ Consistency_NLA_SSI_AST(U1_name = "",
                                 }, 
                         #%%
                         is_self_colorbar = 1, is_colorbar_on = 1, 
-                        is_energy = 1, vmax = 1, vmin = 0)
+                        is_energy = 1, vmax = 1, vmin = 0, 
+                        #%%
+                        is_print = 1, is_contours = 1, )
 
 # 注意 colorbar 上的数量级

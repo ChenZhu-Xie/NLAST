@@ -17,7 +17,7 @@ from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
 from fun_SSI import Cal_diz, Cal_Iz_frontface, Cal_Iz_structure, Cal_Iz_endface, Cal_Iz, Cal_iz_1, Cal_iz_2
 from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours
+from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz
 from fun_thread import my_thread
 
 #%%
@@ -61,7 +61,9 @@ def nLA_SSI(U1_name = "",
                     }, 
             #%%
             is_self_colorbar = 0, is_colorbar_on = 1, 
-            is_energy = 0, vmax = 1, vmin = 0):
+            is_energy = 0, vmax = 1, vmin = 0, 
+            #%%
+            is_print = 1, ):
     # #%%
     # U1_name = ""
     # img_full_name = "l=1.png"
@@ -162,7 +164,7 @@ def nLA_SSI(U1_name = "",
                        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
                        1, is_colorbar_on, is_energy, vmax, vmin, 
-                       is_print = 1, ) 
+                       is_print, ) 
         
     else:
 
@@ -180,6 +182,14 @@ def nLA_SSI(U1_name = "",
                    lam1, T, p = "e")
     
     #%%
+    # 线性 角谱理论 - 基波 begin
+
+    g1 = np.fft.fft2(U1_0)
+    g1_shift = np.fft.fftshift(g1)
+
+    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
+    
+    #%%
     # 非线性 角谱理论 - SSI begin
 
     I1_x, I1_y = U1_0.shape[0], U1_0.shape[1]
@@ -192,34 +202,36 @@ def nLA_SSI(U1_name = "",
     n2, k2 = Cal_n(size_PerPixel, 
                    is_air, 
                    lam2, T, p = "e")
+    
+    #%%
 
     dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel, 
                             is_print = 0)
 
     Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                             Tx, Ty, Tz, size_PerPixel, 
-                            is_print = 1)
+                            is_print)
 
     #%%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
     diz, deff_structure_sheet = Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel, 
                                         Tz, mz,
-                                        is_print = 1)
+                                        is_print)
 
     #%%
     # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
 
     sheets_num_frontface, Iz_frontface, z0_structure_frontface = Cal_Iz_frontface(diz, 
                                                                                   z0_structure_frontface_expect, L0_Crystal, size_PerPixel, 
-                                                                                  is_print = 1)
+                                                                                  is_print)
 
     #%%
     # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
 
     sheets_num_structure, Iz_structure, deff_structure_length = Cal_Iz_structure(diz, 
                                                                                  deff_structure_length_expect, size_PerPixel, 
-                                                                                 is_print = 1)
+                                                                                 is_print)
 
     #%%
     # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸
@@ -227,14 +239,14 @@ def nLA_SSI(U1_name = "",
     sheets_num_endface, Iz_endface, z0_structure_endface = Cal_Iz_endface(sheets_num_frontface, sheets_num_structure, 
                                                                           Iz_frontface, Iz_structure, diz, 
                                                                           size_PerPixel, 
-                                                                          is_print = 1)
+                                                                          is_print)
 
     #%%
     # 定义 晶体 的 纵向实际像素、晶体 的 实际纵向尺寸
 
     sheets_num, Iz = Cal_Iz(diz, 
                             L0_Crystal, size_PerPixel, 
-                            is_print = 1)
+                            is_print)
     z0 = L0_Crystal
 
     #%%
@@ -242,7 +254,7 @@ def nLA_SSI(U1_name = "",
 
     sheet_th_section_1, sheet_th_section_1f, iz_1, z0_1 = Cal_iz_1(diz, 
                                                                    z0_section_1f_expect, size_PerPixel, 
-                                                                   is_print = 1)
+                                                                   is_print)
 
     #%%
     # 定义 需要展示的截面 2 距离晶体后端面 的 纵向实际像素、需要展示的截面 2 距离晶体后端面 的 实际纵向尺寸
@@ -250,30 +262,7 @@ def nLA_SSI(U1_name = "",
     sheet_th_section_2, sheet_th_section_2f, iz_2, z0_2 = Cal_iz_2(sheets_num, 
                                                                    Iz, diz, 
                                                                    z0_section_2f_expect, size_PerPixel, 
-                                                                   is_print = 1)
-    
-    #%%
-    # 提供描边信息
-
-    Info_find_contours(dk, Tz, mz, 
-                       U1_0_NonZero_size, w0, z0, size_PerPixel,
-                       is_print = 1)
-
-    #%%
-    # 线性 角谱理论 - 基波 begin
-
-    g1 = np.fft.fft2(U1_0)
-    g1_shift = np.fft.fftshift(g1)
-
-    z1_0 = z0
-    i1_z0 = z1_0 / size_PerPixel
-
-    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
-    H1_z0_shift = np.power(math.e, k1_z_shift * i1_z0 * 1j)
-
-    G1_z0_shift = g1_shift * H1_z0_shift
-    G1_z0 = np.fft.ifftshift(G1_z0_shift)
-    U1_z0 = np.fft.ifft2(G1_z0)
+                                                                   is_print)
 
     #%%
     # const
@@ -317,7 +306,7 @@ def nLA_SSI(U1_name = "",
         G1_shift_XZ_stored = np.empty( (I1_y, sheets_num + 1), dtype=np.complex128() )
         U1_YZ_stored = np.empty( (I1_x, sheets_num + 1), dtype=np.complex128() )
         U1_XZ_stored = np.empty( (I1_y, sheets_num + 1), dtype=np.complex128() )
-        
+    
     def Cal_modulation_squared_z(for_th, fors_num, *arg, ):
         
         if is_bulk == 0:
@@ -325,6 +314,8 @@ def nLA_SSI(U1_name = "",
                 modulation_squared_full_name = str(for_th - sheets_num_frontface) + ".mat"
                 modulation_squared_address = location + "\\" + "0.n1_modulation_squared" + "\\" + modulation_squared_full_name
                 modulation_squared_z = loadmat(modulation_squared_address)['n1_modulation_squared']
+            else:
+                modulation_squared_z = n1
         else:
             modulation_squared_z = n1
         
@@ -395,7 +386,7 @@ def nLA_SSI(U1_name = "",
     
     my_thread(10, sheets_num, 
               Cal_modulation_squared_z, Cal_G1_z_plus_dz_shift, After_G1_z_plus_dz_shift_temp, 
-              is_ordered = 1, is_print = 1, )
+              is_ordered = 1, is_print = is_print, )
         
     #%%
 

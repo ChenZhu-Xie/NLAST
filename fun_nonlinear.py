@@ -43,7 +43,9 @@ def Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
     lc = math.pi / abs(dk) * size_PerPixel # Unit: mm
     is_print and print("相干长度 = {} μm".format(lc * 1000))
     
-    if (type(Tz) != float and type(Tz) != int) or Tz <= 0: # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
+    # print(type(Tz) != np.float64)
+    # print(type(Tz) != float) # float = np.float ≠ np.float64
+    if (type(Tz) != float and type(Tz) != np.float64 and type(Tz) != int) or Tz <= 0: # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
         Tz = 2*lc * 1000  # Unit: um
         
     return dk, lc, Tz
@@ -93,9 +95,107 @@ def Cal_roll_xy(nx, ny,
     # 之后要平移列，而 Gx 才与列有关...
     
     return roll_x, roll_y
-
+        
 #%%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
+
+def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+                           z0, size_PerPixel,
+                           is_print = 1, is_contours = 1):
+    
+    #%%
+    # 描边
+    
+    if is_contours != 0:
+        
+        dk = 2 * np.max(np.abs(k1_z_shift)) - np.max(np.abs(k2_z_shift))
+    
+        lc = math.pi / abs(dk) * size_PerPixel * 1000 # Unit: um
+        # print("相干长度 = {} μm".format(lc))
+        # print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
+        # print("畴宽_max = 相干长度 = {} μm <= 畴宽 = {} μm ".format(lc, Tz/2))
+        if (type(Tz) != float and type(Tz) != int) or Tz <= 0: # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
+            Tz = 2*lc  # Unit: um
+        
+        Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000) # Tz / 1000 即以 mm 为单位
+    
+        dkQ = dk + Gz
+        lcQ = math.pi / abs(dkQ) * size_PerPixel # Unit: mm
+        # print("相干长度_Q = {} mm".format(lcQ))
+        TzQ = 2*lcQ
+    
+        #%%
+        
+        Gz_max = np.min(np.abs(k2_z_shift)) - 2 * np.min(np.abs(k1_z_shift))
+        Tz_min = 2 * math.pi * mz * size_PerPixel / (abs(Gz_max) / 1000) # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
+        # print("Tz_min = {} μm".format(Tz_min))
+        
+        dkQ_max = dk + Gz_max
+        lcQ_min = math.pi / dkQ_max * size_PerPixel
+        # print("lcQ_min = {} mm".format(lcQ_min))
+        TzQ_min = 2*lcQ_min
+        
+        z0_min = TzQ_min
+        
+        #%%
+        
+        if is_contours != 2:
+            is_print and print("===== 描边 1：若无额外要求 =====") # 波长定，Tz 定 (lcQ 定)，z0 不定
+            
+            is_print and print("z0_exp = {} mm".format(z0_min))
+            is_print and print("Tz_exp = {} μm".format(Tz_min))
+        
+        #%%
+        
+        if is_contours != 1:
+            is_print and print("===== 描边 2：若希望 mod( 现 z0, TzQ_exp ) = 0 =====") # 波长定，z0 定，Tz 不定 (lcQ 不定)
+            
+            is_print and print("lcQ_min = {} mm".format(lcQ_min))
+            TzQ_exp = z0 / (z0 // TzQ_min) # 满足 Tz_min <= · <= Tz_max = 原 Tz， 且 能使 z0 整除 TzQ 中，最小（最接近 TzQ_min）的 TzQ
+            lcQ_exp = TzQ_exp/2
+            is_print and print("lcQ_exp = {} mm".format(lcQ_exp))
+            is_print and print("lcQ     = {} mm".format(lcQ))
+            is_print and print("lc = {} μm".format(lc))
+            # print("TzQ_min = {} mm".format(TzQ_min))
+            # print("TzQ_exp = {} mm".format(TzQ_exp))
+            # print("TzQ     = {} mm".format(TzQ))
+            
+            is_print and print("z0_min = {} mm # ==> 1.先调 z0 >= z0_min".format(z0_min)) # 先使 TzQ_exp 不遇分母 为零的错误，以 正确预测 lcQ_exp，以及后续的 Tz_exp
+            z0_exp = TzQ_exp # 满足 >= TzQ_min， 且 能整除 TzQ_exp 中，最小的 z0
+            # z0_exp = TzQ # 满足 >= TzQ_min， 且 能整除 TzQ_exp 中，最小的 z0
+            is_print and print("z0_exp = {} * n mm # ==> 2.再调 z0 = z0_exp".format(z0_exp))
+            # print("z0_exp = {} * n mm # ==> 3.最后调 z0 = z0_exp".format(z0_exp))
+            is_print and print("z0     = {} mm".format(z0))
+        
+            dkQ_exp = math.pi / lcQ_exp * size_PerPixel
+            Gz_exp = dkQ_exp - dk
+            Tz_exp = 2 * math.pi * mz * size_PerPixel / (abs(Gz_exp) / 1000) # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
+            is_print and print("Tz_min = {} μm".format(Tz_min))
+            is_print and print("Tz_exp = {} μm # ==> 2.同时 Tz = Tz_exp".format(Tz_exp))
+            is_print and print("Tz     = {} μm".format(Tz))
+            is_print and print("Tz_max = {} μm".format(lc*2))
+        
+            domain_min = Tz_min / 2
+            is_print and print("畴宽_min = {} μm".format(domain_min))
+            domain_exp = Tz_exp / 2
+            is_print and print("畴宽_exp = {} μm".format(domain_exp))
+            is_print and print("畴宽     = {} μm".format(Tz/2))
+            is_print and print("畴宽_max = {} μm".format(lc))
+            
+        is_print and print("===== 描边 end =====")
+            
+        #%%
+        
+    if is_contours == 1:
+        return z0_min, Tz_min
+    elif is_contours == 2:
+        return z0_exp, Tz_exp
+    else:
+        return z0, Tz
+        
+#%%
+# 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
+# 注：旧版本，已经过时，当时并 未想清楚。
 
 def Info_find_contours(dk, Tz, mz, 
                        U_NonZero_size, w0, z0, size_PerPixel,
@@ -117,6 +217,7 @@ def Info_find_contours(dk, Tz, mz,
         dkQ = dk + Gz
         lcQ = math.pi / abs(dkQ) * size_PerPixel # Unit: mm
         # print("相干长度_Q = {} mm".format(lcQ))
+        TzQ = 2*lcQ
     
         if (type(w0) == float or type(w0) == int) and w0 > 0: # 如果引入了 高斯限制
             wc = w0
@@ -129,7 +230,9 @@ def Info_find_contours(dk, Tz, mz,
     
         lcQ_min = (wc**2 + z0**2)**0.5 - z0
         print("相干长度_Q_min = {} mm".format(lcQ_min))
-        lcQ_exp = z0 / (z0 // lcQ_min) # 满足 lc_min <= · <= lc_max = 原 lc， 且 能使 z0 整除 lcQ 中，最小的 lcQ
+        TzQ_min = 2*lcQ_min
+        TzQ_exp = z0 / (z0 // TzQ_min) # 满足 Tz_min <= · <= Tz_max = 原 Tz， 且 能使 z0 整除 TzQ 中，最小（最接近 TzQ_min）的 TzQ
+        lcQ_exp = TzQ_exp/2
         print("相干长度_Q_exp = {} mm".format(lcQ_exp))
         print("相干长度_Q     = {} mm".format(lcQ))
     
@@ -142,7 +245,7 @@ def Info_find_contours(dk, Tz, mz,
         Gz_exp = dkQ_exp_abs - dk
         Tz_exp = 2 * math.pi * mz * size_PerPixel / (abs(Gz_exp) / 1000) # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         print("Tz_exp = {} μm # ==> 3.最后调 Tz = Tz_exp ".format(Tz_exp))
-        print("Tz     = {} μm # ==> 1.先调 Tz <= Tz_max".format(Tz))
+        print("Tz     = {} μm # ==> 1.先调 Tz < Tz_max".format(Tz))
         print("Tz_max = {} μm".format(lc*2))
     
         domain_min = Tz_min / 2
@@ -157,11 +260,11 @@ def Info_find_contours(dk, Tz, mz,
             
         print("===== 描边必需 2 =====") # 波长定，Tz 定 (lcQ 定)，z0 不定
     
-        z0_min = (wc**2 - lcQ**2)/(2*lcQ) # 以使 (wc**2 + z0**2)**0.5 - z0 = lcQ_exp <= 
+        z0_min = (wc**2 - lcQ**2)/(2*lcQ) # 以使 (wc**2 + z0**2)**0.5 - z0 = lcQ_exp <= lcQ
+        # 这个玩意其实还得保证 >= TzQ_min，以先使 TzQ_exp 不遇分母 为零的错误，以 正确预测 lcQ_exp，以及后续的 Tz_exp
         print("z0_min = {} mm".format(z0_min))
-        z0_exp = z0_min - np.mod(z0_min, lcQ) + lcQ # 满足 >= z0_min， 且 能整除 lcQ 中，最小的 z0
+        z0_exp = z0_min - np.mod(z0_min, TzQ) + TzQ # 满足  >= TzQ_min， 且 能整除 TzQ_exp 中，最小的 z0
         print("z0_exp = {} mm".format(z0_exp))
         print("z0     = {} mm # ==> 2.接着调 z0 = z0_exp".format(z0))
         
         print("===== 描边 end =====")
-        

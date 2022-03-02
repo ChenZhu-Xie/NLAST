@@ -65,6 +65,8 @@ font = {'family': 'serif',
 is_self_colorbar, is_colorbar_on = 0, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
 is_energy = 0
 vmax, vmin = 1, 0
+#%%
+is_print = 1
 
 #%%
 
@@ -76,7 +78,7 @@ if (type(U1_name) != str) or U1_name == "":
     
     image_Add_black_border(img_full_name, 
                            border_percentage, 
-                           is_print = 1, )
+                           is_print, )
     
     #%%
     # 导入 方形，以及 加边框 的 图片
@@ -103,7 +105,7 @@ if (type(U1_name) != str) or U1_name == "":
                    cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                    fontsize, font, 
                    1, is_colorbar_on, is_energy, vmax, vmin, 
-                   is_print = 1, ) 
+                   is_print, ) 
     
 else:
 
@@ -137,7 +139,7 @@ g1_shift_phase = np.angle(g1_shift)
 if is_save == 1:
     if not os.path.isdir("3. g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift"):
         os.makedirs("3. g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift")
- 
+
 # #%%
 # #绘图：g1_shift_amp
 

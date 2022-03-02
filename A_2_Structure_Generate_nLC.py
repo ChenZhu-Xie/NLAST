@@ -61,7 +61,9 @@ def structure_nLC(U1_name = "",
                           }, 
                   #%%
                   is_self_colorbar = 0, is_colorbar_on = 1, 
-                  is_energy = 0, vmax = 1, vmin = 0):
+                  is_energy = 0, vmax = 1, vmin = 0, 
+                  #%%
+                  is_print = 1, ):
     # #%%
     # U1_name = ""
     # img_full_name = "l=1.png"
@@ -140,14 +142,14 @@ def structure_nLC(U1_name = "",
 
     Ix, Iy, deff_structure_size = Cal_IxIy(I1_x, I1_y, 
                                            deff_structure_size_expect, size_PerPixel, 
-                                           is_print = 1)
+                                           is_print)
 
     #%%
     # 需要先将 目标 U1_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix, Iy 相同，才能开始 之后的工作
 
     border_width, img_squared_resize_full_name, img_squared_resize = img_squared_Resize(img_name, img_name_extension, img_squared, 
                                                                                         Ix, Iy, I1_x, 
-                                                                                        is_print = 1, )
+                                                                                        is_print, )
 
     if (type(U1_name) != str) or U1_name == "":
         #%%
@@ -176,7 +178,7 @@ def structure_nLC(U1_name = "",
                        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
                        1, is_colorbar_on, is_energy, vmax, vmin, 
-                       is_print = 1, ) 
+                       is_print, ) 
 
     else:
         
@@ -204,27 +206,29 @@ def structure_nLC(U1_name = "",
     n2, k2 = Cal_n(size_PerPixel, 
                    is_air, 
                    lam2, T, p = "e")
+    
+    #%%
 
     dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel, 
                             is_print = 0)
 
     Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                             Tx, Ty, Tz, size_PerPixel, 
-                            is_print = 1)
+                            is_print)
 
     #%%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
     diz, deff_structure_sheet = Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel, 
                                         Tz, mz,
-                                        is_print = 1)
+                                        is_print)
 
     #%%
     # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
 
     sheets_num, Iz, deff_structure_length = Cal_Iz_structure(diz, 
                                                              deff_structure_length_expect, size_PerPixel, 
-                                                             is_print = 1)
+                                                             is_print)
 
     #%%
 
@@ -326,7 +330,7 @@ def structure_nLC(U1_name = "",
                 
     my_thread(10, sheets_num, 
               structure_Generate_z, noop, noop, 
-              is_ordered = 1, is_print = 1, )
+              is_ordered = 1, is_print = is_print, )
     
 # Structure_NLC(U1_name = "", 
 #              img_full_name = "l=1.png", 

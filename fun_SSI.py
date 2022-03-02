@@ -16,10 +16,10 @@ def Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerP
     
     #%%
     if mz != 0: # 如过你想 让结构 提供 z 向倒格矢
-        if deff_structure_sheet_expect >= 0.1 * Tz or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.1 * Tz（以保持 良好的 占空比）
+        if deff_structure_sheet_expect >= 0.1 * Tz or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != np.float64 and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.1 * Tz（以保持 良好的 占空比）
             deff_structure_sheet_expect = 0.1 * Tz # Unit: μm
     else:
-        if deff_structure_sheet_expect >= 0.01 * deff_structure_length_expect * 1000 or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.01 * deff_structure_length_expect（以保持 良好的 精度）
+        if deff_structure_sheet_expect >= 0.01 * deff_structure_length_expect * 1000 or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != np.float64 and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.01 * deff_structure_length_expect（以保持 良好的 精度）
             deff_structure_sheet_expect = 0.01 * deff_structure_length_expect * 1000 # Unit: μm
             
     diz = deff_structure_sheet_expect / 1000 / size_PerPixel # Unit: mm
@@ -37,7 +37,7 @@ def Cal_Iz_frontface(diz,
                      is_print = 1):  
     
     #%%
-    if z0_structure_frontface_expect <=0 or z0_structure_frontface_expect >= L0_Crystal or (type(z0_structure_frontface_expect) != float and type(z0_structure_frontface_expect) != int):
+    if z0_structure_frontface_expect <=0 or z0_structure_frontface_expect >= L0_Crystal or (type(z0_structure_frontface_expect) != float and type(z0_structure_frontface_expect) != np.float64 and type(z0_structure_frontface_expect) != int):
         Iz_frontface = 0
     else:
         Iz_frontface = z0_structure_frontface_expect / size_PerPixel

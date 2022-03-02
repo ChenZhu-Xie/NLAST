@@ -43,14 +43,16 @@ def Refraction_AST__AST(U1_name = "",
                                 }, 
                         #%%
                         is_self_colorbar = 0, is_colorbar_on = 1, 
-                        is_energy = 1, vmax = 1, vmin = 0):
+                        is_energy = 1, vmax = 1, vmin = 0, 
+                        #%%
+                        is_print = 1, ):
     
     #%%
     # 线性 惠更斯 菲涅尔 原理
     
     image_Add_black_border(img_full_name, 
                            border_percentage, 
-                           is_print = 1, )
+                           is_print, )
     
     #%%
     # 先以 n 衍射 z0_n 后 以 1 衍射 z0_1
@@ -80,7 +82,9 @@ def Refraction_AST__AST(U1_name = "",
     #     fontsize, font, 
     #     #%%
     #     is_self_colorbar, is_colorbar_on, 
-    #     is_energy, vmax, vmin)
+    #     is_energy, vmax, vmin, 
+    #     #%%
+    #     is_print)
     
     # U1_name = "6. AST - U1_" + str(float('%.2g' % z0_n)) + "mm"
     # # U1_full_name = U1_name + ".txt"
@@ -111,7 +115,9 @@ def Refraction_AST__AST(U1_name = "",
     #     fontsize, font, 
     #     #%%
     #     is_self_colorbar, is_colorbar_on, 
-    #     is_energy, vmax, vmin)
+    #     is_energy, vmax, vmin, 
+    #     #%%
+    #     is_print)
     
     #%%
     # 先以 1 衍射 z0_1 后 以 n 衍射 z0_n
@@ -141,7 +147,9 @@ def Refraction_AST__AST(U1_name = "",
         fontsize, font, 
         #%%
         is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin)
+        is_energy, vmax, vmin, 
+        #%%
+        is_print)
     
     U1_name = "6. AST - U1_" + str(float('%.2g' % z0_1)) + "mm"
     # U1_full_name = U1_name + ".txt"
@@ -172,7 +180,9 @@ def Refraction_AST__AST(U1_name = "",
         fontsize, font, 
         #%%
         is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin)
+        is_energy, vmax, vmin, 
+        #%%
+        is_print)
     
     #%%
     
@@ -207,4 +217,6 @@ Refraction_AST__AST(U1_name = "",
                             }, 
                     #%%
                     is_self_colorbar = 0, is_colorbar_on = 1, 
-                    is_energy = 1, vmax = 1, vmin = 0)
+                    is_energy = 1, vmax = 1, vmin = 0, 
+                    #%%
+                    is_print = 1, )

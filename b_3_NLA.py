@@ -17,7 +17,7 @@ from fun_array_Transform import Rotate_180, Roll_xy
 from fun_plot import plot_2d
 from fun_pump import pump_LG
 from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, Info_find_contours
+from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, Info_find_contours_SHG
 from fun_thread import noop, my_thread
 
 #%%
@@ -55,7 +55,9 @@ def NLA(U1_name = "",
                 }, 
         #%%
         is_self_colorbar = 0, is_colorbar_on = 1, 
-        is_energy = 0, vmax = 1, vmin = 0):
+        is_energy = 0, vmax = 1, vmin = 0, 
+        #%%
+        is_print = 1, is_contours = 1, ):
     
     # #%%
     # U1_name = ""
@@ -139,7 +141,7 @@ def NLA(U1_name = "",
                        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
                        1, is_colorbar_on, is_energy, vmax, vmin, 
-                       is_print = 1, ) 
+                       is_print, ) 
         
     else:
 
@@ -158,18 +160,11 @@ def NLA(U1_name = "",
 
     #%%
     # 线性 角谱理论 - 基波 begin
+
     g1 = np.fft.fft2(U1_0)
     g1_shift = np.fft.fftshift(g1)
-    
-    z1_0 = z0
-    i1_z0 = z1_0 / size_PerPixel
 
     k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
-    H1_z0_shift = np.power(math.e, k1_z_shift * i1_z0 * 1j)
-    
-    G1_z0_shift = g1_shift * H1_z0_shift
-    G1_z0 = np.fft.ifftshift(G1_z0_shift)
-    U1_z0 = np.fft.ifft2(G1_z0)
     
     #%%
     # 非线性 角谱理论 - 无近似 begin
@@ -177,7 +172,6 @@ def NLA(U1_name = "",
     I2_x, I2_y = U1_0.shape[0], U1_0.shape[1]
 
     #%%
-    # const
 
     lam2 = lam1 / 2
 
@@ -185,8 +179,14 @@ def NLA(U1_name = "",
                    is_air, 
                    lam2, T, p = "e")
     
-    deff = C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12 # pm / V 转换成 m / V
-    const = (k2 / size_PerPixel / n2)**2 * deff
+    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I2_x, I2_y, k2)
+    
+    #%%
+    # 提供描边信息，并覆盖值
+
+    z0, Tz = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+                                    z0, size_PerPixel,
+                                    is_print, is_contours)
 
     #%%
     # 引入 倒格矢，对 k2 的 方向 进行调整，其实就是对 k2 的 k2x, k2y, k2z 网格的 中心频率 从 (0, 0, k2z) 移到 (Gx, Gy, k2z + Gz)
@@ -196,18 +196,15 @@ def NLA(U1_name = "",
 
     Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                             Tx, Ty, Tz, size_PerPixel, 
-                            is_print = 1)
+                            is_print)
     
     #%%
-    # 描边
+    # const
 
-    Info_find_contours(dk, Tz, mz, 
-                       U1_0_NonZero_size, w0, z0, size_PerPixel,
-                       is_print = 1)
+    deff = C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12 # pm / V 转换成 m / V
+    const = (k2 / size_PerPixel / n2)**2 * deff
     
     #%%
-    
-    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I2_x, I2_y, k2)
 
     z2_0 = z0
     i2_z0 = z2_0 / size_PerPixel
@@ -238,7 +235,7 @@ def NLA(U1_name = "",
 
     my_thread(10, I2_x, 
               Cal_integrate_z0_shift, noop, noop, 
-              is_ordered = 1, is_print = 1, )
+              is_ordered = 1, is_print = is_print, )
 
     # integrate_z0_shift = integrate_z0_shift * (2 * math.pi / I2_x / size_PerPixel) * (2 * math.pi / I2_y / size_PerPixel)
     g2_z0_shift = const * integrate_z0_shift / k2_z_shift * size_PerPixel

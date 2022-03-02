@@ -65,14 +65,16 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                              }, 
                      #%%
                      is_self_colorbar = 0, is_colorbar_on = 1, 
-                     is_energy = 1, vmax = 1, vmin = 0):
+                     is_energy = 1, vmax = 1, vmin = 0, 
+                     #%%
+                     is_print = 1, ):
     
     #%%
     # a_Image_Add_Black_border
     
     image_Add_black_border(img_full_name, 
                            border_percentage, 
-                           is_print = 1, )
+                           is_print, )
     
     #%%
     # A_3_Structure_Generate_NLC
@@ -108,7 +110,9 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                   fontsize, font, 
                   #%%
                   is_self_colorbar, is_colorbar_on, 
-                  is_energy, vmax, vmin)
+                  is_energy, vmax, vmin, 
+                  #%%
+                  is_print, )
     
     #%%
     # B_3_NLA_SSI
@@ -147,7 +151,9 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
             fontsize, font, 
             #%%
             is_self_colorbar, is_colorbar_on, 
-            is_energy, vmax, vmin)
+            is_energy, vmax, vmin, 
+            #%%
+            is_print, )
 
 a_to_B_2_nLA_SSI(U1_name_Structure = "", 
                  border_percentage = 0.3, 
@@ -201,4 +207,6 @@ a_to_B_2_nLA_SSI(U1_name_Structure = "",
                          }, 
                  #%%
                  is_self_colorbar = 0, is_colorbar_on = 1, 
-                 is_energy = 1, vmax = 1, vmin = 0)
+                 is_energy = 1, vmax = 1, vmin = 0, 
+                 #%%
+                 is_print = 1, )

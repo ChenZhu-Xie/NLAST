@@ -72,7 +72,7 @@ def pump_LG(file_full_name = "Grating.png",
         mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
         r_shift = ( (mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi))**2 + (mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi))**2  + 0j )**0.5 * size_PerPixel
         
-        if (type(w0) == float or type(w0) == int) and w0 > 0: # 如果 传进来的 w0 既不是 float 也不是 int，或者 w0 <= 0，则 图片为 1
+        if (type(w0) == float or type(w0) == np.float64 or type(w0) == int) and w0 > 0: # 如果 传进来的 w0 既不是 float 也不是 int，或者 w0 <= 0，则 图片为 1
             U1_0 = np.power(math.e, - r_shift**2 / w0**2 )
         else:
             U1_0 = np.ones((Ix,Iy),dtype=np.complex128)
@@ -80,7 +80,7 @@ def pump_LG(file_full_name = "Grating.png",
     else:
         # 对 实空间 输入场 引入 高斯限制
         
-        if (type(w0) == float or type(w0) == int) and w0 > 0: # 如果 传进来的 w0 既不是 float 也不是 int，或者 w0 <= 0，则表示 不对原图 引入 高斯限制
+        if (type(w0) == float or type(w0) == np.float64 or type(w0) == int) and w0 > 0: # 如果 传进来的 w0 既不是 float 也不是 int，或者 w0 <= 0，则表示 不对原图 引入 高斯限制
         
             mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
             r_shift = ( (mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi))**2 + (mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi))**2  + 0j )**0.5 * size_PerPixel
