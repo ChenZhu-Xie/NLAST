@@ -39,7 +39,8 @@ is_H_l, is_H_theta = 0, 0
 #%%
 U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸 5e-1
 w0 = 5 # Unit: mm 束腰（z = 0 处），一般 设定地 比 U1_0_NonZero_size 小，但 CGH 生成结构的时候 得大
-deff_structure_size_expect = 0.4 # Unit: mm 不包含边框，chi_2 的 实际尺寸 4e-1，一般 设定地 比 U1_0_NonZero_size 小，这样 从非线性过程 一开始，基波 就覆盖了 结构，而不是之后 衍射般 地 覆盖结构
+Enlarge_percentage = 0.1
+# deff_structure_size_expect = 0.4 # Unit: mm 不包含边框，chi_2 的 实际尺寸 4e-1，一般 设定地 比 U1_0_NonZero_size 小，这样 从非线性过程 一开始，基波 就覆盖了 结构，而不是之后 衍射般 地 覆盖结构
 deff_structure_length_expect = 1 # Unit: mm 调制区域 z 向长度（类似 z）
 deff_structure_sheet_expect = 1.8 # Unit: μm z 向 切片厚度
 # 一般得比 size_PerPixel 大？ 不用，z 不需要 离散化，因为已经定义 i_z0 = z0 / size_PerPixel，而不是 z0 // size_PerPixel
@@ -92,6 +93,8 @@ vmax, vmin = 1, 0
 #%%
 is_print = 1
 is_contours = 1
+n_TzQ = 1
+Gz_max_Enhance = 1
         
 #%%
 
@@ -113,6 +116,9 @@ img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, 
 
 #%%
 # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
+
+deff_structure_size_expect = U1_0_NonZero_size * ( 1 + Enlarge_percentage )
+is_print and print("deff_structure_size_expect = {} mm".format(deff_structure_size_expect))
 
 Ix, Iy, deff_structure_size = Cal_IxIy(I1_x, I1_y, 
                                        deff_structure_size_expect, size_PerPixel, 
@@ -188,9 +194,9 @@ k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I1_x, I1_y, k2)
 #%%
 # 提供描边信息，并覆盖值
 
-z0, Tz = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
-                                deff_structure_length_expect, size_PerPixel,
-                                is_print, is_contours)
+z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+                                                                        deff_structure_length_expect, size_PerPixel, deff_structure_length_expect, deff_structure_sheet_expect, 
+                                                                        0, is_contours, n_TzQ, Gz_max_Enhance, )
 
 #%%
 

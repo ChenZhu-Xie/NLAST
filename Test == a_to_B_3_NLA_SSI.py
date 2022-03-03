@@ -32,7 +32,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                      is_H_l = 0, is_H_theta = 0, 
                      #%%---------------------------------------------------------------------
                      #%%
-                     U1_0_NonZero_size = 0.5, w0 = 0.1, w0_Structure = 5, deff_structure_size_expect = 0.4, 
+                     U1_0_NonZero_size = 0.5, w0 = 0.1, w0_Structure = 5, Enlarge_percentage = 0.1, 
                      L0_Crystal = 2, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
                      deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
                      z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
@@ -67,7 +67,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                      is_self_colorbar = 0, is_colorbar_on = 1, 
                      is_energy = 1, vmax = 1, vmin = 0, 
                      #%%
-                     is_print = 1, is_contours = 1, ):
+                     is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
     
     #%%
     # a_Image_Add_Black_border
@@ -88,7 +88,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                   theta_x_Structure, theta_y_Structure, 
                   is_H_l_Structure, is_H_theta_Structure, 
                   #%%
-                  U1_0_NonZero_size, w0_Structure, deff_structure_size_expect, 
+                  U1_0_NonZero_size, w0_Structure, Enlarge_percentage, 
                   deff_structure_length_expect, deff_structure_sheet_expect, 
                   Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z, structure_xy_mode, Depth, 
                   #%%
@@ -112,7 +112,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                   is_self_colorbar, is_colorbar_on, 
                   is_energy, vmax, vmin, 
                   #%%
-                  is_print, is_contours, )
+                  is_print, is_contours, n_TzQ, Gz_max_Enhance, )
     
     #%%
     # B_3_NLA_SSI
@@ -153,7 +153,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, )
+            is_print, is_contours, n_TzQ, Gz_max_Enhance, )
 
 a_to_B_3_NLA_SSI(U1_name_Structure = "", 
                  border_percentage = 0.1, 
@@ -174,8 +174,8 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_H_l = 0, is_H_theta = 0, 
                  #%%---------------------------------------------------------------------
                  #%%
-                 U1_0_NonZero_size = 0.9, w0 = 0, w0_Structure = 0, deff_structure_size_expect = 0.99, 
-                 L0_Crystal = 0.1, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.55, 
+                 U1_0_NonZero_size = 0.9, w0 = 0, w0_Structure = 0, Enlarge_percentage = 0.1, 
+                 L0_Crystal = 0.5, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.55, 
                  deff_structure_sheet_expect = 1, sheets_stored_num = 10, 
                  z0_section_1f_expect = 0, z0_section_2f_expect = 0, X = 0, Y = 0, 
                  Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 2, 
@@ -183,7 +183,7 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
                  #%%
                  is_bulk = 0, is_no_backgroud = 0, 
-                 is_stored = 0, is_show_structure_face = 1, is_energy_evolution_on = 1, 
+                 is_stored = 1, is_show_structure_face = 0, is_energy_evolution_on = 1, 
                  #%%
                  lam1 = 1, is_air_pump = 0, is_air = 0, T = 25, 
                  deff = 30, 
@@ -199,7 +199,7 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_title_on = 1, is_axes_on = 1, 
                  is_mm = 1, is_propagation = 0, 
                  #%%
-                 fontsize = 9, 
+                 fontsize = 7, 
                  font = {'family': 'serif',
                          'style': 'normal', # 'normal', 'italic', 'oblique'
                          'weight': 'normal',
@@ -209,4 +209,4 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_self_colorbar = 0, is_colorbar_on = 1, 
                  is_energy = 1, vmax = 1, vmin = 0, 
                  #%%
-                 is_print = 1, is_contours = 1, )
+                 is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, )

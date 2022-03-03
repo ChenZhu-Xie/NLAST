@@ -57,7 +57,7 @@ def NLA(U1_name = "",
         is_self_colorbar = 0, is_colorbar_on = 1, 
         is_energy = 0, vmax = 1, vmin = 0, 
         #%%
-        is_print = 1, is_contours = 1, ):
+        is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
     
     # #%%
     # U1_name = ""
@@ -184,9 +184,9 @@ def NLA(U1_name = "",
     #%%
     # 提供描边信息，并覆盖值
 
-    z0, Tz = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
-                                    z0, size_PerPixel,
-                                    is_print, is_contours)
+    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+                                                                  z0, size_PerPixel, z0, z0/100, 
+                                                                  is_print, is_contours, n_TzQ, Gz_max_Enhance, )
 
     #%%
     # 引入 倒格矢，对 k2 的 方向 进行调整，其实就是对 k2 的 k2x, k2y, k2z 网格的 中心频率 从 (0, 0, k2z) 移到 (Gx, Gy, k2z + Gz)

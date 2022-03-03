@@ -54,7 +54,7 @@ def Contours_NLA_AST(U1_name = "",
                      is_self_colorbar = 0, is_colorbar_on = 1, 
                      is_energy = 1, vmax = 1, vmin = 0, 
                      #%%
-                     is_print = 1, is_contours = 1, ):
+                     is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
     
     #%%
     # 非线性 描边
@@ -129,7 +129,7 @@ def Contours_NLA_AST(U1_name = "",
         is_self_colorbar, is_colorbar_on, 
         is_energy, vmax, vmin, 
         #%%
-        is_print, is_contours, )
+        is_print, is_contours, n_TzQ, Gz_max_Enhance, )
     
     U1_NLA_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_NLA)) + "mm"
     U1_NLA_txt_full_name = U1_NLA_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -169,7 +169,7 @@ def Contours_NLA_AST(U1_name = "",
         is_self_colorbar, is_colorbar_on, 
         is_energy, vmax, vmin, 
         #%%
-        is_print, is_contours, )
+        is_print, is_contours, n_TzQ, Gz_max_Enhance, )
     
     U2_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_NLA)) + "mm"
     # U2_txt_full_name = U2_txt_name + ".txt"
@@ -332,7 +332,7 @@ Contours_NLA_AST(U1_name = "",
                  is_self_colorbar = 1, is_colorbar_on = 1, 
                  is_energy = 0, vmax = 1, vmin = 0, 
                  #%%
-                 is_print = 1, is_contours = 1, )
+                 is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, )
 
 # 搭配 - 1
 # U2_Z0_Superposition = U1_NLA - U2_AST

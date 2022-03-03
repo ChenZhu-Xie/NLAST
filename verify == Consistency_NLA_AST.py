@@ -53,14 +53,14 @@ def Consistency_NLA_AST(U1_name = "",
                         is_self_colorbar = 0, is_colorbar_on = 1, 
                         is_energy = 1, vmax = 1, vmin = 0, 
                         #%%
-                        is_print = 1, is_contours = 1, ):
+                        is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
     
     #%%
     # 线性 惠更斯 菲涅尔 原理
     
     # image_Add_black_border(img_full_name, 
-    #                        border_percentage, 
-    #                        is_print, )
+    #                         border_percentage, 
+    #                         is_print, )
     
     # #%%
     # # 先衍射 z0 后衍射 z0_new
@@ -90,7 +90,9 @@ def Consistency_NLA_AST(U1_name = "",
     #     fontsize, font, 
     #     #%%
     #     is_self_colorbar, is_colorbar_on, 
-    #     is_energy, vmax, vmin)
+    #     is_energy, vmax, vmin, 
+    #     #%%
+    #     is_print, )
     
     # U1_name = "6. AST - U1_" + str(float('%.2g' % z0)) + "mm"
     # # U1_full_name = U1_name + (is_save_txt and ".txt" or ".mat")
@@ -121,7 +123,9 @@ def Consistency_NLA_AST(U1_name = "",
     #     fontsize, font, 
     #     #%%
     #     is_self_colorbar, is_colorbar_on, 
-    #     is_energy, vmax, vmin)
+    #     is_energy, vmax, vmin,  
+    #     #%%
+    #     is_print, )
     
     # #%%
     # # 直接衍射 Z0 = z0 + z0_new
@@ -153,7 +157,9 @@ def Consistency_NLA_AST(U1_name = "",
     #     fontsize, font, 
     #     #%%
     #     is_self_colorbar, is_colorbar_on, 
-    #     is_energy, vmax, vmin)
+    #     is_energy, vmax, vmin, 
+    #     #%%
+    #     is_print, )
     
     #%%
     # 非线性 惠更斯 菲涅尔 原理
@@ -230,7 +236,7 @@ def Consistency_NLA_AST(U1_name = "",
         is_self_colorbar, is_colorbar_on, 
         is_energy, vmax, vmin, 
         #%%
-        is_print, is_contours, )
+        is_print, is_contours, n_TzQ, Gz_max_Enhance, )
     
     U1_NLA_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_NLA)) + "mm"
     U1_NLA_txt_full_name = U1_NLA_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -270,7 +276,7 @@ def Consistency_NLA_AST(U1_name = "",
         is_self_colorbar, is_colorbar_on, 
         is_energy, vmax, vmin, 
         #%%
-        is_print, is_contours, )
+        is_print, is_contours, n_TzQ, Gz_max_Enhance, )
     
     U2_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0)) + "mm"
     # U2_txt_full_name = U2_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -347,7 +353,7 @@ def Consistency_NLA_AST(U1_name = "",
         is_self_colorbar, is_colorbar_on, 
         is_energy, vmax, vmin, 
         #%%
-        is_print, is_contours, )
+        is_print, is_contours, n_TzQ, Gz_max_Enhance, )
     
     U2_Z0_txt_name = "6. NLA - U2_" + str(float('%.2g' % Z0)) + "mm"
     # U2_Z0_txt_full_name = U2_Z0_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -785,6 +791,6 @@ Consistency_NLA_AST(U1_name = "",
                     is_self_colorbar = 1, is_colorbar_on = 1, 
                     is_energy = 1, vmax = 1, vmin = 0, 
                     #%%
-                    is_print = 1, is_contours = 1, )
+                    is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, )
 
 # 注意 colorbar 上的数量级

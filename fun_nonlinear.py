@@ -100,16 +100,18 @@ def Cal_roll_xy(nx, ny,
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 
 def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
-                           z0, size_PerPixel,
-                           is_print = 1, is_contours = 1):
+                           z0, size_PerPixel, deff_structure_length_expect, deff_structure_sheet_expect, 
+                           is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
     
     #%%
     # 描边
     
     if is_contours != 0:
         
+        is_print and print("===== 描边 start =====")
+        
         dk = 2 * np.max(np.abs(k1_z_shift)) - np.max(np.abs(k2_z_shift))
-    
+        print("dk = {} / mm".format(dk))
         lc = math.pi / abs(dk) * size_PerPixel * 1000 # Unit: um
         # print("相干长度 = {} μm".format(lc))
         # print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
@@ -118,7 +120,7 @@ def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz,
             Tz = 2*lc  # Unit: um
         
         Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000) # Tz / 1000 即以 mm 为单位
-    
+        
         dkQ = dk + Gz
         lcQ = math.pi / abs(dkQ) * size_PerPixel # Unit: mm
         # print("相干长度_Q = {} mm".format(lcQ))
@@ -127,6 +129,8 @@ def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz,
         #%%
         
         Gz_max = np.min(np.abs(k2_z_shift)) - 2 * np.min(np.abs(k1_z_shift))
+        Gz_max = Gz_max * Gz_max_Enhance
+        print("Gz_max = {} / mm".format(Gz_max))
         Tz_min = 2 * math.pi * mz * size_PerPixel / (abs(Gz_max) / 1000) # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         # print("Tz_min = {} μm".format(Tz_min))
         
@@ -142,7 +146,7 @@ def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz,
         if is_contours != 2:
             is_print and print("===== 描边 1：若无额外要求 =====") # 波长定，Tz 定 (lcQ 定)，z0 不定
             
-            is_print and print("z0_exp = {} mm".format(z0_min))
+            is_print and print("z0_exp = {} mm".format(z0_min * n_TzQ))
             is_print and print("Tz_exp = {} μm".format(Tz_min))
         
         #%%
@@ -163,7 +167,7 @@ def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz,
             is_print and print("z0_min = {} mm # ==> 1.先调 z0 >= z0_min".format(z0_min)) # 先使 TzQ_exp 不遇分母 为零的错误，以 正确预测 lcQ_exp，以及后续的 Tz_exp
             z0_exp = TzQ_exp # 满足 >= TzQ_min， 且 能整除 TzQ_exp 中，最小的 z0
             # z0_exp = TzQ # 满足 >= TzQ_min， 且 能整除 TzQ_exp 中，最小的 z0
-            is_print and print("z0_exp = {} * n mm # ==> 2.再调 z0 = z0_exp".format(z0_exp))
+            is_print and print("z0_exp = {} mm # ==> 2.再调 z0 = z0_exp".format(z0_exp * n_TzQ))
             # print("z0_exp = {} * n mm # ==> 3.最后调 z0 = z0_exp".format(z0_exp))
             is_print and print("z0     = {} mm".format(z0))
         
@@ -182,16 +186,27 @@ def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz,
             is_print and print("畴宽     = {} μm".format(Tz/2))
             is_print and print("畴宽_max = {} μm".format(lc))
             
-        is_print and print("===== 描边 end =====")
-            
         #%%
         
     if is_contours == 1:
-        return z0_min, Tz_min
+        z0_recommend = z0_min * n_TzQ
+        Tz_recommend = Tz_min
     elif is_contours == 2:
-        return z0_exp, Tz_exp
+        z0_recommend = z0_exp * n_TzQ
+        Tz_recommend = Tz_exp
     else:
-        return z0, Tz
+        z0_recommend = z0
+        Tz_recommend = Tz
+    
+    if is_contours != 0:
+        
+        if deff_structure_length_expect <= z0_recommend + deff_structure_sheet_expect / 1000:
+            deff_structure_length_expect = z0_recommend + deff_structure_sheet_expect / 1000
+            is_print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
+            
+        is_print and print("===== 描边 end =====")
+    
+    return z0_recommend, Tz_recommend, deff_structure_length_expect
         
 #%%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg

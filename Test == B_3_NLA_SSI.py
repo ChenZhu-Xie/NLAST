@@ -95,6 +95,8 @@ vmax, vmin = 1, 0
 #%%
 is_print = 1
 is_contours = 1
+n_TzQ = 1
+Gz_max_Enhance = 1
 
 #%%
 
@@ -177,9 +179,9 @@ k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I2_x, I2_y, k2)
 #%%
 # 提供描边信息，并覆盖值
 
-L0_Crystal, Tz = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
-                                        L0_Crystal, size_PerPixel,
-                                        is_print, is_contours)
+L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+                                                                      L0_Crystal, size_PerPixel, deff_structure_length_expect, deff_structure_sheet_expect, 
+                                                                      is_print, is_contours, n_TzQ, Gz_max_Enhance, )
 
 #%%
 
@@ -286,6 +288,15 @@ if is_stored == 1:
     G2_shift_XZ_stored = np.empty( (I2_y, sheets_num + 1), dtype=np.complex128() )
     U2_YZ_stored = np.empty( (I2_x, sheets_num + 1), dtype=np.complex128() )
     U2_XZ_stored = np.empty( (I2_y, sheets_num + 1), dtype=np.complex128() )
+    
+    G2_structure_frontface_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
+    U2_structure_frontface = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
+    G2_structure_endface_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
+    U2_structure_endface = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
+    G2_section_1_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
+    U2_section_1 = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
+    G2_section_2_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
+    U2_section_2 = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
 
 def Cal_Q2_z_shift(for_th, fors_num, *arg, ):
     
@@ -672,8 +683,12 @@ if is_stored == 1:
     
     #------------------------- 储存 G2_section_1_shift_amp、G2_section_2_shift_amp、G2_structure_frontface_shift_amp、G2_structure_endface_shift_amp
     
-    vmax_G2_section_1_2_front_end_shift_amp = np.max([np.max(np.abs(G2_section_1_shift)), np.max(np.abs(G2_section_2_shift)), np.max(np.abs(G2_structure_frontface_shift)), np.max(np.abs(G2_structure_endface_shift))])
-    vmin_G2_section_1_2_front_end_shift_amp = np.min([np.min(np.abs(G2_section_1_shift)), np.min(np.abs(G2_section_2_shift)), np.min(np.abs(G2_structure_frontface_shift)), np.min(np.abs(G2_structure_endface_shift))])
+    if is_show_structure_face == 1:
+        vmax_G2_section_1_2_front_end_shift_amp = np.max([np.max(np.abs(G2_section_1_shift)), np.max(np.abs(G2_section_2_shift)), np.max(np.abs(G2_structure_frontface_shift)), np.max(np.abs(G2_structure_endface_shift))])
+        vmin_G2_section_1_2_front_end_shift_amp = np.min([np.min(np.abs(G2_section_1_shift)), np.min(np.abs(G2_section_2_shift)), np.min(np.abs(G2_structure_frontface_shift)), np.min(np.abs(G2_structure_endface_shift))])
+    else:
+        vmax_G2_section_1_2_front_end_shift_amp = np.max([np.max(np.abs(G2_section_1_shift)), np.max(np.abs(G2_section_2_shift))])
+        vmin_G2_section_1_2_front_end_shift_amp = np.min([np.min(np.abs(G2_section_1_shift)), np.min(np.abs(G2_section_2_shift))])
     
     G2_section_1_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI_shift" + "_amp" + img_name_extension
 
@@ -693,28 +708,34 @@ if is_stored == 1:
             fontsize, font, 
             is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
     
-    G2_structure_frontface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_amp" + img_name_extension
-
-    plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            np.abs(G2_structure_frontface_shift), G2_structure_frontface_shift_amp_address, "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_amp", 
-            is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+    if is_show_structure_face == 1:
     
-    G2_structure_endface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_amp" + img_name_extension
-
-    plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            np.abs(G2_structure_endface_shift), G2_structure_endface_shift_amp_address, "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_amp", 
-            is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+        G2_structure_frontface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_amp" + img_name_extension
+    
+        plot_2d(I2_x, I2_y, size_PerPixel, diz, 
+                np.abs(G2_structure_frontface_shift), G2_structure_frontface_shift_amp_address, "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_amp", 
+                is_save, dpi, size_fig, 
+                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                fontsize, font, 
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
+        
+        G2_structure_endface_shift_amp_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.1. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_amp" + img_name_extension
+    
+        plot_2d(I2_x, I2_y, size_PerPixel, diz, 
+                np.abs(G2_structure_endface_shift), G2_structure_endface_shift_amp_address, "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_amp", 
+                is_save, dpi, size_fig, 
+                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                fontsize, font, 
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_G2_section_1_2_front_end_shift_amp, vmin_G2_section_1_2_front_end_shift_amp)
     
     #------------------------- 储存 G2_section_1_shift_phase、G2_section_2_shift_phase、G2_structure_frontface_shift_phase、G2_structure_endface_shift_phase
     
-    vmax_G2_section_1_2_front_end_shift_phase = np.max([np.max(np.angle(G2_section_1_shift)), np.max(np.angle(G2_section_2_shift)), np.max(np.angle(G2_structure_frontface_shift)), np.max(np.angle(G2_structure_endface_shift))])
-    vmin_G2_section_1_2_front_end_shift_phase = np.min([np.min(np.angle(G2_section_1_shift)), np.min(np.angle(G2_section_2_shift)), np.min(np.angle(G2_structure_frontface_shift)), np.min(np.angle(G2_structure_endface_shift))])
+    if is_show_structure_face == 1:
+        vmax_G2_section_1_2_front_end_shift_phase = np.max([np.max(np.angle(G2_section_1_shift)), np.max(np.angle(G2_section_2_shift)), np.max(np.angle(G2_structure_frontface_shift)), np.max(np.angle(G2_structure_endface_shift))])
+        vmin_G2_section_1_2_front_end_shift_phase = np.min([np.min(np.angle(G2_section_1_shift)), np.min(np.angle(G2_section_2_shift)), np.min(np.angle(G2_structure_frontface_shift)), np.min(np.angle(G2_structure_endface_shift))])
+    else:
+        vmax_G2_section_1_2_front_end_shift_phase = np.max([np.max(np.angle(G2_section_1_shift)), np.max(np.angle(G2_section_2_shift))])
+        vmin_G2_section_1_2_front_end_shift_phase = np.min([np.min(np.angle(G2_section_1_shift)), np.min(np.angle(G2_section_2_shift))])
     
     G2_section_1_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI_shift" + "_phase" + img_name_extension
 
@@ -734,28 +755,34 @@ if is_stored == 1:
             fontsize, font, 
             is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
     
-    G2_structure_frontface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_phase" + img_name_extension
-
-    plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            np.angle(G2_structure_frontface_shift), G2_structure_frontface_shift_phase_address, "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_phase", 
-            is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+    if is_show_structure_face == 1:
     
-    G2_structure_endface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_phase" + img_name_extension
-
-    plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            np.angle(G2_structure_endface_shift), G2_structure_endface_shift_phase_address, "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_phase", 
-            is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+        G2_structure_frontface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_phase" + img_name_extension
+    
+        plot_2d(I2_x, I2_y, size_PerPixel, diz, 
+                np.angle(G2_structure_frontface_shift), G2_structure_frontface_shift_phase_address, "G2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI_shift" + "_phase", 
+                is_save, dpi, size_fig, 
+                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                fontsize, font, 
+                is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
+        
+        G2_structure_endface_shift_phase_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_sheets_selective_stored" + "\\" + "5.2. NLA - " + "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_phase" + img_name_extension
+    
+        plot_2d(I2_x, I2_y, size_PerPixel, diz, 
+                np.angle(G2_structure_endface_shift), G2_structure_endface_shift_phase_address, "G2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI_shift" + "_phase", 
+                is_save, dpi, size_fig, 
+                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                fontsize, font, 
+                is_self_colorbar, is_colorbar_on, 0, vmax_G2_section_1_2_front_end_shift_phase, vmin_G2_section_1_2_front_end_shift_phase)
     
     #------------------------- 储存 U2_section_1_amp、U2_section_2_amp、U2_structure_frontface_amp、U2_structure_endface_amp
     
-    vmax_U2_section_1_2_front_end_shift_amp = np.max([np.max(np.abs(U2_section_1)), np.max(np.abs(U2_section_2)), np.max(np.abs(U2_structure_frontface)), np.max(np.abs(U2_structure_endface))])
-    vmin_U2_section_1_2_front_end_shift_amp = np.min([np.min(np.abs(U2_section_1)), np.min(np.abs(U2_section_2)), np.min(np.abs(U2_structure_frontface)), np.min(np.abs(U2_structure_endface))])
+    if is_show_structure_face == 1:
+        vmax_U2_section_1_2_front_end_shift_amp = np.max([np.max(np.abs(U2_section_1)), np.max(np.abs(U2_section_2)), np.max(np.abs(U2_structure_frontface)), np.max(np.abs(U2_structure_endface))])
+        vmin_U2_section_1_2_front_end_shift_amp = np.min([np.min(np.abs(U2_section_1)), np.min(np.abs(U2_section_2)), np.min(np.abs(U2_structure_frontface)), np.min(np.abs(U2_structure_endface))])
+    else:
+        vmax_U2_section_1_2_front_end_shift_amp = np.max([np.max(np.abs(U2_section_1)), np.max(np.abs(U2_section_2))])
+        vmin_U2_section_1_2_front_end_shift_amp = np.min([np.min(np.abs(U2_section_1)), np.min(np.abs(U2_section_2))])
     
     U2_section_1_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI" + "_amp" + img_name_extension
 
@@ -775,28 +802,34 @@ if is_stored == 1:
             fontsize, font, 
             is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
     
-    U2_structure_frontface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_amp" + img_name_extension
-
-    plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            np.abs(U2_structure_frontface), U2_structure_frontface_amp_address, "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_amp", 
-            is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+    if is_show_structure_face == 1:
+        
+        U2_structure_frontface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_amp" + img_name_extension
     
-    U2_structure_endface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_amp" + img_name_extension
-
-    plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            np.abs(U2_structure_endface), U2_structure_endface_amp_address, "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_amp", 
-            is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+        plot_2d(I2_x, I2_y, size_PerPixel, diz, 
+                np.abs(U2_structure_frontface), U2_structure_frontface_amp_address, "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_amp", 
+                is_save, dpi, size_fig, 
+                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                fontsize, font, 
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
+        
+        U2_structure_endface_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.1. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_amp" + img_name_extension
+    
+        plot_2d(I2_x, I2_y, size_PerPixel, diz, 
+                np.abs(U2_structure_endface), U2_structure_endface_amp_address, "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_amp", 
+                is_save, dpi, size_fig, 
+                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                fontsize, font, 
+                is_self_colorbar, is_colorbar_on, is_energy, vmax_U2_section_1_2_front_end_shift_amp, vmin_U2_section_1_2_front_end_shift_amp)
     
     #------------------------- 储存 U2_section_1_phase、U2_section_2_phase、U2_structure_frontface_phase、U2_structure_endface_phase
     
-    vmax_U2_section_1_2_front_end_shift_phase = np.max([np.max(np.angle(U2_section_1)), np.max(np.angle(U2_section_2)), np.max(np.angle(U2_structure_frontface)), np.max(np.angle(U2_structure_endface))])
-    vmin_U2_section_1_2_front_end_shift_phase = np.min([np.min(np.angle(U2_section_1)), np.min(np.angle(U2_section_2)), np.min(np.angle(U2_structure_frontface)), np.min(np.angle(U2_structure_endface))])
+    if is_show_structure_face == 1:
+        vmax_U2_section_1_2_front_end_shift_phase = np.max([np.max(np.angle(U2_section_1)), np.max(np.angle(U2_section_2)), np.max(np.angle(U2_structure_frontface)), np.max(np.angle(U2_structure_endface))])
+        vmin_U2_section_1_2_front_end_shift_phase = np.min([np.min(np.angle(U2_section_1)), np.min(np.angle(U2_section_2)), np.min(np.angle(U2_structure_frontface)), np.min(np.angle(U2_structure_endface))])
+    else:
+        vmax_U2_section_1_2_front_end_shift_phase = np.max([np.max(np.angle(U2_section_1)), np.max(np.angle(U2_section_2))])
+        vmin_U2_section_1_2_front_end_shift_phase = np.min([np.min(np.angle(U2_section_1)), np.min(np.angle(U2_section_2))])
     
     U2_section_1_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_1)) + "mm" + "_SSI" + "_phase" + img_name_extension
 
@@ -816,23 +849,25 @@ if is_stored == 1:
             fontsize, font, 
             is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
     
-    U2_structure_frontface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_phase" + img_name_extension
-
-    plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            np.angle(U2_structure_frontface), U2_structure_frontface_phase_address, "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_phase", 
-            is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+    if is_show_structure_face == 1:
+        
+        U2_structure_frontface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_phase" + img_name_extension
     
-    U2_structure_endface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_phase" + img_name_extension
-
-    plot_2d(I2_x, I2_y, size_PerPixel, diz, 
-            np.angle(U2_structure_endface), U2_structure_endface_phase_address, "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_phase", 
-            is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+        plot_2d(I2_x, I2_y, size_PerPixel, diz, 
+                np.angle(U2_structure_frontface), U2_structure_frontface_phase_address, "U2_" + str(float('%.2g' % z0_structure_frontface)) + "mm" + "_SSI" + "_phase", 
+                is_save, dpi, size_fig, 
+                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                fontsize, font, 
+                is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
+        
+        U2_structure_endface_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_sheets_selective_stored" + "\\" + "6.2. NLA - " + "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_phase" + img_name_extension
+    
+        plot_2d(I2_x, I2_y, size_PerPixel, diz, 
+                np.angle(U2_structure_endface), U2_structure_endface_phase_address, "U2_" + str(float('%.2g' % z0_structure_endface)) + "mm" + "_SSI" + "_phase", 
+                is_save, dpi, size_fig, 
+                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                fontsize, font, 
+                is_self_colorbar, is_colorbar_on, 0, vmax_U2_section_1_2_front_end_shift_phase, vmin_U2_section_1_2_front_end_shift_phase)
     
     #%%
     # 绘制 G2_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G2_amp（现在 可以 任选位置 了）

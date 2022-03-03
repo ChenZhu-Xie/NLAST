@@ -23,8 +23,8 @@ from fun_thread import noop, my_thread
 
 #%%
 U1_name = ""
-img_full_name = "lena.png"
-border_percentage = 0.3 # 边框 占图片的 百分比，也即 图片 放大系数
+img_full_name = "grating.png"
+border_percentage = 0.1 # 边框 占图片的 百分比，也即 图片 放大系数
 #%%
 is_phase_only = 0
 is_LG, is_Gauss, is_OAM = 0, 0, 0
@@ -35,19 +35,19 @@ is_H_l, is_H_theta = 0, 0
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
 #%%
-U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
+U1_0_NonZero_size = 0.9 # Unit: mm 不包含边框，图片 的 实际尺寸
 w0 = 0 # Unit: mm 束腰（z = 0 处）
 z0 = 0.2739382441081523 # Unit: mm 传播距离
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 #%%
-lam1 = 1.064 # Unit: um 基波波长
+lam1 = 1 # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 #%%
 deff = 30 # pm / V
 Tx, Ty, Tz = 20.557, 10, 6.8 # Unit: um
 mx, my, mz = 0, 0, 1
 # 倒空间：右, 下 = +, +
-is_linear_convolution = 0 # 0 代表 循环卷积，1 代表 线性卷积
+is_linear_convolution = 1 # 0 代表 循环卷积，1 代表 线性卷积
 #%%
 is_save = 0
 is_save_txt = 0
@@ -74,7 +74,9 @@ is_energy = 0
 vmax, vmin = 1, 0
 #%%
 is_print = 1
-is_contours = 1
+is_contours = 1 #  —— 我草，描边 需要 线性卷积，而不是 循环卷积，这样才 描得清楚
+n_TzQ = 1
+Gz_max_Enhance = 1.02
 
 #%%
 
@@ -157,9 +159,9 @@ k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I2_x, I2_y, k2)
 #%%
 # 提供描边信息，并覆盖值
 
-z0, Tz = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
-                                z0, size_PerPixel,
-                                is_print, is_contours)
+z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+                                                              z0, size_PerPixel, z0, z0/100, 
+                                                              is_print, is_contours, n_TzQ, Gz_max_Enhance, )
 
 #%%
 # 引入 倒格矢，对 k2 的 方向 进行调整，其实就是对 k2 的 k2x, k2y, k2z 网格的 中心频率 从 (0, 0, k2z) 移到 (Gx, Gy, k2z + Gz)
