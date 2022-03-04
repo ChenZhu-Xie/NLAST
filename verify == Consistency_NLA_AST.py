@@ -22,6 +22,7 @@ def Consistency_NLA_AST(U1_name = "",
                         border_percentage = 0.3, 
                         is_phase_only = 0, 
                         #%%
+                        z_pump = 0, 
                         is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                         l = 0, p = 0, 
                         theta_x = 0, theta_y = 0, 
@@ -55,7 +56,7 @@ def Consistency_NLA_AST(U1_name = "",
                         #%%
                         is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
     
-    #%%
+    # %%
     # 线性 惠更斯 菲涅尔 原理
     
     # image_Add_black_border(img_full_name, 
@@ -69,6 +70,7 @@ def Consistency_NLA_AST(U1_name = "",
     #     img_full_name, 
     #     is_phase_only, 
     #     #%%
+    #     z_pump, 
     #     is_LG, is_Gauss, is_OAM, 
     #     l, p, 
     #     theta_x, theta_y, 
@@ -102,6 +104,7 @@ def Consistency_NLA_AST(U1_name = "",
     #     img_full_name, 
     #     is_phase_only, 
     #     #%%
+    #     z_pump, 
     #     is_LG, is_Gauss, is_OAM, 
     #     l, p, 
     #     theta_x, theta_y, 
@@ -136,6 +139,7 @@ def Consistency_NLA_AST(U1_name = "",
     #     img_full_name, 
     #     is_phase_only, 
     #     #%%
+    #     z_pump, 
     #     is_LG, is_Gauss, is_OAM, 
     #     l, p, 
     #     theta_x, theta_y, 
@@ -175,6 +179,7 @@ def Consistency_NLA_AST(U1_name = "",
         img_full_name, 
         is_phase_only, 
         #%%
+        z_pump, 
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
@@ -210,6 +215,7 @@ def Consistency_NLA_AST(U1_name = "",
         img_full_name, 
         is_phase_only, 
         #%%
+        z_pump, 
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
@@ -250,6 +256,7 @@ def Consistency_NLA_AST(U1_name = "",
         img_full_name, 
         is_phase_only, 
         #%%
+        z_pump, 
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
@@ -288,6 +295,7 @@ def Consistency_NLA_AST(U1_name = "",
         img_full_name, 
         is_phase_only, 
         #%%
+        z_pump, 
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
@@ -327,6 +335,7 @@ def Consistency_NLA_AST(U1_name = "",
         img_full_name, 
         is_phase_only, 
         #%%
+        z_pump, 
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
@@ -760,6 +769,7 @@ Consistency_NLA_AST(U1_name = "",
                     border_percentage = 0.1, 
                     is_phase_only = 0, 
                     #%%
+                    z_pump = 0, 
                     is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                     l = 0, p = 0, 
                     theta_x = 0, theta_y = 0, 

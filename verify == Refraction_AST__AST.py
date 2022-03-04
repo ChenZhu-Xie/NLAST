@@ -17,6 +17,7 @@ def Refraction_AST__AST(U1_name = "",
                         border_percentage = 0.3, 
                         is_phase_only = 0, 
                         #%%
+                        z_pump = 0, 
                         is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                         l = 0, p = 0, 
                         theta_x = 0, theta_y = 0, 
@@ -54,13 +55,14 @@ def Refraction_AST__AST(U1_name = "",
                            border_percentage, 
                            is_print, )
     
-    #%%
+    # %%
     # 先以 n 衍射 z0_n 后 以 1 衍射 z0_1
     
     # AST('', 
     #     img_full_name, 
     #     is_phase_only, 
     #     #%%
+    #     z_pump, 
     #     is_LG, is_Gauss, is_OAM, 
     #     l, p, 
     #     theta_x, theta_y, 
@@ -94,6 +96,7 @@ def Refraction_AST__AST(U1_name = "",
     #     img_full_name, 
     #     is_phase_only, 
     #     #%%
+    #     z_pump, 
     #     is_LG, is_Gauss, is_OAM, 
     #     l, p, 
     #     theta_x, theta_y, 
@@ -126,6 +129,7 @@ def Refraction_AST__AST(U1_name = "",
         img_full_name, 
         is_phase_only, 
         #%%
+        z_pump, 
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
@@ -159,6 +163,7 @@ def Refraction_AST__AST(U1_name = "",
         img_full_name, 
         is_phase_only, 
         #%%
+        z_pump, 
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
@@ -191,6 +196,7 @@ Refraction_AST__AST(U1_name = "",
                     border_percentage = 0.3, 
                     is_phase_only = 0, 
                     #%%
+                    z_pump = 0, 
                     is_LG = 0, is_Gauss = 1, is_OAM = 1, 
                     l = 3, p = 0, 
                     theta_x = 1, theta_y = 0, 

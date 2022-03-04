@@ -25,8 +25,9 @@ from fun_thread import noop, my_thread
 U1_name = ""
 img_full_name = "grating.png"
 border_percentage = 0.1 # 边框 占图片的 百分比，也即 图片 放大系数
-#%%
 is_phase_only = 0
+#%%
+z_pump = 0
 is_LG, is_Gauss, is_OAM = 0, 0, 0
 l, p = 0, 0
 theta_x, theta_y = 0, 0
@@ -106,7 +107,7 @@ if (type(U1_name) != str) or U1_name == "":
     
     U1_0 = pump_LG(img_full_name, 
                    I1_x, I1_y, size_PerPixel, 
-                   U1_0, w0, k1, 0, 
+                   U1_0, w0, k1, z_pump, 
                    is_LG, is_Gauss, is_OAM, 
                    l, p, 
                    theta_x, theta_y, 

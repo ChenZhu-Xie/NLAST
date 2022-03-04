@@ -111,7 +111,7 @@ def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz,
         is_print and print("===== 描边 start =====")
         
         dk = 2 * np.max(np.abs(k1_z_shift)) - np.max(np.abs(k2_z_shift))
-        print("dk = {} / mm".format(dk))
+        print("dk = {} / μm, {}".format(dk/size_PerPixel/1000, dk))
         lc = math.pi / abs(dk) * size_PerPixel * 1000 # Unit: um
         # print("相干长度 = {} μm".format(lc))
         # print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
@@ -130,12 +130,12 @@ def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz,
         
         Gz_max = np.min(np.abs(k2_z_shift)) - 2 * np.min(np.abs(k1_z_shift))
         Gz_max = Gz_max * Gz_max_Enhance
-        print("Gz_max = {} / mm".format(Gz_max))
+        print("Gz_max = {} / μm, {}".format(Gz_max/size_PerPixel/1000, Gz_max))
         Tz_min = 2 * math.pi * mz * size_PerPixel / (abs(Gz_max) / 1000) # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         # print("Tz_min = {} μm".format(Tz_min))
         
         dkQ_max = dk + Gz_max
-        lcQ_min = math.pi / dkQ_max * size_PerPixel
+        lcQ_min = math.pi / abs(dkQ_max) * size_PerPixel
         # print("lcQ_min = {} mm".format(lcQ_min))
         TzQ_min = 2*lcQ_min
         

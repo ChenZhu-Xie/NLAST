@@ -22,6 +22,7 @@ def Contours_NLA_SSI_AST(U1_name = "",
                          border_percentage = 0.3, 
                          is_phase_only = 0, 
                          #%%
+                         z_pump = 0, 
                          is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                          l = 0, p = 0, 
                          theta_x = 0, theta_y = 0, 
@@ -80,6 +81,7 @@ def Contours_NLA_SSI_AST(U1_name = "",
         img_full_name, 
         is_phase_only, 
         #%%
+        z_pump, 
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
@@ -113,6 +115,7 @@ def Contours_NLA_SSI_AST(U1_name = "",
             img_full_name, 
             is_phase_only, 
             #%%
+            z_pump, 
             is_LG, is_Gauss, is_OAM, 
             l, p, 
             theta_x, theta_y, 
@@ -159,6 +162,7 @@ def Contours_NLA_SSI_AST(U1_name = "",
             img_full_name, 
             is_phase_only, 
             #%%
+            z_pump, 
             is_LG, is_Gauss, is_OAM, 
             l, p, 
             theta_x, theta_y, 
@@ -201,6 +205,7 @@ def Contours_NLA_SSI_AST(U1_name = "",
         img_full_name, 
         is_phase_only, 
         #%%
+        z_pump, 
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
@@ -319,6 +324,7 @@ Contours_NLA_SSI_AST(U1_name = "",
                      border_percentage = 0.3, 
                      is_phase_only = 0, 
                      #%%
+                     z_pump = 0, 
                      is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                      l = 0, p = 0, 
                      theta_x = 0, theta_y = 0, 
@@ -350,7 +356,7 @@ Contours_NLA_SSI_AST(U1_name = "",
                      is_self_colorbar = 1, is_colorbar_on = 1, 
                      is_energy = 0, vmax = 1, vmin = 0, 
                      #%%
-                     is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, )
+                     is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, )
 
 # 搭配 - 1
 # U2_Z0_Superposition = U1_NLA - U2_AST

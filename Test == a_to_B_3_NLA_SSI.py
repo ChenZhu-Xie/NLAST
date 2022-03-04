@@ -17,6 +17,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                      border_percentage = 0.3, 
                      is_phase_only_Structure = 0, 
                      #%%
+                     z_pump_Structure = 0, 
                      is_LG_Structure = 0, is_Gauss_Structure = 1, is_OAM_Structure = 1, 
                      l_Structure = 0, p_Structure = 0, 
                      theta_x_Structure = 0, theta_y_Structure = 0, 
@@ -26,13 +27,14 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                      img_full_name = "l=1.png", 
                      is_phase_only = 0, 
                      #%%
+                     z_pump = 0, 
                      is_LG = 0, is_Gauss = 1, is_OAM = 1, 
                      l = 1, p = 0, 
                      theta_x = 1, theta_y = 0, 
                      is_H_l = 0, is_H_theta = 0, 
                      #%%---------------------------------------------------------------------
                      #%%
-                     U1_0_NonZero_size = 0.5, w0 = 0.1, w0_Structure = 5, Enlarge_percentage = 0.1, 
+                     U1_0_NonZero_size = 0.5, w0 = 0.1, w0_Structure = 5, structure_size_Enlarge = 0.1, 
                      L0_Crystal = 2, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
                      deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
                      z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
@@ -79,16 +81,27 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
     #%%
     # A_3_Structure_Generate_NLC
     
+    if is_contours != 0:
+        
+        is_print and print("===== 描边 start =====")
+        
+        if deff_structure_length_expect <= L0_Crystal + deff_structure_sheet_expect / 1000:
+            deff_structure_length_expect = L0_Crystal + deff_structure_sheet_expect / 1000
+            is_print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
+            
+        is_print and print("===== 描边 end =====")
+    
     structure_NLC(U1_name_Structure, 
                   img_full_name, 
                   is_phase_only_Structure, 
                   #%%
+                  z_pump_Structure, 
                   is_LG_Structure, is_Gauss_Structure, is_OAM_Structure, 
                   l_Structure, p_Structure, 
                   theta_x_Structure, theta_y_Structure, 
                   is_H_l_Structure, is_H_theta_Structure, 
                   #%%
-                  U1_0_NonZero_size, w0_Structure, Enlarge_percentage, 
+                  U1_0_NonZero_size, w0_Structure, structure_size_Enlarge, 
                   deff_structure_length_expect, deff_structure_sheet_expect, 
                   Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z, structure_xy_mode, Depth, 
                   #%%
@@ -121,6 +134,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
             img_full_name, 
             is_phase_only, 
             #%%
+            z_pump, 
             is_LG, is_Gauss, is_OAM, 
             l, p, 
             theta_x, theta_y, 
@@ -159,6 +173,7 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  border_percentage = 0.1, 
                  is_phase_only_Structure = 0, 
                  #%%
+                 z_pump_Structure = 0, 
                  is_LG_Structure = 0, is_Gauss_Structure = 1, is_OAM_Structure = 0, 
                  l_Structure = 0, p_Structure = 0, 
                  theta_x_Structure = 0, theta_y_Structure = 0, 
@@ -168,14 +183,15 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  img_full_name = "grating.png", 
                  is_phase_only = 0, 
                  #%%
+                 z_pump = -5, 
                  is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                  l = 0, p = 0, 
                  theta_x = 0, theta_y = 0, 
                  is_H_l = 0, is_H_theta = 0, 
                  #%%---------------------------------------------------------------------
                  #%%
-                 U1_0_NonZero_size = 0.9, w0 = 0, w0_Structure = 0, Enlarge_percentage = 0.1, 
-                 L0_Crystal = 0.5, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.55, 
+                 U1_0_NonZero_size = 0.9, w0 = 0, w0_Structure = 0, structure_size_Enlarge = 0.1, 
+                 L0_Crystal = 0.5, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.5, 
                  deff_structure_sheet_expect = 1, sheets_stored_num = 10, 
                  z0_section_1f_expect = 0, z0_section_2f_expect = 0, X = 0, Y = 0, 
                  Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 2, 
@@ -183,11 +199,11 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
                  #%%
                  is_bulk = 0, is_no_backgroud = 0, 
-                 is_stored = 1, is_show_structure_face = 0, is_energy_evolution_on = 1, 
+                 is_stored = 0, is_show_structure_face = 0, is_energy_evolution_on = 1, 
                  #%%
                  lam1 = 1, is_air_pump = 0, is_air = 0, T = 25, 
                  deff = 30, 
-                 Tx = 1.97, Ty = 20, Tz = 5, 
+                 Tx = 1.97, Ty = 20, Tz = 5.627905807782004, 
                  mx = 0, my = 0, mz = 1, 
                  #%%
                  is_save = 1, is_save_txt = 0, dpi = 100, 

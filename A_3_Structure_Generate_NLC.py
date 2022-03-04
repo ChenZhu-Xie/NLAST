@@ -29,12 +29,13 @@ def structure_NLC(U1_name = "",
                   img_full_name = "Grating.png", 
                   is_phase_only = 0, 
                   #%%
+                  z_pump = 0, 
                   is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                   l = 0, p = 0, 
                   theta_x = 0, theta_y = 0, 
                   is_H_l = 0, is_H_theta = 0, 
                   #%%
-                  U1_0_NonZero_size = 1, w0 = 0.3, Enlarge_percentage = 0.1, 
+                  U1_0_NonZero_size = 1, w0 = 0.3, structure_size_Enlarge = 0.1, 
                   deff_structure_length_expect = 2, deff_structure_sheet_expect = 1.8, 
                   Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 2, 
                   #%%
@@ -76,7 +77,7 @@ def structure_NLC(U1_name = "",
     # #%%
     # U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸 5e-1
     # w0 = 5 # Unit: mm 束腰（z = 0 处），一般 设定地 比 U1_0_NonZero_size 小，但 CGH 生成结构的时候 得大
-    # Enlarge_percentage = 0.1
+    # structure_size_Enlarge = 0.1
     # # deff_structure_size_expect = 0.4 # Unit: mm 不包含边框，chi_2 的 实际尺寸 4e-1，一般 设定地 比 U1_0_NonZero_size 小，这样 从非线性过程 一开始，基波 就覆盖了 结构，而不是之后 衍射般 地 覆盖结构
     # deff_structure_length_expect = 1 # Unit: mm 调制区域 z 向长度（类似 z）
     # deff_structure_sheet_expect = 1.8 # Unit: μm z 向 切片厚度
@@ -142,7 +143,7 @@ def structure_NLC(U1_name = "",
     #%%
     # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
     
-    deff_structure_size_expect = U1_0_NonZero_size * ( 1 + Enlarge_percentage )
+    deff_structure_size_expect = U1_0_NonZero_size * ( 1 + structure_size_Enlarge )
     is_print and print("deff_structure_size_expect = {} mm".format(deff_structure_size_expect))
 
     Ix, Iy, deff_structure_size = Cal_IxIy(I1_x, I1_y, 
@@ -174,7 +175,7 @@ def structure_NLC(U1_name = "",
         
         U1_0 = pump_LG(img_squared_resize_full_name, 
                        Ix, Iy, size_PerPixel, 
-                       U1_0, w0, k1, 0, 
+                       U1_0, w0, k1, z_pump, 
                        is_LG, is_Gauss, is_OAM, 
                        l, p, 
                        theta_x, theta_y, 
@@ -219,6 +220,10 @@ def structure_NLC(U1_name = "",
     #%%
     # 提供描边信息，并覆盖值
 
+    # 这里 传 deff_structure_length_expect 进去 而不是 z0，是有问题的，导致只有 周期 Tz 能与 NLA_SSI 保持一致，长度并不能，
+    # 这样若 deff_structure_length_expect < NLA_SSI 中的 z0 则 无法读取到 > deff_structure_length_expect 的 结构，只能手动在 A_to_B_3_NLA_SSI 中设置 deff_structure_length_expect 比 z0 大
+    # 并不打算改这一点，因为否则的话，需要向这个函数传入一个参数，而这个参数却是之后要引用的函数 NLA_SSI 才能给出的，违反了 因果律
+    
     z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
                                                                             deff_structure_length_expect, size_PerPixel, deff_structure_length_expect, deff_structure_sheet_expect, 
                                                                             0, is_contours, n_TzQ, Gz_max_Enhance, )
