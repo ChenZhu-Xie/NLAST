@@ -426,6 +426,52 @@ if is_energy_evolution_on == 1:
             0, vmax_G1_z_shift_energy, vmin_G1_z_shift_energy)
     
 #%%
+#% H1_z0
+
+H1_z0_SSI_shift = G1_z0_SSI_shift/np.max(np.abs(G1_z0_SSI_shift)) / (g1_shift/np.max(np.abs(g1_shift)))
+# 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。
+H1_z0_SSI_shift_amp_mean = np.mean(np.abs(H1_z0_SSI_shift))
+H1_z0_SSI_shift_amp_std = np.std(np.abs(H1_z0_SSI_shift))
+H1_z0_SSI_shift_amp_trust = np.abs(np.abs(H1_z0_SSI_shift) - H1_z0_SSI_shift_amp_mean) <= 3*H1_z0_SSI_shift_amp_std
+H1_z0_SSI_shift = H1_z0_SSI_shift * H1_z0_SSI_shift_amp_trust.astype(np.int8)
+
+if is_save == 1:
+    if not os.path.isdir("4. H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift"):
+        os.makedirs("4. H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift")
+
+#%%
+#% H1_z0_SSI_shift_amp
+
+H1_z0_SSI_shift_amp_address = location + "\\" + "4. H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "\\" + "4.1. NLA - " + "H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift_amp" + img_name_extension
+
+plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+        np.abs(H1_z0_SSI_shift), H1_z0_SSI_shift_amp_address, "H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift_amp", 
+        is_save, dpi, size_fig,  
+        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+        fontsize, font,
+        1, is_colorbar_on, is_energy, vmax, vmin)
+
+#%%
+#绘图：H1_z0_SSI_shift_phase
+
+H1_z0_SSI_shift_phase_address = location + "\\" + "4. H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "\\" + "4.2. NLA - " + "H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift_phase" + img_name_extension
+
+plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+        np.angle(H1_z0_SSI_shift), H1_z0_SSI_shift_phase_address, "H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift_phase", 
+        is_save, dpi, size_fig,  
+        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+        fontsize, font,
+        1, is_colorbar_on, 0, vmax, vmin)
+
+#%%
+# 储存 H1_z0_SSI_shift 到 txt 文件
+
+if is_save == 1:
+    H1_z0_SSI_shift_full_name = "4. NLA - H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + (is_save_txt and ".txt" or ".mat")
+    H1_z0_SSI_shift_txt_address = location + "\\" + "4. H1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "\\" + H1_z0_SSI_shift_full_name
+    np.savetxt(H1_z0_SSI_shift_txt_address, H1_z0_SSI_shift) if is_save_txt else savemat(H1_z0_SSI_shift_txt_address, {"H":H1_z0_SSI_shift})
+    
+#%%
 # G1_z0_SSI = G1_z0_SSI(k1_x, k1_y) → IFFT2 → U1(x0, y0, z0) = U1_z0_SSI
 
 G1_z0_SSI = np.fft.ifftshift(G1_z0_SSI_shift)

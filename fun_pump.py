@@ -170,7 +170,7 @@ def pump_LG(file_full_name = "Grating.png",
     
     G_z0_shift = g_shift * H_z0_shift
     G_z0 = np.fft.ifftshift(G_z0_shift)
-    U1_z0 = np.fft.ifft2(G_z0)
+    U_z0 = np.fft.ifft2(G_z0)
     
     #%%
     #绘图：G1_0_amp
@@ -217,8 +217,8 @@ def pump_LG(file_full_name = "Grating.png",
         if not os.path.isdir("2. U1_0"):
             os.makedirs("2. U1_0")
 
-    U1_0_amp = np.abs(U1_z0)
-    U1_0_phase = np.angle(U1_z0)
+    U1_0_amp = np.abs(U_z0)
+    U1_0_phase = np.angle(U_z0)
 
     is_print and print("AST - U1_0.total_energy = {}".format(np.sum(np.power(U1_0_amp, 2))))
 
@@ -252,7 +252,7 @@ def pump_LG(file_full_name = "Grating.png",
     if is_save == 1:
         U1_0_full_name = "6. AST - U1_0" + (is_save_txt and ".txt" or ".mat")
         U1_0_txt_address = location + "\\" + "2. U1_0" + "\\" + U1_0_full_name
-        np.savetxt(U1_0_txt_address, U1_z0) if is_save_txt else savemat(U1_0_txt_address, {'U':U1_z0})
+        np.savetxt(U1_0_txt_address, U_z0) if is_save_txt else savemat(U1_0_txt_address, {'U':U_z0})
         
         #%%
         #再次绘图：U1_0_amp
@@ -277,4 +277,4 @@ def pump_LG(file_full_name = "Grating.png",
                 fontsize, font,
                 1, is_colorbar_on, 0, vmax, vmin)
     
-    return U1_0
+    return U_z0

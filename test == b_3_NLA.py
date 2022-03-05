@@ -23,7 +23,7 @@ from fun_thread import noop, my_thread
 
 #%%
 U1_name = ""
-img_full_name = "grating.png"
+img_full_name = "lena.png"
 border_percentage = 0.1 # 边框 占图片的 百分比，也即 图片 放大系数
 is_phase_only = 0
 #%%
@@ -38,7 +38,7 @@ is_H_l, is_H_theta = 0, 0
 #%%
 U1_0_NonZero_size = 0.9 # Unit: mm 不包含边框，图片 的 实际尺寸
 w0 = 0 # Unit: mm 束腰（z = 0 处）
-z0 = 0.2739382441081523 # Unit: mm 传播距离
+z0 = 5 # Unit: mm 传播距离
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 #%%
 lam1 = 1 # Unit: um 基波波长
@@ -71,13 +71,13 @@ font = {'family': 'serif',
         }
 #%%
 is_self_colorbar, is_colorbar_on = 0, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
-is_energy = 0
+is_energy = 1
 vmax, vmin = 1, 0
 #%%
 is_print = 1
 is_contours = 1 #  —— 我草，描边 需要 线性卷积，而不是 循环卷积，这样才 描得清楚
-n_TzQ = 1
-Gz_max_Enhance = 1.02
+n_TzQ = 10
+Gz_max_Enhance = 1
 
 #%%
 
@@ -263,6 +263,52 @@ if is_save == 1:
     G2_z0_shift_txt_address = location + "\\" + "5. G2_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + G2_z0_shift_full_name
     np.savetxt(G2_z0_shift_txt_address, G2_z0_shift) if is_save_txt else savemat(G2_z0_shift_txt_address, {"G":G2_z0_shift})
     
+#%%
+#% H2_z0
+
+H2_z0_shift = G2_z0_shift/np.max(np.abs(G2_z0_shift)) / (g1_shift/np.max(np.abs(g1_shift)))
+# 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。
+H2_z0_shift_amp_mean = np.mean(np.abs(H2_z0_shift))
+H2_z0_shift_amp_std = np.std(np.abs(H2_z0_shift))
+H2_z0_shift_amp_trust = np.abs(np.abs(H2_z0_shift) - H2_z0_shift_amp_mean) <= 3*H2_z0_shift_amp_std
+H2_z0_shift = H2_z0_shift * H2_z0_shift_amp_trust.astype(np.int8)
+
+if is_save == 1:
+    if not os.path.isdir("4. H2_" + str(float('%.2g' % z0)) + "mm" + "_shift"):
+        os.makedirs("4. H2_" + str(float('%.2g' % z0)) + "mm" + "_shift")
+
+#%%
+#% H2_z0_shift_amp
+
+H2_z0_shift_amp_address = location + "\\" + "4. H2_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.1. NLA - " + "H2_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp" + img_name_extension
+
+plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+        np.abs(H2_z0_shift), H2_z0_shift_amp_address, "H2_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp", 
+        is_save, dpi, size_fig,  
+        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+        fontsize, font,
+        1, is_colorbar_on, is_energy, vmax, vmin)
+
+#%%
+#绘图：H2_z0_shift_phase
+
+H2_z0_shift_phase_address = location + "\\" + "4. H2_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.2. NLA - " + "H2_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase" + img_name_extension
+
+plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+        np.angle(H2_z0_shift), H2_z0_shift_phase_address, "H2_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase", 
+        is_save, dpi, size_fig,  
+        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+        fontsize, font,
+        1, is_colorbar_on, 0, vmax, vmin)
+
+#%%
+# 储存 H2_z0_shift 到 txt 文件
+
+if is_save == 1:
+    H2_z0_shift_full_name = "4. NLA - H2_" + str(float('%.2g' % z0)) + "mm" + "_shift" + (is_save_txt and ".txt" or ".mat")
+    H2_z0_shift_txt_address = location + "\\" + "4. H2_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + H2_z0_shift_full_name
+    np.savetxt(H2_z0_shift_txt_address, H2_z0_shift) if is_save_txt else savemat(H2_z0_shift_txt_address, {"H":H2_z0_shift})
+
 #%%
 # G2_z0 = G2_z0(k1_x, k1_y) → IFFT2 → U2(x0, y0, z0) = U2_z0
 
