@@ -98,6 +98,7 @@ is_print = 1
 is_contours = 1
 n_TzQ = 1
 Gz_max_Enhance = 1
+match_mode = 1
 
 #%%
 
@@ -122,7 +123,7 @@ if (type(U1_name) != str) or U1_name == "":
     # 预处理 输入场
     
     n1, k1 = Cal_n(size_PerPixel, 
-                   is_air, 
+                   is_air_pump, 
                    lam1, T, p = "e")
     
     U1_0 = pump_LG(img_full_name, 
@@ -180,9 +181,9 @@ k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I2_x, I2_y, k2)
 #%%
 # 提供描边信息，并覆盖值
 
-L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz, 
                                                                       L0_Crystal, size_PerPixel, deff_structure_length_expect, deff_structure_sheet_expect, 
-                                                                      is_print, is_contours, n_TzQ, Gz_max_Enhance, )
+                                                                      is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
 
 #%%
 

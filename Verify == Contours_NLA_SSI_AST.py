@@ -17,7 +17,7 @@ from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from b_1_AST import AST
 from B_3_NLA_SSI import NLA_SSI
 
-def Contours_NLA_SSI_AST(U1_name = "", 
+def contours_NLA_SSI_AST(U1_name = "", 
                          img_full_name = "lena.png", 
                          border_percentage = 0.3, 
                          is_phase_only = 0, 
@@ -54,7 +54,7 @@ def Contours_NLA_SSI_AST(U1_name = "",
                          is_self_colorbar = 0, is_colorbar_on = 1, 
                          is_energy = 1, vmax = 1, vmin = 0, 
                          #%%
-                         is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
+                         is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
     
     #%%
 
@@ -148,7 +148,7 @@ def Contours_NLA_SSI_AST(U1_name = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, )
+            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
     
     U1_NLA_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_NLA)) + "mm" + "_SSI"
     U1_NLA_txt_full_name = U1_NLA_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -195,7 +195,7 @@ def Contours_NLA_SSI_AST(U1_name = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, )
+            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
     
     U2_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_NLA)) + "mm" + "_SSI"
     # U2_txt_full_name = U2_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -319,7 +319,7 @@ def Contours_NLA_SSI_AST(U1_name = "",
     
 #%%
     
-Contours_NLA_SSI_AST(U1_name = "", 
+contours_NLA_SSI_AST(U1_name = "", 
                      img_full_name = "grating.png", 
                      border_percentage = 0.3, 
                      is_phase_only = 0, 
@@ -356,7 +356,7 @@ Contours_NLA_SSI_AST(U1_name = "",
                      is_self_colorbar = 1, is_colorbar_on = 1, 
                      is_energy = 0, vmax = 1, vmin = 0, 
                      #%%
-                     is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, )
+                     is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, )
 
 # 搭配 - 1
 # U2_Z0_Superposition = U1_NLA - U2_AST

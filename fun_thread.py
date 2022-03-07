@@ -84,8 +84,8 @@ def my_thread(threads_num, fors_num,
             使得方括号内 没有更多的方括号或圆括号，并且最外层的方括号不消失，
             这样无论如何都可以解包，且只需要解一次包，就直达内层
             '''
-            List = var_or_tuple_to_list(fun_1(self.for_th, fors_num))
-            self.list.append(List)
+            List = var_or_tuple_to_list(fun_1(self.for_th, fors_num)) # 把 函数1 的 运行结果 强制转换 为 1 个 list
+            self.list.append(List) # 把这个 list 放入 外层 list 中
             # print(type(result))
             """----- your code end 1 -----"""
             
@@ -104,7 +104,7 @@ def my_thread(threads_num, fors_num,
                         # self.list.append([fun_2(self.for_th, fors_num, *self.list[0])])
                         # self.list.append((fun_2(self.for_th, fors_num, *self.list[0]))) # 双层 tuple 等价于 单层 tuple，所以这里有一层 tuple 不用加；
                         # print(self.list[0])
-                        List = var_or_tuple_to_list(fun_2(self.for_th, fors_num, *self.list[0]))
+                        List = var_or_tuple_to_list(fun_2(self.for_th, fors_num, *self.list[0])) # 取 外层 list 储存的 第 1 个 list，并对其 解包后，作为参数 传入 函数2
                         self.list.append(List)
                         """----- your code end 2 -----"""
                         for_th += 1

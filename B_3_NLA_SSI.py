@@ -64,7 +64,7 @@ def NLA_SSI(U1_name = "",
             is_self_colorbar = 0, is_colorbar_on = 1, 
             is_energy = 0, vmax = 1, vmin = 0, 
             #%%
-            is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
+            is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
     # #%%
     # U1_name = ""
     # img_full_name = "l=1.png"
@@ -152,7 +152,7 @@ def NLA_SSI(U1_name = "",
         # 预处理 输入场
         
         n1, k1 = Cal_n(size_PerPixel, 
-                       is_air, 
+                       is_air_pump, 
                        lam1, T, p = "e")
         
         U1_0 = pump_LG(img_full_name, 
@@ -209,10 +209,10 @@ def NLA_SSI(U1_name = "",
     
     #%%
     # 提供描边信息，并覆盖值
-
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+    
+    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz, 
                                                                           L0_Crystal, size_PerPixel, deff_structure_length_expect, deff_structure_sheet_expect, 
-                                                                          is_print, is_contours, n_TzQ, Gz_max_Enhance, )
+                                                                          is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
 
     #%%
 
@@ -1112,6 +1112,8 @@ def NLA_SSI(U1_name = "",
                 color_1d, ticks_num, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
                 0, vmax_U2_z_energy, vmin_U2_z_energy)
+        
+    return G2_z0_SSI_shift, U2_z0_SSI
 
 
 # NLA_SSI(U1_name = "", 

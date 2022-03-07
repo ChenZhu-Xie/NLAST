@@ -7,6 +7,7 @@ Created on Fri Feb 25 20:23:31 2022
 
 import math
 import numpy as np
+from fun_linear import Find_energy_Dropto_fraction
 
 #%%
 
@@ -95,13 +96,13 @@ def Cal_roll_xy(nx, ny,
     # 之后要平移列，而 Gx 才与列有关...
     
     return roll_x, roll_y
-        
+    
 #%%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 
-def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz, 
                            z0, size_PerPixel, deff_structure_length_expect, deff_structure_sheet_expect, 
-                           is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
+                           is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1):
     
     #%%
     # 描边
@@ -111,7 +112,8 @@ def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz,
         is_print and print("===== 描边 start =====")
         
         dk = 2 * np.max(np.abs(k1_z_shift)) - np.max(np.abs(k2_z_shift))
-        print("dk = {} / μm, {}".format(dk/size_PerPixel/1000, dk))
+        # print(k2_z_shift[0,0])
+        is_print and print("dk = {} / μm, {}".format(dk/size_PerPixel/1000, dk))
         lc = math.pi / abs(dk) * size_PerPixel * 1000 # Unit: um
         # print("相干长度 = {} μm".format(lc))
         # print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
@@ -128,9 +130,17 @@ def Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz,
     
         #%%
         
-        Gz_max = np.min(np.abs(k2_z_shift)) - 2 * np.min(np.abs(k1_z_shift))
+        # print("k2_z_min = {} / μm, k1_z_min = {} / μm".format(np.min(np.abs(k2_z_shift))/size_PerPixel/1000, np.min(np.abs(k1_z_shift))/size_PerPixel/1000))
+        # print(np.abs(k2_z_shift))
+        if match_mode == 1:
+            ix, iy, scale, energy_fraction = Find_energy_Dropto_fraction(g1_shift, 2/3, 0.1)
+            Gz_max = np.abs(k2_z_shift[ix, 0]) - 2 * np.abs(k1_z_shift[ix, 0])
+            is_print and print("scale = {}, energy_fraction = {}".format(scale, energy_fraction))
+        else:
+            Gz_max = np.min(np.abs(k2_z_shift)) - 2 * np.min(np.abs(k1_z_shift))
+            
         Gz_max = Gz_max * Gz_max_Enhance
-        print("Gz_max = {} / μm, {}".format(Gz_max/size_PerPixel/1000, Gz_max))
+        is_print and print("Gz_max = {} / μm, {}".format(Gz_max/size_PerPixel/1000, Gz_max))
         Tz_min = 2 * math.pi * mz * size_PerPixel / (abs(Gz_max) / 1000) # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         # print("Tz_min = {} μm".format(Tz_min))
         

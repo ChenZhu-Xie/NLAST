@@ -10,6 +10,9 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
 from fun_img_Resize import image_Add_black_border
+from fun_os import img_squared_bordered_Read, U_Read
+from fun_pump import pump_LG
+from fun_linear import Cal_n, Cal_kz
 from A_3_structure_Generate_NLC import structure_NLC
 from B_3_NLA_SSI import NLA_SSI
 
@@ -69,7 +72,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                      is_self_colorbar = 0, is_colorbar_on = 1, 
                      is_energy = 1, vmax = 1, vmin = 0, 
                      #%%
-                     is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
+                     is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
     
     #%%
     # a_Image_Add_Black_border
@@ -79,7 +82,53 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                            is_print, )
     
     #%%
-    # A_3_Structure_Generate_NLC
+    # 为了生成 U1_0 和 g1_shift
+    
+    if (type(U1_name) != str) or U1_name == "":
+        
+        #%%
+        # 导入 方形，以及 加边框 的 图片
+        
+        img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(img_full_name, 
+                                                                                                                         U1_0_NonZero_size, dpi, 
+                                                                                                                         is_phase_only)
+        
+        #%%
+        # 预处理 输入场
+        
+        n1, k1 = Cal_n(size_PerPixel, 
+                       is_air_pump, 
+                       lam1, T, p = "e")
+        
+        U1_0 = pump_LG(img_full_name, 
+                       I1_x, I1_y, size_PerPixel, 
+                       U1_0, w0, k1, z_pump, 
+                       is_LG, is_Gauss, is_OAM, 
+                       l, p, 
+                       theta_x, theta_y, 
+                       is_H_l, is_H_theta, 
+                       is_save, is_save_txt, dpi, 
+                       cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                       fontsize, font, 
+                       1, is_colorbar_on, is_energy, vmax, vmin, 
+                       is_print, ) 
+        
+    else:
+
+        #%%
+        # 导入 方形 的 图片，以及 U
+        
+        img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = U_Read(U1_name, img_full_name, 
+                                                                                                      U1_0_NonZero_size, dpi, 
+                                                                                                      is_save_txt, )
+        
+    #%%
+    # 线性 角谱理论 - 基波 begin
+
+    g1 = np.fft.fft2(U1_0)
+    g1_shift = np.fft.fftshift(g1)
+    
+    #%%
     
     if is_contours != 0:
         
@@ -90,6 +139,8 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
             is_print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
             
         is_print and print("===== 描边 end =====")
+    
+    #%%
     
     structure_NLC(U1_name_Structure, 
                   img_full_name, 
@@ -125,7 +176,9 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                   is_self_colorbar, is_colorbar_on, 
                   is_energy, vmax, vmin, 
                   #%%
-                  is_print, is_contours, n_TzQ, Gz_max_Enhance, )
+                  is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, 
+                  #%%
+                  g1_shift, )
     
     #%%
     # B_3_NLA_SSI
@@ -167,7 +220,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, )
+            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
 
 a_to_B_3_NLA_SSI(U1_name_Structure = "", 
                  border_percentage = 0.1, 
@@ -203,7 +256,7 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  #%%
                  lam1 = 1, is_air_pump = 0, is_air = 0, T = 25, 
                  deff = 30, 
-                 Tx = 1.97, Ty = 20, Tz = 5.627905807782004, 
+                 Tx = 12.795, Ty = 20, Tz = 5.752, 
                  mx = 0, my = 0, mz = 1, 
                  #%%
                  is_save = 1, is_save_txt = 0, dpi = 100, 
@@ -223,6 +276,6 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                          }, 
                  #%%
                  is_self_colorbar = 0, is_colorbar_on = 1, 
-                 is_energy = 1, vmax = 1, vmin = 0, 
+                 is_energy = 0, vmax = 1, vmin = 0, 
                  #%%
-                 is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, )
+                 is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, )

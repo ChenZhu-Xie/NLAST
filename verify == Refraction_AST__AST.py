@@ -12,7 +12,7 @@ np.seterr(divide='ignore',invalid='ignore')
 from fun_img_Resize import image_Add_black_border
 from b_1_AST import AST
 
-def Refraction_AST__AST(U1_name = "", 
+def refraction_AST__AST(U1_name = "", 
                         img_full_name = "Grating.png", 
                         border_percentage = 0.3, 
                         is_phase_only = 0, 
@@ -191,7 +191,7 @@ def Refraction_AST__AST(U1_name = "",
     
     #%%
     
-Refraction_AST__AST(U1_name = "", 
+refraction_AST__AST(U1_name = "", 
                     img_full_name = "Grating.png", 
                     border_percentage = 0.3, 
                     is_phase_only = 0, 

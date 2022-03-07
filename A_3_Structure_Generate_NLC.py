@@ -13,6 +13,7 @@ import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
 import math
 from scipy.io import loadmat, savemat
+from fun_built_in import var_or_tuple_to_list
 from fun_os import img_squared_bordered_Read
 from fun_img_Resize import img_squared_Resize
 from fun_plot import plot_2d
@@ -64,7 +65,9 @@ def structure_NLC(U1_name = "",
                   is_self_colorbar = 0, is_colorbar_on = 1, 
                   is_energy = 0, vmax = 1, vmin = 0, 
                   #%%
-                  is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
+                  is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, 
+                  #%%
+                  *arg, ):
     # #%%
     # U1_name = ""
     # img_full_name = "l=1.png"
@@ -170,7 +173,7 @@ def structure_NLC(U1_name = "",
         # 预处理 输入场
         
         n1, k1 = Cal_n(size_PerPixel, 
-                       is_air, 
+                       is_air_pump, 
                        lam1, T, p = "e")
         
         U1_0 = pump_LG(img_squared_resize_full_name, 
@@ -206,6 +209,12 @@ def structure_NLC(U1_name = "",
                    lam1, T, p = "e")
     
     k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
+    
+    #%%
+    # 线性 角谱理论 - 基波 begin
+
+    g1 = np.fft.fft2(U1_0)
+    g1_shift = np.fft.fftshift(g1)
 
     #%%
 
@@ -224,9 +233,12 @@ def structure_NLC(U1_name = "",
     # 这样若 deff_structure_length_expect < NLA_SSI 中的 z0 则 无法读取到 > deff_structure_length_expect 的 结构，只能手动在 A_to_B_3_NLA_SSI 中设置 deff_structure_length_expect 比 z0 大
     # 并不打算改这一点，因为否则的话，需要向这个函数传入一个参数，而这个参数却是之后要引用的函数 NLA_SSI 才能给出的，违反了 因果律
     
-    z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+    if len(arg) != 0:
+        g1_shift = arg[0]
+    
+    z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz, 
                                                                             deff_structure_length_expect, size_PerPixel, deff_structure_length_expect, deff_structure_sheet_expect, 
-                                                                            0, is_contours, n_TzQ, Gz_max_Enhance, )
+                                                                            0, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
     
     #%%
 

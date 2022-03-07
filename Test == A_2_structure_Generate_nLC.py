@@ -141,7 +141,7 @@ if (type(U1_name) != str) or U1_name == "":
     # 预处理 输入场
     
     n1, k1 = Cal_n(size_PerPixel, 
-                   is_air, 
+                   is_air_pump, 
                    lam1, T, p = "e")
     
     U1_0 = pump_LG(img_squared_resize_full_name, 

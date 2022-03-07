@@ -151,7 +151,7 @@ def nLA_SSI(U1_name = "",
         # 预处理 输入场
         
         n1, k1 = Cal_n(size_PerPixel, 
-                       is_air, 
+                       is_air_pump, 
                        lam1, T, p = "e")
         
         U1_0 = pump_LG(img_full_name, 
@@ -1102,6 +1102,8 @@ def nLA_SSI(U1_name = "",
                 color_1d, ticks_num, is_title_on, is_axes_on, is_mm, 1, 
                 fontsize, font, 
                 0, vmax_U1_z_energy, vmin_U1_z_energy)
+        
+    return G1_z0_SSI_shift, U1_z0_SSI
 
 
 # nLA_SSI(U1_name = "", 

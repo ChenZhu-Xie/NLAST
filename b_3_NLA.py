@@ -58,7 +58,7 @@ def NLA(U1_name = "",
         is_self_colorbar = 0, is_colorbar_on = 1, 
         is_energy = 0, vmax = 1, vmin = 0, 
         #%%
-        is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, ):
+        is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
     
     # #%%
     # U1_name = ""
@@ -128,7 +128,7 @@ def NLA(U1_name = "",
         # 预处理 输入场
         
         n1, k1 = Cal_n(size_PerPixel, 
-                       is_air, 
+                       is_air_pump, 
                        lam1, T, p = "e")
         
         U1_0 = pump_LG(img_full_name, 
@@ -185,9 +185,9 @@ def NLA(U1_name = "",
     #%%
     # 提供描边信息，并覆盖值
 
-    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(k1_z_shift, k2_z_shift, Tz, mz, 
+    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz, 
                                                                   z0, size_PerPixel, z0, z0/100, 
-                                                                  is_print, is_contours, n_TzQ, Gz_max_Enhance, )
+                                                                  is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
 
     #%%
     # 引入 倒格矢，对 k2 的 方向 进行调整，其实就是对 k2 的 k2x, k2y, k2z 网格的 中心频率 从 (0, 0, k2z) 移到 (Gx, Gy, k2z + Gz)
@@ -406,3 +406,4 @@ def NLA(U1_name = "",
     # if is_save == 1:
     np.savetxt(U2_z0_full_name, U2_z0) if is_save_txt else savemat(U2_z0_full_name, {"U":U2_z0})
     
+    return G2_z0_shift, U2_z0

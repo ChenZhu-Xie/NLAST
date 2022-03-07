@@ -10,6 +10,7 @@ Created on Wed Dec 22 21:37:19 2021
 import math
 import numpy as np
 from fun_array_Generate import mesh_shift
+import time
 
 #%%
 
@@ -76,3 +77,42 @@ def Cal_kz(Ix, Iy, k):
     kz_shift = (k**2 - mesh_kx_ky_shift[:, :, 0]**2 - mesh_kx_ky_shift[:, :, 1]**2 + 0j )**0.5
     
     return kz_shift, mesh_kx_ky_shift
+
+def Find_energy_Dropto_fraction(U, energy_fraction, relative_error): # 类似 牛顿迭代法 的 思想
+    
+    # print(U)
+    # print(np.max(np.abs(U)**2))
+    U_total_energy = np.sum(np.abs(U)**2)
+    # print(U_total_energy)
+    
+    Ix, Iy = U.shape
+    
+    scale_up = 1
+    scale_down = 0
+    scale = 1/64 # 默认的 起始 搜寻点 是 1/2 的 图片尺寸
+    
+    while(True):
+        
+        # print(scale)
+    
+        scale_1side = (1-scale)/2
+        ix = int(Ix * scale_1side)
+        iy = int(Iy * scale_1side)
+        
+        U_slice = U[ix:-ix, iy:-iy]
+        # print(U_slice)
+        U_slice_total_energy = np.sum(np.abs(U_slice)**2)
+        # print(U_slice_total_energy)
+        # time.sleep(1)
+        
+        if U_slice_total_energy < (1-relative_error) * energy_fraction * U_total_energy: # 比 设定范围的 下限 还低，则 通量过于低了，应该 扩大视场范围，且 scale 下限设置为该 scale
+            scale_down = scale
+            scale = (scale + scale_up)/2
+        elif U_slice_total_energy > (1+relative_error) * energy_fraction * U_total_energy: # 比 设定范围的 上限 还高，则 通量过于高了，应该 缩小视场范围，且 scale 上限设置为该 scale
+            if U_slice_total_energy == np.max(np.abs(U)**2):
+                return ix, iy, scale, U_slice_total_energy / U_total_energy
+            scale_up = scale
+            scale = (scale_down + scale)/2
+        else:
+            return ix, iy, scale, U_slice_total_energy / U_total_energy
+    

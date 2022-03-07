@@ -118,7 +118,7 @@ def AST(U1_name = "",
         # 预处理 输入场
         
         n1, k1 = Cal_n(size_PerPixel, 
-                       is_air, 
+                       is_air_pump, 
                        lam1, T, p = "e")
         
         U1_0 = pump_LG(img_full_name, 
@@ -368,4 +368,6 @@ def AST(U1_name = "",
 
     # if is_save == 1:
     np.savetxt(U1_z0_full_name, U1_z0) if is_save_txt else savemat(U1_z0_full_name, {'U':U1_z0})
+    
+    return G1_z0_shift, U1_z0
     
