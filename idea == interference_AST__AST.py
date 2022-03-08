@@ -384,8 +384,8 @@ interference_AST__AST  (U1_name = "",
                         theta_x = 0, theta_y = 0, 
                         is_H_l = 0, is_H_theta = 0, 
                         #%%
-                        U1_0_NonZero_size = 1, w0 = 0.5, # 传递函数 是 等倾干涉图...
-                        z0 = 0, z0_delay_expect = 1, #  z0 越大，描边能量不变，但会越糊；z0_delay_expect 越大，描边 能量越高，但也越糊
+                        U1_0_NonZero_size = 1, w0 = 0, # 传递函数 是 等倾干涉图...
+                        z0 = 0, z0_delay_expect = 0, #  z0 越大，描边能量不变，但会越糊；z0_delay_expect 越大，描边 能量越高，但也越糊
                         #%%
                         lam1 = 1, is_air_pump = 0, is_air = 0, T = 25, 
                         #%%

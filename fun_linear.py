@@ -81,9 +81,11 @@ def Cal_kz(Ix, Iy, k):
 def Find_energy_Dropto_fraction(U, energy_fraction, relative_error): # 类似 牛顿迭代法 的 思想
     
     # print(U)
-    # print(np.max(np.abs(U)**2))
+    U_max_energy = np.max(np.abs(U)**2)
+    # print(U_max_energy)
     U_total_energy = np.sum(np.abs(U)**2)
     # print(U_total_energy)
+    U_slice_total_energy_record = 0
     
     Ix, Iy = U.shape
     
@@ -106,13 +108,17 @@ def Find_energy_Dropto_fraction(U, energy_fraction, relative_error): # 类似 �
         # time.sleep(1)
         
         if U_slice_total_energy < (1-relative_error) * energy_fraction * U_total_energy: # 比 设定范围的 下限 还低，则 通量过于低了，应该 扩大视场范围，且 scale 下限设置为该 scale
+            if U_slice_total_energy == U_slice_total_energy_record:
+                return ix, iy, scale, U_slice_total_energy / U_total_energy
             scale_down = scale
             scale = (scale + scale_up)/2
+            U_slice_total_energy_record = U_slice_total_energy
         elif U_slice_total_energy > (1+relative_error) * energy_fraction * U_total_energy: # 比 设定范围的 上限 还高，则 通量过于高了，应该 缩小视场范围，且 scale 上限设置为该 scale
-            if U_slice_total_energy == np.max(np.abs(U)**2):
+            if U_slice_total_energy == U_slice_total_energy_record:
                 return ix, iy, scale, U_slice_total_energy / U_total_energy
             scale_up = scale
             scale = (scale_down + scale)/2
+            U_slice_total_energy_record = U_slice_total_energy
         else:
             return ix, iy, scale, U_slice_total_energy / U_total_energy
     

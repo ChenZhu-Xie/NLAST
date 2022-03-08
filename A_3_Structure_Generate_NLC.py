@@ -159,7 +159,7 @@ def structure_NLC(U1_name = "",
     border_width, img_squared_resize_full_name, img_squared_resize = img_squared_Resize(img_name, img_name_extension, img_squared, 
                                                                                         Ix, Iy, I1_x, 
                                                                                         is_print, )
-
+    
     if (type(U1_name) != str) or U1_name == "":
         #%%
         # U1_0 = U(x, y, 0) = img_squared_resize
