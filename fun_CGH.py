@@ -90,15 +90,15 @@ def CGH(U, mode,
 
 #%%
 
-def structure_Generate(U, mode, 
-                       Duty_Cycle_x, Duty_Cycle_y, 
-                       is_positive_xy, 
-                       #%%
-                       Gx, Gy, 
-                       is_Gauss, l, 
-                       is_continuous, 
-                       #%%
-                       is_target_far_field, is_transverse_xy, is_reverse_xy, ):
+def structure_Generate_CGH(U, mode, 
+                           Duty_Cycle_x, Duty_Cycle_y, 
+                           is_positive_xy, 
+                           #%%
+                           Gx, Gy, 
+                           is_Gauss, l, 
+                           is_continuous, 
+                           #%%
+                           is_target_far_field, is_transverse_xy, is_reverse_xy, ):
     
     if is_target_far_field == 0: # 如果 想要的 U1_0 是近场（晶体后端面）分布
         
@@ -144,3 +144,21 @@ def structure_Generate(U, mode,
         structure = 1 - structure
 
     return structure
+        
+def structure_Generate_radial_G(Ix, Iy, 
+                                G, Duty_Cycle, 
+                                is_positive_xy, is_continuous, is_reverse_xy, ):
+    
+    ix, iy = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
+    ix_shift, iy_shift = ix - Ix // 2, iy - Iy // 2
+    
+    cgh = np.cos( G * (ix_shift**2 + iy_shift**2)**0.5 )
+    structure = Step_U(cgh, 'x', 
+                       Duty_Cycle, Duty_Cycle, 
+                       is_positive_xy) if is_continuous == 0 else 0.5 + 0.5 * cgh # 在所有方向的占空比都认为是 Duty_Cycle_x
+    
+    if is_reverse_xy == 1:
+        structure = 1 - structure
+        
+    return structure
+    

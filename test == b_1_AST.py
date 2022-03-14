@@ -22,25 +22,26 @@ from fun_linear import Cal_n, Cal_kz
 
 #%%
 U1_name = ""
-img_full_name = "lena.png"
+img_full_name = "lena1.png"
 border_percentage = 0.3 # 边框 占图片的 百分比，也即 图片 放大系数
 is_phase_only = 0
 #%%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 0, 1, 1
-l, p = 1, 0
-theta_x, theta_y = 1, 0
-is_H_l, is_H_theta = 0, 0
+is_LG, is_Gauss, is_OAM = 1, 1, 1
+l, p = 10, 0
+theta_x, theta_y = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
+is_random_phase = 1
+is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
 #%%
-U1_0_NonZero_size = 1 # Unit: mm 不包含边框，图片 的 实际尺寸
-w0 = 0.5 # Unit: mm 束腰（z = 0 处）
-z0 = 10 # Unit: mm 传播距离
+U1_0_NonZero_size = 0.9 # Unit: mm 不包含边框，图片 的 实际尺寸
+w0 = 0.02 # Unit: mm 束腰（z = 0 处）
+z0 = 5 # Unit: mm 传播距离
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 #%%
-lam1 = 0.4 # Unit: um 基波 或 倍频波长
+lam1 = 1.064 # Unit: um 基波 或 倍频波长
 is_air_pump, is_air, T = 0, 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 #%%
 is_save = 0
@@ -101,7 +102,8 @@ if (type(U1_name) != str) or U1_name == "":
                    is_LG, is_Gauss, is_OAM, 
                    l, p, 
                    theta_x, theta_y, 
-                   is_H_l, is_H_theta, 
+                   is_random_phase, 
+                   is_H_l, is_H_theta, is_H_random_phase, 
                    is_save, is_save_txt, dpi, 
                    cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                    fontsize, font, 

@@ -13,7 +13,6 @@ import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
 import math
 from scipy.io import loadmat, savemat
-from fun_built_in import var_or_tuple_to_list
 from fun_os import img_squared_bordered_Read
 from fun_img_Resize import img_squared_Resize
 from fun_plot import plot_2d
@@ -21,7 +20,7 @@ from fun_pump import pump_LG
 from fun_SSI import Cal_diz, Cal_Iz_structure, Cal_IxIy
 from fun_linear import Cal_n, Cal_kz
 from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG
-from fun_CGH import structure_Generate
+from fun_CGH import structure_Generate_CGH, structure_Generate_radial_G
 from fun_thread import noop, my_thread
 
 #%%
@@ -34,7 +33,8 @@ def structure_NLC(U1_name = "",
                   is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                   l = 0, p = 0, 
                   theta_x = 0, theta_y = 0, 
-                  is_H_l = 0, is_H_theta = 0, 
+                  is_random_phase = 0, 
+                  is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
                   #%%
                   U1_0_NonZero_size = 1, w0 = 0.3, structure_size_Enlarge = 0.1, 
                   deff_structure_length_expect = 2, deff_structure_sheet_expect = 1.8, 
@@ -182,7 +182,8 @@ def structure_NLC(U1_name = "",
                        is_LG, is_Gauss, is_OAM, 
                        l, p, 
                        theta_x, theta_y, 
-                       is_H_l, is_H_theta, 
+                       is_random_phase, 
+                       is_H_l, is_H_theta, is_H_random_phase, 
                        is_save, is_save_txt, dpi, 
                        cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
@@ -270,15 +271,22 @@ def structure_NLC(U1_name = "",
     #%%
     # 开始生成 调制函数 structure 和 modulation = 1 - is_no_backgroud - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
 
-    structure = structure_Generate(U1_0, structure_xy_mode, 
-                                   Duty_Cycle_x, Duty_Cycle_y, 
-                                   is_positive_xy, 
-                                   #%%
-                                   Gx, Gy, 
-                                   is_Gauss, l, 
-                                   is_continuous, 
-                                   #%%
-                                   is_target_far_field, is_transverse_xy, is_reverse_xy, )
+    if structure_xy_mode == "r":
+        
+        structure = structure_Generate_radial_G(Ix, Iy, 
+                                                Gx, Duty_Cycle_x, 
+                                                is_positive_xy, is_continuous, is_reverse_xy, )
+    else:
+
+        structure = structure_Generate_CGH(U1_0, structure_xy_mode, 
+                                           Duty_Cycle_x, Duty_Cycle_y, 
+                                           is_positive_xy, 
+                                           #%%
+                                           Gx, Gy, 
+                                           is_Gauss, l, 
+                                           is_continuous, 
+                                           #%%
+                                           is_target_far_field, is_transverse_xy, is_reverse_xy, )
     
     # vmax_structure, vmin_structure = 1, 0
     vmax_modulation, vmin_modulation = 1 - is_no_backgroud, -1 - is_no_backgroud

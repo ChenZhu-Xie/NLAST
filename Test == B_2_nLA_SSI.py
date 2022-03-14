@@ -31,10 +31,11 @@ z_pump = 0
 is_LG, is_Gauss, is_OAM = 0, 0, 0
 l, p = 0, 0
 theta_x, theta_y = -0.5, 0
-is_H_l, is_H_theta = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
+is_random_phase = 0
+is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
 #%%
 U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
 w0 = 0 # Unit: mm 束腰（z = 0 处）
@@ -127,7 +128,8 @@ if (type(U1_name) != str) or U1_name == "":
                    is_LG, is_Gauss, is_OAM, 
                    l, p, 
                    theta_x, theta_y, 
-                   is_H_l, is_H_theta, 
+                   is_random_phase, 
+                   is_H_l, is_H_theta, is_H_random_phase, 
                    is_save, is_save_txt, dpi, 
                    cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                    fontsize, font, 

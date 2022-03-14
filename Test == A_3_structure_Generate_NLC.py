@@ -20,7 +20,7 @@ from fun_pump import pump_LG
 from fun_SSI import Cal_diz, Cal_Iz_structure, Cal_IxIy
 from fun_linear import Cal_n, Cal_kz
 from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG
-from fun_CGH import structure_Generate
+from fun_CGH import structure_Generate_CGH, structure_Generate_radial_G
 from fun_thread import noop, my_thread
 
 #%%
@@ -33,10 +33,11 @@ z_pump = 0
 is_LG, is_Gauss, is_OAM = 0, 1, 1
 l, p = 0, 0
 theta_x, theta_y = 0, 0
-is_H_l, is_H_theta = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
+is_random_phase = 0
+is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
 #%%
 U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸 5e-1
 w0 = 5 # Unit: mm 束腰（z = 0 处），一般 设定地 比 U1_0_NonZero_size 小，但 CGH 生成结构的时候 得大
@@ -155,7 +156,8 @@ if (type(U1_name) != str) or U1_name == "":
                    is_LG, is_Gauss, is_OAM, 
                    l, p, 
                    theta_x, theta_y, 
-                   is_H_l, is_H_theta, 
+                   is_random_phase, 
+                   is_H_l, is_H_theta, is_H_random_phase, 
                    is_save, is_save_txt, dpi, 
                    cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                    fontsize, font, 
@@ -240,15 +242,22 @@ Tz_unit = (Tz / 1000) / size_PerPixel
 #%%
 # 开始生成 调制函数 structure 和 modulation = 1 - is_no_backgroud - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
 
-structure = structure_Generate(U1_0, structure_xy_mode, 
-                               Duty_Cycle_x, Duty_Cycle_y, 
-                               is_positive_xy, 
-                               #%%
-                               Gx, Gy, 
-                               is_Gauss, l, 
-                               is_continuous, 
-                               #%%
-                               is_target_far_field, is_transverse_xy, is_reverse_xy, )
+if structure_xy_mode == "r":
+    
+    structure = structure_Generate_radial_G(Ix, Iy, 
+                                            Gx, Duty_Cycle_x, 
+                                            is_positive_xy, is_continuous, is_reverse_xy, )
+else:
+
+    structure = structure_Generate_CGH(U1_0, structure_xy_mode, 
+                                       Duty_Cycle_x, Duty_Cycle_y, 
+                                       is_positive_xy, 
+                                       #%%
+                                       Gx, Gy, 
+                                       is_Gauss, l, 
+                                       is_continuous, 
+                                       #%%
+                                       is_target_far_field, is_transverse_xy, is_reverse_xy, )
 
 vmax_structure, vmin_structure = 1, 0
 vmax_modulation, vmin_modulation = 1 - is_no_backgroud, -1 - is_no_backgroud
