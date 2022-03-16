@@ -17,12 +17,12 @@ from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
 from fun_SSI import Cal_diz, Cal_Iz_frontface, Cal_Iz_structure, Cal_Iz_endface, Cal_Iz, Cal_iz_1, Cal_iz_2
 from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG
+from fun_nonlinear import Eikz, Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG
 from fun_thread import my_thread
 
 #%%
 
-def NLA_SSI(U1_name = "", 
+def SFM_SSI(U1_name = "", 
             img_full_name = "Grating.png", 
             is_phase_only = 0, 
             #%%
@@ -221,7 +221,7 @@ def NLA_SSI(U1_name = "",
     dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel, 
                             is_print = 0)
 
-    Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz, 
+    Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                             Tx, Ty, Tz, size_PerPixel, 
                             is_print)
 
@@ -285,7 +285,7 @@ def NLA_SSI(U1_name = "",
     
     #%%
     
-    global G2_z_plus_dz_shift
+    global U2_z_plus_dz
     G2_z_plus_dz_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
     U2_z_plus_dz = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
 
@@ -294,11 +294,37 @@ def NLA_SSI(U1_name = "",
         U2_z_energy = np.empty( (sheets_num + 1), dtype=np.float64() )
     G2_z_shift_energy[0] = np.sum(np.abs(G2_z_plus_dz_shift)**2)
     U2_z_energy[0] = np.sum(np.abs(U2_z_plus_dz)**2)
-    
-    H2_z_plus_dz_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
-    H2_z_shift_k2_z = (np.power(math.e, k2_z_shift * diz * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
-    H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
-    H2_z_shift_k2_z_temp = (np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
+
+    #%%
+
+    # H2_z_plus_dz_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
+    # H2_z_shift_k2_z = (np.power(math.e, k2_z_shift * diz * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
+    # H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
+    # H2_z_shift_k2_z_temp = (np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
+
+    #%%
+
+    # dk_z_shift = 2*k1_z_shift - k2_z_shift
+
+    # H2_z_plus_dz_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j)
+    # H2_z_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j) / ( k2_z_shift / size_PerPixel ) * Eikz(dk_z_shift * diz) * diz * size_PerPixel \
+    #                     * (2 / (dk_z_shift / k2_z_shift + 2))
+                        
+    # H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j)
+    # H2_z_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) / ( k2_z_shift / size_PerPixel ) * Eikz(dk_z_shift * np.mod(Iz,diz)) * np.mod(Iz,diz) * size_PerPixel \
+    #                         * (2 / (dk_z_shift / k2_z_shift + 2))
+                            
+    #%%
+
+    H2_z_plus_dz_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j)
+    H2_z_shift_k2_z = np.power(math.e, k2 * diz * 1j) / ( k2 / size_PerPixel ) * Eikz(dk * diz) * diz * size_PerPixel \
+                        * (2 / (dk / k2 + 2))
+                        
+    H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j)
+    H2_z_shift_k2_z_temp = np.power(math.e, k2 * np.mod(Iz,diz) * 1j) / ( k2 / size_PerPixel ) * Eikz(dk * np.mod(Iz,diz)) * np.mod(Iz,diz) * size_PerPixel \
+                            * (2 / (dk / k2 + 2))
+                            
+    #%%
 
     if is_stored == 1:
         
@@ -327,8 +353,8 @@ def NLA_SSI(U1_name = "",
         U2_section_1 = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
         G2_section_2_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
         U2_section_2 = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
-    
-    def Cal_Q2_z_shift(for_th, fors_num, *arg, ):
+
+    def Cal_S2_z(for_th, fors_num, *arg, ):
         
         iz = for_th * diz
         
@@ -347,29 +373,41 @@ def NLA_SSI(U1_name = "",
         G1_z = np.fft.ifftshift(G1_z_shift)
         U1_z = np.fft.ifft2(G1_z)
         
-        Q2_z = np.fft.fft2(modulation_squared_z * U1_z**2)
-        Q2_z_shift = np.fft.fftshift(Q2_z)
+        S2_z = modulation_squared_z * U1_z**2
         
-        return Q2_z_shift
+        return S2_z
 
-    def Cal_G2_z_plus_dz_shift(for_th, fors_num, Q2_z_shift, *arg, ):
+    def Cal_U2_z_plus_dz(for_th, fors_num, S2_z, *arg, ):
         
-        global G2_z_plus_dz_shift
+        global U2_z_plus_dz
         
         if for_th == fors_num - 1:
-            G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + const * Q2_z_shift * H2_z_shift_k2_z_temp                    
+            G2_z_shift = np.fft.fftshift(np.fft.fft2(U2_z_plus_dz))
+            U2_z_plus_dz = np.fft.ifft2(np.fft.ifftshift(G2_z_shift * H2_z_plus_dz_shift_k2_z_temp))
+            U2_z_plus_dz = U2_z_plus_dz + const * S2_z * H2_z_shift_k2_z_temp
+            
+            # U2_z_plus_dz = U2_z_plus_dz + const * S2_z * H2_z_shift_k2_z_temp / np.power(math.e, k2 * np.mod(Iz,diz) * 1j)
+            # G2_z_shift = np.fft.fftshift(np.fft.fft2(U2_z_plus_dz))
+            # U2_z_plus_dz = np.fft.ifft2(np.fft.ifftshift(G2_z_shift * H2_z_plus_dz_shift_k2_z_temp))
+            
         else:
-            G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + const * Q2_z_shift * H2_z_shift_k2_z
+            G2_z_shift = np.fft.fftshift(np.fft.fft2(U2_z_plus_dz))
+            U2_z_plus_dz = np.fft.ifft2(np.fft.ifftshift(G2_z_shift * H2_z_plus_dz_shift_k2_z))
+            U2_z_plus_dz = U2_z_plus_dz + const * S2_z * H2_z_shift_k2_z
+            
+            # U2_z_plus_dz = U2_z_plus_dz + const * S2_z * H2_z_shift_k2_z / np.power(math.e, k2 * diz * 1j)
+            # G2_z_shift = np.fft.fftshift(np.fft.fft2(U2_z_plus_dz))
+            # U2_z_plus_dz = np.fft.ifft2(np.fft.ifftshift(G2_z_shift * H2_z_plus_dz_shift_k2_z))
         
-        return G2_z_plus_dz_shift
+        return U2_z_plus_dz
 
-    def After_G2_z_plus_dz_shift_temp(for_th, fors_num, G2_z_plus_dz_shift_temp, *arg, ):
+    def After_U2_z_plus_dz(for_th, fors_num, U2_z_plus_dz, *arg, ):
         
         if is_stored == 1:
             global G2_structure_frontface_shift, U2_structure_frontface, G2_structure_endface_shift, U2_structure_endface, G2_section_1_shift, U2_section_1, G2_section_2_shift, U2_section_2
         
-        G2_z_plus_dz = np.fft.ifftshift(G2_z_plus_dz_shift_temp)
-        U2_z_plus_dz = np.fft.ifft2(G2_z_plus_dz)
+        G2_z_plus_dz = np.fft.fft2(U2_z_plus_dz)
+        G2_z_plus_dz_shift_temp = np.fft.fftshift(G2_z_plus_dz)
         
         if is_energy_evolution_on == 1:
             G2_z_shift_energy[for_th + 1] = np.sum(np.abs(G2_z_plus_dz_shift_temp)**2)
@@ -407,12 +445,14 @@ def NLA_SSI(U1_name = "",
                 U2_section_2 = U2_z_plus_dz
 
     my_thread(10, sheets_num, 
-              Cal_Q2_z_shift, Cal_G2_z_plus_dz_shift, After_G2_z_plus_dz_shift_temp, 
+              Cal_S2_z, Cal_U2_z_plus_dz, After_U2_z_plus_dz, 
               is_ordered = 1, is_print = is_print, )
         
     #%%
 
-    G2_z0_SSI_shift = G2_z_plus_dz_shift
+    U2_z0_SSI = U2_z_plus_dz
+    G2_z0_SSI = np.fft.fft2(U2_z0_SSI)
+    G2_z0_SSI_shift = np.fft.fftshift(G2_z0_SSI)
 
     G2_z0_SSI_shift_amp = np.abs(G2_z0_SSI_shift)
     # print(np.max(G2_z0_SSI_shift_amp))
@@ -518,13 +558,6 @@ def NLA_SSI(U1_name = "",
     
     #%%
     # G2_z0_SSI = G2_z0_SSI(k1_x, k1_y) → IFFT2 → U2(x0, y0, z0) = U2_z0_SSI
-
-    G2_z0_SSI = np.fft.ifftshift(G2_z0_SSI_shift)
-    U2_z0_SSI = np.fft.ifft2(G2_z0_SSI)
-    # 2 维 坐标空间 中的 复标量场，是 i2_x0, i2_y0 的函数
-    # U2_z0_SSI = U2_z0_SSI * scale_down_factor # 归一化
-
-    #%%
 
     if is_stored == 1:
 
@@ -1118,7 +1151,7 @@ def NLA_SSI(U1_name = "",
     return G2_z0_SSI_shift, U2_z0_SSI
 
 
-# NLA_SSI(U1_name = "", 
+# SFM_SSI(U1_name = "", 
 #         img_full_name = "lena.png", 
 #         is_phase_only = 0, 
 #         #%%

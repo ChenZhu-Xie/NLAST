@@ -16,6 +16,7 @@ from fun_img_Resize import image_Add_black_border
 from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from b_1_AST import AST
 from B_3_NLA_SSI import NLA_SSI
+from B_3_SFM_SSI import SFM_SSI
 
 def consistency_NLA_SSI_AST(U1_name = "", 
                             img_full_name = "Grating.png", 
@@ -55,7 +56,9 @@ def consistency_NLA_SSI_AST(U1_name = "",
                             is_self_colorbar = 0, is_colorbar_on = 1, 
                             is_energy = 1, vmax = 1, vmin = 0, 
                             #%%
-                            is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
+                            is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, 
+                            #%%
+                            is_NLA = 1, ):
     
     #%%
 
@@ -113,7 +116,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     # U1_full_name = U1_name + (is_save_txt and ".txt" or ".mat")
     # U1_short_name = U1_name.replace('6. AST - ', '')
     
-    NLA_SSI(U1_name, 
+    arg = [ U1_name, 
             img_full_name, 
             is_phase_only, 
             #%%
@@ -125,7 +128,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_H_l, is_H_theta, is_H_random_phase, 
             #%%
             U1_0_NonZero_size, w0, 
-            z0_new, 0, 1, 
+            z0_new, 0, 10, 
             deff_structure_sheet_expect, 10, 
             0, 0, 0, 0, 
             #%%
@@ -151,7 +154,12 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
+            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, ]
+    
+    if is_NLA == 1:
+        NLA_SSI(*arg)
+    else:
+        SFM_SSI(*arg)
     
     U1_NLA_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0_new)) + "mm" + "_SSI"
     U1_NLA_txt_full_name = U1_NLA_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -161,7 +169,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     #%%
     # 先倍频 z0 后衍射 z0_new
     
-    NLA_SSI('', 
+    arg = [ '', 
             img_full_name, 
             is_phase_only, 
             #%%
@@ -173,7 +181,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_H_l, is_H_theta, is_H_random_phase, 
             #%%
             U1_0_NonZero_size, w0, 
-            z0, 0, 1, 
+            z0, 0, 10, 
             deff_structure_sheet_expect, 10, 
             0, 0, 0, 0, 
             #%%
@@ -199,7 +207,12 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
+            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, ]
+    
+    if is_NLA == 1:
+        NLA_SSI(*arg)
+    else:
+        SFM_SSI(*arg)
     
     U2_txt_name = "6. NLA - U2_" + str(float('%.2g' % z0)) + "mm" + "_SSI"
     # U2_txt_full_name = U2_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -249,7 +262,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     #%%
     # 定义 晶体 的 纵向实际像素、晶体 的 实际纵向尺寸
     
-    NLA_SSI('', 
+    arg = [ '', 
             img_full_name, 
             is_phase_only, 
             #%%
@@ -261,7 +274,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_H_l, is_H_theta, is_H_random_phase, 
             #%%
             U1_0_NonZero_size, w0, 
-            Z0, 0, 1, 
+            Z0, 0, 10, 
             deff_structure_sheet_expect, 10, 
             0, 0, 0, 0, 
             #%%
@@ -287,7 +300,12 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
+            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, ]
+    
+    if is_NLA == 1:
+        NLA_SSI(*arg)
+    else:
+        SFM_SSI(*arg)
     
     U2_Z0_txt_name = "6. NLA - U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI"
     U2_Z0_txt_full_name = U2_Z0_txt_name + (is_save_txt and ".txt" or ".mat")
@@ -692,7 +710,7 @@ consistency_NLA_SSI_AST(U1_name = "",
                         z_pump = 0, 
                         is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                         l = 0, p = 0, 
-                        theta_x = 0, theta_y = 0, 
+                        theta_x = 0.5, theta_y = 0, 
                         is_random_phase = 0, 
                         is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
                         #%%
@@ -722,6 +740,8 @@ consistency_NLA_SSI_AST(U1_name = "",
                         is_self_colorbar = 1, is_colorbar_on = 1, 
                         is_energy = 1, vmax = 1, vmin = 0, 
                         #%%
-                        is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, )
+                        is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, 
+                        #%%
+                        is_NLA = 0, )
 
 # 注意 colorbar 上的数量级

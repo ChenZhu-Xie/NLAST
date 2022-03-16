@@ -86,7 +86,7 @@ def my_thread(threads_num, fors_num,
             '''
             List = var_or_tuple_to_list(fun_1(self.for_th, fors_num)) # 把 函数1 的 运行结果 强制转换 为 1 个 list
             self.list.append(List) # 把这个 list 放入 外层 list 中
-            # print(type(result))
+            # print(List)
             """----- your code end 1 -----"""
             
             con.acquire() # 上锁

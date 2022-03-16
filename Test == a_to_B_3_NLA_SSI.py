@@ -15,6 +15,7 @@ from fun_pump import pump_LG
 from fun_linear import Cal_n, Cal_kz
 from A_3_structure_Generate_NLC import structure_NLC
 from B_3_NLA_SSI import NLA_SSI
+from B_3_SFM_SSI import SFM_SSI
 
 def a_to_B_3_NLA_SSI(U1_name_Structure = "", 
                      border_percentage = 0.3, 
@@ -74,7 +75,9 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                      is_self_colorbar = 0, is_colorbar_on = 1, 
                      is_energy = 1, vmax = 1, vmin = 0, 
                      #%%
-                     is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
+                     is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, 
+                     #%%
+                     is_NLA = 1, ):
     
     #%%
     # a_Image_Add_Black_border
@@ -187,7 +190,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
     #%%
     # B_3_NLA_SSI
     
-    NLA_SSI(U1_name, 
+    arg = [ U1_name, 
             img_full_name, 
             is_phase_only, 
             #%%
@@ -225,7 +228,12 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
+            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, ]
+    
+    if is_NLA == 1:
+        NLA_SSI(*arg)
+    else:
+        SFM_SSI(*arg)
 
 a_to_B_3_NLA_SSI(U1_name_Structure = "", 
                  border_percentage = 0.1, 
@@ -244,7 +252,7 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  #%%
                  z_pump = 0, 
                  is_LG = 1, is_Gauss = 1, is_OAM = 1, 
-                 l = 10, p = 3, 
+                 l = 10, p = 0, 
                  theta_x = 0, theta_y = 0, 
                  is_random_phase = 0, 
                  is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
@@ -254,7 +262,7 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  L0_Crystal = 5, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.5, 
                  deff_structure_sheet_expect = 1, sheets_stored_num = 10, 
                  z0_section_1f_expect = 0, z0_section_2f_expect = 0, X = 0, Y = 0, 
-                 Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'r', Depth = 2, 
+                 Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 2, 
                  #%%
                  is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
                  #%%
@@ -285,4 +293,6 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_self_colorbar = 0, is_colorbar_on = 1, 
                  is_energy = 0, vmax = 1, vmin = 0, 
                  #%%
-                 is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 0, )
+                 is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 0, 
+                 #%%
+                 is_NLA = 0, )

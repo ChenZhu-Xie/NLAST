@@ -15,6 +15,25 @@ from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase
 from fun_linear import Cal_kz
 
 #%%
+# 生成 束腰 z = 0 处的 HG 光束（但不包括 复振幅的 高斯分布）
+
+def HG_without_Gauss_profile(Ix = 0, Iy = 0, size_PerPixel = 0.77, 
+                             w0 = 0, 
+                             m = 1, n = 0, 
+                             theta_x = 1, theta_y = 0, ):
+    
+    mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy, 
+                                    theta_x, theta_y)
+    
+    C_HG_mn = 1
+    x, y = 2**0.5 * mesh_Ix0_Iy0_shift[:,:,0] * size_PerPixel/w0, 2**0.5 * mesh_Ix0_Iy0_shift[:,:,1] * size_PerPixel/w0
+    M, N = [0]*m, [0]*n
+    M.append(m), N.append(n)
+    HG_mn = C_HG_mn * np.polynomial.hermite.hermval(x,M) * np.polynomial.hermite.hermval(y,N)
+    
+    return HG_mn
+
+#%%
 # 生成 束腰 z = 0 处的 LG 光束（但不包括 复振幅的 高斯分布）
 
 def LG_without_Gauss_profile(Ix = 0, Iy = 0, size_PerPixel = 0.77, 
@@ -29,8 +48,7 @@ def LG_without_Gauss_profile(Ix = 0, Iy = 0, size_PerPixel = 0.77,
     x = 2**0.5 * r_shift/w0
     LG_pl = C_LG_pl/w0 * x**abs(l) * scipy.special.genlaguerre(p, abs(l), True)(x**2)
     
-    return LG_pl
-    
+    return LG_pl    
 
 #%%
 # 生成 束腰 z = 0 处的 高斯光束
@@ -72,8 +90,9 @@ def OAM(Ix = 0, Iy = 0,
         l = 1, 
         theta_x = 1, theta_y = 0, ):
     
-    mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
-    U = np.power(math.e, l * np.arctan2(mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi), mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi)) * 1j)
+    mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy, 
+                                    theta_x, theta_y)
+    U = np.power(math.e, l * np.arctan2(mesh_Ix0_Iy0_shift[:, :, 0], mesh_Ix0_Iy0_shift[:, :, 1]) * 1j)
     
     return U
 
@@ -85,8 +104,9 @@ def OAM_profile(Ix = 0, Iy = 0,
                 l = 1, 
                 theta_x = 1, theta_y = 0, ):
     
-    mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
-    U = U * np.power(math.e, l * np.arctan2(mesh_Ix0_Iy0_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi), mesh_Ix0_Iy0_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi)) * 1j)
+    mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy, 
+                                    theta_x, theta_y)
+    U = U * np.power(math.e, l * np.arctan2(mesh_Ix0_Iy0_shift[:, :, 0], mesh_Ix0_Iy0_shift[:, :, 1]) * 1j)
     
     return U
 
@@ -236,6 +256,13 @@ def pump_LG(file_full_name = "Grating.png",
                                         w0, 
                                         l, p, 
                                         theta_x, theta_y, )
+    elif is_LG == 2:
+        # 将 实空间 输入场 变为 束腰 z = 0 处的 HG 光束
+        
+        U1_0 = HG_without_Gauss_profile(Ix, Iy, size_PerPixel, 
+                                        w0, 
+                                        l, p, 
+                                        theta_x, theta_y, )
 
     #%%
     # 对输入场 引入 高斯限制
@@ -265,7 +292,7 @@ def pump_LG(file_full_name = "Grating.png",
                    l, 
                    theta_x, theta_y, )
         
-    else:
+    elif is_LG != 2: # 只有 非厄米高斯时，l ≠ 0 时 才加 螺旋相位
         # 对输入场 引入 额外的 螺旋相位
         
         if is_H_l == 1:
@@ -301,7 +328,7 @@ def pump_LG(file_full_name = "Grating.png",
                                U1_0, k, 
                                theta_x, theta_y)
         
-        
+    # U1_0 = U1_0**2
     #%%
     # 对输入场 引入 传播相位
     
@@ -339,7 +366,6 @@ def pump_LG(file_full_name = "Grating.png",
             G_z0 = np.fft.ifft2(U_z0)
             G_z0_shift = np.fft.ifftshift(G_z0)
             
-    
     #%%
     #绘图：G1_0_amp
     
