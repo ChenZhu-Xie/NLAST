@@ -259,7 +259,15 @@ const = (k2 / size_PerPixel / n2)**2 * deff
 
 k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I2_x, I2_y, k2)
 
-global U2_z_plus_dz
+cal_mode = [1, 1, 0]
+# 以 G 算 还是以 U 算、源项 是否 也衍射、k_2z 是否是 matrix 版
+# 用 G 算 会快很多
+# 不管是 G 还是 U，matrix 版的能量 总是要低一些，只不过 U 低得少些，没有数量级差异，而 G 少得很多
+
+if cal_mode[0] == 1: # 如果以 G 算
+    global G2_z_plus_dz_shift
+else:
+    global U2_z_plus_dz
 G2_z_plus_dz_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
 U2_z_plus_dz = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
 
@@ -275,11 +283,6 @@ U2_z_energy[0] = np.sum(np.abs(U2_z_plus_dz)**2)
 # H2_z_shift_k2_z = (np.power(math.e, k2_z_shift * diz * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
 # H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
 # H2_z_shift_k2_z_temp = (np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
-
-cal_mode = [1, 1, 1]
-# 以 G 算 还是以 U 算、源项 是否 也衍射、k_2z 是否是 matrix 版
-# 用 G 算 会快很多
-# 不管是 G 还是 U，matrix 版的能量 总是要低一些，只不过 U 低得少些，没有数量级差异，而 G 少得很多
 
 #%%
 
