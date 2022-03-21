@@ -14,7 +14,7 @@ from scipy.io import savemat
 from fun_os import img_squared_bordered_Read, U_Read
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_plot import plot_2d
-from fun_pump import pump_LG
+from fun_pump import pump_LG, incline_profile
 from fun_linear import Cal_n, Cal_kz
 from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, Info_find_contours_SHG
 from fun_thread import noop, my_thread

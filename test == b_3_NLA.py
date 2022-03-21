@@ -15,7 +15,7 @@ from fun_os import img_squared_bordered_Read, U_Read
 from fun_img_Resize import image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_plot import plot_2d
-from fun_pump import pump_LG
+from fun_pump import pump_LG, incline_profile
 from fun_linear import Cal_n, Cal_kz, Uz_AST, fft2, ifft2
 from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, Info_find_contours_SHG
 from fun_thread import noop, my_thread
@@ -29,7 +29,7 @@ border_percentage = 0.1  # 边框 占图片的 百分比，也即 图片 放大�
 is_phase_only = 0
 # %%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 0, 1, 0
+is_LG, is_Gauss, is_OAM = 0, 0, 0
 l, p = 0, 0
 theta_x, theta_y = 0, 0
 # 正空间：右，下 = +, +
@@ -48,7 +48,7 @@ is_air_pump, is_air, T = 0, 0, 25  # is_air = 0, 1, 2 分别表示 LN, 空气, K
 # %%
 deff = 30  # pm / V
 Tx, Ty, Tz = 40, 10, 7.004  # Unit: um
-mx, my, mz = 1, 0, 1
+mx, my, mz = 0, 0, 1
 # 倒空间：右, 下 = +, +
 is_fft = 1
 is_linear_convolution = 1  # 0 代表 循环卷积，1 代表 线性卷积
@@ -277,6 +277,8 @@ else:
             ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) * U1_0 ** 2)
 
         G2_z0_shift = const * (U1_z0_Squared_modulated - U1_0_Squared_modulated * math.e ** (k2_z_shift * i2_z0 * 1j))
+        
+        # G2_z0_shift = const * U1_0_Squared_modulated * math.e ** (k2_z_shift * i2_z0 * 1j)
 
     elif fft_mode == 1:
 
@@ -299,16 +301,39 @@ else:
 
         molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j) \
                    - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
-                   
-        # molecule = - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j)
+        
+        # molecule = g_U1_0_Squared_shift_Q
+        # molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j)
 
+        # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j)
+        
         # Gz_shift, mesh_dont_care = Cal_kz(I1_x, I1_y, Gz)
         # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz_shift * i2_z0 * 1j) \
         #            - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j)
         
-        molecule = G_U1_z0_Squared_shift_Q * math.e ** (( Gz * i2_z0 - Gx / (2 * math.pi) * I2_x * mesh_k2_x_k2_y_shift[:, :, 0] - Gy / (2 * math.pi) * I2_y * mesh_k2_x_k2_y_shift[:, :, 1] ) * 1j) \
-                   - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
+        # U = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j)
+        # U = incline_profile(I1_x, I1_y, 
+        #                     U, k2, 
+        #                     - np.arcsin(Gx/k2) / math.pi * 180, - np.arcsin(Gy/k2) / math.pi * 180, )
+        # molecule = U - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
 
+    
+        # roll_x, roll_y = Cal_roll_xy(Gx, Gy,
+        #                               I2_x, I2_y, )
+        
+        # g1_shift_roll = Roll_xy(g1_shift,
+        #                     roll_x//2, roll_y//2,
+        #                     is_linear_convolution, )
+        # G_U1_z0_Squared_shift_Q = fft2(Uz_AST(ifft2(g1_shift_roll), k1, i1_z0) ** 2)
+        
+        # g_U1_0_Squared_shift = fft2(U1_0 ** 2)
+        # g_U1_0_Squared_shift_Q = Roll_xy(g_U1_0_Squared_shift,
+        #                                   roll_x, roll_y,
+        #                                   is_linear_convolution, )
+
+        # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j) \
+        #             - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
+        
         # %% denominator: dk_shift_Squared
 
         k1izQ_shift = (k1 ** 2 - (mesh_k2_x_k2_y_shift[:, :, 0] - Gy / (2 * math.pi) * I2_y) ** 2 - (
