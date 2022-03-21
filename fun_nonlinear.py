@@ -87,16 +87,21 @@ def Cal_dk_z_Q_shift_SHG(k1,
     
 #%%
 
-def Cal_roll_xy(nx, ny, 
+def Cal_roll_xy(Gx, Gy,
                 Ix, Iy, 
-                Gx, Gy, ):
-    
-    roll_x = np.floor( nx + Ix//2 - (Ix - 1) - Gy / (2 * math.pi) * Iy ).astype(np.int64)
-    roll_y = np.floor( ny + Iy//2 - (Iy - 1) - Gx / (2 * math.pi) * Ix ).astype(np.int64)
-    # 之后要平移列，而 Gx 才与列有关...
-    
+                *args ):
+    if len(args) >= 2:
+        nx, ny = args[0], args[1]
+
+        roll_x = np.floor( Ix//2 - (Ix - 1) + nx - Gy / (2 * math.pi) * Iy ).astype(np.int64)
+        roll_y = np.floor( Iy//2 - (Iy - 1) + ny - Gx / (2 * math.pi) * Ix ).astype(np.int64)
+        # 之后要平移列，而 Gx 才与列有关...
+    else:
+        roll_x = np.floor( Gy / (2 * math.pi) * Iy).astype(np.int64)
+        roll_y = np.floor( Gx / (2 * math.pi) * Ix).astype(np.int64)
+
     return roll_x, roll_y
-    
+
 #%%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 
