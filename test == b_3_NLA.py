@@ -47,8 +47,8 @@ lam1 = 1.064  # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25  # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 # %%
 deff = 30  # pm / V
-Tx, Ty, Tz = 40, 10, 7.004  # Unit: um
-mx, my, mz = 0, 0, 1
+Tx, Ty, Tz = 30, 60, 7.004  # Unit: um
+mx, my, mz = 1, 1, 1
 # 倒空间：右, 下 = +, +
 is_fft = 1
 is_linear_convolution = 1  # 0 代表 循环卷积，1 代表 线性卷积
@@ -300,23 +300,30 @@ else:
                                          is_linear_convolution, )
 
         molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j) \
-                   - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
+                    - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
         
         # molecule = g_U1_0_Squared_shift_Q
         # molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j)
 
+        #%%
+
         # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j)
+        
+        #%%
         
         # Gz_shift, mesh_dont_care = Cal_kz(I1_x, I1_y, Gz)
         # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz_shift * i2_z0 * 1j) \
         #            - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j)
+        
+        #%%
         
         # U = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j)
         # U = incline_profile(I1_x, I1_y, 
         #                     U, k2, 
         #                     - np.arcsin(Gx/k2) / math.pi * 180, - np.arcsin(Gy/k2) / math.pi * 180, )
         # molecule = U - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
-
+    
+        #%%
     
         # roll_x, roll_y = Cal_roll_xy(Gx, Gy,
         #                               I2_x, I2_y, )
@@ -334,6 +341,14 @@ else:
         # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j) \
         #             - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
         
+        #%%
+        
+        # if Gx == 0 and Gy == 0:
+        #     molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j) \
+        #                - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
+        # else:
+        #     molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
+        
         # %% denominator: dk_shift_Squared
 
         k1izQ_shift = (k1 ** 2 - (mesh_k2_x_k2_y_shift[:, :, 0] - Gy / (2 * math.pi) * I2_y) ** 2 - (
@@ -343,8 +358,8 @@ else:
         # kizQ_shift = k1 + k2_z_shift + Gz
         denominator = kizQ_shift ** 2 - k2_z_shift ** 2
 
-        # kizQ_shift = k1 + (k1 ** 2 - Gx ** 2 - Gy ** 2) ** 0.5 + Gz
-        # denominator = kizQ_shift ** 2 - k2 ** 2
+        kizQ_shift = k1 + (k1 ** 2 - Gx ** 2 - Gy ** 2) ** 0.5 + Gz
+        denominator = kizQ_shift ** 2 - k2 ** 2
 
         # %% G2_z0_shift
 
