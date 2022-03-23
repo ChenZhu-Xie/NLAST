@@ -294,9 +294,9 @@ def Cal_modulation_squared_z(for_th, fors_num, *arg, ):
             modulation_squared_address = location + "\\" + "0.n1_modulation_squared" + "\\" + modulation_squared_full_name
             modulation_squared_z = loadmat(modulation_squared_address)['n1_modulation_squared']
         else:
-            modulation_squared_z = n1
+            modulation_squared_z = np.ones((I1_x, I1_y), dtype=np.int64()) * n1
     else:
-        modulation_squared_z = n1
+        modulation_squared_z = np.ones((I1_x, I1_y), dtype=np.int64()) * n1
     
     return modulation_squared_z
 

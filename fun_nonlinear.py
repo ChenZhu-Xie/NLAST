@@ -7,7 +7,9 @@ Created on Fri Feb 25 20:23:31 2022
 
 import math
 import numpy as np
-from fun_linear import Find_energy_Dropto_fraction
+from fun_array_Transform import Roll_xy
+from fun_linear import Cal_kz, fft2, ifft2, Uz_AST, Find_energy_Dropto_fraction
+from fun_pump import incline_profile
 
 #%%
 
@@ -71,6 +73,7 @@ def Cal_dk_z_Q_shift_SHG(k1,
                          n2_x, n2_y, 
                          Gx, Gy, Gz, ):
     
+    # n2_x_n2_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k2_x_k2_y 的 mesh，所以用 Gy 才对应
     dk_x_shift = mesh_k2_x_k2_y_shift[n2_x, n2_y, 0] - mesh_k1_x_k1_y_shift[:, :, 0] - Gy
     # 其实 mesh_k2_x_k2_y_shift[:, :, 0]、mesh_n2_x_n2_y_shift[:, :, 0]、mesh_n2_x_n2_y[:, :, 0]、 n2_x 均只和 y，即 [:, :] 中的 第 2 个数字 有关，
     # 只由 列 y、ky 决定，与行 即 x、kx 无关
@@ -92,15 +95,162 @@ def Cal_roll_xy(Gx, Gy,
                 *args ):
     if len(args) >= 2:
         nx, ny = args[0], args[1]
-
         roll_x = np.floor( Ix//2 - (Ix - 1) + nx - Gy / (2 * math.pi) * Iy ).astype(np.int64)
         roll_y = np.floor( Iy//2 - (Iy - 1) + ny - Gx / (2 * math.pi) * Ix ).astype(np.int64)
         # 之后要平移列，而 Gx 才与列有关...
     else:
         roll_x = np.floor( Gy / (2 * math.pi) * Iy).astype(np.int64)
         roll_y = np.floor( Gx / (2 * math.pi) * Ix).astype(np.int64)
-
+    
     return roll_x, roll_y
+
+#%%
+
+def G2_z_modulation_NLAST(k1, k2, Gz, 
+                          modulation, U1_0, iz, const, ):
+    
+    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
+    
+    kiiz_shift = k1 + k2_z_shift + Gz
+
+    U1_z_Squared_modulated = fft2(
+        ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
+
+    U1_0_Squared_modulated = fft2(
+        ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) * U1_0 ** 2)
+
+    G2_z_shift = const * (U1_z_Squared_modulated * math.e ** (Gz * iz * 1j) \
+                           - U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
+    
+    # G2_z_shift = const * U1_z_Squared_modulated * math.e ** (Gz * iz * 1j)
+    # G2_z_shift = const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
+    
+    return G2_z_shift
+
+def G2_z_NLAST(k1, k2, Gx, Gy, Gz, 
+               U1_0, iz, const, 
+               is_linear_convolution, ):
+    
+    Ix, Iy = U1_0.shape[0], U1_0.shape[1]
+    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(Ix, Iy, k2)
+
+    G_U1_z0_Squared_shift = fft2(Uz_AST(U1_0, k1, iz) ** 2)
+    g_U1_0_Squared_shift = fft2(U1_0 ** 2)
+
+    roll_x, roll_y = Cal_roll_xy(Gx, Gy,
+                                 Ix, Iy, )
+
+    G_U1_z0_Squared_shift_Q = Roll_xy(G_U1_z0_Squared_shift,
+                                      roll_x, roll_y,
+                                      is_linear_convolution, )
+    g_U1_0_Squared_shift_Q = Roll_xy(g_U1_0_Squared_shift,
+                                     roll_x, roll_y,
+                                     is_linear_convolution, )
+
+    molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j) \
+                - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
+    
+    # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j)
+    # molecule = g_U1_0_Squared_shift_Q
+    # molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j)
+    
+    #%%
+    
+    # Gz_shift, mesh_dont_care = Cal_kz(I1_x, I1_y, Gz)
+    # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz_shift * iz * 1j) \
+    #            - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j)
+    
+    #%%
+    
+    # U = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j)
+    # U = incline_profile(I1_x, I1_y, 
+    #                     U, k2, 
+    #                     - np.arcsin(Gx/k2) / math.pi * 180, - np.arcsin(Gy/k2) / math.pi * 180, )
+    # molecule = U - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
+
+    #%%
+
+    # roll_x, roll_y = Cal_roll_xy(Gx, Gy,
+    #                               I2_x, I2_y, )
+    
+    # g1_shift_roll = Roll_xy(g1_shift,
+    #                     roll_x//2, roll_y//2,
+    #                     is_linear_convolution, )
+    # G_U1_z0_Squared_shift_Q = fft2(Uz_AST(ifft2(g1_shift_roll), k1, i1_z0) ** 2)
+    
+    # g_U1_0_Squared_shift = fft2(U1_0 ** 2)
+    # g_U1_0_Squared_shift_Q = Roll_xy(g_U1_0_Squared_shift,
+    #                                   roll_x, roll_y,
+    #                                   is_linear_convolution, )
+
+    # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j) \
+    #             - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
+    
+    #%%
+    
+    # if Gx == 0 and Gy == 0:
+    #     molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j) \
+    #                 - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
+    # else:
+    #     molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
+    
+    # %% denominator: dk_shift_Squared
+
+    # n2_x_n2_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k2_x_k2_y 的 mesh，所以用 Gy 才对应
+    k1izQ_shift = (k1 ** 2 - (mesh_k2_x_k2_y_shift[:, :, 0] - Gy) ** 2 - (
+            mesh_k2_x_k2_y_shift[:, :, 1] - Gx) ** 2 + 0j) ** 0.5
+
+    kizQ_shift = k1 + k1izQ_shift + Gz
+    # kizQ_shift = k1 + k2_z_shift + Gz
+    denominator = kizQ_shift ** 2 - k2_z_shift ** 2
+
+    kizQ_shift = k1 + (k1 ** 2 - Gx ** 2 - Gy ** 2) ** 0.5 + Gz
+    denominator = kizQ_shift ** 2 - k2 ** 2
+
+    # %% G2_z0_shift
+
+    G2_z_shift = 2 * const * molecule / denominator
+    
+    return G2_z_shift
+
+#%%
+
+def G2_z_NLAST_false(k1, k2, Gx, Gy, Gz, 
+                     U1_0, iz, const, 
+                     is_linear_convolution, ):
+    
+    Ix, Iy = U1_0.shape[0], U1_0.shape[1]
+    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(Ix, Iy, k1)
+    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(Ix, Iy, k2)
+
+    G_U1_z0_Squared_shift = fft2(Uz_AST(U1_0, k1, iz) ** 2)
+    g_U1_0_Squared_shift = fft2(U1_0 ** 2)
+
+    dG_Squared_shift = G_U1_z0_Squared_shift \
+                       - g_U1_0_Squared_shift * math.e ** (k2_z_shift * iz * 1j)
+
+    # %% denominator: dk_shift_Squared
+
+    kiizQ_shift = k1 + k1_z_shift + Gz
+
+    dk_shift_Squared = kiizQ_shift ** 2 - k2_z_shift ** 2
+
+    # %% fractional
+
+    fractional = dG_Squared_shift / dk_shift_Squared
+
+    roll_x, roll_y = Cal_roll_xy(Gx, Gy,
+                                 Ix, Iy, )
+
+    fractional_Q = Roll_xy(fractional,
+                           roll_x, roll_y,
+                           is_linear_convolution, )
+
+    # %% G2_z0_shift
+
+    G2_z_shift = 2 * const * fractional_Q * math.e ** (Gz * iz * 1j)
+    
+    return G2_z_shift
 
 #%%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg

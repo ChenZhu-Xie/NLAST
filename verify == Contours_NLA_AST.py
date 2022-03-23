@@ -8,7 +8,6 @@ Created on Mon Nov  1 14:38:57 2021
 #%%
 
 import os
-import cv2
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
 from scipy.io import loadmat, savemat
@@ -32,11 +31,12 @@ def contours_NLA_AST(U1_name = "",
                      #%%
                      U1_0_NonZero_size = 1, w0 = 0.3,
                      z0_AST = 1, z0_NLA = 5, 
-                     #%%
-                     lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
-                     deff = 30, is_linear_convolution = 0, 
-                     Tx = 10, Ty = 10, Tz = "2*lc", 
-                     mx = 0, my = 0, mz = 0, 
+                     # %%
+                     lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                     deff=30, is_fft = 1, fft_mode = 0, 
+                     is_linear_convolution = 0,
+                     Tx=10, Ty=10, Tz="2*lc",
+                     mx=0, my=0, mz=0,
                      #%%
                      is_save = 0, is_save_txt = 0, dpi = 100, 
                      #%%
@@ -118,7 +118,8 @@ def contours_NLA_AST(U1_name = "",
         z0_NLA, 
         #%%
         lam1, is_air_pump, is_air, T, 
-        deff, is_linear_convolution, 
+        deff, is_fft, fft_mode,
+        is_linear_convolution, 
         Tx, Ty, Tz, 
         mx, my, mz, 
         #%%
@@ -160,7 +161,8 @@ def contours_NLA_AST(U1_name = "",
         z0_NLA, 
         #%%
         lam1, is_air_pump, is_air, T, 
-        deff, is_linear_convolution, 
+        deff, is_fft, fft_mode,
+        is_linear_convolution, 
         Tx, Ty, Tz, 
         mx, my, mz, 
         #%%
@@ -321,10 +323,12 @@ contours_NLA_AST(U1_name = "",
                  U1_0_NonZero_size = 1, w0 = 0, 
                  z0_AST = 0.17, z0_NLA = 0.1, 
                  #%%
-                 lam1 = 0.80095, is_air_pump = 0, is_air = 0, T = 25, 
-                 deff = 30, is_linear_convolution = 0, 
-                 Tx = 10, Ty = 10, Tz = "2*lc", 
-                 mx = 0, my = 0, mz = 0, # 可 mz = 1 查看匹配时 的 情况，理应效果 更好。
+                 # %%
+                 lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                 deff=30, is_fft = 1, fft_mode = 0, 
+                 is_linear_convolution = 0,
+                 Tx=10, Ty=10, Tz="2*lc",
+                 mx=0, my=0, mz=0, # 可 mz = 1 查看匹配时 的 情况，理应效果 更好。
                  #%%
                  is_save = 0, is_save_txt = 0, dpi = 100, 
                  #%%

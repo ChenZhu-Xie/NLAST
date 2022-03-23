@@ -12,7 +12,7 @@ np.seterr(divide='ignore',invalid='ignore')
 from fun_img_Resize import image_Add_black_border
 from fun_os import img_squared_bordered_Read, U_Read
 from fun_pump import pump_LG
-from fun_linear import Cal_n, Cal_kz
+from fun_linear import Cal_n
 from A_3_structure_Generate_NLC import structure_NLC
 from B_3_NLA_SSI import NLA_SSI
 from B_3_SFM_SSI import SFM_SSI
@@ -54,7 +54,8 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                      lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, 
                      deff = 30, 
                      Tx = 19.769, Ty = 20, Tz = 18.139, 
-                     mx = -1, my = 0, mz = 1, 
+                     mx = -1, my = 0, mz = 1,
+                     is_NLAST = 0, 
                      #%%
                      is_save = 0, is_save_txt = 0, dpi = 100, 
                      #%%
@@ -213,6 +214,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
             deff, 
             Tx, Ty, Tz, 
             mx, my, mz, 
+            is_NLAST, 
             #%%
             is_save, is_save_txt, dpi, 
             #%%
@@ -251,15 +253,15 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_phase_only = 0, 
                  #%%
                  z_pump = 0, 
-                 is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-                 l = 0, p = 0, 
-                 theta_x = 0, theta_y = 0, 
+                 is_LG = 1, is_Gauss = 1, is_OAM = 1, 
+                 l = 1, p = 3, 
+                 theta_x = -0.5, theta_y = 0, 
                  is_random_phase = 0, 
                  is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
                  #%%---------------------------------------------------------------------
                  #%%
-                 U1_0_NonZero_size = 0.9, w0 = 0.5, w0_Structure = 0, structure_size_Enlarge = 0.1, 
-                 L0_Crystal = 4, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.5, 
+                 U1_0_NonZero_size = 0.9, w0 = 0.1, w0_Structure = 0, structure_size_Enlarge = 0.1, 
+                 L0_Crystal = 3, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.5, 
                  deff_structure_sheet_expect = 1, sheets_stored_num = 10, 
                  z0_section_1f_expect = 0, z0_section_2f_expect = 0, X = 0, Y = 0, 
                  Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 2, 
@@ -269,10 +271,11 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_bulk = 0, is_no_backgroud = 0, 
                  is_stored = 0, is_show_structure_face = 0, is_energy_evolution_on = 1, 
                  #%%
-                 lam1 = 1, is_air_pump = 0, is_air = 0, T = 25, 
+                 lam1 = 1.064, is_air_pump = 0, is_air = 0, T = 25, 
                  deff = 30, 
-                 Tx = 13.703, Ty = 13.703, Tz = 6.943, 
-                 mx = 0, my = 0, mz = 1, 
+                 Tx = 35, Ty = 13.703, Tz = 7.004, 
+                 mx = 1, my = 0, mz = 1,
+                 is_NLAST = 1, 
                  #%%
                  is_save = 1, is_save_txt = 0, dpi = 100, 
                  #%%
@@ -293,6 +296,6 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_self_colorbar = 0, is_colorbar_on = 1, 
                  is_energy = 1, vmax = 1, vmin = 0, 
                  #%%
-                 is_print = 1, is_contours = 2, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 0, 
+                 is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 0, 
                  #%%
                  is_NLA = 0, )

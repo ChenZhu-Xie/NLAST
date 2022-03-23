@@ -63,6 +63,7 @@ deff = 30 # pm / V
 Tx, Ty, Tz = 6.633, 20, 18.437 # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
 mx, my, mz = -1, 0, 1
 # 倒空间：右, 下 = +, +
+is_NLAST = 0 # 对 SFM 来说，这个没用，但是为了 与 NLA_SSI 参数一致，需要 设置这个 多余的参数
 #%%
 is_save = 0
 is_save_txt = 0
@@ -340,9 +341,14 @@ if is_stored == 1:
 
 if cal_mode[0] == 1: # 如果以 G 算
 
-    def Cal_Q2_z_shift(for_th, fors_num, *arg, ):
+    def Cal_dG2_z_plus_dz_shift(for_th, fors_num, *arg, ):
         
         iz = for_th * diz
+
+        H1_z_shift = np.power(math.e, k1_z_shift * iz * 1j)
+        G1_z_shift = g1_shift * H1_z_shift
+        G1_z = np.fft.ifftshift(G1_z_shift)
+        U1_z = np.fft.ifft2(G1_z)
         
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
@@ -350,14 +356,9 @@ if cal_mode[0] == 1: # 如果以 G 算
                 modulation_squared_address = location + "\\" + "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name
                 modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
             else:
-                modulation_squared_z = 1 - is_no_backgroud
+                modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
         else:
-            modulation_squared_z = 1 - is_no_backgroud
-        
-        H1_z_shift = np.power(math.e, k1_z_shift * iz * 1j)
-        G1_z_shift = g1_shift * H1_z_shift
-        G1_z = np.fft.ifftshift(G1_z_shift)
-        U1_z = np.fft.ifft2(G1_z)
+            modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
         
         if cal_mode[2] == 1: # dk_z, k_2z 若是 matrix 版
             if cal_mode[1] == 1: # 若 源项 也衍射
@@ -374,35 +375,37 @@ if cal_mode[0] == 1: # 如果以 G 算
             Q2_z = np.fft.fft2(modulation_squared_z * U1_z**2)
             
         Q2_z_shift = np.fft.fftshift(Q2_z)
-        
-        return Q2_z_shift
 
-    def Cal_G2_z_plus_dz_shift(for_th, fors_num, Q2_z_shift, *arg, ):
+        if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
+            dG2_z_plus_dz_shift = const * Q2_z_shift
+        else:
+            if for_th == fors_num - 1:
+                if cal_mode[1] == 1: # 若 源项 也衍射
+                    dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z_temp / np.power(math.e, k2 * np.mod(Iz,diz) * 1j)
+                else:
+                    dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z_temp
+            else:
+                if cal_mode[1] == 1: # 若 源项 也衍射
+                    dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z / np.power(math.e, k2 * diz * 1j)
+                else:
+                    dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z
+        
+        return dG2_z_plus_dz_shift
+
+    def Cal_G2_z_plus_dz_shift(for_th, fors_num, dG2_z_plus_dz_shift, *arg, ):
         
         global G2_z_plus_dz_shift
         
         if for_th == fors_num - 1:
             if cal_mode[1] == 1: # 若 源项 也衍射
-                if cal_mode[2] == 1: # dk_z, k_2z 若是 matrix 版
-                    G2_z_plus_dz_shift = (G2_z_plus_dz_shift + const * Q2_z_shift) * H2_z_plus_dz_shift_k2_z_temp
-                else:
-                    G2_z_plus_dz_shift = (G2_z_plus_dz_shift + const * Q2_z_shift * H2_z_shift_k2_z_temp / np.power(math.e, k2 * np.mod(Iz,diz) * 1j)) * H2_z_plus_dz_shift_k2_z_temp
+                G2_z_plus_dz_shift = (G2_z_plus_dz_shift + dG2_z_plus_dz_shift) * H2_z_plus_dz_shift_k2_z_temp
             else:
-                if cal_mode[2] == 1: # dk_z, k_2z 若是 matrix 版
-                    G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + const * Q2_z_shift
-                else:
-                    G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + const * Q2_z_shift * H2_z_shift_k2_z_temp              
+                G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + dG2_z_plus_dz_shift
         else:
             if cal_mode[1] == 1: # 若 源项 也衍射
-                if cal_mode[2] == 1: # dk_z, k_2z 若是 matrix 版
-                    G2_z_plus_dz_shift = (G2_z_plus_dz_shift + const * Q2_z_shift) * H2_z_plus_dz_shift_k2_z
-                else:
-                    G2_z_plus_dz_shift = (G2_z_plus_dz_shift + const * Q2_z_shift * H2_z_shift_k2_z / np.power(math.e, k2 * diz * 1j)) * H2_z_plus_dz_shift_k2_z
+                G2_z_plus_dz_shift = (G2_z_plus_dz_shift + dG2_z_plus_dz_shift) * H2_z_plus_dz_shift_k2_z
             else:
-                if cal_mode[2] == 1: # dk_z, k_2z 若是 matrix 版
-                    G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + const * Q2_z_shift
-                else:
-                    G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + const * Q2_z_shift * H2_z_shift_k2_z
+                G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + dG2_z_plus_dz_shift
         
         return G2_z_plus_dz_shift
 
@@ -450,7 +453,7 @@ if cal_mode[0] == 1: # 如果以 G 算
                 U2_section_2 = U2_z_plus_dz
 
     my_thread(10, sheets_num, 
-              Cal_Q2_z_shift, Cal_G2_z_plus_dz_shift, After_G2_z_plus_dz_shift_temp, 
+              Cal_dG2_z_plus_dz_shift, Cal_G2_z_plus_dz_shift, After_G2_z_plus_dz_shift_temp,
               is_ordered = 1, is_print = is_print, )
     
 else:

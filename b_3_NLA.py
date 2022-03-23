@@ -14,10 +14,11 @@ from scipy.io import savemat
 from fun_os import img_squared_bordered_Read, U_Read
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_plot import plot_2d
-from fun_pump import pump_LG, incline_profile
+from fun_pump import pump_LG
 from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, Info_find_contours_SHG
+from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
+from fun_CGH import structure_Generate_CGH
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 
@@ -36,7 +37,8 @@ def NLA(U1_name="",
         z0=1,
         # %%
         lam1=0.8, is_air_pump=0, is_air=0, T=25,
-        deff=30, is_linear_convolution=0,
+        deff=30, is_fft = 1, fft_mode = 0, 
+        is_linear_convolution = 0,
         Tx=10, Ty=10, Tz="2*lc",
         mx=0, my=0, mz=0,
         # %%
@@ -214,39 +216,90 @@ def NLA(U1_name="",
     z2_0 = z0
     i2_z0 = z2_0 / size_PerPixel
 
-    integrate_z0_shift = np.zeros((I2_x, I2_y), dtype=np.complex128())
+    if is_fft == 0:
 
-    g1_shift_rotate_180 = Rotate_180(g1_shift)
+        integrate_z0_shift = np.zeros((I2_x, I2_y), dtype=np.complex128())
 
-    def Cal_integrate_z0_shift(for_th, fors_num, *arg, ):
+        g1_shift_rotate_180 = Rotate_180(g1_shift)
 
-        for n2_y in range(I2_y):
-            dk_z_Q_shift = Cal_dk_z_Q_shift_SHG(k1,
-                                                k1_z_shift, k2_z_shift,
-                                                mesh_k1_x_k1_y_shift, mesh_k2_x_k2_y_shift,
-                                                for_th, n2_y,
-                                                Gx, Gy, Gz, )
 
-            roll_x, roll_y = Cal_roll_xy(for_th, n2_y,
-                                         I2_x, I2_y,
-                                         Gx, Gy, )
+        # g1_shift_rotate_180_shift = g1_shift_rotate_180
+        # # 往下（行） 循环平移 I2_x 像素
+        # g1_shift_rotate_180_shift = np.roll(g1_shift_rotate_180_shift, I2_x, axis=0)
+        # # 往右（列） 循环平移 I2_y 像素
+        # g1_shift_rotate_180_shift = np.roll(g1_shift_rotate_180_shift, I2_y, axis=1)
 
-            g1_shift_dk_x_dk_y = Roll_xy(g1_shift_rotate_180,
-                                         roll_x, roll_y,
-                                         is_linear_convolution, )
+        def Cal_integrate_z0_shift(for_th, fors_num, *arg, ):
+            for n2_y in range(I2_y):
+                dk_z_Q_shift = Cal_dk_z_Q_shift_SHG(k1,
+                                                    k1_z_shift, k2_z_shift,
+                                                    mesh_k1_x_k1_y_shift, mesh_k2_x_k2_y_shift,
+                                                    for_th, n2_y,
+                                                    Gx, Gy, Gz, )
 
-            integrate_z0_shift[for_th, n2_y] = np.sum(
-                g1_shift * g1_shift_dk_x_dk_y * Eikz(dk_z_Q_shift * i2_z0) * i2_z0 * size_PerPixel \
-                * (2 / (dk_z_Q_shift / k2_z_shift[for_th, n2_y] + 2)))
+                roll_x, roll_y = Cal_roll_xy(Gx, Gy,
+                                             I2_x, I2_y,
+                                             for_th, n2_y, )
 
-    my_thread(10, I2_x,
-              Cal_integrate_z0_shift, noop, noop,
-              is_ordered=1, is_print=is_print, )
+                g1_shift_dk_x_dk_y = Roll_xy(g1_shift_rotate_180,
+                                             roll_x, roll_y,
+                                             is_linear_convolution, )
 
-    # integrate_z0_shift = integrate_z0_shift * (2 * math.pi / I2_x / size_PerPixel) * (2 * math.pi / I2_y / size_PerPixel)
-    g2_z0_shift = const * integrate_z0_shift / k2_z_shift * size_PerPixel
+                integrate_z0_shift[for_th, n2_y] = np.sum(
+                    g1_shift * g1_shift_dk_x_dk_y * Eikz(dk_z_Q_shift * i2_z0) * i2_z0 * size_PerPixel \
+                    * (2 / (dk_z_Q_shift / k2_z_shift[for_th, n2_y] + 2)))
 
-    G2_z0_shift = g2_z0_shift * np.power(math.e, k2_z_shift * i2_z0 * 1j)
+
+        my_thread(10, I2_x,
+                  Cal_integrate_z0_shift, noop, noop,
+                  is_ordered=1, is_print=is_print, )
+
+        # integrate_z0_shift = integrate_z0_shift * (2 * math.pi / I2_x / size_PerPixel) * (2 * math.pi / I2_y / size_PerPixel)
+        g2_z0_shift = const * integrate_z0_shift / k2_z_shift * size_PerPixel
+
+        G2_z0_shift = g2_z0_shift * np.power(math.e, k2_z_shift * i2_z0 * 1j)
+
+    else:
+
+        if fft_mode == 0:
+            # %% generate structure
+
+            is_no_background = 0
+            Depth = 2
+            structure_xy_mode = 'x'
+
+            is_continuous = 0
+            is_target_far_field = 1
+            is_transverse_xy = 0
+            is_reverse_xy = 0
+            is_positive_xy = 1
+
+            structure = structure_Generate_CGH(U1_0, structure_xy_mode,
+                                               0.5, 0.5,
+                                               is_positive_xy,
+                                               # %%
+                                               Gx, Gy,
+                                               1, 0,
+                                               is_continuous,
+                                               # %%
+                                               is_target_far_field, is_transverse_xy, is_reverse_xy, )
+
+            modulation = 1 - is_no_background - Depth * structure
+            
+            G2_z0_shift = G2_z_modulation_NLAST(k1, k2, Gz, 
+                                                modulation, U1_0, i2_z0, const, )
+
+        elif fft_mode == 1:
+
+            G2_z0_shift = G2_z_NLAST(k1, k2, Gx, Gy, Gz, 
+                                     U1_0, i2_z0, const, 
+                                     is_linear_convolution, )
+
+        elif fft_mode == 2:
+
+            G2_z0_shift = G2_z_NLAST_false(k1, k2, Gx, Gy, Gz, 
+                                           U1_0, i2_z0, const, 
+                                           is_linear_convolution, )
 
     G2_z0_shift_amp = np.abs(G2_z0_shift)
     # print(np.max(G2_z0_shift_amp))

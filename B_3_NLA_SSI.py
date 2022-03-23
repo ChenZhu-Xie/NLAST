@@ -17,7 +17,7 @@ from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
 from fun_SSI import Cal_diz, Cal_Iz_frontface, Cal_Iz_structure, Cal_Iz_endface, Cal_Iz, Cal_iz_1, Cal_iz_2
 from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG
+from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG, G2_z_modulation_NLAST
 from fun_thread import my_thread
 
 #%%
@@ -44,7 +44,8 @@ def NLA_SSI(U1_name = "",
             lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
             deff = 30, 
             Tx = 10, Ty = 10, Tz = "2*lc", 
-            mx = 0, my = 0, mz = 0, 
+            mx = 0, my = 0, mz = 0,
+            is_NLAST = 0,
             #%%
             is_save = 0, is_save_txt = 0, dpi = 100, 
             #%%
@@ -327,40 +328,53 @@ def NLA_SSI(U1_name = "",
         U2_section_1 = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
         G2_section_2_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
         U2_section_2 = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
-    
-    def Cal_Q2_z_shift(for_th, fors_num, *arg, ):
-        
+
+    def Cal_dG2_z_plus_dz_shift(for_th, fors_num, *arg, ):
         iz = for_th * diz
-        
+
+        H1_z_shift = np.power(math.e, k1_z_shift * iz * 1j)
+        G1_z_shift = g1_shift * H1_z_shift
+        G1_z = np.fft.ifftshift(G1_z_shift)
+        U1_z = np.fft.ifft2(G1_z)
+
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
                 modulation_squared_full_name = str(for_th - sheets_num_frontface) + ".mat"
                 modulation_squared_address = location + "\\" + "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name
                 modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
             else:
-                modulation_squared_z = 1 - is_no_backgroud
+                modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
         else:
-            modulation_squared_z = 1 - is_no_backgroud
-        
-        H1_z_shift = np.power(math.e, k1_z_shift * iz * 1j)
-        G1_z_shift = g1_shift * H1_z_shift
-        G1_z = np.fft.ifftshift(G1_z_shift)
-        U1_z = np.fft.ifft2(G1_z)
-        
-        Q2_z = np.fft.fft2(modulation_squared_z * U1_z**2)
-        Q2_z_shift = np.fft.fftshift(Q2_z)
-        
-        return Q2_z_shift
+            modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
 
-    def Cal_G2_z_plus_dz_shift(for_th, fors_num, Q2_z_shift, *arg, ):
-        
-        global G2_z_plus_dz_shift
-        
-        if for_th == fors_num - 1:
-            G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + const * Q2_z_shift * H2_z_shift_k2_z_temp                    
+        if is_NLAST == 1:
+            if for_th == fors_num - 1:
+                dG2_z_plus_dz_shift = G2_z_modulation_NLAST(k1, k2, 0,
+                                                            modulation_squared_z, U1_z, np.mod(Iz, diz), const, )
+            else:
+                dG2_z_plus_dz_shift = G2_z_modulation_NLAST(k1, k2, 0,
+                                                            modulation_squared_z, U1_z, diz, const, )
+
         else:
-            G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + const * Q2_z_shift * H2_z_shift_k2_z
-        
+            Q2_z = np.fft.fft2(modulation_squared_z * U1_z ** 2)
+            Q2_z_shift = np.fft.fftshift(Q2_z)
+
+            if for_th == fors_num - 1:
+                dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z_temp
+            else:
+                dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z
+
+        return dG2_z_plus_dz_shift
+
+    def Cal_G2_z_plus_dz_shift(for_th, fors_num, dG2_z_plus_dz_shift, *arg, ):
+
+        global G2_z_plus_dz_shift
+
+        if for_th == fors_num - 1:
+            G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + dG2_z_plus_dz_shift
+        else:
+            G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + dG2_z_plus_dz_shift
+
         return G2_z_plus_dz_shift
 
     def After_G2_z_plus_dz_shift_temp(for_th, fors_num, G2_z_plus_dz_shift_temp, *arg, ):
@@ -407,7 +421,7 @@ def NLA_SSI(U1_name = "",
                 U2_section_2 = U2_z_plus_dz
 
     my_thread(10, sheets_num, 
-              Cal_Q2_z_shift, Cal_G2_z_plus_dz_shift, After_G2_z_plus_dz_shift_temp, 
+              Cal_dG2_z_plus_dz_shift, Cal_G2_z_plus_dz_shift, After_G2_z_plus_dz_shift_temp,
               is_ordered = 1, is_print = is_print, )
         
     #%%

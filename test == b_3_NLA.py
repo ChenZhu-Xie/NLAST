@@ -15,23 +15,23 @@ from fun_os import img_squared_bordered_Read, U_Read
 from fun_img_Resize import image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_plot import plot_2d
-from fun_pump import pump_LG, incline_profile
-from fun_linear import Cal_n, Cal_kz, Uz_AST, fft2, ifft2
-from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, Info_find_contours_SHG
+from fun_pump import pump_LG
+from fun_linear import Cal_n, Cal_kz
+from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_Generate_CGH
 
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 U1_name = ""
-img_full_name = "lena.png"
+img_full_name = "grating.png"
 border_percentage = 0.1  # 边框 占图片的 百分比，也即 图片 放大系数
 is_phase_only = 0
 # %%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 0, 0, 0
-l, p = 0, 0
-theta_x, theta_y = 0, 0
+is_LG, is_Gauss, is_OAM = 1, 1, 1
+l, p = 1, 3
+theta_x, theta_y = -0.5, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
@@ -40,17 +40,18 @@ is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
 # %%
 U1_0_NonZero_size = 0.9  # Unit: mm 不包含边框，图片 的 实际尺寸
 w0 = 0.1  # Unit: mm 束腰（z = 0 处）
-z0 = 40  # Unit: mm 传播距离
+z0 = 3  # Unit: mm 传播距离
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 # %%
 lam1 = 1.064  # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25  # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 # %%
 deff = 30  # pm / V
-Tx, Ty, Tz = 30, 60, 7.004  # Unit: um
-mx, my, mz = 1, 1, 1
+Tx, Ty, Tz = 35, 50, 7.004  # Unit: um
+mx, my, mz = 1, 0, 1
 # 倒空间：右, 下 = +, +
 is_fft = 1
+fft_mode = 0
 is_linear_convolution = 1  # 0 代表 循环卷积，1 代表 线性卷积
 # %%
 is_save = 0
@@ -239,12 +240,8 @@ if is_fft == 0:
 
 else:
 
-    fft_mode = 1
-
     if fft_mode == 0:
         # %% generate structure
-
-        i1_z0 = i2_z0
 
         is_no_background = 0
         Depth = 2
@@ -267,136 +264,21 @@ else:
                                            is_target_far_field, is_transverse_xy, is_reverse_xy, )
 
         modulation = 1 - is_no_background - Depth * structure
-
-        kiiz_shift = k1 + k2_z_shift
-
-        U1_z0_Squared_modulated = fft2(
-            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, i1_z0) ** 2)
-
-        U1_0_Squared_modulated = fft2(
-            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) * U1_0 ** 2)
-
-        G2_z0_shift = const * (U1_z0_Squared_modulated - U1_0_Squared_modulated * math.e ** (k2_z_shift * i2_z0 * 1j))
         
-        # G2_z0_shift = const * U1_0_Squared_modulated * math.e ** (k2_z_shift * i2_z0 * 1j)
+        G2_z0_shift = G2_z_modulation_NLAST(k1, k2, Gz, 
+                                            modulation, U1_0, i2_z0, const, )
 
     elif fft_mode == 1:
 
-        # %% molecule: dG_Squared_shift
-
-        i1_z0 = i2_z0
-
-        G_U1_z0_Squared_shift = fft2(Uz_AST(U1_0, k1, i1_z0) ** 2)
-        g_U1_0_Squared_shift = fft2(U1_0 ** 2)
-
-        roll_x, roll_y = Cal_roll_xy(Gx, Gy,
-                                     I2_x, I2_y, )
-
-        G_U1_z0_Squared_shift_Q = Roll_xy(G_U1_z0_Squared_shift,
-                                          roll_x, roll_y,
-                                          is_linear_convolution, )
-        g_U1_0_Squared_shift_Q = Roll_xy(g_U1_0_Squared_shift,
-                                         roll_x, roll_y,
-                                         is_linear_convolution, )
-
-        molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j) \
-                    - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
-        
-        # molecule = g_U1_0_Squared_shift_Q
-        # molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j)
-
-        #%%
-
-        # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j)
-        
-        #%%
-        
-        # Gz_shift, mesh_dont_care = Cal_kz(I1_x, I1_y, Gz)
-        # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz_shift * i2_z0 * 1j) \
-        #            - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j)
-        
-        #%%
-        
-        # U = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j)
-        # U = incline_profile(I1_x, I1_y, 
-        #                     U, k2, 
-        #                     - np.arcsin(Gx/k2) / math.pi * 180, - np.arcsin(Gy/k2) / math.pi * 180, )
-        # molecule = U - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
-    
-        #%%
-    
-        # roll_x, roll_y = Cal_roll_xy(Gx, Gy,
-        #                               I2_x, I2_y, )
-        
-        # g1_shift_roll = Roll_xy(g1_shift,
-        #                     roll_x//2, roll_y//2,
-        #                     is_linear_convolution, )
-        # G_U1_z0_Squared_shift_Q = fft2(Uz_AST(ifft2(g1_shift_roll), k1, i1_z0) ** 2)
-        
-        # g_U1_0_Squared_shift = fft2(U1_0 ** 2)
-        # g_U1_0_Squared_shift_Q = Roll_xy(g_U1_0_Squared_shift,
-        #                                   roll_x, roll_y,
-        #                                   is_linear_convolution, )
-
-        # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j) \
-        #             - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
-        
-        #%%
-        
-        # if Gx == 0 and Gy == 0:
-        #     molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * i2_z0 * 1j) \
-        #                - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
-        # else:
-        #     molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * i2_z0 * 1j) 
-        
-        # %% denominator: dk_shift_Squared
-
-        k1izQ_shift = (k1 ** 2 - (mesh_k2_x_k2_y_shift[:, :, 0] - Gy / (2 * math.pi) * I2_y) ** 2 - (
-                mesh_k2_x_k2_y_shift[:, :, 1] - Gx / (2 * math.pi) * I2_x) ** 2 + 0j) ** 0.5
-
-        kizQ_shift = k1 + k1izQ_shift + Gz
-        # kizQ_shift = k1 + k2_z_shift + Gz
-        denominator = kizQ_shift ** 2 - k2_z_shift ** 2
-
-        kizQ_shift = k1 + (k1 ** 2 - Gx ** 2 - Gy ** 2) ** 0.5 + Gz
-        denominator = kizQ_shift ** 2 - k2 ** 2
-
-        # %% G2_z0_shift
-
-        G2_z0_shift = 2 * const * molecule / denominator
+        G2_z0_shift = G2_z_NLAST(k1, k2, Gx, Gy, Gz, 
+                                 U1_0, i2_z0, const, 
+                                 is_linear_convolution, )
 
     elif fft_mode == 2:
 
-        # %% molecule: dG_Squared_shift
-
-        i1_z0 = i2_z0
-
-        G_U1_z0_Squared_shift = fft2(Uz_AST(U1_0, k1, i1_z0) ** 2)
-        g_U1_0_Squared_shift = fft2(U1_0 ** 2)
-
-        dG_Squared_shift = G_U1_z0_Squared_shift \
-                           - g_U1_0_Squared_shift * math.e ** (k2_z_shift * i2_z0 * 1j)
-
-        # %% denominator: dk_shift_Squared
-
-        kiizQ_shift = k1 + k1_z_shift + Gz
-
-        dk_shift_Squared = kiizQ_shift ** 2 - k2_z_shift ** 2
-
-        # %% fractional
-
-        fractional = dG_Squared_shift / dk_shift_Squared
-
-        roll_x, roll_y = Cal_roll_xy(Gx, Gy,
-                                     I2_x, I2_y, )
-
-        fractional_Q = Roll_xy(fractional,
-                               roll_x, roll_y,
-                               is_linear_convolution, )
-
-        # %% G2_z0_shift
-
-        G2_z0_shift = 2 * const * fractional_Q * math.e ** (Gz * i2_z0 * 1j)
+        G2_z0_shift = G2_z_NLAST_false(k1, k2, Gx, Gy, Gz, 
+                                       U1_0, i2_z0, const, 
+                                       is_linear_convolution, )
 
 G2_z0_shift_amp = np.abs(G2_z0_shift)
 # print(np.max(G2_z0_shift_amp))

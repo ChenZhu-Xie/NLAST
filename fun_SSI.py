@@ -13,14 +13,15 @@ import numpy as np
 def Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel, 
             Tz, mz,
             is_print = 1):
-    
+    Tz_percentage = 0.1
+    length_percentage = 0.01
     #%%
     if mz != 0: # 如过你想 让结构 提供 z 向倒格矢
-        if deff_structure_sheet_expect >= 0.1 * Tz or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != np.float64 and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.1 * Tz（以保持 良好的 占空比）
-            deff_structure_sheet_expect = 0.1 * Tz # Unit: μm
+        if deff_structure_sheet_expect > Tz_percentage * Tz or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != np.float64 and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.1 * Tz（以保持 良好的 占空比）
+            deff_structure_sheet_expect = Tz_percentage * Tz # Unit: μm
     else:
-        if deff_structure_sheet_expect >= 0.01 * deff_structure_length_expect * 1000 or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != np.float64 and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.01 * deff_structure_length_expect（以保持 良好的 精度）
-            deff_structure_sheet_expect = 0.01 * deff_structure_length_expect * 1000 # Unit: μm
+        if deff_structure_sheet_expect > length_percentage * deff_structure_length_expect * 1000 or deff_structure_sheet_expect <= 0 or (type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != np.float64 and type(deff_structure_sheet_expect) != int): # 则 deff_structure_sheet_expect 不能超过 0.01 * deff_structure_length_expect（以保持 良好的 精度）
+            deff_structure_sheet_expect = length_percentage * deff_structure_length_expect * 1000 # Unit: μm
             
     diz = deff_structure_sheet_expect / 1000 / size_PerPixel # Unit: mm
     # diz = int( deff_structure_sheet_expect / 1000 / size_PerPixel )

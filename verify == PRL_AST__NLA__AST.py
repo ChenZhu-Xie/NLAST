@@ -27,11 +27,12 @@ def PRL_AST__NLA__AST(U1_name = "",
                       #%%
                       U1_0_NonZero_size = 1, w0 = 0.3,
                       z0_AST = 1, z0_NLA = 5, 
-                      #%%
-                      lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
-                      deff = 30, is_linear_convolution = 0, 
-                      Tx = 10, Ty = 10, Tz = "2*lc", 
-                      mx = 0, my = 0, mz = 0, 
+                      # %%
+                      lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                      deff=30, is_fft = 1, fft_mode = 0, 
+                      is_linear_convolution = 0,
+                      Tx=10, Ty=10, Tz="2*lc",
+                      mx=0, my=0, mz=0,
                       #%%
                       is_save = 0, is_save_txt = 0, dpi = 100, 
                       #%%
@@ -118,7 +119,8 @@ def PRL_AST__NLA__AST(U1_name = "",
         z0_NLA, 
         #%%
         lam1, is_air_pump, is_air, T, 
-        deff, is_linear_convolution, 
+        deff, is_fft, fft_mode,
+        is_linear_convolution, 
         Tx, Ty, Tz, 
         mx, my, mz, 
         #%%
@@ -203,11 +205,12 @@ PRL_AST__NLA__AST(U1_name = "",
                   #%%
                   U1_0_NonZero_size = 0.5, w0 = 0.3,
                   z0_AST = 5, z0_NLA = 0.1, 
-                  #%%
-                  lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, 
-                  deff = 30, is_linear_convolution = 0, 
-                  Tx = 20.155, Ty = 10, Tz = 17.885, 
-                  mx = -1, my = 0, mz = 1, 
+                  # %%
+                  lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                  deff=30, is_fft = 1, fft_mode = 0, 
+                  is_linear_convolution = 0,
+                  Tx=10, Ty=10, Tz="2*lc",
+                  mx=0, my=0, mz=0,
                   #%%
                   is_save = 0, is_save_txt = 0, dpi = 100, 
                   #%%
