@@ -10,7 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
 from fun_img_Resize import image_Add_black_border
-from A_2_structure_Generate_nLC import structure_nLC
+from A_2_structure_Generate_nLC import structure_n1_3D
 from B_2_nLA_SSI import nLA_SSI
 
 def a_to_B_2_nLA_SSI(U1_name_Structure = "", 
@@ -83,7 +83,7 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
     #%%
     # A_3_Structure_Generate_NLC
     
-    structure_nLC(U1_name_Structure, 
+    structure_n1_3D(U1_name_Structure, 
                   img_full_name, 
                   is_phase_only_Structure, 
                   #%%

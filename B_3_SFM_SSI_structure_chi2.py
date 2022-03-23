@@ -22,51 +22,51 @@ from fun_thread import my_thread
 
 #%%
 
-def SFM_SSI(U1_name = "", 
-            img_full_name = "Grating.png", 
-            is_phase_only = 0, 
-            #%%
-            z_pump = 0, 
-            is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-            l = 0, p = 0, 
-            theta_x = 0, theta_y = 0, 
-            is_random_phase = 0, 
-            is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
-            #%%
-            U1_0_NonZero_size = 1, w0 = 0.3, 
-            L0_Crystal = 5, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 2, 
-            deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
-            z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
-            #%%
-            is_bulk = 1, is_no_backgroud = 0, 
-            is_stored = 0, is_show_structure_face = 1, is_energy_evolution_on = 1, 
-            #%%
-            lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
-            deff = 30, 
-            Tx = 10, Ty = 10, Tz = "2*lc", 
-            mx = 0, my = 0, mz = 0, 
-            is_NLAST = 0, 
-            #%%
-            is_save = 0, is_save_txt = 0, dpi = 100, 
-            #%%
-            color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
-            elev = 10, azim = -65, alpha = 2, 
-            #%%
-            ticks_num = 6, is_contourf = 0, 
-            is_title_on = 1, is_axes_on = 1, 
-            is_mm = 1, is_propagation = 0, 
-            #%%
-            fontsize = 9, 
-            font = {'family': 'serif',
-                    'style': 'normal', # 'normal', 'italic', 'oblique'
-                    'weight': 'normal',
-                    'color': 'black', # 'black','gray','darkred'
-                    }, 
-            #%%
-            is_self_colorbar = 0, is_colorbar_on = 1, 
-            is_energy = 0, vmax = 1, vmin = 0, 
-            #%%
-            is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
+def SFM_SSI_chi2(U1_name = "", 
+                img_full_name = "Grating.png", 
+                is_phase_only = 0, 
+                #%%
+                z_pump = 0, 
+                is_LG = 0, is_Gauss = 0, is_OAM = 0, 
+                l = 0, p = 0, 
+                theta_x = 0, theta_y = 0, 
+                is_random_phase = 0, 
+                is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
+                #%%
+                U1_0_NonZero_size = 1, w0 = 0.3, 
+                L0_Crystal = 5, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 2, 
+                deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
+                z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
+                #%%
+                is_bulk = 1, is_no_backgroud = 0, 
+                is_stored = 0, is_show_structure_face = 1, is_energy_evolution_on = 1, 
+                #%%
+                lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
+                deff = 30, 
+                Tx = 10, Ty = 10, Tz = "2*lc", 
+                mx = 0, my = 0, mz = 0, 
+                is_NLAST = 0, 
+                #%%
+                is_save = 0, is_save_txt = 0, dpi = 100, 
+                #%%
+                color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
+                elev = 10, azim = -65, alpha = 2, 
+                #%%
+                ticks_num = 6, is_contourf = 0, 
+                is_title_on = 1, is_axes_on = 1, 
+                is_mm = 1, is_propagation = 0, 
+                #%%
+                fontsize = 9, 
+                font = {'family': 'serif',
+                        'style': 'normal', # 'normal', 'italic', 'oblique'
+                        'weight': 'normal',
+                        'color': 'black', # 'black','gray','darkred'
+                        }, 
+                #%%
+                is_self_colorbar = 0, is_colorbar_on = 1, 
+                is_energy = 0, vmax = 1, vmin = 0, 
+                #%%
+                is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
     # #%%
     # U1_name = ""
     # img_full_name = "l=1.png"
@@ -1314,7 +1314,7 @@ def SFM_SSI(U1_name = "",
     return G2_z0_SSI_shift, U2_z0_SSI
 
 
-# SFM_SSI(U1_name = "", 
+# SFM_SSI_chi2(U1_name = "", 
 #         img_full_name = "lena.png", 
 #         is_phase_only = 0, 
 #         #%%

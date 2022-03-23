@@ -9,7 +9,6 @@ Created on Sun Dec 26 22:09:04 2021
 
 import os
 import numpy as np
-np.seterr(divide='ignore',invalid='ignore')
 import math
 from scipy.io import loadmat, savemat
 from fun_os import img_squared_bordered_Read, U_Read
@@ -18,9 +17,9 @@ from fun_plot import plot_1d, plot_2d, plot_3d_XYZ, plot_3d_XYz
 from fun_pump import pump_LG
 from fun_SSI import Cal_diz, Cal_Iz_frontface, Cal_Iz_structure, Cal_Iz_endface, Cal_Iz, Cal_iz_1, Cal_iz_2
 from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Eikz, Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG
+from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG, G2_z_modulation_NLAST
 from fun_thread import my_thread
-
+np.seterr(divide='ignore',invalid='ignore')
 #%%
 U1_name = ""
 img_full_name = "lena.png"
@@ -63,7 +62,7 @@ deff = 30 # pm / V
 Tx, Ty, Tz = 6.633, 20, 18.437 # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
 mx, my, mz = -1, 0, 1
 # 倒空间：右, 下 = +, +
-is_NLAST = 0 # 对 SFM 来说，这个没用，但是为了 与 NLA_SSI 参数一致，需要 设置这个 多余的参数
+is_NLAST = 0
 #%%
 is_save = 0
 is_save_txt = 0
@@ -260,15 +259,7 @@ const = (k2 / size_PerPixel / n2)**2 * deff
 
 k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I2_x, I2_y, k2)
 
-cal_mode = [1, 1, 0]
-# 以 G 算 还是以 U 算、源项 是否 也衍射、k_2z 是否是 matrix 版
-# 用 G 算 会快很多
-# 不管是 G 还是 U，matrix 版的能量 总是要低一些，只不过 U 低得少些，没有数量级差异，而 G 少得很多
-
-if cal_mode[0] == 1: # 如果以 G 算
-    global G2_z_plus_dz_shift
-else:
-    global U2_z_plus_dz
+global G2_z_plus_dz_shift
 G2_z_plus_dz_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
 U2_z_plus_dz = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
 
@@ -278,38 +269,10 @@ if is_energy_evolution_on == 1:
 G2_z_shift_energy[0] = np.sum(np.abs(G2_z_plus_dz_shift)**2)
 U2_z_energy[0] = np.sum(np.abs(U2_z_plus_dz)**2)
 
-#%%
-
-# H2_z_plus_dz_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
-# H2_z_shift_k2_z = (np.power(math.e, k2_z_shift * diz * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
-# H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
-# H2_z_shift_k2_z_temp = (np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
-
-#%%
-
-if cal_mode[2] == 1: # dk_z, k_2z 若是 matrix 版
-    
-    dk_z_shift = 2*k1_z_shift - k2_z_shift
-
-    H2_z_plus_dz_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j)
-    H2_z_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j) / ( k2_z_shift / size_PerPixel ) * Eikz(dk_z_shift * diz) * diz * size_PerPixel \
-                        * (2 / (dk_z_shift / k2_z_shift + 2))
-                        
-    H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j)
-    H2_z_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) / ( k2_z_shift / size_PerPixel ) * Eikz(dk_z_shift * np.mod(Iz,diz)) * np.mod(Iz,diz) * size_PerPixel \
-                            * (2 / (dk_z_shift / k2_z_shift + 2))
-
-else:
-
-    H2_z_plus_dz_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j)
-    H2_z_shift_k2_z = np.power(math.e, k2 * diz * 1j) / ( k2 / size_PerPixel ) * Eikz(dk * diz) * diz * size_PerPixel \
-                        * (2 / (dk / k2 + 2))
-                        
-    H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j)
-    H2_z_shift_k2_z_temp = np.power(math.e, k2 * np.mod(Iz,diz) * 1j) / ( k2 / size_PerPixel ) * Eikz(dk * np.mod(Iz,diz)) * np.mod(Iz,diz) * size_PerPixel \
-                            * (2 / (dk / k2 + 2))
-                        
-#%%
+H2_z_plus_dz_shift_k2_z = np.power(math.e, k2_z_shift * diz * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
+H2_z_shift_k2_z = (np.power(math.e, k2_z_shift * diz * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
+H2_z_plus_dz_shift_k2_z_temp = np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) # 注意 这里的 传递函数 的 指数是 正的 ！！！
+H2_z_shift_k2_z_temp = (np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j) - 1) / k2_z_shift**2 * size_PerPixel**2 # 注意 这里的 传递函数 的 指数是 正的 ！！！
 
 if is_stored == 1:
     
@@ -339,251 +302,104 @@ if is_stored == 1:
     G2_section_2_shift = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
     U2_section_2 = np.zeros( (I2_x, I2_y), dtype=np.complex128() )
 
-if cal_mode[0] == 1: # 如果以 G 算
+def Cal_dG2_z_plus_dz_shift(for_th, fors_num, *arg, ):
+    iz = for_th * diz
 
-    def Cal_dG2_z_plus_dz_shift(for_th, fors_num, *arg, ):
-        
-        iz = for_th * diz
+    H1_z_shift = np.power(math.e, k1_z_shift * iz * 1j)
+    G1_z_shift = g1_shift * H1_z_shift
+    G1_z = np.fft.ifftshift(G1_z_shift)
+    U1_z = np.fft.ifft2(G1_z)
+    
+    if is_bulk == 0:
+        if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
+            modulation_squared_full_name = str(for_th - sheets_num_frontface) + ".mat"
+            modulation_squared_address = location + "\\" + "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name
+            modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
+        else:
+            modulation_squared_z = np.ones( (I2_x, I2_y), dtype=np.int64() ) - is_no_backgroud
+    else:
+        modulation_squared_z = np.ones( (I2_x, I2_y), dtype=np.int64() ) - is_no_backgroud
 
-        H1_z_shift = np.power(math.e, k1_z_shift * iz * 1j)
-        G1_z_shift = g1_shift * H1_z_shift
-        G1_z = np.fft.ifftshift(G1_z_shift)
-        U1_z = np.fft.ifft2(G1_z)
-        
-        if is_bulk == 0:
-            if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                modulation_squared_full_name = str(for_th - sheets_num_frontface) + ".mat"
-                modulation_squared_address = location + "\\" + "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name
-                modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
-            else:
-                modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
+    if is_NLAST == 1:
+        if for_th == fors_num - 1:
+            dG2_z_plus_dz_shift = G2_z_modulation_NLAST(k1, k2, 0,
+                                                        modulation_squared_z, U1_z, np.mod(Iz,diz), const, )
         else:
-            modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
+            dG2_z_plus_dz_shift = G2_z_modulation_NLAST(k1, k2, 0,
+                                                        modulation_squared_z, U1_z, diz, const, )
         
-        if cal_mode[2] == 1: # dk_z, k_2z 若是 matrix 版
-            if cal_mode[1] == 1: # 若 源项 也衍射
-                if for_th == fors_num - 1:
-                    Q2_z = np.fft.fft2(modulation_squared_z * U1_z**2 * H2_z_shift_k2_z_temp / np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j))
-                else:
-                    Q2_z = np.fft.fft2(modulation_squared_z * U1_z**2 * H2_z_shift_k2_z / np.power(math.e, k2_z_shift * diz * 1j))
-            else:
-                if for_th == fors_num - 1:
-                    Q2_z = np.fft.fft2(modulation_squared_z * U1_z**2 * H2_z_shift_k2_z_temp)
-                else:
-                    Q2_z = np.fft.fft2(modulation_squared_z * U1_z**2 * H2_z_shift_k2_z)
-        else:
-            Q2_z = np.fft.fft2(modulation_squared_z * U1_z**2)
-            
+    else:
+        Q2_z = np.fft.fft2(modulation_squared_z * U1_z ** 2)
         Q2_z_shift = np.fft.fftshift(Q2_z)
 
-        if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
-            dG2_z_plus_dz_shift = const * Q2_z_shift
-        else:
-            if for_th == fors_num - 1:
-                if cal_mode[1] == 1: # 若 源项 也衍射
-                    dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z_temp / np.power(math.e, k2 * np.mod(Iz,diz) * 1j)
-                else:
-                    dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z_temp
-            else:
-                if cal_mode[1] == 1: # 若 源项 也衍射
-                    dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z / np.power(math.e, k2 * diz * 1j)
-                else:
-                    dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z
-        
-        return dG2_z_plus_dz_shift
-
-    def Cal_G2_z_plus_dz_shift(for_th, fors_num, dG2_z_plus_dz_shift, *arg, ):
-        
-        global G2_z_plus_dz_shift
-        
         if for_th == fors_num - 1:
-            if cal_mode[1] == 1: # 若 源项 也衍射
-                G2_z_plus_dz_shift = (G2_z_plus_dz_shift + dG2_z_plus_dz_shift) * H2_z_plus_dz_shift_k2_z_temp
-            else:
-                G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + dG2_z_plus_dz_shift
+            dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z_temp
         else:
-            if cal_mode[1] == 1: # 若 源项 也衍射
-                G2_z_plus_dz_shift = (G2_z_plus_dz_shift + dG2_z_plus_dz_shift) * H2_z_plus_dz_shift_k2_z
-            else:
-                G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + dG2_z_plus_dz_shift
-        
-        return G2_z_plus_dz_shift
+            dG2_z_plus_dz_shift = const * Q2_z_shift * H2_z_shift_k2_z
+    
+    return dG2_z_plus_dz_shift
 
-    def After_G2_z_plus_dz_shift_temp(for_th, fors_num, G2_z_plus_dz_shift_temp, *arg, ):
-        
-        if is_stored == 1:
-            global G2_structure_frontface_shift, U2_structure_frontface, G2_structure_endface_shift, U2_structure_endface, G2_section_1_shift, U2_section_1, G2_section_2_shift, U2_section_2
-        
-        G2_z_plus_dz = np.fft.ifftshift(G2_z_plus_dz_shift_temp)
-        U2_z_plus_dz = np.fft.ifft2(G2_z_plus_dz)
-        
-        if is_energy_evolution_on == 1:
-            G2_z_shift_energy[for_th + 1] = np.sum(np.abs(G2_z_plus_dz_shift_temp)**2)
-            U2_z_energy[for_th + 1] = np.sum(np.abs(U2_z_plus_dz)**2)
-        
-        if is_stored == 1:
-            # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
-            G2_shift_YZ_stored[:, for_th] = G2_z_plus_dz_shift_temp[:, I2_y // 2 + int(X / size_PerPixel) ] # X 增加，则 从 G2_z_shift 中 读取的 列 向右移，也就是 YZ 面向 列 增加的方向（G2_z_shift 的 右侧）移动
-            G2_shift_XZ_stored[:, for_th] = G2_z_plus_dz_shift_temp[I2_x // 2 - int(Y / size_PerPixel), :] # Y 增加，则 从 G2_z_shift 中 读取的 行 向上移，也就是 XZ 面向 行 减小的方向（G2_z_shift 的 上侧）移动
-            U2_YZ_stored[:, for_th] = U2_z_plus_dz[:, I2_y // 2 + int(X / size_PerPixel)]
-            U2_XZ_stored[:, for_th] = U2_z_plus_dz[I2_x // 2 - int(Y / size_PerPixel), :]
-            
-            #%%
-            
-            if np.mod(for_th, sheets_num // sheets_stored_num) == 0: # 如果 for_th 是 sheets_num // sheets_stored_num 的 整数倍（包括零），则 储存之
-                iz = for_th * diz
-            
-                sheet_th_stored[int(for_th // (sheets_num // sheets_stored_num))] = for_th + 1
-                iz_stored[int(for_th // (sheets_num // sheets_stored_num))] = iz + diz
-                z_stored[int(for_th // (sheets_num // sheets_stored_num))] = (iz + diz) * size_PerPixel
-                G2_z_shift_stored[:, :, int(for_th // (sheets_num // sheets_stored_num))] = G2_z_plus_dz_shift_temp #　储存的 第一层，实际上不是 G2_0，而是 G2_dz
-                U2_z_stored[:, :, int(for_th // (sheets_num // sheets_stored_num))] = U2_z_plus_dz #　储存的 第一层，实际上不是 U2_0，而是 U2_dz
-            
-            if for_th == sheets_num_frontface: # 如果 for_th 是 sheets_num_frontface，则把结构 前端面 场分布 储存起来
-                G2_structure_frontface_shift = G2_z_plus_dz_shift_temp
-                U2_structure_frontface = U2_z_plus_dz
-            if for_th == sheets_num_endface - 1: # 如果 for_th 是 sheets_num_endface - 1，则把结构 后端面 场分布 储存起来
-                G2_structure_endface_shift = G2_z_plus_dz_shift_temp
-                U2_structure_endface = U2_z_plus_dz
-            if for_th == sheet_th_section_1f: # 如果 for_th 是 想要观察的 第一个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
-                G2_section_1_shift = G2_z_plus_dz_shift_temp
-                U2_section_1 = U2_z_plus_dz
-            if for_th == sheet_th_section_2f: # 如果 for_th 是 想要观察的 第二个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
-                G2_section_2_shift = G2_z_plus_dz_shift_temp
-                U2_section_2 = U2_z_plus_dz
+def Cal_G2_z_plus_dz_shift(for_th, fors_num, dG2_z_plus_dz_shift, *arg, ):
+    
+    global G2_z_plus_dz_shift
 
-    my_thread(10, sheets_num, 
-              Cal_dG2_z_plus_dz_shift, Cal_G2_z_plus_dz_shift, After_G2_z_plus_dz_shift_temp,
-              is_ordered = 1, is_print = is_print, )
+    if for_th == fors_num - 1:
+        G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z_temp + dG2_z_plus_dz_shift
+    else:
+        G2_z_plus_dz_shift = G2_z_plus_dz_shift * H2_z_plus_dz_shift_k2_z + dG2_z_plus_dz_shift
     
-else:
+    return G2_z_plus_dz_shift
+
+def After_G2_z_plus_dz_shift_temp(for_th, fors_num, G2_z_plus_dz_shift_temp, *arg, ):
     
-    def Cal_dU2_z_plus_dz(for_th, fors_num, *arg, ):
-        
-        iz = for_th * diz
-        
-        H1_z_shift = np.power(math.e, k1_z_shift * iz * 1j)
-        G1_z_shift = g1_shift * H1_z_shift
-        G1_z = np.fft.ifftshift(G1_z_shift)
-        U1_z = np.fft.ifft2(G1_z)
-        
-        if is_bulk == 0:
-            if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                modulation_squared_full_name = str(for_th - sheets_num_frontface) + ".mat"
-                modulation_squared_address = location + "\\" + "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name
-                modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
-            else:
-                modulation_squared_z = 1 - is_no_backgroud
-        else:
-            modulation_squared_z = 1 - is_no_backgroud
-        
-        S2_z = modulation_squared_z * U1_z**2
-        
-        if for_th == fors_num - 1:
-            
-            if cal_mode[1] == 1: # 若 源项 也衍射
-                if cal_mode[2] == 1: # dk_z, k_2z 若是 matrix 版
-                    dU2_z_plus_dz = const * S2_z * H2_z_shift_k2_z_temp / np.power(math.e, k2_z_shift * np.mod(Iz,diz) * 1j)
-                else:
-                    dU2_z_plus_dz = const * S2_z * H2_z_shift_k2_z_temp / np.power(math.e, k2 * np.mod(Iz,diz) * 1j)
-            else:
-                dU2_z_plus_dz = const * S2_z * H2_z_shift_k2_z_temp
-            
-        else:
-            if cal_mode[1] == 1: # 若 源项 也衍射
-                if cal_mode[2] == 1: # dk_z, k_2z 若是 matrix 版
-                    dU2_z_plus_dz = const * S2_z * H2_z_shift_k2_z / np.power(math.e, k2_z_shift * diz * 1j)
-                else:
-                    dU2_z_plus_dz = const * S2_z * H2_z_shift_k2_z / np.power(math.e, k2 * diz * 1j)
-            else:
-                dU2_z_plus_dz = const * S2_z * H2_z_shift_k2_z
-        
-        return dU2_z_plus_dz
+    if is_stored == 1:
+        global G2_structure_frontface_shift, U2_structure_frontface, G2_structure_endface_shift, U2_structure_endface, G2_section_1_shift, U2_section_1, G2_section_2_shift, U2_section_2
     
-    def Cal_U2_z_plus_dz(for_th, fors_num, dU2_z_plus_dz, *arg, ):
-        
-        global U2_z_plus_dz
-        
-        if for_th == fors_num - 1:
-            
-            if cal_mode[1] == 1: # 若 源项 也衍射
-                U2_z_plus_dz = U2_z_plus_dz + dU2_z_plus_dz
-                G2_z_shift = np.fft.fftshift(np.fft.fft2(U2_z_plus_dz))
-                U2_z_plus_dz = np.fft.ifft2(np.fft.ifftshift(G2_z_shift * H2_z_plus_dz_shift_k2_z_temp))
-            else:
-                G2_z_shift = np.fft.fftshift(np.fft.fft2(U2_z_plus_dz))
-                U2_z_plus_dz = np.fft.ifft2(np.fft.ifftshift(G2_z_shift * H2_z_plus_dz_shift_k2_z_temp))
-                U2_z_plus_dz = U2_z_plus_dz + dU2_z_plus_dz
-            
-        else:
-            if cal_mode[1] == 1: # 若 源项 也衍射
-                U2_z_plus_dz = U2_z_plus_dz + dU2_z_plus_dz
-                G2_z_shift = np.fft.fftshift(np.fft.fft2(U2_z_plus_dz))
-                U2_z_plus_dz = np.fft.ifft2(np.fft.ifftshift(G2_z_shift * H2_z_plus_dz_shift_k2_z))
-            else:
-                G2_z_shift = np.fft.fftshift(np.fft.fft2(U2_z_plus_dz))
-                U2_z_plus_dz = np.fft.ifft2(np.fft.ifftshift(G2_z_shift * H2_z_plus_dz_shift_k2_z))
-                U2_z_plus_dz = U2_z_plus_dz + dU2_z_plus_dz
-        
-        return U2_z_plus_dz
+    G2_z_plus_dz = np.fft.ifftshift(G2_z_plus_dz_shift_temp)
+    U2_z_plus_dz = np.fft.ifft2(G2_z_plus_dz)
     
-    def After_U2_z_plus_dz(for_th, fors_num, U2_z_plus_dz, *arg, ):
-        
-        if is_stored == 1:
-            global G2_structure_frontface_shift, U2_structure_frontface, G2_structure_endface_shift, U2_structure_endface, G2_section_1_shift, U2_section_1, G2_section_2_shift, U2_section_2
-        
-        G2_z_plus_dz = np.fft.fft2(U2_z_plus_dz)
-        G2_z_plus_dz_shift_temp = np.fft.fftshift(G2_z_plus_dz)
-        
-        if is_energy_evolution_on == 1:
-            G2_z_shift_energy[for_th + 1] = np.sum(np.abs(G2_z_plus_dz_shift_temp)**2)
-            U2_z_energy[for_th + 1] = np.sum(np.abs(U2_z_plus_dz)**2)
-        
-        if is_stored == 1:
-            # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
-            G2_shift_YZ_stored[:, for_th] = G2_z_plus_dz_shift_temp[:, I2_y // 2 + int(X / size_PerPixel) ] # X 增加，则 从 G2_z_shift 中 读取的 列 向右移，也就是 YZ 面向 列 增加的方向（G2_z_shift 的 右侧）移动
-            G2_shift_XZ_stored[:, for_th] = G2_z_plus_dz_shift_temp[I2_x // 2 - int(Y / size_PerPixel), :] # Y 增加，则 从 G2_z_shift 中 读取的 行 向上移，也就是 XZ 面向 行 减小的方向（G2_z_shift 的 上侧）移动
-            U2_YZ_stored[:, for_th] = U2_z_plus_dz[:, I2_y // 2 + int(X / size_PerPixel)]
-            U2_XZ_stored[:, for_th] = U2_z_plus_dz[I2_x // 2 - int(Y / size_PerPixel), :]
-            
-            #%%
-            
-            if np.mod(for_th, sheets_num // sheets_stored_num) == 0: # 如果 for_th 是 sheets_num // sheets_stored_num 的 整数倍（包括零），则 储存之
-                iz = for_th * diz
-            
-                sheet_th_stored[int(for_th // (sheets_num // sheets_stored_num))] = for_th + 1
-                iz_stored[int(for_th // (sheets_num // sheets_stored_num))] = iz + diz
-                z_stored[int(for_th // (sheets_num // sheets_stored_num))] = (iz + diz) * size_PerPixel
-                G2_z_shift_stored[:, :, int(for_th // (sheets_num // sheets_stored_num))] = G2_z_plus_dz_shift_temp #　储存的 第一层，实际上不是 G2_0，而是 G2_dz
-                U2_z_stored[:, :, int(for_th // (sheets_num // sheets_stored_num))] = U2_z_plus_dz #　储存的 第一层，实际上不是 U2_0，而是 U2_dz
-            
-            if for_th == sheets_num_frontface: # 如果 for_th 是 sheets_num_frontface，则把结构 前端面 场分布 储存起来
-                G2_structure_frontface_shift = G2_z_plus_dz_shift_temp
-                U2_structure_frontface = U2_z_plus_dz
-            if for_th == sheets_num_endface - 1: # 如果 for_th 是 sheets_num_endface - 1，则把结构 后端面 场分布 储存起来
-                G2_structure_endface_shift = G2_z_plus_dz_shift_temp
-                U2_structure_endface = U2_z_plus_dz
-            if for_th == sheet_th_section_1f: # 如果 for_th 是 想要观察的 第一个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
-                G2_section_1_shift = G2_z_plus_dz_shift_temp
-                U2_section_1 = U2_z_plus_dz
-            if for_th == sheet_th_section_2f: # 如果 for_th 是 想要观察的 第二个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
-                G2_section_2_shift = G2_z_plus_dz_shift_temp
-                U2_section_2 = U2_z_plus_dz
+    if is_energy_evolution_on == 1:
+        G2_z_shift_energy[for_th + 1] = np.sum(np.abs(G2_z_plus_dz_shift_temp)**2)
+        U2_z_energy[for_th + 1] = np.sum(np.abs(U2_z_plus_dz)**2)
     
-    my_thread(10, sheets_num, 
-              Cal_dU2_z_plus_dz, Cal_U2_z_plus_dz, After_U2_z_plus_dz, 
-              is_ordered = 1, is_print = is_print, )
+    if is_stored == 1:
+        # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
+        G2_shift_YZ_stored[:, for_th] = G2_z_plus_dz_shift_temp[:, I2_y // 2 + int(X / size_PerPixel) ] # X 增加，则 从 G2_z_shift 中 读取的 列 向右移，也就是 YZ 面向 列 增加的方向（G2_z_shift 的 右侧）移动
+        G2_shift_XZ_stored[:, for_th] = G2_z_plus_dz_shift_temp[I2_x // 2 - int(Y / size_PerPixel), :] # Y 增加，则 从 G2_z_shift 中 读取的 行 向上移，也就是 XZ 面向 行 减小的方向（G2_z_shift 的 上侧）移动
+        U2_YZ_stored[:, for_th] = U2_z_plus_dz[:, I2_y // 2 + int(X / size_PerPixel)]
+        U2_XZ_stored[:, for_th] = U2_z_plus_dz[I2_x // 2 - int(Y / size_PerPixel), :]
+        
+        #%%
+        
+        if np.mod(for_th, sheets_num // sheets_stored_num) == 0: # 如果 for_th 是 sheets_num // sheets_stored_num 的 整数倍（包括零），则 储存之
+            iz = for_th * diz
+        
+            sheet_th_stored[int(for_th // (sheets_num // sheets_stored_num))] = for_th + 1
+            iz_stored[int(for_th // (sheets_num // sheets_stored_num))] = iz + diz
+            z_stored[int(for_th // (sheets_num // sheets_stored_num))] = (iz + diz) * size_PerPixel
+            G2_z_shift_stored[:, :, int(for_th // (sheets_num // sheets_stored_num))] = G2_z_plus_dz_shift_temp #　储存的 第一层，实际上不是 G2_0，而是 G2_dz
+            U2_z_stored[:, :, int(for_th // (sheets_num // sheets_stored_num))] = U2_z_plus_dz #　储存的 第一层，实际上不是 U2_0，而是 U2_dz
+        
+        if for_th == sheets_num_frontface: # 如果 for_th 是 sheets_num_frontface，则把结构 前端面 场分布 储存起来
+            G2_structure_frontface_shift = G2_z_plus_dz_shift_temp
+            U2_structure_frontface = U2_z_plus_dz
+        if for_th == sheets_num_endface - 1: # 如果 for_th 是 sheets_num_endface - 1，则把结构 后端面 场分布 储存起来
+            G2_structure_endface_shift = G2_z_plus_dz_shift_temp
+            U2_structure_endface = U2_z_plus_dz
+        if for_th == sheet_th_section_1f: # 如果 for_th 是 想要观察的 第一个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
+            G2_section_1_shift = G2_z_plus_dz_shift_temp
+            U2_section_1 = U2_z_plus_dz
+        if for_th == sheet_th_section_2f: # 如果 for_th 是 想要观察的 第二个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
+            G2_section_2_shift = G2_z_plus_dz_shift_temp
+            U2_section_2 = U2_z_plus_dz
+
+my_thread(10, sheets_num, 
+          Cal_dG2_z_plus_dz_shift, Cal_G2_z_plus_dz_shift, After_G2_z_plus_dz_shift_temp, 
+          is_ordered = 1, is_print = is_print, )
     
 #%%
 
-if cal_mode[0] == 1: # 如果以 G 算
-    G2_z0_SSI_shift = G2_z_plus_dz_shift
-    G2_z0_SSI = np.fft.ifftshift(G2_z0_SSI_shift)
-    U2_z0_SSI = np.fft.ifft2(G2_z0_SSI)
-else:
-    U2_z0_SSI = U2_z_plus_dz
-    G2_z0_SSI = np.fft.fft2(U2_z0_SSI)
-    G2_z0_SSI_shift = np.fft.fftshift(G2_z0_SSI)
+G2_z0_SSI_shift = G2_z_plus_dz_shift
 
 G2_z0_SSI_shift_amp = np.abs(G2_z0_SSI_shift)
 # print(np.max(G2_z0_SSI_shift_amp))
@@ -689,6 +505,13 @@ if is_save == 1:
 
 #%%
 # G2_z0_SSI = G2_z0_SSI(k1_x, k1_y) → IFFT2 → U2(x0, y0, z0) = U2_z0_SSI
+
+G2_z0_SSI = np.fft.ifftshift(G2_z0_SSI_shift)
+U2_z0_SSI = np.fft.ifft2(G2_z0_SSI)
+# 2 维 坐标空间 中的 复标量场，是 i2_x0, i2_y0 的函数
+# U2_z0_SSI = U2_z0_SSI * scale_down_factor # 归一化
+
+#%%
 
 if is_stored == 1:
 

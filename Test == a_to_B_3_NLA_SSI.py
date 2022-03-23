@@ -13,7 +13,7 @@ from fun_img_Resize import image_Add_black_border
 from fun_os import img_squared_bordered_Read, U_Read
 from fun_pump import pump_LG
 from fun_linear import Cal_n
-from A_3_structure_Generate_NLC import structure_NLC
+from A_3_structure_Generate_NLC import structure_chi2_3D
 from B_3_NLA_SSI import NLA_SSI
 from B_3_SFM_SSI import SFM_SSI
 
@@ -149,44 +149,44 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
     
     #%%
     
-    structure_NLC(U1_name_Structure, 
-                  img_full_name, 
-                  is_phase_only_Structure, 
-                  #%%
-                  z_pump_Structure, 
-                  is_LG_Structure, is_Gauss_Structure, is_OAM_Structure, 
-                  l_Structure, p_Structure, 
-                  theta_x_Structure, theta_y_Structure, 
-                  is_random_phase_Structure, 
-                  is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure, 
-                  #%%
-                  U1_0_NonZero_size, w0_Structure, structure_size_Enlarge, 
-                  deff_structure_length_expect, deff_structure_sheet_expect, 
-                  Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z, structure_xy_mode, Depth, 
-                  #%%
-                  is_continuous, is_target_far_field, is_transverse_xy, is_reverse_xy, is_positive_xy, is_no_backgroud, 
-                  #%%
-                  lam1, is_air_pump, is_air, T, 
-                  deff, 
-                  Tx, Ty, Tz, 
-                  mx, my, mz, 
-                  #%%
-                  is_save, is_save_txt, dpi, 
-                  #%%
-                  cmap_2d, 
-                  #%%
-                  ticks_num, is_contourf, 
-                  is_title_on, is_axes_on, 
-                  is_mm, is_propagation, 
-                  #%%
-                  fontsize, font, 
-                  #%%
-                  is_self_colorbar, is_colorbar_on, 
-                  is_energy, vmax, vmin, 
-                  #%%
-                  is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, 
-                  #%%
-                  g1_shift, )
+    structure_chi2_3D(U1_name_Structure, 
+                      img_full_name, 
+                      is_phase_only_Structure, 
+                      #%%
+                      z_pump_Structure, 
+                      is_LG_Structure, is_Gauss_Structure, is_OAM_Structure, 
+                      l_Structure, p_Structure, 
+                      theta_x_Structure, theta_y_Structure, 
+                      is_random_phase_Structure, 
+                      is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure, 
+                      #%%
+                      U1_0_NonZero_size, w0_Structure, structure_size_Enlarge, 
+                      deff_structure_length_expect, deff_structure_sheet_expect, 
+                      Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z, structure_xy_mode, Depth, 
+                      #%%
+                      is_continuous, is_target_far_field, is_transverse_xy, is_reverse_xy, is_positive_xy, is_no_backgroud, 
+                      #%%
+                      lam1, is_air_pump, is_air, T, 
+                      deff, 
+                      Tx, Ty, Tz, 
+                      mx, my, mz, 
+                      #%%
+                      is_save, is_save_txt, dpi, 
+                      #%%
+                      cmap_2d, 
+                      #%%
+                      ticks_num, is_contourf, 
+                      is_title_on, is_axes_on, 
+                      is_mm, is_propagation, 
+                      #%%
+                      fontsize, font, 
+                      #%%
+                      is_self_colorbar, is_colorbar_on, 
+                      is_energy, vmax, vmin, 
+                      #%%
+                      is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, 
+                      #%%
+                      g1_shift, )
     
     #%%
     # B_3_NLA_SSI

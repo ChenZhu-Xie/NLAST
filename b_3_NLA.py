@@ -18,7 +18,7 @@ from fun_pump import pump_LG
 from fun_linear import Cal_n, Cal_kz
 from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
-from fun_CGH import structure_Generate_CGH
+from fun_CGH import structure_Generate_CGH, structure_Generate_radial_G
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 
@@ -264,6 +264,9 @@ def NLA(U1_name="",
         if fft_mode == 0:
             # %% generate structure
 
+            Duty_Cycle_x = 0.5
+            Duty_Cycle_y = 0.5
+
             is_no_background = 0
             Depth = 2
             structure_xy_mode = 'x'
@@ -273,16 +276,23 @@ def NLA(U1_name="",
             is_transverse_xy = 0
             is_reverse_xy = 0
             is_positive_xy = 1
+            
+            if structure_xy_mode == "r":
+                
+                structure = structure_Generate_radial_G(I2_x, I2_y, 
+                                                        Gx, Duty_Cycle_x, 
+                                                        is_positive_xy, is_continuous, is_reverse_xy, )
+            else:
 
-            structure = structure_Generate_CGH(U1_0, structure_xy_mode,
-                                               0.5, 0.5,
-                                               is_positive_xy,
-                                               # %%
-                                               Gx, Gy,
-                                               1, 0,
-                                               is_continuous,
-                                               # %%
-                                               is_target_far_field, is_transverse_xy, is_reverse_xy, )
+                structure = structure_Generate_CGH(U1_0, structure_xy_mode,
+                                                   Duty_Cycle_x, Duty_Cycle_y,
+                                                   is_positive_xy,
+                                                   # %%
+                                                   Gx, Gy,
+                                                   1, 0,
+                                                   is_continuous,
+                                                   # %%
+                                                   is_target_far_field, is_transverse_xy, is_reverse_xy, )
 
             modulation = 1 - is_no_background - Depth * structure
             

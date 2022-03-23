@@ -37,6 +37,7 @@ def contours_NLA_SSI_AST(U1_name = "",
                          deff = 30, 
                          Tx = 10, Ty = 10, Tz = "2*lc", 
                          mx = 0, my = 0, mz = 0, 
+                         is_NLAST = 0, 
                          #%%
                          is_save = 0, is_save_txt = 0, dpi = 100, 
                          #%%
@@ -139,6 +140,7 @@ def contours_NLA_SSI_AST(U1_name = "",
             deff, 
             Tx, Ty, Tz, 
             mx, my, mz, 
+            is_NLAST, 
             #%%
             is_save, is_save_txt, dpi, 
             #%%
@@ -192,6 +194,7 @@ def contours_NLA_SSI_AST(U1_name = "",
             deff, 
             Tx, Ty, Tz, 
             mx, my, mz, 
+            is_NLAST, 
             #%%
             is_save, is_save_txt, dpi, 
             #%%
@@ -356,6 +359,7 @@ contours_NLA_SSI_AST(U1_name = "",
                      deff = 30, 
                      Tx = 10, Ty = 10, Tz = "2*lc", 
                      mx = 0, my = 0, mz = 0, 
+                     is_NLAST = 0, 
                      #%%
                      is_save = 0, is_save_txt = 0, dpi = 100, 
                      #%%
