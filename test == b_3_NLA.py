@@ -25,7 +25,7 @@ from fun_CGH import structure_chi2_Generate_2D
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 U1_name = ""
-img_full_name = "grating.png"
+img_full_name = "lena.png"
 border_percentage = 0.1  # 边框 占图片的 百分比，也即 图片 放大系数
 is_phase_only = 0
 # %%
@@ -76,7 +76,7 @@ font = {'family': 'serif',
         }
 # %%
 is_self_colorbar, is_colorbar_on = 0, 1  # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
-is_energy = 1
+is_energy = 0
 vmax, vmin = 1, 0
 # %%
 is_print = 1

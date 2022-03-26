@@ -273,15 +273,20 @@ def cal_diz(Duty_Cycle_z, Tz, Iz_structure, size_PerPixel,
 
 def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface, z0_structure_endface):
 
-    mj_structure = np.zeros((sheets_num_structure + 1), dtype=np.float64())
-    zj_structure = np.zeros((sheets_num_structure + 1), dtype=np.float64())
-    for j in range(sheets_num_structure + 1):
-        if np.mod(j, 2) == 1:  # 如果 j 是奇数，则 在接下来的 deff_structure_sheet * (1 - Duty_Cycle_z) 内 输出 负畴
-            zj_structure[j] = z0_structure_frontface + (j-1) // 2 * deff_structure_sheet + deff_structure_sheet * Duty_Cycle_z
-            mj_structure[j] = -1
-        else: # 如果 j 是偶数，则 在接下来的 deff_structure_sheet * Duty_Cycle_z 内 输出 正畴
-            zj_structure[j] = z0_structure_frontface + j // 2 * deff_structure_sheet
-            mj_structure[j] = 1
+    # mj_structure = np.zeros((sheets_num_structure + 1), dtype=np.float64())
+    # zj_structure = np.zeros((sheets_num_structure + 1), dtype=np.float64())
+    
+    # for j in range(sheets_num_structure + 1):
+    #     if np.mod(j, 2) == 1:  # 如果 j 是奇数，则 在接下来的 deff_structure_sheet * (1 - Duty_Cycle_z) 内 输出 负畴
+    #         zj_structure[j] = z0_structure_frontface + (j-1) // 2 * deff_structure_sheet + deff_structure_sheet * Duty_Cycle_z
+    #         mj_structure[j] = -1
+    #     else: # 如果 j 是偶数，则 在接下来的 deff_structure_sheet * Duty_Cycle_z 内 输出 正畴
+    #         zj_structure[j] = z0_structure_frontface + j // 2 * deff_structure_sheet
+    #         mj_structure[j] = 1
+            
+    mj_structure = - 2 * np.mod(np.arange(sheets_num_structure + 1, dtype=np.float64()), 2) + 1
+    zj_structure = z0_structure_frontface + np.arange(sheets_num_structure + 1, dtype=np.float64()) * deff_structure_sheet / 2 \
+                                        - np.mod(np.arange(sheets_num_structure+ 1, dtype=np.float64()), 2) * (0.5 - Duty_Cycle_z) * deff_structure_sheet
 
     zj_structure[-1] = z0_structure_endface
     # print("{} == {} ?".format(leftover2 * size_PerPixel, zj_structure[-1] - zj_structure[-2]))

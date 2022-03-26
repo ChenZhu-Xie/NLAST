@@ -24,27 +24,27 @@ np.seterr(divide='ignore',invalid='ignore')
 #%%
 U1_name = ""
 img_full_name = "lena.png"
-border_percentage = 0.3 # 边框 占图片的 百分比，也即 图片 放大系数
+border_percentage = 0.1 # 边框 占图片的 百分比，也即 图片 放大系数
 is_phase_only = 0
 #%%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 0, 0, 0
-l, p = 0, 0
-theta_x, theta_y = 0.5, 0
+is_LG, is_Gauss, is_OAM = 1, 1, 1
+l, p = 1, 3
+theta_x, theta_y = -0.5, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
 is_random_phase = 0
 is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
 #%%
-U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
-w0 = 0.28 # Unit: mm 束腰（z = 0 处）
-L0_Crystal = 1 # Unit: mm 晶体长度
+U1_0_NonZero_size = 0.9 # Unit: mm 不包含边框，图片 的 实际尺寸
+w0 = 0.1 # Unit: mm 束腰（z = 0 处）
+L0_Crystal = 3 # Unit: mm 晶体长度
 z0_structure_frontface_expect = 0 # Unit: mm 结构 前端面，距离 晶体 前端面 的 距离
 deff_structure_length_expect = 1 # Unit: mm 调制区域 z 向长度（类似 z）
 sheets_stored_num = 10 # 储存片数 （不包含 最末：因为 最末，作为结果 已经单独 呈现了）；每一步 储存的 实际上不是 g_z，而是 g_z+dz
-z0_section_1_expect = 0.3 # Unit: mm z 向 需要展示的截面 1 距离晶体前端面 的 距离
-z0_section_2_expect = 0.2 # Unit: mm z 向 需要展示的截面 2 距离晶体后端面 的 距离
+z0_section_1_expect = 0 # Unit: mm z 向 需要展示的截面 1 距离晶体前端面 的 距离
+z0_section_2_expect = 0 # Unit: mm z 向 需要展示的截面 2 距离晶体后端面 的 距离
 X, Y = 0, 0 # Unit: mm 切片 中心点 平移 矢量（逆着 z 正向看去，矩阵的行 x 是向下的，矩阵的列 y 是向右的；这里的 Y 是 矩阵的行 x 的反向，这里的 X 是矩阵的列 y 的正向）
 # X 增加，则 从 G2_z_shift 中 读取的 列 向右移，也就是 xz 面向 列 增加的方向（G2_z_shift 的 右侧）移动
 # Y 增加，则 从 G2_z_shift 中 读取的 行 向上移，也就是 yz 面向 行 减小的方向（G2_z_shift 的 上侧）移动
@@ -59,7 +59,7 @@ lam1 = 1.064 # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 #%%
 deff = 30 # pm / V
-Tx, Ty, Tz = 6.633, 20, 7.004 # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
+Tx, Ty, Tz = 35, 50, 7.004 # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
 mx, my, mz = -1, 0, 1
 # 倒空间：右, 下 = +, +
 is_NLAST = 0
@@ -97,7 +97,7 @@ is_energy = 0
 vmax, vmin = 1, 0
 #%%
 is_print = 1
-is_contours = 0
+is_contours = 66
 n_TzQ = 1
 Gz_max_Enhance = 1
 match_mode = 1
