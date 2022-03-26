@@ -43,7 +43,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
                             #%%
                             color_1d = 'b', cmap_2d = 'viridis', 
                             #%%
-                            ticks_num = 6, is_contourf = 0, 
+                            sample = 2, ticks_num = 6, is_contourf = 0, 
                             is_title_on = 1, is_axes_on = 1, 
                             is_mm = 1, is_propagation = 0, 
                             #%%
@@ -147,7 +147,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             color_1d, cmap_2d, 'rainbow', 
             10, -65, 2, 
             #%%
-            ticks_num, is_contourf, 
+            sample, ticks_num, is_contourf, 
             is_title_on, is_axes_on, 
             is_mm, is_propagation, 
             #%%
@@ -201,7 +201,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             color_1d, cmap_2d, 'rainbow', 
             10, -65, 2, 
             #%%
-            ticks_num, is_contourf, 
+            sample, ticks_num, is_contourf, 
             is_title_on, is_axes_on, 
             is_mm, is_propagation, 
             #%%
@@ -295,7 +295,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             color_1d, cmap_2d, 'rainbow', 
             10, -65, 2, 
             #%%
-            ticks_num, is_contourf, 
+            sample, ticks_num, is_contourf, 
             is_title_on, is_axes_on, 
             is_mm, is_propagation, 
             #%%
@@ -343,7 +343,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     U2_Z0_Superposition_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -355,7 +355,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     U2_Z0_Superposition_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -375,7 +375,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
         U2_Z0_Superposition_amp_address = location + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + img_name_extension
     
-        plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel, 
                 U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_amp", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -386,7 +386,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
         U2_Z0_Superposition_phase_address = location + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + img_name_extension
     
-        plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel, 
                 U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_phase", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -420,7 +420,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     U2_Z0_Superposition_error_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             U2_Z0_Superposition_error_amp, U2_Z0_Superposition_error_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -432,7 +432,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     U2_Z0_Superposition_error_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             U2_Z0_Superposition_error_phase, U2_Z0_Superposition_error_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -452,7 +452,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
         U2_Z0_Superposition_error_amp_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + img_name_extension
     
-        plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel, 
                 U2_Z0_Superposition_error_amp, U2_Z0_Superposition_error_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "_amp", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -463,7 +463,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
         U2_Z0_Superposition_error_phase_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + img_name_extension
     
-        plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel, 
                 U2_Z0_Superposition_error_phase, U2_Z0_Superposition_error_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "_phase", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -499,7 +499,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     U2_Z0_Superposition_amp_error_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_amp_error" + " = " + "U2_Z0_Superposition_abs__substract__U2_Z0_abs" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             U2_Z0_Superposition_amp_error, U2_Z0_Superposition_amp_error_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_amp_error", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -511,7 +511,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     U2_Z0_Superposition_phase_error_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_phase_error" + " = " + "U2_Z0_Superposition_angle__substract__U2_Z0_angle" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             U2_Z0_Superposition_phase_error, U2_Z0_Superposition_phase_error_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_phase_error", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -524,7 +524,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
         U2_Z0_Superposition_amp_error_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_amp_error" + " = " + "U2_Z0_Superposition_abs__substract__U2_Z0_abs" + img_name_extension
     
-        plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel, 
                 U2_Z0_Superposition_amp_error, U2_Z0_Superposition_amp_error_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_amp_error", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -535,7 +535,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
         U2_Z0_Superposition_phase_error_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_phase_error" + " = " + "U2_Z0_Superposition_angle__substract__U2_Z0_angle" + img_name_extension
     
-        plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel, 
                 U2_Z0_Superposition_phase_error, U2_Z0_Superposition_phase_error_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_phase_error", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -571,7 +571,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     # U2_Z0_Superposition_error_relative_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + img_name_extension
 
-    # plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    # plot_2d([], 1, size_PerPixel, 
     #         U2_Z0_Superposition_error_relative_amp, U2_Z0_Superposition_error_relative_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_amp", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -583,7 +583,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     # U2_Z0_Superposition_error_relative_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + img_name_extension
 
-    # plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    # plot_2d([], 1, size_PerPixel, 
     #         U2_Z0_Superposition_error_relative_phase, U2_Z0_Superposition_error_relative_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_phase", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -603,7 +603,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
     #     U2_Z0_Superposition_error_relative_amp_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + img_name_extension
     
-    #     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    #     plot_2d([], 1, size_PerPixel, 
     #             U2_Z0_Superposition_error_relative_amp, U2_Z0_Superposition_error_relative_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_amp", 
     #             is_save, dpi, size_fig,  
     #             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -614,7 +614,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
     #     U2_Z0_Superposition_error_relative_phase_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + img_name_extension
     
-    #     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    #     plot_2d([], 1, size_PerPixel, 
     #             U2_Z0_Superposition_error_relative_phase, U2_Z0_Superposition_error_relative_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_error_relative" + "_phase", 
     #             is_save, dpi, size_fig,  
     #             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -648,7 +648,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     # U2_Z0_Superposition_relative_error_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + img_name_extension
 
-    # plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    # plot_2d([], 1, size_PerPixel, 
     #         U2_Z0_Superposition_relative_error_amp, U2_Z0_Superposition_relative_error_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_amp", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -660,7 +660,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
 
     # U2_Z0_Superposition_relative_error_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + img_name_extension
 
-    # plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    # plot_2d([], 1, size_PerPixel, 
     #         U2_Z0_Superposition_relative_error_phase, U2_Z0_Superposition_relative_error_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_phase", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -680,7 +680,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
     #     U2_Z0_Superposition_relative_error_amp_address = location + "\\" + "6.1. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_amp" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_abs" + img_name_extension
     
-    #     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    #     plot_2d([], 1, size_PerPixel, 
     #             U2_Z0_Superposition_relative_error_amp, U2_Z0_Superposition_relative_error_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_amp", 
     #             is_save, dpi, size_fig,  
     #             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -691,7 +691,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
     
     #     U2_Z0_Superposition_relative_error_phase_address = location + "\\" + "6.2. Plus - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_phase" + " = " + "U2_Z0_Superposition_substract_U2_Z0" + "_angle" + img_name_extension
     
-    #     plot_2d(I2_x, I2_y, size_PerPixel, 0, 
+    #     plot_2d([], 1, size_PerPixel, 
     #             U2_Z0_Superposition_relative_error_phase, U2_Z0_Superposition_relative_error_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_SSI" + "_Superposition_relative_error" + "_phase", 
     #             is_save, dpi, size_fig, 
     #             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -731,7 +731,7 @@ consistency_NLA_SSI_AST(U1_name = "",
                         #%%
                         color_1d = 'b', cmap_2d = 'viridis', 
                         #%%
-                        ticks_num = 6, is_contourf = 0, 
+                        sample = 2, ticks_num = 6, is_contourf = 0, 
                         is_title_on = 1, is_axes_on = 1, 
                         is_mm = 1, is_propagation = 0, 
                         #%%

@@ -12,7 +12,7 @@ import numpy as np
 from scipy.io import savemat
 from fun_SSI import Cal_diz, Cal_Iz_structure
 from fun_thread import noop, my_thread
-from fun_CGH import n1_structure_Generate_2D
+from fun_CGH import structure_n1_Generate_2D
 np.seterr(divide='ignore',invalid='ignore')
 
 #%%
@@ -121,42 +121,46 @@ def structure_n1_3D(U1_name = "",
     # vmax, vmin = 1, 0
 
     #%%
-    
-    size_PerPixel, U1_0, border_width, n1, \
-        structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared = n1_structure_Generate_2D(U1_name, 
-                                                                                                                                                    img_full_name, 
-                                                                                                                                                    is_phase_only, 
-                                                                                                                                                    #%%
-                                                                                                                                                    z_pump, 
-                                                                                                                                                    is_LG, is_Gauss, is_OAM, 
-                                                                                                                                                    l, p, 
-                                                                                                                                                    theta_x, theta_y, 
-                                                                                                                                                    is_random_phase, 
-                                                                                                                                                    is_H_l, is_H_theta, is_H_random_phase, 
-                                                                                                                                                    #%%
-                                                                                                                                                    U1_0_NonZero_size, w0, structure_size_Enlarge, 
-                                                                                                                                                    Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth, 
-                                                                                                                                                    #%%
-                                                                                                                                                    is_continuous, is_target_far_field, is_transverse_xy, is_reverse_xy, is_positive_xy, 
-                                                                                                                                                    #%%
-                                                                                                                                                    lam1, is_air_pump, is_air, T, 
-                                                                                                                                                    Tx, Ty, Tz, 
-                                                                                                                                                    mx, my, mz, 
-                                                                                                                                                    #%%
-                                                                                                                                                    is_save, is_save_txt, dpi, 
-                                                                                                                                                    #%%
-                                                                                                                                                    cmap_2d, 
-                                                                                                                                                    #%%
-                                                                                                                                                    ticks_num, is_contourf, 
-                                                                                                                                                    is_title_on, is_axes_on, 
-                                                                                                                                                    is_mm, is_propagation, 
-                                                                                                                                                    #%%
-                                                                                                                                                    fontsize, font, 
-                                                                                                                                                    #%%
-                                                                                                                                                    is_self_colorbar, is_colorbar_on, 
-                                                                                                                                                    is_energy, vmax, vmin, 
-                                                                                                                                                    #%%
-                                                                                                                                                    is_print, )
+
+    n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
+    dk, lc, Tz, Gx, Gy, Gz, \
+    size_PerPixel, U1_0, g1_shift, \
+    structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
+        = structure_n1_Generate_2D(U1_name,
+                                   img_full_name,
+                                   is_phase_only,
+                                   # %%
+                                   z_pump,
+                                   is_LG, is_Gauss, is_OAM,
+                                   l, p,
+                                   theta_x, theta_y,
+                                   # %%
+                                   is_random_phase,
+                                   is_H_l, is_H_theta, is_H_random_phase,
+                                   # %%
+                                   U1_0_NonZero_size, w0, structure_size_Enlarge,
+                                   Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
+                                   # %%
+                                   is_continuous, is_target_far_field, is_transverse_xy, is_reverse_xy, is_positive_xy,
+                                   # %%
+                                   lam1, is_air_pump, is_air, T,
+                                   Tx, Ty, Tz,
+                                   mx, my, mz,
+                                   # %%
+                                   is_save, is_save_txt, dpi,
+                                   # %%
+                                   cmap_2d,
+                                   # %%
+                                   ticks_num, is_contourf,
+                                   is_title_on, is_axes_on,
+                                   is_mm, is_propagation,
+                                   # %%
+                                   fontsize, font,
+                                   # %%
+                                   is_self_colorbar, is_colorbar_on,
+                                   is_energy, vmax, vmin,
+                                   # %%
+                                   is_print, )
 
     #%%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
@@ -181,38 +185,35 @@ def structure_n1_3D(U1_name = "",
     if is_save == 1:
         if not os.path.isdir("0.n1_modulation_squared"):
             os.makedirs("0.n1_modulation_squared")
-    
+
     def structure_n1_Generate_z(for_th, fors_num, *arg, ):
-        
         iz = for_th * diz
-        
-        if mz != 0: # 如果 要用 Tz，则如下 分层；
-        
-            if np.mod(iz, Tz_unit) < Tz_unit * Duty_Cycle_z: # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
-                modulation = n1 - Depth * structure
-                
-            else: # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
-                modulation = n1 - Depth * structure_opposite
-            modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (n1, n1))    
-            
+
+        if mz != 0:  # 如果 要用 Tz，则如下 分层；
+
+            if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
+                m = modulation_squared
+
+            else:  # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
+                m = modulation_opposite_squared
+
             modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
             modulation_squared_address = "0.n1_modulation_squared" + "\\" + modulation_squared_full_name
-            
+
             if is_save == 1:
-                
-                np.savetxt(modulation_squared_address, modulation_squared, fmt='%i') if is_save_txt else savemat(modulation_squared_address, {'n1_modulation_squared':modulation_squared})
-        
-        else: # 如果不用 Tz，则 z 向 无结构，则一直输出 正向畴
-        
-            modulation = n1 - Depth * structure
-            modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (n1, n1))
-            
+                np.savetxt(modulation_squared_address, m, fmt='%i') if is_save_txt else savemat(
+                    modulation_squared_address, {'n1_modulation_squared': m})
+
+        else:  # 如果不用 Tz，则 z 向 无结构，则一直输出 正向畴
+
+            m = modulation_squared
+
             modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
             modulation_squared_address = "0.n1_modulation_squared" + "\\" + modulation_squared_full_name
-            
+
             if is_save == 1:
-                
-                np.savetxt(modulation_squared_address, modulation_squared, fmt='%i') if is_save_txt else savemat(modulation_squared_address, {'n1_modulation_squared':modulation_squared})
+                np.savetxt(modulation_squared_address, m, fmt='%i') if is_save_txt else savemat(
+                    modulation_squared_address, {'n1_modulation_squared': m})
                 
     my_thread(10, sheets_num, 
               structure_n1_Generate_z, noop, noop, 

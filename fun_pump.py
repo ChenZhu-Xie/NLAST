@@ -378,7 +378,7 @@ def pump_LG(file_full_name = "Grating.png",
 
     G1_0_shift_amp_address = location + "\\" + "2. G1_0" + "\\" + "5.1. AST - " + "G1_0_shift_amp" + file_name_extension
 
-    plot_2d(Ix, Iy, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel,
             G1_0_shift_amp, G1_0_shift_amp_address, "G1_0_shift_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -390,7 +390,7 @@ def pump_LG(file_full_name = "Grating.png",
 
     G1_0_shift_phase_address = location + "\\" + "2. G1_0" + "\\" + "5.2. AST - " + "G1_0_shift_phase" + file_name_extension
 
-    plot_2d(Ix, Iy, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel,
             G1_0_shift_phase, G1_0_shift_phase_address, "G1_0_shift_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -421,7 +421,7 @@ def pump_LG(file_full_name = "Grating.png",
 
     U1_0_amp_address = location + "\\" + "2. U1_0" + "\\" + "6.1. AST - " + "U1_0_amp" + file_name_extension
 
-    plot_2d(Ix, Iy, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel,
             U1_0_amp, U1_0_amp_address, "U1_0_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -433,7 +433,7 @@ def pump_LG(file_full_name = "Grating.png",
 
     U1_0_phase_address = location + "\\" + "2. U1_0" + "\\" + "6.2. AST - " + "U1_0_phase" + file_name_extension
 
-    plot_2d(Ix, Iy, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel,
             U1_0_phase, U1_0_phase_address, "U1_0_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -453,7 +453,7 @@ def pump_LG(file_full_name = "Grating.png",
     
         U1_0_amp_address = location + "\\" + "2." + "U1_0_amp" + file_name_extension
     
-        plot_2d(Ix, Iy, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel,
                 U1_0_amp, U1_0_amp_address, "U1_0_amp", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -464,7 +464,7 @@ def pump_LG(file_full_name = "Grating.png",
     
         U1_0_phase_address = location + "\\" + "2." + "U1_0_phase" + file_name_extension
     
-        plot_2d(Ix, Iy, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel,
                 U1_0_phase, U1_0_phase_address, "U1_0_phase", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 

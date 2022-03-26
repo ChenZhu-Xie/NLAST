@@ -172,7 +172,7 @@ def structure_Generate_2D_radial_G(Ix, Iy,
     return structure
     
 
-def chi2_structure_Generate_2D(U1_name = "", 
+def structure_chi2_Generate_2D(U1_name = "", 
                               img_full_name = "Grating.png", 
                               is_phase_only = 0, 
                               #%%
@@ -309,7 +309,9 @@ def chi2_structure_Generate_2D(U1_name = "",
 
     dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel, 
                             is_print = 0)
-
+    # 尽管 Gz 在这里更新并不妥，因为 在该函数 外部，提供描边信息时， Tz 会 覆盖其值，因此 Gz 的值需要更新
+    # 但在这里，我们并不需要 Gz 的值，而哪怕在外部，z 向的 structure Generate 的时候，需要的也只是更新后的 Tz，而不需要 Gz
+    # 所以把下面这段 放进来 在这里 是 可以的。
     Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                             Tx, Ty, Tz, size_PerPixel, 
                             is_print)
@@ -337,7 +339,7 @@ def chi2_structure_Generate_2D(U1_name = "",
     # vmax_structure, vmin_structure = 1, 0
     vmax_modulation, vmin_modulation = 1 - is_no_backgroud, -1 - is_no_backgroud
 
-    # plot_2d(I1_x, I1_y, size_PerPixel, diz, 
+    # plot_2d([], 1, size_PerPixel,  
     #         structure, "χ2_structure" + img_name_extension, "χ2_structure", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -347,7 +349,7 @@ def chi2_structure_Generate_2D(U1_name = "",
     modulation = 1 - is_no_backgroud - Depth * structure
     modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (1 - is_no_backgroud, 1 - is_no_backgroud))
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0.774, 
+    plot_2d([], 1, size_PerPixel, 
             modulation_squared, "χ2_modulation_squared" + img_name_extension, "χ2_modulation_squared", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -360,7 +362,7 @@ def chi2_structure_Generate_2D(U1_name = "",
 
         structure_opposite = 1 - structure
     
-        # plot_2d(I1_x, I1_y, size_PerPixel, diz, 
+        # plot_2d([], 1, size_PerPixel,  
         #         structure_opposite, "χ2_structure_opposite" + img_name_extension, "χ2_structure_opposite", 
         #         is_save, dpi, size_fig,  
         #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -370,17 +372,19 @@ def chi2_structure_Generate_2D(U1_name = "",
         modulation_opposite = 1 - is_no_backgroud - Depth * structure_opposite
         modulation_opposite_squared = np.pad(modulation_opposite, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (1 - is_no_backgroud, 1 - is_no_backgroud))
     
-        plot_2d(I1_x, I1_y, size_PerPixel, 0.774, 
+        plot_2d([], 1, size_PerPixel, 
                 modulation_opposite_squared, "χ2_modulation_opposite_squared" + img_name_extension, "χ2_modulation_opposite_squared", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
         
-    return size_PerPixel, U1_0, g1_shift, k1_z_shift, k2_z_shift, border_width, \
-        structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
+    return n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
+           dk, lc, Tz, Gx, Gy, Gz, \
+           size_PerPixel, U1_0, g1_shift, \
+           structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
         
-def n1_structure_Generate_2D(U1_name = "", 
+def structure_n1_Generate_2D(U1_name = "", 
                               img_full_name = "Grating.png", 
                               is_phase_only = 0, 
                               #%%
@@ -493,6 +497,14 @@ def n1_structure_Generate_2D(U1_name = "",
                    is_air, 
                    lam1, T, p = "e")
 
+    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
+
+    # %%
+    # 线性 角谱理论 - 基波 begin
+
+    g1 = np.fft.fft2(U1_0)
+    g1_shift = np.fft.fftshift(g1)
+
     #%%
 
     lam2 = lam1 / 2
@@ -500,6 +512,8 @@ def n1_structure_Generate_2D(U1_name = "",
     n2, k2 = Cal_n(size_PerPixel, 
                    is_air, 
                    lam2, T, p = "e")
+
+    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I1_x, I1_y, k2)
     
     #%%
 
@@ -533,7 +547,7 @@ def n1_structure_Generate_2D(U1_name = "",
     # vmax_structure, vmin_structure = 1, 0
     vmax_modulation, vmin_modulation = n1, n1 - Depth
 
-    # plot_2d(I1_x, I1_y, size_PerPixel, diz, 
+    # plot_2d([], 1, size_PerPixel,  
     #         structure, "n1_structure" + img_name_extension, "n1_structure", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -543,7 +557,7 @@ def n1_structure_Generate_2D(U1_name = "",
     modulation = n1 - Depth * structure
     modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (n1, n1))
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0.744, 
+    plot_2d([], 1, size_PerPixel, 
             modulation_squared, "n1_modulation_squared" + img_name_extension, "n1_modulation_squared", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -556,7 +570,7 @@ def n1_structure_Generate_2D(U1_name = "",
 
         structure_opposite = 1 - structure
     
-        # plot_2d(I1_x, I1_y, size_PerPixel, diz, 
+        # plot_2d([], 1, size_PerPixel,  
         #         structure_opposite, "n1_structure_opposite" + img_name_extension, "n1_structure_opposite", 
         #         is_save, dpi, size_fig,  
         #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -566,12 +580,14 @@ def n1_structure_Generate_2D(U1_name = "",
         modulation_opposite = n1 - Depth * structure_opposite
         modulation_opposite_squared = np.pad(modulation_opposite, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (n1, n1))
     
-        plot_2d(I1_x, I1_y, size_PerPixel, 0.744, 
+        plot_2d([], 1, size_PerPixel, 
                 modulation_opposite_squared, "n1_modulation_opposite_squared" + img_name_extension, "n1_modulation_opposite_squared", 
                 is_save, dpi, size_fig, 
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
                 fontsize, font, 
                 0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
         
-    return size_PerPixel, U1_0, border_width, n1, \
-        structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
+    return n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
+           dk, lc, Tz, Gx, Gy, Gz, \
+           size_PerPixel, U1_0, g1_shift, \
+           structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared

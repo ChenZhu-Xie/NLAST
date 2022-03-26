@@ -43,13 +43,13 @@ def Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
                is_print = 1):
     
     dk = 2*k1 - k2 # Unit: 1 / mm
-    lc = math.pi / abs(dk) * size_PerPixel # Unit: mm
-    is_print and print("相干长度 = {} μm".format(lc * 1000))
+    lc = math.pi / abs(dk) * size_PerPixel * 1000 # Unit: μm
+    is_print and print("相干长度 = {} μm".format(lc))
     
     # print(type(Tz) != np.float64)
     # print(type(Tz) != float) # float = np.float ≠ np.float64
     if (type(Tz) != float and type(Tz) != np.float64 and type(Tz) != int) or Tz <= 0: # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
-        Tz = 2*lc * 1000  # Unit: um
+        Tz = 2*lc  # Unit: μm
         
     return dk, lc, Tz
 
@@ -256,7 +256,7 @@ def G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 
 def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz, 
-                           z0, size_PerPixel, deff_structure_length_expect, deff_structure_sheet_expect, 
+                           z0, size_PerPixel, deff_structure_length_expect, 
                            is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1):
     
     #%%
@@ -365,8 +365,12 @@ def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
     
     if is_contours != 0:
         
-        if deff_structure_length_expect <= z0_recommend + deff_structure_sheet_expect / 1000:
-            deff_structure_length_expect = z0_recommend + deff_structure_sheet_expect / 1000
+        # if deff_structure_length_expect <= z0_recommend + deff_structure_sheet_expect / 1000:
+        #     deff_structure_length_expect = z0_recommend + deff_structure_sheet_expect / 1000
+        #     is_print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
+        
+        if deff_structure_length_expect < z0_recommend:
+            deff_structure_length_expect = z0_recommend
             is_print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
             
         is_print and print("===== 描边 end =====")

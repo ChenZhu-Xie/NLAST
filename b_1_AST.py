@@ -178,7 +178,7 @@ def AST(U1_name="",
 
     # g1_shift_amp_address = location + "\\" + "3. g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "\\" + "3.1. AST - " + "g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "_amp" + img_name_extension
 
-    # plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    # plot_2d([], 1, size_PerPixel,  
     #         g1_shift_amp, g1_shift_amp_address, "g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "_amp", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -190,7 +190,7 @@ def AST(U1_name="",
 
     # g1_shift_phase_address = location + "\\" + "3. g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "\\" + "3.1. AST - " + "g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "_phase" + img_name_extension
 
-    # plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    # plot_2d([], 1, size_PerPixel,  
     #         g1_shift_phase, g1_shift_phase_address, "g" + ((U1_name.find("U2") + 1) and "2" or "1") + "_shift" + "_phase", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -230,7 +230,7 @@ def AST(U1_name="",
 
     # H1_z0_shift_amp_address = location + "\\" + "4. H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.1. AST - " + "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp" + img_name_extension
 
-    # plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    # plot_2d([], 1, size_PerPixel,  
     #         H1_z0_shift_amp, H1_z0_shift_amp_address, "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -242,7 +242,7 @@ def AST(U1_name="",
 
     # H1_z0_shift_phase_address = location + "\\" + "4. H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.2. AST - " + "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase" + img_name_extension
 
-    # plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    # plot_2d([], 1, size_PerPixel,  
     #         H1_z0_shift_phase, H1_z0_shift_phase_address, "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase", 
     #         is_save, dpi, size_fig,  
     #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -281,7 +281,7 @@ def AST(U1_name="",
                                           (U1_name.find("U2") + 1) and "2" or "1") + "_" + str(
         float('%.2g' % z0)) + "mm" + "_shift_amp" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel, 
             G1_z0_shift_amp, G1_z0_shift_amp_address,
             "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp",
             is_save, dpi, size_fig,
@@ -297,7 +297,7 @@ def AST(U1_name="",
                                             (U1_name.find("U2") + 1) and "2" or "1") + "_" + str(
         float('%.2g' % z0)) + "mm" + "_shift_phase" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel, 
             G1_z0_shift_phase, G1_z0_shift_phase_address,
             "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase",
             is_save, dpi, size_fig,
@@ -342,7 +342,7 @@ def AST(U1_name="",
         float('%.2g' % z0)) + "mm" + "\\" + "6.1. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(
         float('%.2g' % z0)) + "mm" + "_amp" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel, 
             U1_z0_amp, U1_z0_amp_address,
             "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp",
             is_save, dpi, size_fig,
@@ -357,7 +357,7 @@ def AST(U1_name="",
         float('%.2g' % z0)) + "mm" + "\\" + "6.2. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(
         float('%.2g' % z0)) + "mm" + "_phase" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel, 
             U1_z0_phase, U1_z0_phase_address,
             "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase",
             is_save, dpi, size_fig,
@@ -382,7 +382,7 @@ def AST(U1_name="",
                     (U1_name.find("U2") + 1) and "2" or "1") + "_" + str(
             float('%.2g' % z0)) + "mm" + "_amp" + img_name_extension
 
-        plot_2d(I1_x, I1_y, size_PerPixel, 0,
+        plot_2d([], 1, size_PerPixel, 
                 U1_z0_amp, U1_z0_amp_address,
                 "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_amp",
                 is_save, dpi, size_fig,
@@ -396,7 +396,7 @@ def AST(U1_name="",
                     (U1_name.find("U2") + 1) and "2" or "1") + "_" + str(
             float('%.2g' % z0)) + "mm" + "_phase" + img_name_extension
 
-        plot_2d(I1_x, I1_y, size_PerPixel, 0,
+        plot_2d([], 1, size_PerPixel, 
                 U1_z0_phase, U1_z0_phase_address,
                 "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_phase",
                 is_save, dpi, size_fig,

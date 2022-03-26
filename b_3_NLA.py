@@ -18,7 +18,7 @@ from fun_pump import pump_LG
 from fun_linear import Cal_n, Cal_kz
 from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
-from fun_CGH import structure_Generate_CGH, structure_Generate_radial_G
+from fun_CGH import structure_chi2_Generate_2D
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 
@@ -191,7 +191,7 @@ def NLA(U1_name="",
     # 提供描边信息，并覆盖值
 
     z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
-                                                                  z0, size_PerPixel, z0, z0 / 100,
+                                                                  z0, size_PerPixel, z0,
                                                                   is_print, is_contours, n_TzQ, Gz_max_Enhance,
                                                                   match_mode, )
 
@@ -264,10 +264,23 @@ def NLA(U1_name="",
         if fft_mode == 0:
             # %% generate structure
 
+            U1_name_Structure = ''
+            is_phase_only_Structure = 0
+
+            w0_Structure = 0
+            z_pump_Structure = 0
+
+            is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0, 1, 0
+            l_Structure, p_Structure = 0, 0
+            theta_x_Structure, theta_y_Structure = 0, 0
+
+            is_random_phase_Structure = 0
+            is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure = 0, 0, 0
+
+            structure_size_Enlarge = 0.1
             Duty_Cycle_x = 0.5
             Duty_Cycle_y = 0.5
 
-            is_no_background = 0
             Depth = 2
             structure_xy_mode = 'x'
 
@@ -276,28 +289,54 @@ def NLA(U1_name="",
             is_transverse_xy = 0
             is_reverse_xy = 0
             is_positive_xy = 1
-            
-            if structure_xy_mode == "r":
-                
-                structure = structure_Generate_radial_G(I2_x, I2_y, 
-                                                        Gx, Duty_Cycle_x, 
-                                                        is_positive_xy, is_continuous, is_reverse_xy, )
-            else:
+            is_no_backgroud = 0
 
-                structure = structure_Generate_CGH(U1_0, structure_xy_mode,
-                                                   Duty_Cycle_x, Duty_Cycle_y,
-                                                   is_positive_xy,
-                                                   # %%
-                                                   Gx, Gy,
-                                                   1, 0,
-                                                   is_continuous,
-                                                   # %%
-                                                   is_target_far_field, is_transverse_xy, is_reverse_xy, )
+            n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
+            dk, lc, Tz, Gx, Gy, Gz, \
+            size_PerPixel, U1_0_structure, g1_shift_structure, \
+            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
+                = structure_chi2_Generate_2D(U1_name_Structure,
+                                             img_full_name,
+                                             is_phase_only_Structure,
+                                             # %%
+                                             z_pump_Structure,
+                                             is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+                                             l_Structure, p_Structure,
+                                             theta_x_Structure, theta_y_Structure,
+                                             # %%
+                                             is_random_phase_Structure,
+                                             is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+                                             # %%
+                                             U1_0_NonZero_size, w0_Structure,
+                                             structure_size_Enlarge,
+                                             Duty_Cycle_x, Duty_Cycle_y,
+                                             structure_xy_mode, Depth,
+                                             # %%
+                                             is_continuous, is_target_far_field,
+                                             is_transverse_xy, is_reverse_xy,
+                                             is_positive_xy, is_no_backgroud,
+                                             # %%
+                                             lam1, is_air_pump, is_air, T,
+                                             Tx, Ty, Tz,
+                                             mx, my, mz,
+                                             # %%
+                                             is_save, is_save_txt, dpi,
+                                             # %%
+                                             cmap_2d,
+                                             # %%
+                                             ticks_num, is_contourf,
+                                             is_title_on, is_axes_on,
+                                             is_mm, is_propagation,
+                                             # %%
+                                             fontsize, font,
+                                             # %%
+                                             is_self_colorbar, is_colorbar_on,
+                                             is_energy, vmax, vmin,
+                                             # %%
+                                             is_print, )
 
-            modulation = 1 - is_no_background - Depth * structure
-            
-            G2_z0_shift = G2_z_modulation_NLAST(k1, k2, Gz, 
-                                                modulation, U1_0, i2_z0, const, )
+            G2_z0_shift = G2_z_modulation_NLAST(k1, k2, Gz,
+                                                modulation_squared, U1_0, i2_z0, const, )
 
         elif fft_mode == 1:
 
@@ -325,7 +364,7 @@ def NLA(U1_name="",
         float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "5.1. NLA - " + "G2_" + str(
         float('%.2g' % z0)) + "mm" + "_shift_amp" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel,
             G2_z0_shift_amp, G2_z0_shift_amp_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp",
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
@@ -339,7 +378,7 @@ def NLA(U1_name="",
         float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "5.2. NLA - " + "G2_" + str(
         float('%.2g' % z0)) + "mm" + "_shift_phase" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel,
             G2_z0_shift_phase, G2_z0_shift_phase_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase",
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
@@ -378,7 +417,7 @@ def NLA(U1_name="",
         float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.1. NLA - " + "H2_" + str(
         float('%.2g' % z0)) + "mm" + "_shift_amp" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel,
             np.abs(H2_z0_shift), H2_z0_shift_amp_address, "H2_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp",
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
@@ -392,7 +431,7 @@ def NLA(U1_name="",
         float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.2. NLA - " + "H2_" + str(
         float('%.2g' % z0)) + "mm" + "_shift_phase" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel,
             np.angle(H2_z0_shift), H2_z0_shift_phase_address, "H2_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase",
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
@@ -434,7 +473,7 @@ def NLA(U1_name="",
         float('%.2g' % z0)) + "mm" + "\\" + "6.1. NLA - " + "U2_" + str(
         float('%.2g' % z0)) + "mm" + "_amp" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel,
             U2_z0_amp, U2_z0_amp_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_amp",
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
@@ -448,7 +487,7 @@ def NLA(U1_name="",
         float('%.2g' % z0)) + "mm" + "\\" + "6.2. NLA - " + "U2_" + str(
         float('%.2g' % z0)) + "mm" + "_phase" + img_name_extension
 
-    plot_2d(I2_x, I2_y, size_PerPixel, 0,
+    plot_2d([], 1, size_PerPixel,
             U2_z0_phase, U2_z0_phase_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_phase",
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
@@ -469,7 +508,7 @@ def NLA(U1_name="",
         U2_z0_amp_address = location + "\\" + "6.1. NLA - " + "U2_" + str(
             float('%.2g' % z0)) + "mm" + "_amp" + img_name_extension
 
-        plot_2d(I2_x, I2_y, size_PerPixel, 0,
+        plot_2d([], 1, size_PerPixel,
                 U2_z0_amp, U2_z0_amp_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_amp",
                 is_save, dpi, size_fig,
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
@@ -481,7 +520,7 @@ def NLA(U1_name="",
         U2_z0_phase_address = location + "\\" + "6.2. NLA - " + "U2_" + str(
             float('%.2g' % z0)) + "mm" + "_phase" + img_name_extension
 
-        plot_2d(I2_x, I2_y, size_PerPixel, 0,
+        plot_2d([], 1, size_PerPixel,
                 U2_z0_phase, U2_z0_phase_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_phase",
                 is_save, dpi, size_fig,
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,

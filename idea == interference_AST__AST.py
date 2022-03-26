@@ -233,7 +233,7 @@ def interference_AST__AST  (U1_name = "",
 
     H1_z0_superposition_shift_amp_address = "4. H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition_shift" + "\\" + "4.1. AST - " + "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition_shift_amp" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             H1_z0_superposition_shift_amp, H1_z0_superposition_shift_amp_address, "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition_shift_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -245,7 +245,7 @@ def interference_AST__AST  (U1_name = "",
 
     H1_z0_superposition_shift_phase_address = "4. H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition_shift" + "\\" + "4.2. AST - " + "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition_shift_phase" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             H1_z0_superposition_shift_phase, H1_z0_superposition_shift_phase_address, "H" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition_shift_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -275,7 +275,7 @@ def interference_AST__AST  (U1_name = "",
 
     G1_z0_superposition_shift_amp_address = "5. G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_shift" + "\\" + "5.1. AST - " + "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_shift_amp" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             G1_z0_superposition_shift_amp, G1_z0_superposition_shift_amp_address, "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_shift_amp", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -287,7 +287,7 @@ def interference_AST__AST  (U1_name = "",
 
     G1_z0_superposition_shift_phase_address = "5. G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_shift" + "\\" + "5.2. AST - " + "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_shift_phase" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             G1_z0_superposition_shift_phase, G1_z0_superposition_shift_phase_address, "G" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_shift_phase", 
             is_save, dpi, size_fig,  
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -319,7 +319,7 @@ def interference_AST__AST  (U1_name = "",
 
     U1_z0_superposition_amp_address = "6. U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "\\" + "6.1. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_amp" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             U1_z0_superposition_amp, U1_z0_superposition_amp_address, "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_amp", 
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -331,7 +331,7 @@ def interference_AST__AST  (U1_name = "",
 
     U1_z0_superposition_phase_address = "6. U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "\\" + "6.2. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_phase" + img_name_extension
 
-    plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+    plot_2d([], 1, size_PerPixel, 
             U1_z0_superposition_phase, U1_z0_superposition_phase_address, "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_phase", 
             is_save, dpi, size_fig, 
             cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -351,7 +351,7 @@ def interference_AST__AST  (U1_name = "",
     
         U1_z0_superposition_amp_address = "6.1. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_amp" + img_name_extension
     
-        plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel, 
                 U1_z0_superposition_amp, U1_z0_superposition_amp_address, "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_amp", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
@@ -362,7 +362,7 @@ def interference_AST__AST  (U1_name = "",
     
         U1_z0_superposition_phase_address = "6.2. AST - " + "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_phase" + img_name_extension
     
-        plot_2d(I1_x, I1_y, size_PerPixel, 0, 
+        plot_2d([], 1, size_PerPixel, 
                 U1_z0_superposition_phase, U1_z0_superposition_phase_address, "U" + ((U1_name.find("U2") + 1) and "2" or "1") + "_" + str(float('%.2g' % z0)) + "mm" + "_superposition" + "_phase", 
                 is_save, dpi, size_fig,  
                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 

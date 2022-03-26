@@ -14,8 +14,9 @@ from fun_img_Resize import image_Add_black_border
 from fun_SSI import Cal_diz, Cal_Iz_structure
 from fun_nonlinear import Info_find_contours_SHG
 from fun_thread import noop, my_thread
-from fun_CGH import chi2_structure_Generate_2D
-np.seterr(divide='ignore',invalid='ignore')
+from fun_CGH import structure_chi2_Generate_2D
+
+np.seterr(divide='ignore', invalid='ignore')
 
 # %%
 U1_name = ""
@@ -102,41 +103,51 @@ image_Add_black_border(img_full_name,
 
 # %%
 
-size_PerPixel, U1_0, g1_shift, k1_z_shift, k2_z_shift, border_width, structure, structure_opposite,\
-    modulation, modulation_opposite, modulation_squared, modulation_opposite_squared = chi2_structure_Generate_2D(U1_name, 
-                                                                                                                 img_full_name, 
-                                                                                                                 is_phase_only, 
-                                                                                                                 #%%
-                                                                                                                 z_pump, 
-                                                                                                                 is_LG, is_Gauss, is_OAM, 
-                                                                                                                 l, p, 
-                                                                                                                 theta_x, theta_y, 
-                                                                                                                 is_random_phase, 
-                                                                                                                 is_H_l, is_H_theta, is_H_random_phase, 
-                                                                                                                 #%%
-                                                                                                                 U1_0_NonZero_size, w0, structure_size_Enlarge, 
-                                                                                                                 Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth, 
-                                                                                                                 #%%
-                                                                                                                 is_continuous, is_target_far_field, is_transverse_xy, is_reverse_xy, is_positive_xy, is_no_backgroud, 
-                                                                                                                 #%%
-                                                                                                                 lam1, is_air_pump, is_air, T, 
-                                                                                                                 Tx, Ty, Tz, 
-                                                                                                                 mx, my, mz, 
-                                                                                                                 #%%
-                                                                                                                 is_save, is_save_txt, dpi, 
-                                                                                                                 #%%
-                                                                                                                 cmap_2d, 
-                                                                                                                 #%%
-                                                                                                                 ticks_num, is_contourf, 
-                                                                                                                 is_title_on, is_axes_on, 
-                                                                                                                 is_mm, is_propagation, 
-                                                                                                                 #%%
-                                                                                                                 fontsize, font, 
-                                                                                                                 #%%
-                                                                                                                 is_self_colorbar, is_colorbar_on, 
-                                                                                                                 is_energy, vmax, vmin, 
-                                                                                                                 #%%
-                                                                                                                 is_print, )
+n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
+dk, lc, Tz, Gx, Gy, Gz, \
+size_PerPixel, U1_0, g1_shift, \
+structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
+    = structure_chi2_Generate_2D(U1_name,
+                                 img_full_name,
+                                 is_phase_only,
+                                 # %%
+                                 z_pump,
+                                 is_LG, is_Gauss, is_OAM,
+                                 l, p,
+                                 theta_x, theta_y,
+                                 # %%s
+                                 is_random_phase,
+                                 is_H_l,
+                                 is_H_theta,
+                                 is_H_random_phase,
+                                 # %%
+                                 U1_0_NonZero_size, w0,
+                                 structure_size_Enlarge,
+                                 Duty_Cycle_x, Duty_Cycle_y,
+                                 structure_xy_mode, Depth,
+                                 # %%
+                                 is_continuous, is_target_far_field,
+                                 is_transverse_xy, is_reverse_xy,
+                                 is_positive_xy, is_no_backgroud,
+                                 # %%
+                                 lam1, is_air_pump, is_air, T,
+                                 Tx, Ty, Tz,
+                                 mx, my, mz,
+                                 # %%
+                                 is_save, is_save_txt, dpi,
+                                 # %%
+                                 cmap_2d,
+                                 # %%
+                                 ticks_num, is_contourf,
+                                 is_title_on, is_axes_on,
+                                 is_mm, is_propagation,
+                                 # %%
+                                 fontsize, font,
+                                 # %%
+                                 is_self_colorbar, is_colorbar_on,
+                                 is_energy, vmax, vmin,
+                                 # %%
+                                 is_print, )
 
 # %%
 # 提供描边信息，并覆盖值
@@ -148,7 +159,6 @@ size_PerPixel, U1_0, g1_shift, k1_z_shift, k2_z_shift, border_width, structure, 
 z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
                                                                         deff_structure_length_expect, size_PerPixel,
                                                                         deff_structure_length_expect,
-                                                                        deff_structure_sheet_expect,
                                                                         0, is_contours, n_TzQ, Gz_max_Enhance,
                                                                         match_mode, )
 
@@ -182,33 +192,29 @@ def structure_chi2_Generate_z(for_th, fors_num, *arg, ):
 
     if mz != 0:  # 如果 要用 Tz，则如下 分层；
 
-        if np.mod(iz, Tz_unit) < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
-            modulation = 1 - is_no_backgroud - Depth * structure
+        if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
+            m = modulation_squared
 
         else:  # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
-            modulation = 1 - is_no_backgroud - Depth * structure_opposite
-        modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)),
-                                    'constant', constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
+            m = modulation_opposite_squared
 
         modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
         modulation_squared_address = "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name
 
         if is_save == 1:
-            np.savetxt(modulation_squared_address, modulation_squared, fmt='%i') if is_save_txt else savemat(
-                modulation_squared_address, {'chi2_modulation_squared': modulation_squared})
+            np.savetxt(modulation_squared_address, m, fmt='%i') if is_save_txt else savemat(
+                modulation_squared_address, {'chi2_modulation_squared': m})
 
     else:  # 如果不用 Tz，则 z 向 无结构，则一直输出 正向畴
 
-        modulation = 1 - is_no_backgroud - Depth * structure
-        modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)),
-                                    'constant', constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
+        m = modulation_squared
 
         modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
         modulation_squared_address = "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name
 
         if is_save == 1:
-            np.savetxt(modulation_squared_address, modulation_squared, fmt='%i') if is_save_txt else savemat(
-                modulation_squared_address, {'chi2_modulation_squared': modulation_squared})
+            np.savetxt(modulation_squared_address, m, fmt='%i') if is_save_txt else savemat(
+                modulation_squared_address, {'chi2_modulation_squared': m})
 
 
 my_thread(10, sheets_num,

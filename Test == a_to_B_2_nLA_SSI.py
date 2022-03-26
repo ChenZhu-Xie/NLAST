@@ -10,7 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
 from fun_img_Resize import image_Add_black_border
-from A_2_structure_Generate_nLC import structure_n1_3D
+from A_2_structure_n1_Generate_3D import structure_n1_3D
 from B_2_nLA_SSI import nLA_SSI
 
 def a_to_B_2_nLA_SSI(U1_name_Structure = "", 
@@ -39,7 +39,7 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                      U1_0_NonZero_size = 0.5, w0 = 0.1, w0_Structure = 5, structure_size_Enlarge = 0.1, 
                      L0_Crystal = 2, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
                      deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
-                     z0_section_1f_expect = 1, z0_section_2f_expect = 1, X = 0, Y = 0, 
+                     z0_section_1_expect = 1, z0_section_2_expect = 1, X = 0, Y = 0, 
                      Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 1, 
                      #%%
                      is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
@@ -57,7 +57,7 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                      color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
                      elev = 10, azim = -65, alpha = 2, 
                      #%%
-                     ticks_num = 6, is_contourf = 0, 
+                     sample = 2, ticks_num = 6, is_contourf = 0, 
                      is_title_on = 1, is_axes_on = 1, 
                      is_mm = 1, is_propagation = 0, 
                      #%%
@@ -101,7 +101,6 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                   is_continuous, is_target_far_field, is_transverse_xy, is_reverse_xy, is_positive_xy, 
                   #%%
                   lam1, is_air_pump, is_air, T, 
-                  deff, 
                   Tx, Ty, Tz, 
                   mx, my, mz, 
                   #%%
@@ -137,7 +136,7 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
             U1_0_NonZero_size, w0, 
             L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect, 
             deff_structure_sheet_expect, sheets_stored_num, 
-            z0_section_1f_expect, z0_section_2f_expect, X, Y, 
+            z0_section_1_expect, z0_section_2_expect, X, Y, 
             #%%
             is_bulk, 
             is_stored, is_show_structure_face, is_energy_evolution_on, 
@@ -152,7 +151,7 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
             color_1d, cmap_2d, cmap_3d, 
             elev, azim, alpha, 
             #%%
-            ticks_num, is_contourf, 
+            sample, ticks_num, is_contourf, 
             is_title_on, is_axes_on, 
             is_mm, is_propagation, 
             #%%
@@ -187,9 +186,9 @@ a_to_B_2_nLA_SSI(U1_name_Structure = "",
                  #%%---------------------------------------------------------------------
                  #%%
                  U1_0_NonZero_size = 0.5, w0 = 0.1, w0_Structure = 5, structure_size_Enlarge = 0.1, 
-                 L0_Crystal = 2, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
+                 L0_Crystal = 0.1, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1, 
                  deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
-                 z0_section_1f_expect = 0.5, z0_section_2f_expect = 0.5, X = 0, Y = 0, 
+                 z0_section_1_expect = 0.5, z0_section_2_expect = 0.5, X = 0, Y = 0, 
                  Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x*y', Depth = 1, 
                  #%%
                  is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
@@ -207,7 +206,7 @@ a_to_B_2_nLA_SSI(U1_name_Structure = "",
                  color_1d = 'b', cmap_2d = 'viridis', cmap_3d = 'rainbow', 
                  elev = 10, azim = -65, alpha = 2, 
                  #%%
-                 ticks_num = 6, is_contourf = 0, 
+                 sample = 2, ticks_num = 6, is_contourf = 0, 
                  is_title_on = 1, is_axes_on = 1, 
                  is_mm = 1, is_propagation = 0, 
                  #%%
