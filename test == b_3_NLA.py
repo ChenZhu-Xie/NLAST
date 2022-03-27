@@ -21,18 +21,17 @@ from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SH
     G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
-
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 U1_name = ""
-img_full_name = "lena.png"
+img_full_name = "lena1.png"
 border_percentage = 0.1  # 边框 占图片的 百分比，也即 图片 放大系数
 is_phase_only = 0
 # %%
 z_pump = 0
 is_LG, is_Gauss, is_OAM = 1, 1, 1
-l, p = 1, 3
-theta_x, theta_y = -0.5, 0
+l, p = 1, 0
+theta_x, theta_y = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
@@ -48,7 +47,7 @@ lam1 = 1.064  # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25  # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 # %%
 deff = 30  # pm / V
-Tx, Ty, Tz = 35, 50, 7.004  # Unit: um
+Tx, Ty, Tz = 10, 50, 7.004  # Unit: um
 mx, my, mz = 1, 0, 1
 # 倒空间：右, 下 = +, +
 is_fft = 1

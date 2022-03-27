@@ -13,7 +13,7 @@ from fun_algorithm import find_nearest
 
 def Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel, 
             Tz, mz,
-            is_print = 1):
+            is_print = 1, ):
     Tz_percentage = 0.1
     length_percentage = 0.01
     #%%
@@ -36,7 +36,7 @@ def Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerP
 
 def Cal_Iz_frontface(diz, 
                      z0_structure_frontface_expect, L0_Crystal, size_PerPixel, 
-                     is_print = 1):  
+                     is_print = 1, ):  
     
     #%%
     if z0_structure_frontface_expect <=0 or z0_structure_frontface_expect >= L0_Crystal or (type(z0_structure_frontface_expect) != float and type(z0_structure_frontface_expect) != np.float64 and type(z0_structure_frontface_expect) != int):
@@ -57,7 +57,7 @@ def Cal_Iz_frontface(diz,
 
 def Cal_Iz_structure(diz, 
                      deff_structure_length_expect, size_PerPixel, 
-                     is_print = 1): 
+                     is_print = 1, ): 
     
     #%%
     Iz_structure = deff_structure_length_expect / size_PerPixel # Iz_structure 对应的是 期望的（连续的），而不是 实际的（discrete 离散的）？不，就得是离散的。
@@ -81,7 +81,7 @@ def Cal_Iz_structure(diz,
 def Cal_Iz_endface(sheets_num_frontface, sheets_num_structure, 
                    Iz_frontface, Iz_structure, diz, 
                    size_PerPixel, 
-                   is_print = 1): 
+                   is_print = 1, ): 
     
     #%%
     Iz_endface = Iz_frontface + Iz_structure
@@ -99,7 +99,7 @@ def Cal_Iz_endface(sheets_num_frontface, sheets_num_structure,
 
 def Cal_Iz(diz, 
            L0_Crystal, size_PerPixel, 
-           is_print = 1): 
+           is_print = 1, ): 
     
     #%%
     Iz = L0_Crystal / size_PerPixel
@@ -119,7 +119,7 @@ def Cal_Iz(diz,
 
 def Cal_iz_1(diz, 
              z0_section_1f_expect, size_PerPixel, 
-             is_print = 1): 
+             is_print = 1, ): 
     
     #%%
     Iz_1f = z0_section_1f_expect / size_PerPixel
@@ -139,7 +139,7 @@ def Cal_iz_1(diz,
 def Cal_iz_2(sheets_num, 
              Iz, diz, 
              z0_section_2f_expect, size_PerPixel, 
-             is_print = 1): 
+             is_print = 1, ): 
     
     leftover = Iz - Iz//diz * diz
     
@@ -159,7 +159,7 @@ def Cal_iz_2(sheets_num,
 
 def Cal_IxIy(I1_x, I1_y, 
              deff_structure_size_expect, size_PerPixel, 
-             is_print = 1):
+             is_print = 1, ):
     
     Ix, Iy = int( deff_structure_size_expect / size_PerPixel ), int( deff_structure_size_expect / size_PerPixel )
     # Ix, Iy 需要与 I1_x, I1_y 同奇偶性，这样 加边框 才好加（对称地加 而不用考虑 左右两边加的量 可能不一样）
@@ -197,6 +197,7 @@ def cal_Iz_endface_1(z0_structure_frontface, deff_structure_length_expect, L0_Cr
     
     z0_structure_endface = z0_structure_frontface + deff_structure_length_expect
     # print(z0_structure_endface)
+    # print(deff_structure_length_expect) # 如果 deff_structure_length_expect 值不是 预期，则应该是 Info_find_contours_SHG 的 锅
     if z0_structure_endface > L0_Crystal: # 设定 z0_structure_endface 的上限
         z0_structure_endface = L0_Crystal
         deff_structure_length = z0_structure_endface - z0_structure_frontface
@@ -271,7 +272,8 @@ def cal_diz(Duty_Cycle_z, Tz, Iz_structure, size_PerPixel,
 #%%
 # 生成 structure 各层 z 序列，以及 正负畴 序列信息 mj
 
-def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface, z0_structure_endface):
+def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface, z0_structure_endface, 
+                        is_stripe, mx, my, Tx, Ty, Tz, structure_xy_mode, size_PerPixel, ):
 
     # mj_structure = np.zeros((sheets_num_structure + 1), dtype=np.float64())
     # zj_structure = np.zeros((sheets_num_structure + 1), dtype=np.float64())
@@ -283,24 +285,43 @@ def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure
     #     else: # 如果 j 是偶数，则 在接下来的 deff_structure_sheet * Duty_Cycle_z 内 输出 正畴
     #         zj_structure[j] = z0_structure_frontface + j // 2 * deff_structure_sheet
     #         mj_structure[j] = 1
-            
-    mj_structure = - 2 * np.mod(np.arange(sheets_num_structure + 1, dtype=np.float64()), 2) + 1
+    
     zj_structure = z0_structure_frontface + np.arange(sheets_num_structure + 1, dtype=np.float64()) * deff_structure_sheet / 2 \
                                         - np.mod(np.arange(sheets_num_structure+ 1, dtype=np.float64()), 2) * (0.5 - Duty_Cycle_z) * deff_structure_sheet
 
     zj_structure[-1] = z0_structure_endface
-    # print("{} == {} ?".format(leftover2 * size_PerPixel, zj_structure[-1] - zj_structure[-2]))
     # print(zj_structure)
+    
+    Dzj_structure = zj_structure - z0_structure_frontface
+    # dzj_structure = zj_structure[1:] - zj_structure[:-1] # 为了 对斜条纹时的 mj_structure 赋值
+    # izj_structure = zj_structure / size_PerPixel # 为了 对斜条纹时的 mj_structure 赋值
+    # dizj_structure = izj_structure[1:] - izj_structure[:-1] # 为了 对斜条纹时的 mj_structure 赋值
+    # print("{} == {} ?".format(leftover2, dizj_structure[-1]))
+    
+    if is_stripe == 0:
+        # mj_structure = - 2 * np.mod(np.arange(sheets_num_structure + 1, dtype=np.float64()), 2) + 1
+        mj_structure = - 2 * np.mod(np.arange(sheets_num_structure + 1, dtype=np.int8()), 2) + 1
+        mj_structure = mj_structure.astype(str) # 字符 '-1','+1','0' 分别 表示 opposite，positive，以及 bulk，注意 astype 并不会改变 mj_structure，所以得 重新赋值给 mj_structure
+    else:
+        if structure_xy_mode == 'x' or structure_xy_mode == 'xy':
+            xyj_structure = mx * Tx / Tz * Dzj_structure # 本身 第一层 就不移
+            # xj_structure = np.append(0, xj_structure) # 第一层 不移，其他层 才移
+            # print(xj_structure)
+        elif structure_xy_mode == 'y':
+            xyj_structure = my * Ty / Tz * Dzj_structure
+            
+        mj_structure = (xyj_structure // size_PerPixel).astype(np.int64)
+        # print(mj_structure)
+        
+    mj_structure = mj_structure.tolist() # 转换为 list 才能储存 不同类型 的值
+    # print(mj_structure)
     
     return zj_structure, mj_structure
 
 #%%
 # 生成 晶体内 各层 z 序列、izj、dizj，以及 正负畴 序列信息 mj
 
-def cal_zj_izj_dizj_mj(zj_structure, mj_structure, z0_structure_frontface, z0_structure_endface, L0_Crystal, size_PerPixel):
-
-    mj = np.append(0, mj_structure) if z0_structure_frontface > 0 else mj_structure
-    if z0_structure_endface < L0_Crystal: mj = np.append(mj, 0)
+def cal_zj_izj_dizj_mj(zj_structure, mj_structure, z0_structure_frontface, z0_structure_endface, L0_Crystal, size_PerPixel, ):
     
     # zj = np.zeros((sheets_num + 1), dtype=np.float64())
     zj = np.append(0, zj_structure) if z0_structure_frontface > 0 else zj_structure
@@ -312,13 +333,20 @@ def cal_zj_izj_dizj_mj(zj_structure, mj_structure, z0_structure_frontface, z0_st
     izj = zj / size_PerPixel # 为循环 里使用
     dizj = izj[1:] - izj[:-1] # 为循环 里使用
     
+    # mj = np.append('0', mj_structure) if z0_structure_frontface > 0 else mj_structure
+    # if z0_structure_endface < L0_Crystal: mj = np.append(mj, '0')
+    mj = mj_structure
+    if z0_structure_frontface > 0: mj.insert(0, '0') # 不像 np.array，对 list 增插 元素 之后，原 list 改变了
+    if z0_structure_endface < L0_Crystal: mj.append('0')
+    # print(mj,mj[0],type(mj),type(mj[0]))
+    
     return zj, izj, dizj, mj
 
 #%%
 # 定义 需要展示的截面 1 距离晶体前端面 的 纵向实际像素、需要展示的截面 1 距离晶体前端面 的 实际纵向尺寸
 
 def cal_iz_1(zj, z0_section_1_expect, size_PerPixel, 
-             is_print = 1):
+             is_print = 1, ):
 
     sheets_num_section_1, z0_1 = find_nearest(zj, z0_section_1_expect)
     is_print and print("z0_section_1 = {} mm".format(z0_1))
@@ -331,7 +359,7 @@ def cal_iz_1(zj, z0_section_1_expect, size_PerPixel,
 # 定义 需要展示的截面 1 距离晶体前端面 的 纵向实际像素、需要展示的截面 1 距离晶体前端面 的 实际纵向尺寸
 
 def cal_iz_2(zj, deff_structure_length_expect, z0_section_2_expect, size_PerPixel, 
-             is_print = 1):
+             is_print = 1, ):
 
     sheets_num_section_2, z0_2 = find_nearest(zj, deff_structure_length_expect - z0_section_2_expect)
     is_print and print("z0_section_2 = {} mm".format(z0_2))

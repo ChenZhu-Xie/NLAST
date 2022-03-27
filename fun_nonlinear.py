@@ -123,7 +123,7 @@ def G2_z_modulation_NLAST(k1, k2, Gz,
                            - U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
     
     # G2_z_shift = const * U1_z_Squared_modulated * math.e ** (Gz * iz * 1j)
-    # G2_z_shift = const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
+    G2_z_shift = - const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
     
     return G2_z_shift
 
@@ -151,8 +151,8 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
                 - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
     
     # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j)
-    # molecule = g_U1_0_Squared_shift_Q
     # molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j)
+    # molecule = g_U1_0_Squared_shift_Q
     
     #%%
     

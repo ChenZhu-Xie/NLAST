@@ -28,19 +28,23 @@ def structure_chi2_3D(U1_name="",
                       is_LG=0, is_Gauss=0, is_OAM=0,
                       l=0, p=0,
                       theta_x=0, theta_y=0,
+                      #%%
                       is_random_phase=0,
                       is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                       # %%
                       U1_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
                       deff_structure_length_expect=2, deff_structure_sheet_expect=1.8,
+                      #%%
                       Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5, structure_xy_mode='x', Depth=2,
                       # %%
                       is_continuous=1, is_target_far_field=1, is_transverse_xy=0, is_reverse_xy=0, is_positive_xy=1,
                       is_no_backgroud=1,
                       # %%
                       lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                      #%%
                       Tx=10, Ty=10, Tz="2*lc",
                       mx=0, my=0, mz=0,
+                      is_stripe = 0,
                       # %%
                       is_save=0, is_save_txt=0, dpi=100,
                       # %%
@@ -220,11 +224,20 @@ def structure_chi2_3D(U1_name="",
 
         if mz != 0:  # 如果 要用 Tz，则如下 分层；
 
-            if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
-                m = modulation_squared
-
-            else:  # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
-                m = modulation_opposite_squared
+            if is_stripe == 0:
+                if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
+                    m = modulation_squared
+        
+                else:  # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
+                    m = modulation_opposite_squared
+            else:
+                if structure_xy_mode == 'x': # 往右（列） 线性平移 mj[for_th] 像素
+                    m = np.roll(modulation_squared, int((mx * Tx / Tz * iz) // 1), axis=1)
+                elif structure_xy_mode == 'y': # 往下（行） 线性平移 mj[for_th] 像素
+                    m = np.roll(modulation_squared, int((my * Ty / Tz * iz) // 1), axis=0)
+                elif structure_xy_mode == 'xy': # 往右（列） 线性平移 mj[for_th] 像素
+                    m = np.roll(modulation_squared, int((mx * Tx / Tz * iz) // 1), axis=1)
+                    m = np.roll(modulation_squared, int((my * Ty / Tz * iz) // 1), axis=0)
 
             modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
             modulation_squared_address = "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name

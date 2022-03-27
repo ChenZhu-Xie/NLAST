@@ -43,7 +43,7 @@ def CGH(U, mode,
     i1_x0, i1_y0 = np.meshgrid([i for i in range(U.shape[0])], [j for j in range(U.shape[1])])
     i1_x0_shift, i1_y0_shift = i1_x0 - U.shape[0] // 2, i1_y0 - U.shape[1] // 2
     if is_Gauss == 1 and l == 0:
-        if mode == 'x*y':
+        if mode == 'x*y' or mode == 'x+y':
             cgh = np.cos(Gx * i1_x0_shift)
             cgh_x = Step_U(cgh, 'x', 
                            Duty_Cycle_x, Duty_Cycle_y, 
@@ -52,7 +52,10 @@ def CGH(U, mode,
             cgh_y = Step_U(cgh, 'y', 
                            Duty_Cycle_x, Duty_Cycle_y, 
                            is_positive_xy) if is_continuous == 0 else 0.5 + 0.5 * cgh
-            cgh = cgh_x * cgh_y
+            if mode == 'x*y':
+                cgh = cgh_x * cgh_y
+            else:
+                cgh = np.mod(cgh_x + cgh_y, 2)
         elif mode == 'x':
             cgh = np.cos(Gx * i1_x0_shift)
             cgh = Step_U(cgh, 'x', 
@@ -63,14 +66,14 @@ def CGH(U, mode,
             cgh = Step_U(cgh, 'y', 
                          Duty_Cycle_x, Duty_Cycle_y, 
                          is_positive_xy) if is_continuous == 0 else 0.5 + 0.5 * cgh
-        elif mode == 'x+y':
+        elif mode == 'xy':
             cgh = np.cos(Gx * i1_x0_shift + Gy * i1_y0_shift)
             cgh = Step_U(cgh, 'x', 
                          Duty_Cycle_x, Duty_Cycle_y, 
                          is_positive_xy) if is_continuous == 0 else 0.5 + 0.5 * cgh # 在所有方向的占空比都认为是 Duty_Cycle_x
         return cgh
     else:
-        if mode == 'x*y':
+        if mode == 'x*y' or mode == 'x+y':
             cgh = np.cos(Gx * i1_x0_shift - ( np.angle(U) + math.pi )) - np.cos( np.arcsin( np.abs(U) / np.max( np.abs(U) ) ) )
             cgh_x = Step_U(cgh, 'x', 
                            Duty_Cycle_x, Duty_Cycle_y, 
@@ -79,7 +82,10 @@ def CGH(U, mode,
             cgh_y = Step_U(cgh, 'y', 
                            Duty_Cycle_x, Duty_Cycle_y, 
                            is_positive_xy) if is_continuous == 0 else 0.5 + 0.5 * cgh
-            cgh = cgh_x * cgh_y
+            if mode == 'x*y':
+                cgh = cgh_x * cgh_y
+            else:
+                cgh = np.mod(cgh_x + cgh_y, 2)
         elif mode == 'x':
             cgh = np.cos(Gx * i1_x0_shift - ( np.angle(U) + math.pi )) - np.cos( np.arcsin( np.abs(U) / np.max( np.abs(U) ) ) )
             cgh = Step_U(cgh, 'x', 
@@ -90,7 +96,7 @@ def CGH(U, mode,
             cgh = Step_U(cgh, 'y', 
                          Duty_Cycle_x, Duty_Cycle_y, 
                          is_positive_xy) if is_continuous == 0 else 0.5 + 0.5 * cgh
-        elif mode == 'x+y':
+        elif mode == 'xy':
             cgh = np.cos(Gx * i1_x0_shift + Gy * i1_y0_shift - ( np.angle(U) + math.pi )) - np.cos( np.arcsin( np.abs(U) / np.max( np.abs(U) ) ) )
             cgh = Step_U(cgh,'x', 
                          Duty_Cycle_x, Duty_Cycle_y, 
@@ -359,25 +365,26 @@ def structure_chi2_Generate_2D(U1_name = "",
     #%%
 
     if mz != 0:
-
         structure_opposite = 1 - structure
+    else:
+        structure_opposite = structure
     
-        # plot_2d([], 1, size_PerPixel,  
-        #         structure_opposite, "χ2_structure_opposite" + img_name_extension, "χ2_structure_opposite", 
-        #         is_save, dpi, size_fig,  
-        #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-        #         fontsize, font,
-        #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
-    
-        modulation_opposite = 1 - is_no_backgroud - Depth * structure_opposite
-        modulation_opposite_squared = np.pad(modulation_opposite, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (1 - is_no_backgroud, 1 - is_no_backgroud))
-    
-        plot_2d([], 1, size_PerPixel, 
-                modulation_opposite_squared, "χ2_modulation_opposite_squared" + img_name_extension, "χ2_modulation_opposite_squared", 
-                is_save, dpi, size_fig, 
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-                fontsize, font, 
-                0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
+    # plot_2d([], 1, size_PerPixel,  
+    #         structure_opposite, "χ2_structure_opposite" + img_name_extension, "χ2_structure_opposite", 
+    #         is_save, dpi, size_fig,
+    #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+    #         fontsize, font,
+    #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
+        
+    modulation_opposite = 1 - is_no_backgroud - Depth * structure_opposite
+    modulation_opposite_squared = np.pad(modulation_opposite, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (1 - is_no_backgroud, 1 - is_no_backgroud))
+
+    plot_2d([], 1, size_PerPixel, 
+            modulation_opposite_squared, "χ2_modulation_opposite_squared" + img_name_extension, "χ2_modulation_opposite_squared", 
+            is_save, dpi, size_fig, 
+            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            fontsize, font, 
+            0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
         
     return n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
            dk, lc, Tz, Gx, Gy, Gz, \
@@ -567,25 +574,26 @@ def structure_n1_Generate_2D(U1_name = "",
     #%%
     
     if mz != 0:
-
         structure_opposite = 1 - structure
+    else:
+        structure_opposite = structure
     
-        # plot_2d([], 1, size_PerPixel,  
-        #         structure_opposite, "n1_structure_opposite" + img_name_extension, "n1_structure_opposite", 
-        #         is_save, dpi, size_fig,  
-        #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-        #         fontsize, font,
-        #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
-    
-        modulation_opposite = n1 - Depth * structure_opposite
-        modulation_opposite_squared = np.pad(modulation_opposite, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (n1, n1))
-    
-        plot_2d([], 1, size_PerPixel, 
-                modulation_opposite_squared, "n1_modulation_opposite_squared" + img_name_extension, "n1_modulation_opposite_squared", 
-                is_save, dpi, size_fig, 
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-                fontsize, font, 
-                0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
+    # plot_2d([], 1, size_PerPixel,  
+    #         structure_opposite, "n1_structure_opposite" + img_name_extension, "n1_structure_opposite", 
+    #         is_save, dpi, size_fig,  
+    #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+    #         fontsize, font,
+    #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
+
+    modulation_opposite = n1 - Depth * structure_opposite
+    modulation_opposite_squared = np.pad(modulation_opposite, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (n1, n1))
+
+    plot_2d([], 1, size_PerPixel, 
+            modulation_opposite_squared, "n1_modulation_opposite_squared" + img_name_extension, "n1_modulation_opposite_squared", 
+            is_save, dpi, size_fig, 
+            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            fontsize, font, 
+            0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
         
     return n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
            dk, lc, Tz, Gx, Gy, Gz, \

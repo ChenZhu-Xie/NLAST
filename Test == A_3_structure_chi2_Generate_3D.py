@@ -63,6 +63,7 @@ is_air_pump, is_air, T = 0, 0, 25  # is_air = 0, 1, 2 分别表示 LN, 空气, K
 Tx, Ty, Tz = 19.769, 20, 18.139  # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
 mx, my, mz = -1, 1, 1
 # 倒空间：右, 下 = +, +
+is_stripe = 0
 # %%
 is_save = 0
 is_save_txt = 0
@@ -184,19 +185,27 @@ Tz_unit = (Tz / 1000) / size_PerPixel
 # 逐层 绘制 并 输出 structure
 if is_save == 1:
     if not os.path.isdir("0.χ2_modulation_squared"):
-        os.makedirs("0.χ2_modulation_squared")
-
+        os.makedirs("0.χ2_modulation_squared")    
 
 def structure_chi2_Generate_z(for_th, fors_num, *arg, ):
     iz = for_th * diz
 
     if mz != 0:  # 如果 要用 Tz，则如下 分层；
 
-        if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
-            m = modulation_squared
-
-        else:  # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
-            m = modulation_opposite_squared
+        if is_stripe == 0:
+            if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
+                m = modulation_squared
+    
+            else:  # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
+                m = modulation_opposite_squared
+        else:
+            if structure_xy_mode == 'x': # 往右（列） 线性平移 mj[for_th] 像素
+                m = np.roll(modulation_squared, int((mx * Tx / Tz * iz) // 1), axis=1)
+            elif structure_xy_mode == 'y': # 往下（行） 线性平移 mj[for_th] 像素
+                m = np.roll(modulation_squared, int((my * Ty / Tz * iz) // 1), axis=0)
+            elif structure_xy_mode == 'xy': # 往右（列） 线性平移 mj[for_th] 像素
+                m = np.roll(modulation_squared, int((mx * Tx / Tz * iz) // 1), axis=1)
+                m = np.roll(modulation_squared, int((my * Ty / Tz * iz) // 1), axis=0)
 
         modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
         modulation_squared_address = "0.χ2_modulation_squared" + "\\" + modulation_squared_full_name

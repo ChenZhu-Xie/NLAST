@@ -22,23 +22,23 @@ from fun_thread import my_thread
 np.seterr(divide='ignore',invalid='ignore')
 #%%
 U1_name = ""
-img_full_name = "lena.png"
+img_full_name = "lena1.png"
 border_percentage = 0.3 # 边框 占图片的 百分比，也即 图片 放大系数
 is_phase_only = 0
 #%%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 0, 0, 0
-l, p = 0, 0
-theta_x, theta_y = 0.5, 0
+is_LG, is_Gauss, is_OAM = 1, 1, 1
+l, p = 1, 3
+theta_x, theta_y = -0.5, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
 is_random_phase = 0
 is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
 #%%
-U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
-w0 = 0.28 # Unit: mm 束腰（z = 0 处）
-L0_Crystal = 1.3125 # Unit: mm 晶体长度
+U1_0_NonZero_size = 0.9 # Unit: mm 不包含边框，图片 的 实际尺寸
+w0 = 0.1 # Unit: mm 束腰（z = 0 处）
+L0_Crystal = 3 # Unit: mm 晶体长度
 z0_structure_frontface_expect = 0.5 # Unit: mm 结构 前端面，距离 晶体 前端面 的 距离
 deff_structure_length_expect = 1 # Unit: mm 调制区域 z 向长度（类似 z）
 deff_structure_sheet_expect = 18 # Unit: μm z 向 切片厚度
@@ -51,7 +51,7 @@ X, Y = 0, 0 # Unit: mm 切片 中心点 平移 矢量（逆着 z 正向看去，
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 is_bulk = 1 # 是否 不读取 结构，1 为 不读取，即 均一晶体；0 为 读取结构
 is_no_backgroud = 0 # 1 -1 调制，改为 0 -2 调制
-is_stored = 1 # 如果要储存中间结果，则不能多线程，只能单线程
+is_stored = 0 # 如果要储存中间结果，则不能多线程，只能单线程
 is_show_structure_face = 0 # 如果要显示 结构 前后端面 的 场分布，就打开这个
 is_energy_evolution_on = 1 # 储存 能量 随 z 演化 的 曲线
 #%%

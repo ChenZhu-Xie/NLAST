@@ -55,7 +55,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                      deff = 30, 
                      Tx = 19.769, Ty = 20, Tz = 18.139, 
                      mx = -1, my = 0, mz = 1,
-                     is_NLAST = 0, 
+                     is_stripe = 0, is_NLAST = 0, 
                      #%%
                      is_save = 0, is_save_txt = 0, dpi = 100, 
                      #%%
@@ -169,6 +169,7 @@ def a_to_B_3_NLA_SSI(U1_name_Structure = "",
                       lam1, is_air_pump, is_air, T, 
                       Tx, Ty, Tz, 
                       mx, my, mz, 
+                      is_stripe, 
                       #%%
                       is_save, is_save_txt, dpi, 
                       #%%
@@ -249,34 +250,34 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
                  #%%
                  U1_name = "", 
-                 img_full_name = "grating.png", 
+                 img_full_name = "lena1.png", 
                  is_phase_only = 0, 
                  #%%
                  z_pump = 0, 
                  is_LG = 1, is_Gauss = 1, is_OAM = 1, 
-                 l = 1, p = 3, 
-                 theta_x = -0.5, theta_y = 0,
+                 l = 1, p = 0, 
+                 theta_x = 0, theta_y = 0,
                  # %%
                  is_random_phase = 0, 
                  is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
                  #%%---------------------------------------------------------------------
                  #%%
                  U1_0_NonZero_size = 0.9, w0 = 0.1, w0_Structure = 0, structure_size_Enlarge = 0.1, 
-                 L0_Crystal = 3, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.5, 
+                 L0_Crystal = 2, z0_structure_frontface_expect = 0, deff_structure_length_expect = 0.5, 
                  deff_structure_sheet_expect = 1, sheets_stored_num = 10, 
                  z0_section_1_expect = 0, z0_section_2_expect = 0, X = 0, Y = 0, 
-                 Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 2, 
+                 Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'xy', Depth = 2, 
                  #%%
                  is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
                  #%%
                  is_bulk = 0, is_no_backgroud = 0, 
-                 is_stored = 1, is_show_structure_face = 0, is_energy_evolution_on = 1, 
+                 is_stored = 0, is_show_structure_face = 0, is_energy_evolution_on = 1, 
                  #%%
                  lam1 = 1.064, is_air_pump = 0, is_air = 0, T = 25, 
                  deff = 30, 
-                 Tx = 35, Ty = 13.703, Tz = 7.004, 
-                 mx = 1, my = 0, mz = 1,
-                 is_NLAST = 1, 
+                 Tx = 10, Ty = 20, Tz = 7.004, 
+                 mx = 1, my = 1, mz = 1,
+                 is_stripe = 0, is_NLAST = 1, 
                  #%%
                  is_save = 1, is_save_txt = 0, dpi = 100, 
                  #%%
@@ -287,7 +288,7 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_title_on = 1, is_axes_on = 1, 
                  is_mm = 1, is_propagation = 0, 
                  #%%
-                 fontsize = 7, 
+                 fontsize = 9, 
                  font = {'family': 'serif', 
                          'style': 'normal', # 'normal', 'italic', 'oblique'
                          'weight': 'normal',
@@ -295,8 +296,8 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                          }, 
                  #%%
                  is_self_colorbar = 0, is_colorbar_on = 1, 
-                 is_energy = 1, vmax = 1, vmin = 0, 
+                 is_energy = 0, vmax = 1, vmin = 0, 
                  #%%
                  is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 0, 
                  #%%
-                 is_NLA = 1, )
+                 is_NLA = 0, )

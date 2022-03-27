@@ -30,6 +30,7 @@ def nLA_SSI(U1_name = "",
             is_LG = 0, is_Gauss = 0, is_OAM = 0, 
             l = 0, p = 0, 
             theta_x = 0, theta_y = 0, 
+            #%%
             is_random_phase = 0, 
             is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
             #%%
@@ -43,6 +44,7 @@ def nLA_SSI(U1_name = "",
             #%%
             lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
             deff = 30, 
+            #%%
             Tx = 10, Ty = 10, Tz = "2*lc", 
             mx = 0, my = 0, mz = 0, 
             #%%

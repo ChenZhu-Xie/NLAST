@@ -30,8 +30,22 @@ def NLA_SSI_chi2(U1_name = "",
                 is_LG = 0, is_Gauss = 0, is_OAM = 0, 
                 l = 0, p = 0, 
                 theta_x = 0, theta_y = 0, 
+                #%%
                 is_random_phase = 0, 
                 is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
+                # %%
+                # 生成横向结构
+                U1_name_Structure = '',
+                structure_size_Enlarge = 0.1,
+                is_phase_only_Structure = 0,
+                # %%
+                w0_Structure = 0, z_pump_Structure = 0,
+                is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0, 
+                l_Structure = 0, p_Structure = 0, 
+                theta_x_Structure = 0, theta_y_Structure = 0,
+                # %%
+                is_random_phase_Structure = 0, 
+                is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
                 #%%
                 U1_0_NonZero_size = 1, w0 = 0.3, 
                 L0_Crystal = 5, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 2,
@@ -42,9 +56,15 @@ def NLA_SSI_chi2(U1_name = "",
                 #%%
                 lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
                 deff = 30, 
+                #%%
                 Tx = 10, Ty = 10, Tz = "2*lc", 
                 mx = 0, my = 0, mz = 0,
-                is_NLAST = 0,
+                is_stripe = 0, is_NLAST = 0,
+                # %%
+                # 生成横向结构
+                Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
+                Depth = 2, structure_xy_mode = 'x', 
+                is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
                 #%%
                 is_save = 0, is_save_txt = 0, dpi = 100, 
                 #%%
@@ -66,6 +86,7 @@ def NLA_SSI_chi2(U1_name = "",
                 is_energy = 0, vmax = 1, vmin = 0, 
                 #%%
                 is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
+    
     # #%%
     # U1_name = ""
     # img_full_name = "l=1.png"
@@ -191,35 +212,6 @@ def NLA_SSI_chi2(U1_name = "",
     I2_x, I2_y = U1_0.shape[0], U1_0.shape[1]
 
     # %%
-    # 生成横向结构
-
-    U1_name_Structure = ''
-    is_phase_only_Structure = 0
-
-    w0_Structure = 0
-    z_pump_Structure = 0
-
-    is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0, 1, 0
-    l_Structure, p_Structure = 0, 0
-    theta_x_Structure, theta_y_Structure = 0, 0
-
-    is_random_phase_Structure = 0
-    is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure = 0, 0, 0
-
-    structure_size_Enlarge = 0.1
-    Duty_Cycle_x = 0.5
-    Duty_Cycle_y = 0.5
-    Duty_Cycle_z = 0.5
-
-    Depth = 2
-    structure_xy_mode = 'x'
-
-    is_continuous = 0
-    is_target_far_field = 1
-    is_transverse_xy = 0
-    is_reverse_xy = 0
-    is_positive_xy = 1
-    is_no_backgroud = 0
 
     n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
     dk, lc, Tz, Gx, Gy, Gz, \
@@ -316,7 +308,8 @@ def NLA_SSI_chi2(U1_name = "",
     # 生成 structure 各层 z 序列，以及 正负畴 序列信息 mj
 
     zj_structure, mj_structure \
-        = cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface, z0_structure_endface)
+        = cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface, z0_structure_endface, 
+                              is_stripe, mx, my, Tx, Ty, Tz, structure_xy_mode, size_PerPixel, )
 
     #%%
     # 生成 晶体内 各层 z 序列、izj、dizj，以及 正负畴 序列信息 mj
@@ -399,12 +392,22 @@ def NLA_SSI_chi2(U1_name = "",
 
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                if mj[for_th] == 1:
+                if mj[for_th] == '1':
                     modulation_squared_z = modulation_squared
-                elif mj[for_th] == -1:
+                elif mj[for_th] == '-1':
                     modulation_squared_z = modulation_opposite_squared
-                else:
+                elif mj[for_th] == '0':
+                    # print("???????????????")
                     modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
+                else:
+                    if structure_xy_mode == 'x': # 往右（列） 线性平移 mj[for_th] 像素
+                        modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=1)
+                    elif structure_xy_mode == 'y': # 往下（行） 线性平移 mj[for_th] 像素
+                        modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=0)
+                    elif structure_xy_mode == 'xy': # 往右（列） 线性平移 mj[for_th] 像素
+                        modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=1)
+                        # modulation_squared_z = np.roll(modulation_squared_z, mj[for_th] / (mx * Tx) * (my * Ty), axis=0)
+                        modulation_squared_z = np.roll(modulation_squared_z, int((my * Ty / Tz * (zj[for_th] - z0_structure_frontface)) // size_PerPixel), axis=0)
             else:
                 modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
         else:

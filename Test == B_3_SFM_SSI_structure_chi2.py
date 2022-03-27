@@ -23,25 +23,39 @@ from fun_CGH import structure_chi2_Generate_2D
 np.seterr(divide='ignore',invalid='ignore')
 #%%
 U1_name = ""
-img_full_name = "lena.png"
-border_percentage = 0.3 # 边框 占图片的 百分比，也即 图片 放大系数
+img_full_name = "lena1.png"
+border_percentage = 0.1 # 边框 占图片的 百分比，也即 图片 放大系数
 is_phase_only = 0
 #%%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 0, 0, 0
-l, p = 0, 0
-theta_x, theta_y = 0.5, 0
+is_LG, is_Gauss, is_OAM = 1, 1, 1
+l, p = 1, 0
+theta_x, theta_y = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
 is_random_phase = 0
 is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
+# %%
+# 生成横向结构
+U1_name_Structure = ''
+structure_size_Enlarge = border_percentage
+is_phase_only_Structure = 0
+
+w0_Structure = 0
+z_pump_Structure = 0
+is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0, 1, 0
+l_Structure, p_Structure = 0, 0
+theta_x_Structure, theta_y_Structure = 0, 0
+
+is_random_phase_Structure = 0
+is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure = 0, 0, 0
 #%%
-U1_0_NonZero_size = 0.5 # Unit: mm 不包含边框，图片 的 实际尺寸
-w0 = 0.28 # Unit: mm 束腰（z = 0 处）
-L0_Crystal = 1 # Unit: mm 晶体长度
+U1_0_NonZero_size = 0.9 # Unit: mm 不包含边框，图片 的 实际尺寸
+w0 = 0.1 # Unit: mm 束腰（z = 0 处）
+L0_Crystal = 3 # Unit: mm 晶体长度
 z0_structure_frontface_expect = 0 # Unit: mm 结构 前端面，距离 晶体 前端面 的 距离
-deff_structure_length_expect = 1 # Unit: mm 调制区域 z 向长度（类似 z）
+deff_structure_length_expect = 3 # Unit: mm 调制区域 z 向长度（类似 z）
 sheets_stored_num = 10 # 储存片数 （不包含 最末：因为 最末，作为结果 已经单独 呈现了）；每一步 储存的 实际上不是 g_z，而是 g_z+dz
 z0_section_1_expect = 0 # Unit: mm z 向 需要展示的截面 1 距离晶体前端面 的 距离
 z0_section_2_expect = 0 # Unit: mm z 向 需要展示的截面 2 距离晶体后端面 的 距离
@@ -49,9 +63,9 @@ X, Y = 0, 0 # Unit: mm 切片 中心点 平移 矢量（逆着 z 正向看去，
 # X 增加，则 从 G2_z_shift 中 读取的 列 向右移，也就是 xz 面向 列 增加的方向（G2_z_shift 的 右侧）移动
 # Y 增加，则 从 G2_z_shift 中 读取的 行 向上移，也就是 yz 面向 行 减小的方向（G2_z_shift 的 上侧）移动
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
-is_bulk = 1 # 是否 不读取 结构，1 为 不读取，即 均一晶体；0 为 读取结构
+is_bulk = 0 # 是否 不读取 结构，1 为 不读取，即 均一晶体；0 为 读取结构
 is_no_backgroud = 0 # 1 -1 调制，改为 0 -2 调制
-is_stored = 1 # 如果要储存中间结果，则不能多线程，只能单线程
+is_stored = 0 # 如果要储存中间结果，则不能多线程，只能单线程
 is_show_structure_face = 0 # 如果要显示 结构 前后端面 的 场分布，就打开这个
 is_energy_evolution_on = 1 # 储存 能量 随 z 演化 的 曲线
 #%%
@@ -59,10 +73,26 @@ lam1 = 1.064 # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 #%%
 deff = 30 # pm / V
-Tx, Ty, Tz = 6.633, 20, 18.437 # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
+Tx, Ty, Tz = 10, 12, 7.004 # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
 mx, my, mz = -1, 0, 1
 # 倒空间：右, 下 = +, +
+is_stripe = 0
 is_NLAST = 0 # 对 SFM 来说，这个没用，但是为了 与 NLA_SSI 参数一致，需要 设置这个 多余的参数
+# %%
+# 生成横向结构
+Duty_Cycle_x = 0.5
+Duty_Cycle_y = 0.5
+Duty_Cycle_z = 0.5
+
+Depth = 2
+structure_xy_mode = 'x'
+
+is_continuous = 0
+is_target_far_field = 1
+is_transverse_xy = 0
+is_reverse_xy = 0
+is_positive_xy = 1
+is_no_backgroud = 0
 #%%
 is_save = 0
 is_save_txt = 0
@@ -165,34 +195,6 @@ I2_x, I2_y = U1_0.shape[0], U1_0.shape[1]
 # %%
 # 生成横向结构
 
-U1_name_Structure = ''
-is_phase_only_Structure = 0
-
-w0_Structure = 0
-z_pump_Structure = 0
-
-is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0, 1, 0
-l_Structure, p_Structure = 0, 0
-theta_x_Structure, theta_y_Structure = 0, 0
-
-is_random_phase_Structure = 0
-is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure = 0, 0, 0
-
-structure_size_Enlarge = 0.1
-Duty_Cycle_x = 0.5
-Duty_Cycle_y = 0.5
-Duty_Cycle_z = 0.5
-
-Depth = 2
-structure_xy_mode = 'x'
-
-is_continuous = 0
-is_target_far_field = 1
-is_transverse_xy = 0
-is_reverse_xy = 0
-is_positive_xy = 1
-is_no_backgroud = 0
-
 n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
 dk, lc, Tz, Gx, Gy, Gz, \
 size_PerPixel, U1_0_structure, g1_shift_structure, \
@@ -288,7 +290,8 @@ sheets_num, Iz, z0 \
 # 生成 structure 各层 z 序列，以及 正负畴 序列信息 mj
 
 zj_structure, mj_structure \
-    = cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface, z0_structure_endface)
+    = cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface, z0_structure_endface, 
+                          is_stripe, mx, my, Tx, Ty, Tz, structure_xy_mode, size_PerPixel, )
 
 #%%
 # 生成 晶体内 各层 z 序列、izj、dizj，以及 正负畴 序列信息 mj
@@ -402,11 +405,11 @@ if cal_mode[0] == 1: # 如果以 G 算
         
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                if mj[for_th] == 1:
+                if mj[for_th] == '1':
                     modulation_squared_z = modulation_squared
-                elif mj[for_th] == -1:
+                elif mj[for_th] == '-1':
                     modulation_squared_z = modulation_opposite_squared
-                else:
+                elif mj[for_th] == '0':
                     modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
             else:
                 modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
@@ -501,12 +504,22 @@ else:
         
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                if mj[for_th] == 1:
+                if mj[for_th] == '1':
                     modulation_squared_z = modulation_squared
-                elif mj[for_th] == -1:
+                elif mj[for_th] == '-1':
                     modulation_squared_z = modulation_opposite_squared
-                else:
+                elif mj[for_th] == '0':
+                    # print("???????????????")
                     modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
+                else:
+                    if structure_xy_mode == 'x': # 往右（列） 线性平移 mj[for_th] 像素
+                        modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=1)
+                    elif structure_xy_mode == 'y': # 往下（行） 线性平移 mj[for_th] 像素
+                        modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=0)
+                    elif structure_xy_mode == 'xy': # 往右（列） 线性平移 mj[for_th] 像素
+                        modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=1)
+                        # modulation_squared_z = np.roll(modulation_squared_z, mj[for_th] / (mx * Tx) * (my * Ty), axis=0)
+                        modulation_squared_z = np.roll(modulation_squared_z, int((my * Ty / Tz * (zj[for_th] - z0_structure_frontface)) // size_PerPixel), axis=0)
             else:
                 modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
         else:
