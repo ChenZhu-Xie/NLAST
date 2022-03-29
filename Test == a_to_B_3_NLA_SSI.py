@@ -254,8 +254,8 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  is_phase_only = 0, 
                  #%%
                  z_pump = 0, 
-                 is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-                 l = 0, p = 0, 
+                 is_LG = 1, is_Gauss = 1, is_OAM = 1, 
+                 l = 1, p = 0, 
                  theta_x = 0, theta_y = 0,
                  # %%
                  is_random_phase = 0, 
@@ -275,8 +275,8 @@ a_to_B_3_NLA_SSI(U1_name_Structure = "",
                  #%%
                  lam1 = 1.064, is_air_pump = 0, is_air = 0, T = 25, 
                  deff = 30, 
-                 Tx = 35, Ty = 20, Tz = 7.004, 
-                 mx = 1, my = 0, mz = 1,
+                 Tx = 10, Ty = 20, Tz = 7.004, 
+                 mx = 1, my = 0, mz = 0,
                  is_stripe = 0, is_NLAST = 1, 
                  #%%
                  is_save = 1, is_save_txt = 0, dpi = 100, 

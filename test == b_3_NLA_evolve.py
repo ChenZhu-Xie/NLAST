@@ -17,7 +17,7 @@ from fun_array_Transform import Rotate_180, Roll_xy
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_pump import pump_LG
 from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, G2_z_modulation_NLAST, \
+from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_modulation_3D_NLAST, \
     G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
@@ -40,7 +40,7 @@ is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
 # %%
 U1_0_NonZero_size = 0.9  # Unit: mm 不包含边框，图片 的 实际尺寸
 w0 = 0.1  # Unit: mm 束腰（z = 0 处）
-z0 = 10  # Unit: mm 传播距离
+z0 = 2.25  # Unit: mm 传播距离
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 # %%
 lam1 = 1.064  # Unit: um 基波波长
@@ -48,7 +48,7 @@ is_air_pump, is_air, T = 0, 0, 25  # is_air = 0, 1, 2 分别表示 LN, 空气, K
 # %%
 deff = 30  # pm / V
 Tx, Ty, Tz = 10, 50, 7.004  # Unit: um
-mx, my, mz = 1, 0, 1
+mx, my, mz = 1, 0, 0
 # 倒空间：右, 下 = +, +
 is_fft = 1
 fft_mode = 0
@@ -83,7 +83,7 @@ is_energy = 0
 vmax, vmin = 1, 0
 #%%
 is_energy_evolution_on = 1
-is_stored = 1
+is_stored = 0
 sheets_stored_num = 10
 sample = 2
 # %%
@@ -357,11 +357,13 @@ def Cal_G2_zm_shift(for_th2, fors_num2, *arg, ):
         else:
         
             if fft_mode == 0:
+                
+                Const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
         
                 if is_sum_Gm == 0:
                     names['G2_z' + str(for_th2) + '_shift'] = G2_z_modulation_NLAST(k1, k2, Gz,
-                                                                                    modulation_squared, U1_0, izj[for_th2], const, )
-                else:
+                                                                                    modulation_squared, U1_0, izj[for_th2], Const, )
+                elif is_sum_Gm == 1:
                     # G2_z0_shift = np.zeros((I2_x, I2_y), dtype=np.complex128())
                     
                     def Cal_G2_z0_shift_Gm(for_th, fors_num, *arg, ):
@@ -388,6 +390,12 @@ def Cal_G2_zm_shift(for_th2, fors_num2, *arg, ):
                     my_thread(10, 2 * mG + 1,
                               Cal_G2_z0_shift_Gm, Cal_G2_z0_shift, noop, 
                               is_ordered=1, is_print=is_print, )
+                else:
+                    
+                    Tz_unit = (Tz / 1000) / size_PerPixel
+                    
+                    names['G2_z' + str(for_th2) + '_shift'] = G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
+                                                                                       modulation_squared, U1_0, izj[for_th2], Const, )
         
             elif fft_mode == 1:
                 
