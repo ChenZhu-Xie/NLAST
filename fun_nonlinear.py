@@ -109,21 +109,48 @@ def Cal_roll_xy(Gx, Gy,
 def G2_z_modulation_NLAST(k1, k2, Gz, 
                           modulation, U1_0, iz, const, ):
     
+    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
     k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
     
-    kiiz_shift = k1 + k2_z_shift + Gz
+    # kiiz_shift = k1 + k2_z_shift + Gz # 草，倍频是加 k1_z_shift，和频才是加 k2_z_shift（而非 k3_z_shift）
+    kiiz_shift = k1 + k1_z_shift + Gz
 
+    #%%
     U1_z_Squared_modulated = fft2(
         ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
-
+    # print(np.min(np.abs((kiiz_shift ** 2 - k2 ** 2))))
     U1_0_Squared_modulated = fft2(
         ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) * U1_0 ** 2)
+    
+    #%%
+    # U1_z_Squared_modulated = fft2(
+    #     ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2_z_shift ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
+    # U1_0_Squared_modulated = fft2(
+    #     ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2_z_shift ** 2)) * U1_0 ** 2)
+    
+    #%%
+    # U1_z_Squared_modulated = fft2(
+    #     modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiiz_shift ** 2 - k2_z_shift ** 2)))
+    
+    # U1_0_Squared_modulated = fft2(
+    #     modulation * ifft2(fft2(U1_0 ** 2) / (kiiz_shift ** 2 - k2_z_shift ** 2)))
+    
+    #%%
+    # U1_z_Squared_modulated = fft2(
+    #     modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiiz_shift ** 2 - k2 ** 2)))
+    
+    # U1_0_Squared_modulated = fft2(
+    #     modulation * ifft2(fft2(U1_0 ** 2) / (kiiz_shift ** 2 - k2 ** 2)))
 
-    G2_z_shift = const * (U1_z_Squared_modulated * math.e ** (Gz * iz * 1j) \
-                           - U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
+    # 不加 负号，U 的相位 会差个 π，我也不知道 为什么
+    G2_z_shift = - const * (U1_z_Squared_modulated * math.e ** (Gz * iz * 1j) \
+                           -  U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
     
     # G2_z_shift = const * U1_z_Squared_modulated * math.e ** (Gz * iz * 1j)
-    G2_z_shift = - const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
+    # G2_z_shift = - const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
+    
+    # G2_z_shift = - const * U1_z_Squared_modulated * math.e ** (Gz * iz * 1j)
+    # G2_z_shift = const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
     
     return G2_z_shift
 

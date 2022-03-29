@@ -23,8 +23,14 @@ def my_thread(threads_num, fors_num,
               is_ordered = 1, is_print = 1, ):
     
     global thread_th, for_th # 好怪，作为 被封装 和 被引用的 函数，还得在 这一层 声明 全局变量，光是在 内层 子线程 里声明 的话，没用。
-    thread_th = 0
-    for_th = 0
+    thread_th = []
+    for_th = []
+    thread_th.append(0)
+    for_th.append(0)
+    
+    if len(args) == 0:
+        args = []
+        args.append(0)
     
     con = threading.Condition() # 锁不必定义为全局变量
 
@@ -37,24 +43,24 @@ def my_thread(threads_num, fors_num,
             super().__init__()
         
         def run(self):
-            global thread_th
+            # global thread_th
             
             con.acquire()
             while True:
                 
-                if self.for_th >= self.fors_num and for_th == self.fors_num: # 退出生产线程 的 条件：p 线程 完成 其母线程功能，且 最后一个 t 线程 完成其子线程功能
+                if self.for_th >= self.fors_num and for_th[args[0]] == self.fors_num: # 退出生产线程 的 条件：p 线程 完成 其母线程功能，且 最后一个 t 线程 完成其子线程功能
                     break
                 else:
-                    if thread_th >= self.threads_num or self.for_th == self.fors_num : # 暂停生产线程 的 条件： 运行线程数 达到 设定，或 p 线程 完成 其母线程功能
+                    if thread_th[args[0]] >= self.threads_num or self.for_th == self.fors_num : # 暂停生产线程 的 条件： 运行线程数 达到 设定，或 p 线程 完成 其母线程功能
                         con.notify()
                         con.wait()
                     else:
                         # print(self.for_th)
-                        t = Customer('thread:%s' % thread_th, self.for_th)
+                        t = Customer('thread:%s' % thread_th[args[0]], self.for_th)
                         t.setDaemon(True)
                         t.start()
                         
-                        thread_th += 1
+                        thread_th[args[0]] += 1
                         # print('已生产了 共 {} 个 线程'.format(thread_th))
                         self.for_th += 1
                         # print('已算到了 第 {} 个 for_th'.format(self.for_th))
@@ -70,7 +76,7 @@ def my_thread(threads_num, fors_num,
             super().__init__()
             
         def run(self):
-            global thread_th, for_th
+            # global thread_th, for_th
             """----- 你 需累积的 全局变量，替换 最末一个 g2_z_plus_dz_shift -----"""
                 
             """----- your code begin 1 -----"""
@@ -94,7 +100,7 @@ def my_thread(threads_num, fors_num,
             if is_ordered == 1:
                 
                 while True:
-                    if for_th == self.for_th:
+                    if for_th[args[0]] == self.for_th:
                         # print(self.for_th)
                         """----- your code begin 2 -----"""
                         # fun_2(self.for_th, fors_num, *arg[ num_1: num_1 + num_2 - 1 ])
@@ -107,7 +113,7 @@ def my_thread(threads_num, fors_num,
                         List = var_or_tuple_to_list(fun_2(self.for_th, fors_num, *self.list[0])) # 取 外层 list 储存的 第 1 个 list，并对其 解包后，作为参数 传入 函数2
                         self.list.append(List)
                         """----- your code end 2 -----"""
-                        for_th += 1
+                        for_th[args[0]] += 1
                         break
                     else:
                         con.notify()
@@ -125,9 +131,9 @@ def my_thread(threads_num, fors_num,
                 List = var_or_tuple_to_list(fun_2(self.for_th, fors_num, *self.list[0]))
                 self.list.append(List)
                 """----- your code end 2 -----"""
-                for_th += 1
+                for_th[args[0]] += 1
             
-            thread_th -= 1 # 在解锁之前 减少 1 个线程数量，以便 p 线程 收到消息后，生产 1 个 线程出来
+            thread_th[args[0]] -= 1 # 在解锁之前 减少 1 个线程数量，以便 p 线程 收到消息后，生产 1 个 线程出来
             con.notify() # 无论如何 都得通知一下 其他线程，让其别 wait() 了
             con.release() # 解锁
             

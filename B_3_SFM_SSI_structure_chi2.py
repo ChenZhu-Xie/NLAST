@@ -438,7 +438,7 @@ def SFM_SSI_chi2(U1_name = "",
                         elif structure_xy_mode == 'xy': # 往右（列） 线性平移 mj[for_th] 像素
                             modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=1)
                             # modulation_squared_z = np.roll(modulation_squared_z, mj[for_th] / (mx * Tx) * (my * Ty), axis=0)
-                            modulation_squared_z = np.roll(modulation_squared_z, int((my * Ty / Tz * (zj[for_th] - z0_structure_frontface)) // size_PerPixel), axis=0)
+                            modulation_squared_z = np.roll(modulation_squared_z, int(my * Ty / Tz * (izj[for_th] - Iz_frontface)), axis=0)
                 else:
                     modulation_squared_z = np.ones((I2_x, I2_y), dtype=np.int64()) - is_no_backgroud
             else:

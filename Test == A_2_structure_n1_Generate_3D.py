@@ -176,12 +176,12 @@ def structure_n1_Generate_z(for_th, fors_num, *arg, ):
                 m = modulation_opposite_squared
         else:
             if structure_xy_mode == 'x': # 往右（列） 线性平移 mj[for_th] 像素
-                m = np.roll(modulation_squared, int((mx * Tx / Tz * iz) // 1), axis=1)
+                m = np.roll(modulation_squared, int(mx * Tx / Tz * iz), axis=1)
             elif structure_xy_mode == 'y': # 往下（行） 线性平移 mj[for_th] 像素
-                m = np.roll(modulation_squared, int((my * Ty / Tz * iz) // 1), axis=0)
+                m = np.roll(modulation_squared, int(my * Ty / Tz * iz), axis=0)
             elif structure_xy_mode == 'xy': # 往右（列） 线性平移 mj[for_th] 像素
-                m = np.roll(modulation_squared, int((mx * Tx / Tz * iz) // 1), axis=1)
-                m = np.roll(modulation_squared, int((my * Ty / Tz * iz) // 1), axis=0)
+                m = np.roll(modulation_squared, int(mx * Tx / Tz * iz), axis=1)
+                m = np.roll(modulation_squared, int(my * Ty / Tz * iz), axis=0)
 
         modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
         modulation_squared_address = "0.n1_modulation_squared" + "\\" + modulation_squared_full_name

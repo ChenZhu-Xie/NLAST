@@ -29,8 +29,8 @@ border_percentage = 0.1  # 边框 占图片的 百分比，也即 图片 放大�
 is_phase_only = 0
 # %%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 1, 1, 1
-l, p = 1, 0
+is_LG, is_Gauss, is_OAM = 0, 0, 0
+l, p = 0, 0
 theta_x, theta_y = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
@@ -40,7 +40,7 @@ is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
 # %%
 U1_0_NonZero_size = 0.9  # Unit: mm 不包含边框，图片 的 实际尺寸
 w0 = 0.1  # Unit: mm 束腰（z = 0 处）
-z0 = 3  # Unit: mm 传播距离
+z0 = 6  # Unit: mm 传播距离
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 # %%
 lam1 = 1.064  # Unit: um 基波波长
@@ -48,10 +48,12 @@ is_air_pump, is_air, T = 0, 0, 25  # is_air = 0, 1, 2 分别表示 LN, 空气, K
 # %%
 deff = 30  # pm / V
 Tx, Ty, Tz = 10, 50, 7.004  # Unit: um
-mx, my, mz = 1, 0, 1
+mx, my, mz = 1, 0, 0
 # 倒空间：右, 下 = +, +
 is_fft = 1
 fft_mode = 0
+is_sum_Gm = 0
+mG = 0
 is_linear_convolution = 1  # 0 代表 循环卷积，1 代表 线性卷积
 # %%
 is_save = 0
@@ -187,8 +189,7 @@ Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
 # %%
 # const
 
-deff = C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
-const = (k2 / size_PerPixel / n2) ** 2 * deff
+const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
 
 # %%
 
@@ -261,7 +262,7 @@ else:
         Duty_Cycle_y = 0.5
 
         Depth = 2
-        structure_xy_mode = 'x'
+        structure_xy_mode = 'x+y'
 
         is_continuous = 0
         is_target_far_field = 1
@@ -314,14 +315,67 @@ else:
                                          # %%
                                          is_print, )
 
-        G2_z0_shift = G2_z_modulation_NLAST(k1, k2, Gz,
-                                            modulation_squared, U1_0, i2_z0, const, )
+        if is_sum_Gm == 0:
+            G2_z0_shift = G2_z_modulation_NLAST(k1, k2, Gz,
+                                                modulation_squared, U1_0, i2_z0, const, )
+        else:
+            G2_z0_shift = np.zeros((I2_x, I2_y), dtype=np.complex128())
+            
+            def Cal_G2_z0_shift_Gm(for_th, fors_num, *arg, ):
+                m_z = for_th - mG
+                Gz_m = 2 * math.pi * m_z * size_PerPixel / (Tz / 1000)
+                # print(m_z, C_m(m_z), "\n")
+                
+                # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
+                Const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
+                G2_z0_shift_Gm = G2_z_modulation_NLAST(k1, k2, Gz_m,
+                                                       modulation_squared, U1_0, i2_z0, Const, ) if m_z != 0 else 0
+                return G2_z0_shift_Gm
+                
+            def Cal_G2_z0_shift(for_th, fors_num, G2_z0_shift_Gm, *arg, ):
+                
+                global G2_z0_shift
+
+                G2_z0_shift = G2_z0_shift + G2_z0_shift_Gm
+                
+                return G2_z0_shift
+            
+            my_thread(10, 2 * mG + 1,
+                      Cal_G2_z0_shift_Gm, Cal_G2_z0_shift, noop,
+                      is_ordered=1, is_print=is_print, )
 
     elif fft_mode == 1:
+        
+        if is_sum_Gm == 0:
+            G2_z0_shift = G2_z_NLAST(k1, k2, Gx, Gy, Gz,
+                                     U1_0, i2_z0, const,
+                                     is_linear_convolution, )
+        else:
+            G2_z0_shift = np.zeros((I2_x, I2_y), dtype=np.complex128())
+            
+            def Cal_G2_z0_shift_Gm(for_th, fors_num, *arg, ):
+                m_x = for_th - mG
+                Gx_m = 2 * math.pi * m_x * size_PerPixel / (Tx / 1000)
+                # print(m_x, C_m(m_x), "\n")
+                
+                # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
+                Const = (k2 / size_PerPixel / n2) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
+                G2_z0_shift_Gm = G2_z_NLAST(k1, k2, Gx_m, Gy, Gz,
+                                         U1_0, i2_z0, Const,
+                                         is_linear_convolution, ) if m_x != 0 else 0
+                return G2_z0_shift_Gm
+                
+            def Cal_G2_z0_shift(for_th, fors_num, G2_z0_shift_Gm, *arg, ):
+                
+                global G2_z0_shift
 
-        G2_z0_shift = G2_z_NLAST(k1, k2, Gx, Gy, Gz,
-                                 U1_0, i2_z0, const,
-                                 is_linear_convolution, )
+                G2_z0_shift = G2_z0_shift + G2_z0_shift_Gm
+                
+                return G2_z0_shift
+            
+            my_thread(10, 2 * mG + 1,
+                      Cal_G2_z0_shift_Gm, Cal_G2_z0_shift, noop,
+                      is_ordered=1, is_print=is_print, )
 
     elif fft_mode == 2:
 
