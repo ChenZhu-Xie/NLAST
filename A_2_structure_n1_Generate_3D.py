@@ -32,9 +32,11 @@ def structure_n1_3D(U1_name = "",
                     U1_0_NonZero_size = 1, w0 = 0.3, structure_size_Enlarge = 0.1, 
                     deff_structure_length_expect = 2, deff_structure_sheet_expect = 1.8, 
                     #%%
-                    Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, structure_xy_mode = 'x', Depth = 1, 
+                    Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, 
+                    structure_xy_mode = 'x', Depth = 1, 
                     #%%
-                    is_continuous = 1, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
+                    is_continuous = 1, is_target_far_field = 1, is_transverse_xy = 0, 
+                    is_reverse_xy = 0, is_positive_xy = 1, 
                     #%%
                     lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
                     #%%
@@ -145,7 +147,8 @@ def structure_n1_3D(U1_name = "",
                                    U1_0_NonZero_size, w0, structure_size_Enlarge,
                                    Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
                                    # %%
-                                   is_continuous, is_target_far_field, is_transverse_xy, is_reverse_xy, is_positive_xy,
+                                   is_continuous, is_target_far_field, is_transverse_xy, 
+                                   is_reverse_xy, is_positive_xy,
                                    # %%
                                    lam1, is_air_pump, is_air, T,
                                    Tx, Ty, Tz,

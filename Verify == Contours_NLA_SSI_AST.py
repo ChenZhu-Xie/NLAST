@@ -59,7 +59,8 @@ def contours_NLA_SSI_AST(U1_name = "",
                          is_self_colorbar = 0, is_colorbar_on = 1, 
                          is_energy = 1, vmax = 1, vmin = 0, 
                          #%%
-                         is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, 
+                         is_print = 1, is_contours = 1, n_TzQ = 1, 
+                         Gz_max_Enhance = 1, match_mode = 1, 
                          #%%
                          is_NLA = 1, ):
     
@@ -92,6 +93,7 @@ def contours_NLA_SSI_AST(U1_name = "",
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
+        #%%
         is_random_phase, 
         is_H_l, is_H_theta, is_H_random_phase, 
         #%%
@@ -127,6 +129,7 @@ def contours_NLA_SSI_AST(U1_name = "",
             is_LG, is_Gauss, is_OAM, 
             l, p, 
             theta_x, theta_y, 
+            #%%
             is_random_phase, 
             is_H_l, is_H_theta, is_H_random_phase, 
             #%%
@@ -140,6 +143,7 @@ def contours_NLA_SSI_AST(U1_name = "",
             #%%
             lam1, is_air_pump, is_air, T, 
             deff, 
+            #%%
             Tx, Ty, Tz, 
             mx, my, mz, 
             is_NLAST, 
@@ -158,7 +162,8 @@ def contours_NLA_SSI_AST(U1_name = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, ]
+            is_print, is_contours, n_TzQ, 
+            Gz_max_Enhance, match_mode, ]
     
     if is_NLA == 1:
         NLA_SSI(*arg)
@@ -181,6 +186,7 @@ def contours_NLA_SSI_AST(U1_name = "",
             is_LG, is_Gauss, is_OAM, 
             l, p, 
             theta_x, theta_y, 
+            #%%
             is_random_phase, 
             is_H_l, is_H_theta, is_H_random_phase, 
             #%%
@@ -194,6 +200,7 @@ def contours_NLA_SSI_AST(U1_name = "",
             #%%
             lam1, is_air_pump, is_air, T, 
             deff, 
+            #%%
             Tx, Ty, Tz, 
             mx, my, mz, 
             is_NLAST, 
@@ -212,7 +219,8 @@ def contours_NLA_SSI_AST(U1_name = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, ]
+            is_print, is_contours, n_TzQ, 
+            Gz_max_Enhance, match_mode, ]
     
     if is_NLA == 1:
         NLA_SSI(*arg)
@@ -231,6 +239,7 @@ def contours_NLA_SSI_AST(U1_name = "",
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
+        #%%
         is_random_phase, 
         is_H_l, is_H_theta, is_H_random_phase, 
         #%%

@@ -50,12 +50,12 @@ def refraction_AST__AST(U1_name = "",
                         #%%
                         is_print = 1, ):
     
-    #%%
-    # 线性 惠更斯 菲涅尔 原理
+    # #%%
+    # # 线性 惠更斯 菲涅尔 原理
     
-    image_Add_black_border(img_full_name, 
-                           border_percentage, 
-                           is_print, )
+    # image_Add_black_border(img_full_name, 
+    #                        border_percentage, 
+    #                        is_print, )
     
     # %%
     # 先以 n 衍射 z0_n 后 以 1 衍射 z0_1
@@ -68,6 +68,7 @@ def refraction_AST__AST(U1_name = "",
     #     is_LG, is_Gauss, is_OAM, 
     #     l, p, 
     #     theta_x, theta_y, 
+    #     #%%
     #     is_random_phase, 
     #     is_H_l, is_H_theta, is_H_random_phase, 
     #     #%%
@@ -103,6 +104,7 @@ def refraction_AST__AST(U1_name = "",
     #     is_LG, is_Gauss, is_OAM, 
     #     l, p, 
     #     theta_x, theta_y, 
+    #     #%%
     #     is_random_phase, 
     #     is_H_l, is_H_theta, is_H_random_phase, 
     #     #%%
@@ -137,6 +139,7 @@ def refraction_AST__AST(U1_name = "",
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
+        #%%
         is_random_phase, 
         is_H_l, is_H_theta, is_H_random_phase, 
         #%%
@@ -172,6 +175,7 @@ def refraction_AST__AST(U1_name = "",
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
+        #%%
         is_random_phase, 
         is_H_l, is_H_theta, is_H_random_phase, 
         #%%
@@ -206,6 +210,7 @@ refraction_AST__AST(U1_name = "",
                     is_LG = 0, is_Gauss = 1, is_OAM = 1, 
                     l = 3, p = 0, 
                     theta_x = 1, theta_y = 0, 
+                    #%%
                     is_random_phase = 0, 
                     is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
                     #%%

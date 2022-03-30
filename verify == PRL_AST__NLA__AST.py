@@ -25,6 +25,19 @@ def PRL_AST__NLA__AST(U1_name = "",
                       #%%
                       is_random_phase = 0, 
                       is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
+                      # %%
+                      # 生成横向结构
+                      U1_name_Structure = '',
+                      structure_size_Enlarge = 0.1,
+                      is_phase_only_Structure = 0,
+                      # %%
+                      w0_Structure = 0, z_pump_Structure = 0,
+                      is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0, 
+                      l_Structure = 0, p_Structure = 0, 
+                      theta_x_Structure = 0, theta_y_Structure = 0,
+                      # %%
+                      is_random_phase_Structure = 0, 
+                      is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
                       #%%
                       U1_0_NonZero_size = 1, w0 = 0.3,
                       z0_AST = 1, z0_NLA = 5, 
@@ -35,6 +48,12 @@ def PRL_AST__NLA__AST(U1_name = "",
                       #%%
                       Tx=10, Ty=10, Tz="2*lc",
                       mx=0, my=0, mz=0,
+                      # %%
+                      # 生成横向结构
+                      Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
+                      Depth = 2, structure_xy_mode = 'x', 
+                      is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
+                      is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
                       #%%
                       is_save = 0, is_save_txt = 0, dpi = 100, 
                       #%%
@@ -54,7 +73,8 @@ def PRL_AST__NLA__AST(U1_name = "",
                       is_self_colorbar = 0, is_colorbar_on = 1, 
                       is_energy = 1, vmax = 1, vmin = 0, 
                       #%%
-                      is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
+                      is_print = 1, is_contours = 1, n_TzQ = 1, 
+                      Gz_max_Enhance = 1, match_mode = 1, ):
     
     #%%
     # start
@@ -79,6 +99,7 @@ def PRL_AST__NLA__AST(U1_name = "",
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
+        #%%
         is_random_phase, 
         is_H_l, is_H_theta, is_H_random_phase, 
         #%%
@@ -114,8 +135,22 @@ def PRL_AST__NLA__AST(U1_name = "",
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
+        #%%
         is_random_phase, 
         is_H_l, is_H_theta, is_H_random_phase, 
+        # %%
+        # 生成横向结构
+        U1_name_Structure,
+        structure_size_Enlarge,
+        is_phase_only_Structure,
+        # %%
+        w0_Structure, z_pump_Structure,
+        is_LG_Structure, is_Gauss_Structure, is_OAM_Structure, 
+        l_Structure, p_Structure, 
+        theta_x_Structure, theta_y_Structure,
+        # %%
+        is_random_phase_Structure, 
+        is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure, 
         #%%
         U1_0_NonZero_size, w0,
         z0_NLA, 
@@ -123,8 +158,15 @@ def PRL_AST__NLA__AST(U1_name = "",
         lam1, is_air_pump, is_air, T, 
         deff, is_fft, fft_mode,
         is_linear_convolution, 
+        #%%
         Tx, Ty, Tz, 
         mx, my, mz, 
+        # %%
+        # 生成横向结构
+        Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
+        Depth, structure_xy_mode, 
+        is_continuous, is_target_far_field, is_transverse_xy, 
+        is_reverse_xy, is_positive_xy, is_no_backgroud,
         #%%
         is_save, is_save_txt, dpi, 
         #%%
@@ -156,6 +198,7 @@ def PRL_AST__NLA__AST(U1_name = "",
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
+        #%%
         is_random_phase, 
         is_H_l, is_H_theta, is_H_random_phase, 
         #%%
@@ -202,8 +245,22 @@ PRL_AST__NLA__AST(U1_name = "",
                   is_LG = 0, is_Gauss = 1, is_OAM = 1, 
                   l = 1, p = 0, 
                   theta_x = 1, theta_y = 0, 
+                  #%%
                   is_random_phase = 0, 
                   is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
+                  # %%
+                  # 生成横向结构
+                  U1_name_Structure = '',
+                  structure_size_Enlarge = 0.1,
+                  is_phase_only_Structure = 0,
+                  # %%
+                  w0_Structure = 0, z_pump_Structure = 0,
+                  is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0, 
+                  l_Structure = 0, p_Structure = 0, 
+                  theta_x_Structure = 0, theta_y_Structure = 0,
+                  # %%
+                  is_random_phase_Structure = 0, 
+                  is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
                   #%%
                   U1_0_NonZero_size = 0.5, w0 = 0.3,
                   z0_AST = 5, z0_NLA = 0.1, 
@@ -211,8 +268,15 @@ PRL_AST__NLA__AST(U1_name = "",
                   lam1=0.8, is_air_pump=0, is_air=0, T=25,
                   deff=30, is_fft = 1, fft_mode = 0, 
                   is_linear_convolution = 0,
+                  #%%
                   Tx=10, Ty=10, Tz="2*lc",
                   mx=0, my=0, mz=0,
+                  # %%
+                  # 生成横向结构
+                  Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
+                  Depth = 2, structure_xy_mode = 'x', 
+                  is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
+                  is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
                   #%%
                   is_save = 0, is_save_txt = 0, dpi = 100, 
                   #%%
@@ -232,7 +296,8 @@ PRL_AST__NLA__AST(U1_name = "",
                   is_self_colorbar = 0, is_colorbar_on = 1, 
                   is_energy = 1, vmax = 1, vmin = 0, 
                   #%%
-                  is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, )
+                  is_print = 1, is_contours = 66, n_TzQ = 1, 
+                  Gz_max_Enhance = 1, match_mode = 1, )
 # PRL_AST__NLA__AST(img_full_name = "grating.png", border_percentage = 0.3, is_LG = 0, is_Gauss = 1, is_OAM = 1, is_H_l = 0, l = 1, p = 0, is_phase_only = 0, is_H_theta = 0, theta_x = 1, theta_y = 0, U1_0_NonZero_size = 0.5, w0 = 0.3, z0_NLA = 2, z0_AST = 15, X = 0, Y = 0, lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, deff = 30, Tx = 20.155, Ty = 10, Tz = 17.885, mx = -1, my = 0, mz = 1, is_linear_convolution = 0, save = 0, dpi = 100)
 # 基模 高斯光 Tx = 20.155 最佳 z 向匹配 Tz = 17.4 ~ 17.6 之间。
 # 对于 纵向匹配，确实 应该在 预测的 布拉格衍射点 附近。

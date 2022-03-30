@@ -49,7 +49,8 @@ def SFM_SSI_chi2(U1_name = "",
                 #%%
                 U1_0_NonZero_size = 1, w0 = 0.3, 
                 L0_Crystal = 5, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 2, 
-                sheets_stored_num = 10, z0_section_1_expect = 1, z0_section_2_expect = 1, X = 0, Y = 0, 
+                sheets_stored_num = 10, z0_section_1_expect = 1, z0_section_2_expect = 1, 
+                X = 0, Y = 0, 
                 #%%
                 is_bulk = 1, is_no_backgroud = 0, 
                 is_stored = 0, is_show_structure_face = 1, is_energy_evolution_on = 1, 
@@ -64,7 +65,8 @@ def SFM_SSI_chi2(U1_name = "",
                 # 生成横向结构
                 Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
                 Depth = 2, structure_xy_mode = 'x', 
-                is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
+                is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
+                is_reverse_xy = 0, is_positive_xy = 1, 
                 #%%
                 is_save = 0, is_save_txt = 0, dpi = 100, 
                 #%%
@@ -85,7 +87,8 @@ def SFM_SSI_chi2(U1_name = "",
                 is_self_colorbar = 0, is_colorbar_on = 1, 
                 is_energy = 0, vmax = 1, vmin = 0, 
                 #%%
-                is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, ):
+                is_print = 1, is_contours = 1, n_TzQ = 1, 
+                Gz_max_Enhance = 1, match_mode = 1, ):
     # #%%
     # U1_name = ""
     # img_full_name = "l=1.png"
@@ -185,9 +188,11 @@ def SFM_SSI_chi2(U1_name = "",
                        is_random_phase, 
                        is_H_l, is_H_theta, is_H_random_phase, 
                        is_save, is_save_txt, dpi, 
-                       cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                       cmap_2d, ticks_num, is_contourf, 
+                       is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
-                       1, is_colorbar_on, is_energy, vmax, vmin, 
+                       1, is_colorbar_on, 
+                       is_energy, vmax, vmin, 
                        is_print, ) 
         
     else:

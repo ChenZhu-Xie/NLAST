@@ -32,7 +32,8 @@ def consistency_NLA_SSI_AST(U1_name = "",
                             is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
                             #%%
                             U1_0_NonZero_size = 1, w0 = 0.3,
-                            z0 = 1, z0_new = 5, deff_structure_sheet_expect = 1.8, is_energy_evolution_on = 1, 
+                            z0 = 1, z0_new = 5, deff_structure_sheet_expect = 1.8, 
+                            is_energy_evolution_on = 1, 
                             #%%
                             lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
                             deff = 30, 
@@ -59,7 +60,8 @@ def consistency_NLA_SSI_AST(U1_name = "",
                             is_self_colorbar = 0, is_colorbar_on = 1, 
                             is_energy = 1, vmax = 1, vmin = 0, 
                             #%%
-                            is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, 
+                            is_print = 1, is_contours = 1, n_TzQ = 1, 
+                            Gz_max_Enhance = 1, match_mode = 1, 
                             #%%
                             is_NLA = 1, ):
     
@@ -92,6 +94,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
+        #%%
         is_random_phase, 
         is_H_l, is_H_theta, is_H_random_phase, 
         #%%
@@ -127,6 +130,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_LG, is_Gauss, is_OAM, 
             l, p, 
             theta_x, theta_y, 
+            #%%
             is_random_phase, 
             is_H_l, is_H_theta, is_H_random_phase, 
             #%%
@@ -140,6 +144,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             #%%
             lam1, is_air_pump, is_air, T, 
             deff, 
+            #%%
             Tx, Ty, Tz, 
             mx, my, mz, 
             is_NLAST, 
@@ -158,7 +163,8 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, ]
+            is_print, is_contours, n_TzQ, 
+            Gz_max_Enhance, match_mode, ]
     
     if is_NLA == 1:
         NLA_SSI(*arg)
@@ -181,6 +187,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_LG, is_Gauss, is_OAM, 
             l, p, 
             theta_x, theta_y, 
+            #%%
             is_random_phase, 
             is_H_l, is_H_theta, is_H_random_phase, 
             #%%
@@ -194,6 +201,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             #%%
             lam1, is_air_pump, is_air, T, 
             deff, 
+            #%%
             Tx, Ty, Tz, 
             mx, my, mz, 
             is_NLAST, 
@@ -212,7 +220,8 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_self_colorbar, is_colorbar_on, 
             is_energy, vmax, vmin, 
             #%%
-            is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, ]
+            is_print, is_contours, n_TzQ, 
+            Gz_max_Enhance, match_mode, ]
     
     if is_NLA == 1:
         NLA_SSI(*arg)
@@ -231,6 +240,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
         is_LG, is_Gauss, is_OAM, 
         l, p, 
         theta_x, theta_y, 
+        #%%
         is_random_phase, 
         is_H_l, is_H_theta, is_H_random_phase, 
         #%%
@@ -275,6 +285,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             is_LG, is_Gauss, is_OAM, 
             l, p, 
             theta_x, theta_y, 
+            #%%
             is_random_phase, 
             is_H_l, is_H_theta, is_H_random_phase, 
             #%%
@@ -288,6 +299,7 @@ def consistency_NLA_SSI_AST(U1_name = "",
             #%%
             lam1, is_air_pump, is_air, T, 
             deff, 
+            #%%
             Tx, Ty, Tz, 
             mx, my, mz, 
             is_NLAST, 

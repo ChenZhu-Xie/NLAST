@@ -34,6 +34,19 @@ def NLA(U1_name="",
         is_random_phase=0,
         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
         # %%
+        # 生成横向结构
+        U1_name_Structure = '',
+        structure_size_Enlarge = 0.1,
+        is_phase_only_Structure = 0,
+        # %%
+        w0_Structure = 0, z_pump_Structure = 0,
+        is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0, 
+        l_Structure = 0, p_Structure = 0, 
+        theta_x_Structure = 0, theta_y_Structure = 0,
+        # %%
+        is_random_phase_Structure = 0, 
+        is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
+        # %%
         U1_0_NonZero_size=1, w0=0.3,
         z0=1,
         # %%
@@ -43,6 +56,12 @@ def NLA(U1_name="",
         #%%
         Tx=10, Ty=10, Tz="2*lc",
         mx=0, my=0, mz=0,
+        # %%
+        # 生成横向结构
+        Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
+        Depth = 2, structure_xy_mode = 'x', 
+        is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
+        is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
         # %%
         is_save=0, is_save_txt=0, dpi=100,
         # %%
@@ -62,7 +81,8 @@ def NLA(U1_name="",
         is_self_colorbar=0, is_colorbar_on=1,
         is_energy=0, vmax=1, vmin=0,
         # %%
-        is_print=1, is_contours=1, n_TzQ=1, Gz_max_Enhance=1, match_mode=1, ):
+        is_print=1, is_contours=1, n_TzQ=1, 
+        Gz_max_Enhance=1, match_mode=1, ):
     # #%%
     # U1_name = ""
     # img_full_name = "lena.png"
@@ -144,9 +164,11 @@ def NLA(U1_name="",
                        is_random_phase,
                        is_H_l, is_H_theta, is_H_random_phase,
                        is_save, is_save_txt, dpi,
-                       cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+                       cmap_2d, ticks_num, is_contourf, 
+                       is_title_on, is_axes_on, is_mm, 0,
                        fontsize, font,
-                       1, is_colorbar_on, is_energy, vmax, vmin,
+                       1, is_colorbar_on, is_energy, 
+                       vmax, vmin,
                        is_print, )
 
     else:
@@ -265,33 +287,6 @@ def NLA(U1_name="",
 
         if fft_mode == 0:
             # %% generate structure
-
-            U1_name_Structure = ''
-            is_phase_only_Structure = 0
-
-            w0_Structure = 0
-            z_pump_Structure = 0
-
-            is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0, 1, 0
-            l_Structure, p_Structure = 0, 0
-            theta_x_Structure, theta_y_Structure = 0, 0
-
-            is_random_phase_Structure = 0
-            is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure = 0, 0, 0
-
-            structure_size_Enlarge = 0.1
-            Duty_Cycle_x = 0.5
-            Duty_Cycle_y = 0.5
-
-            Depth = 2
-            structure_xy_mode = 'x'
-
-            is_continuous = 0
-            is_target_far_field = 1
-            is_transverse_xy = 0
-            is_reverse_xy = 0
-            is_positive_xy = 1
-            is_no_backgroud = 0
 
             n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
             dk, lc, Tz, Gx, Gy, Gz, \
@@ -500,6 +495,7 @@ def NLA(U1_name="",
     # 储存 U2_z0 到 txt 文件
 
     U2_z0_full_name = "6. NLA - U2_" + str(float('%.2g' % z0)) + "mm" + (is_save_txt and ".txt" or ".mat")
+    # print(U2_z0_full_name)
     if is_save == 1:
         U2_z0_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "\\" + U2_z0_full_name
         np.savetxt(U2_z0_txt_address, U2_z0) if is_save_txt else savemat(U2_z0_txt_address, {"U": U2_z0})

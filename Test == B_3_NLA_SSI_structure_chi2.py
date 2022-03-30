@@ -28,8 +28,8 @@ border_percentage = 0.1 # 边框 占图片的 百分比，也即 图片 放大�
 is_phase_only = 0
 #%%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 1, 1, 1
-l, p = 1, 0
+is_LG, is_Gauss, is_OAM = 0, 1, 0
+l, p = 0, 0
 theta_x, theta_y = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
@@ -42,11 +42,11 @@ U1_name_Structure = ''
 structure_size_Enlarge = border_percentage
 is_phase_only_Structure = 0
 
-w0_Structure = 0
+w0_Structure = 10
 z_pump_Structure = 0
 
-is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0, 1, 0
-l_Structure, p_Structure = 0, 0
+is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0, 1, 1
+l_Structure, p_Structure = 1, 0
 theta_x_Structure, theta_y_Structure = 0, 0
 
 is_random_phase_Structure = 0
@@ -74,11 +74,12 @@ lam1 = 1.064 # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 #%%
 deff = 30 # pm / V
-Tx, Ty, Tz = 10, 20, 117.004 # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
-mx, my, mz = 1, 0, 1
+Tx, Ty, Tz = 10, 20, 7.004 # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
+mx, my, mz = 1, 0, 0
 # 倒空间：右, 下 = +, +
 is_stripe = 0
-is_NLAST = 1
+is_NLAST = 1 # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+# 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
 # %%
 # 生成横向结构
 Duty_Cycle_x = 0.5

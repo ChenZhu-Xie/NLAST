@@ -29,14 +29,28 @@ border_percentage = 0.1  # 边框 占图片的 百分比，也即 图片 放大�
 is_phase_only = 0
 # %%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 1, 1, 1
-l, p = 1, 0
+is_LG, is_Gauss, is_OAM = 0, 1, 0
+l, p = 0, 0
 theta_x, theta_y = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
 # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
 is_random_phase = 0
 is_H_l, is_H_theta, is_H_random_phase = 0, 0, 0
+# %% 生成横向结构
+U1_name_Structure = ''
+structure_size_Enlarge = border_percentage
+is_phase_only_Structure = 0
+
+w0_Structure = 10
+z_pump_Structure = 0
+
+is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0,1,1
+l_Structure, p_Structure = 0,0
+theta_x_Structure, theta_y_Structure = 0,0
+
+is_random_phase_Structure = 0
+is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure = 0,0,0
 # %%
 U1_0_NonZero_size = 0.9  # Unit: mm 不包含边框，图片 的 实际尺寸
 w0 = 0.1  # Unit: mm 束腰（z = 0 处）
@@ -55,6 +69,19 @@ fft_mode = 0
 is_sum_Gm = 0
 mG = 0
 is_linear_convolution = 1  # 0 代表 循环卷积，1 代表 线性卷积
+# %% 生成横向结构
+Duty_Cycle_x = 0.5
+Duty_Cycle_y = 0.5
+
+Depth = 2
+structure_xy_mode = 'x'
+
+is_continuous = 0
+is_target_far_field = 1
+is_transverse_xy = 0
+is_reverse_xy = 0
+is_positive_xy = 1
+is_no_backgroud = 0
 # %%
 is_save = 0
 is_save_txt = 0
@@ -242,33 +269,6 @@ else:
 
     if fft_mode == 0:
         # %% generate structure
-
-        U1_name_Structure = ''
-        is_phase_only_Structure = 0
-
-        w0_Structure = 0
-        z_pump_Structure = 0
-
-        is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0,1,0
-        l_Structure, p_Structure = 0,0
-        theta_x_Structure, theta_y_Structure = 0,0
-
-        is_random_phase_Structure = 0
-        is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure = 0,0,0
-
-        structure_size_Enlarge = border_percentage
-        Duty_Cycle_x = 0.5
-        Duty_Cycle_y = 0.5
-
-        Depth = 2
-        structure_xy_mode = 'x+y'
-
-        is_continuous = 0
-        is_target_far_field = 1
-        is_transverse_xy = 0
-        is_reverse_xy = 0
-        is_positive_xy = 1
-        is_no_backgroud = 0
         
         n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
         dk, lc, Tz, Gx, Gy, Gz, \

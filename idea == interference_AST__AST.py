@@ -91,9 +91,11 @@ def interference_AST__AST  (U1_name = "",
                        is_random_phase, 
                        is_H_l, is_H_theta, is_H_random_phase, 
                        is_save, is_save_txt, dpi, 
-                       cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                       cmap_2d, ticks_num, is_contourf, 
+                       is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
-                       1, is_colorbar_on, is_energy, vmax, vmin, 
+                       1, is_colorbar_on, 
+                       is_energy, vmax, vmin, 
                        is_print, ) 
         
     else:
@@ -122,6 +124,7 @@ def interference_AST__AST  (U1_name = "",
                                 is_LG, is_Gauss, is_OAM, 
                                 l, p, 
                                 theta_x, theta_y, 
+                                #%%
                                 is_random_phase, 
                                 is_H_l, is_H_theta, is_H_random_phase, 
                                 #%%
@@ -186,6 +189,7 @@ def interference_AST__AST  (U1_name = "",
                                 is_LG, is_Gauss, is_OAM, 
                                 l, p, 
                                 theta_x, theta_y, 
+                                #%%
                                 is_random_phase, 
                                 is_H_l, is_H_theta, is_H_random_phase, 
                                 #%%

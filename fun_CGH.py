@@ -190,9 +190,11 @@ def structure_chi2_Generate_2D(U1_name = "",
                               is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
                               #%%
                               U1_0_NonZero_size = 1, w0 = 0.3, structure_size_Enlarge = 0.1, 
-                              Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, structure_xy_mode = 'x', Depth = 2, 
+                              Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, 
+                              structure_xy_mode = 'x', Depth = 2, 
                               #%%
-                              is_continuous = 1, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 1, 
+                              is_continuous = 1, is_target_far_field = 1, is_transverse_xy = 0, 
+                              is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 1, 
                               #%%
                               lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
                               Tx = 10, Ty = 10, Tz = "2*lc", 
@@ -269,9 +271,11 @@ def structure_chi2_Generate_2D(U1_name = "",
                        is_random_phase, 
                        is_H_l, is_H_theta, is_H_random_phase, 
                        is_save, is_save_txt, dpi, 
-                       cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                       cmap_2d, ticks_num, is_contourf, 
+                       is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
-                       1, is_colorbar_on, is_energy, vmax, vmin, 
+                       1, is_colorbar_on, is_energy, 
+                       vmax, vmin, 
                        is_print, ) 
 
     else:
@@ -405,7 +409,8 @@ def structure_n1_Generate_2D(U1_name = "",
                               U1_0_NonZero_size = 1, w0 = 0.3, structure_size_Enlarge = 0.1, 
                               Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, structure_xy_mode = 'x', Depth = 2, 
                               #%%
-                              is_continuous = 1, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1, 
+                              is_continuous = 1, is_target_far_field = 1, is_transverse_xy = 0, 
+                              is_reverse_xy = 0, is_positive_xy = 1, 
                               #%%
                               lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25, 
                               Tx = 10, Ty = 10, Tz = "2*lc", 
@@ -480,9 +485,11 @@ def structure_n1_Generate_2D(U1_name = "",
                        is_random_phase, 
                        is_H_l, is_H_theta, is_H_random_phase, 
                        is_save, is_save_txt, dpi, 
-                       cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                       cmap_2d, ticks_num, is_contourf, 
+                       is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
-                       1, is_colorbar_on, is_energy, vmax, vmin, 
+                       1, is_colorbar_on, is_energy, 
+                       vmax, vmin, 
                        is_print, ) 
 
     else:

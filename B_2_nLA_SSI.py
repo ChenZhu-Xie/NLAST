@@ -37,7 +37,8 @@ def nLA_SSI(U1_name = "",
             U1_0_NonZero_size = 1, w0 = 0.3, 
             L0_Crystal = 5, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 2, 
             deff_structure_sheet_expect = 1.8, sheets_stored_num = 10, 
-            z0_section_1_expect = 1, z0_section_2_expect = 1, X = 0, Y = 0, 
+            z0_section_1_expect = 1, z0_section_2_expect = 1, 
+            X = 0, Y = 0, 
             #%%
             is_bulk = 1, 
             is_stored = 0, is_show_structure_face = 1, is_energy_evolution_on = 1, 
@@ -166,9 +167,11 @@ def nLA_SSI(U1_name = "",
                        is_random_phase, 
                        is_H_l, is_H_theta, is_H_random_phase, 
                        is_save, is_save_txt, dpi, 
-                       cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                       cmap_2d, ticks_num, is_contourf, 
+                       is_title_on, is_axes_on, is_mm, 0, 
                        fontsize, font, 
-                       1, is_colorbar_on, is_energy, vmax, vmin, 
+                       1, is_colorbar_on, 
+                       is_energy, vmax, vmin, 
                        is_print, ) 
         
     else:
