@@ -296,7 +296,7 @@ def contours_NLA_AST(U1_name = "",
     
     U1_NLA = np.loadtxt(U1_NLA_txt_full_name, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U1_NLA_txt_full_name)['U'] # 加载 复振幅场
     # U2_AST = np.loadtxt(U2_AST_txt_full_name, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U2_AST_txt_full_name)['U'] # 加载 复振幅场
-    location = os.path.dirname(os.path.abspath(__file__))
+    
     img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I2_x, I2_y, U2_AST = U_Read(U2_AST_txt_name, img_full_name, 
                                                                                                     U1_0_NonZero_size, dpi, 
                                                                                                     is_save_txt, )
@@ -316,7 +316,7 @@ def contours_NLA_AST(U1_name = "",
     #%%
     #绘图：U2_Z0_Superposition_amp
 
-    U2_Z0_Superposition_amp_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + img_name_extension
+    U2_Z0_Superposition_amp_address = "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + img_name_extension
 
     plot_2d([], 1, size_PerPixel, 
             U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp", 
@@ -328,7 +328,7 @@ def contours_NLA_AST(U1_name = "",
     #%%
     #绘图：U2_Z0_Superposition_phase
 
-    U2_Z0_Superposition_phase_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + img_name_extension
+    U2_Z0_Superposition_phase_address = "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + img_name_extension
 
     plot_2d([], 1, size_PerPixel, 
             U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase", 
@@ -342,13 +342,13 @@ def contours_NLA_AST(U1_name = "",
 
     U2_Z0_Superposition_full_name = "6. NLAST - U2_" + str(float('%.2g' % Z0)) + "mm" + (is_save_txt and ".txt" or ".mat")
     if is_save == 1:
-        U2_Z0_Superposition_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + U2_Z0_Superposition_full_name
+        U2_Z0_Superposition_txt_address = "6. U2_" + str(float('%.2g' % Z0)) + "mm" + "\\" + U2_Z0_Superposition_full_name
         np.savetxt(U2_Z0_Superposition_txt_address, U2_Z0_Superposition) if is_save_txt else savemat(U2_Z0_Superposition_txt_address, {"U":U2_Z0_Superposition})
 
         #%%
         #再次绘图：U2_Z0_Superposition_amp
     
-        U2_Z0_Superposition_amp_address = location + "\\" + "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + img_name_extension
+        U2_Z0_Superposition_amp_address = "6.1. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_abs" + img_name_extension
     
         plot_2d([], 1, size_PerPixel, 
                 U2_Z0_Superposition_amp, U2_Z0_Superposition_amp_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_amp", 
@@ -359,7 +359,7 @@ def contours_NLA_AST(U1_name = "",
         
         #再次绘图：U2_Z0_Superposition_phase
     
-        U2_Z0_Superposition_phase_address = location + "\\" + "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + img_name_extension
+        U2_Z0_Superposition_phase_address = "6.2. NLAST - " + "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase" + " = " + U1_NLA_txt_short_name + "_Plus" + "_" + U2_AST_txt_short_name + "_angle" + img_name_extension
     
         plot_2d([], 1, size_PerPixel, 
                 U2_Z0_Superposition_phase, U2_Z0_Superposition_phase_address, "U2_" + str(float('%.2g' % Z0)) + "mm" + "_Superposition_phase", 

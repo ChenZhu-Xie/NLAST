@@ -114,43 +114,51 @@ def G2_z_modulation_NLAST(k1, k2, Gz,
     
     # kiiz_shift = k1 + k2_z_shift + Gz # 草，倍频是加 k1_z_shift，和频才是加 k2_z_shift（而非 k3_z_shift）
     kiizQ_shift = k1 + k1_z_shift + Gz
+    
+    Cal_version = 1
+    Res_version = 1
+    
+    if Cal_version == 1:
+        #%% == version 1（更自洽）
+        U1_z_Squared_modulated = fft2(
+            ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
+        # print(np.min(np.abs((kiiz_shift ** 2 - k2 ** 2))))
+        U1_0_Squared_modulated = fft2(
+            ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2 ** 2)) * U1_0 ** 2)
+        
+    elif Cal_version == 2:
+        #%% == version 1.1
+        U1_z_Squared_modulated = fft2(
+            ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2_z_shift ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
+        U1_0_Squared_modulated = fft2(
+            ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2_z_shift ** 2)) * U1_0 ** 2)
+        
+    elif Cal_version == 3:
+        #%% == version 2（少近似）
+        U1_z_Squared_modulated = fft2(
+            modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ_shift ** 2 - k2_z_shift ** 2)))
+        
+        U1_0_Squared_modulated = fft2(
+            modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ_shift ** 2 - k2_z_shift ** 2)))
+    
+    elif Cal_version == 4:
+        #%% == version 2.1
+        U1_z_Squared_modulated = fft2(
+            modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ_shift ** 2 - k2 ** 2)))
+        
+        U1_0_Squared_modulated = fft2(
+            modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ_shift ** 2 - k2 ** 2)))
 
-    #%% == version 1（更自洽）
-    U1_z_Squared_modulated = fft2(
-        ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
-    # print(np.min(np.abs((kiiz_shift ** 2 - k2 ** 2))))
-    U1_0_Squared_modulated = fft2(
-        ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2 ** 2)) * U1_0 ** 2)
-    
-    #%% == version 1.1
-    # U1_z_Squared_modulated = fft2(
-    #     ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2_z_shift ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
-    # U1_0_Squared_modulated = fft2(
-    #     ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2_z_shift ** 2)) * U1_0 ** 2)
-    
-    #%% == version 2（少近似）
-    # U1_z_Squared_modulated = fft2(
-    #     modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiiz_shift ** 2 - k2_z_shift ** 2)))
-    
-    # U1_0_Squared_modulated = fft2(
-    #     modulation * ifft2(fft2(U1_0 ** 2) / (kiiz_shift ** 2 - k2_z_shift ** 2)))
-    
-    #%% == version 2.1
-    # U1_z_Squared_modulated = fft2(
-    #     modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiiz_shift ** 2 - k2 ** 2)))
-    
-    # U1_0_Squared_modulated = fft2(
-    #     modulation * ifft2(fft2(U1_0 ** 2) / (kiiz_shift ** 2 - k2 ** 2)))
 
-    # 不加 负号，U 的相位 会差个 π，我也不知道 为什么
-    G2_z_shift = - const * (U1_z_Squared_modulated * math.e ** (Gz * iz * 1j) 
-                           -  U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
-    
-    # G2_z_shift = const * U1_z_Squared_modulated * math.e ** (Gz * iz * 1j)
-    # G2_z_shift = - const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
-    
-    # G2_z_shift = - const * U1_z_Squared_modulated * math.e ** (Gz * iz * 1j)
-    # G2_z_shift = const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
+    if Res_version == 1:
+        # 不加 负号，U 的相位 会差个 π，我也不知道 为什么
+        G2_z_shift = - const * (U1_z_Squared_modulated * math.e ** (Gz * iz * 1j) 
+                               -  U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
+    elif Res_version == 2:
+        G2_z_shift = const * U1_z_Squared_modulated * math.e ** (Gz * iz * 1j)
+        
+    elif Res_version == 3:
+        G2_z_shift = - const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
     
     return G2_z_shift
 
@@ -168,48 +176,52 @@ def G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
     # J = iz / dz
     
     # print(J, (-1)**J)
+    
+    version = 1
+    
+    if version == 1:
+        #%% version 1（更自洽）
         
-    #%% version 1（更自洽）
-    
-    U1_z_Squared_modulated_1 = fft2(
-        ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz_shift * dz * 1j))) \
-            * Uz_AST(U1_0, k1, iz) ** 2)
-    
-    U1_z_Squared_modulated_2 = fft2(
-        ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (kiiz_shift * dz * 1j))) \
-            * Uz_AST(U1_0, k1, iz) ** 2)
-    
-    U1_0_Squared_modulated = fft2(
-        ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) 
-              * (1 / (1 + math.e ** (- dkiiz_shift * dz * 1j)) - 1 / (1 + math.e ** (kiiz_shift * dz * 1j)))) \
-            * U1_0 ** 2)
-    
-    G2_z_shift = - const * (U1_z_Squared_modulated_1 * (-1) ** J 
-                            -  U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z_shift * iz * 1j)
-                            + U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
+        U1_z_Squared_modulated_1 = fft2(
+            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz_shift * dz * 1j))) \
+                * Uz_AST(U1_0, k1, iz) ** 2)
         
-    #%% version 2（少近似）
-    
-    # U1_z_Squared_modulated_1 = fft2(
-    #     ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz_shift * dz * 1j))) \
-    #         * Uz_AST(U1_0, k1, iz) ** 2)
-    
-    # U1_z_Squared_modulated_2 = fft2(
-    #     ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) \
-    #         * Uz_AST(U1_0, k1, iz) ** 2 / (1 + math.e ** (kiiz_shift * dz * 1j)))
-    
-    # U1_0_Squared_modulated_1 = fft2(
-    #     ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz_shift * dz * 1j))) \
-    #         * U1_0 ** 2)
-    
-    # U1_0_Squared_modulated_2 = fft2(
-    #     ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) \
-    #         * U1_0 ** 2 / (1 + math.e ** (kiiz_shift * dz * 1j)))
-    
-    # G2_z_shift = - const * (U1_z_Squared_modulated_1 * (-1) ** J 
-    #                         -  U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z_shift * iz * 1j)
-    #                         + U1_0_Squared_modulated_1 * math.e ** (k2_z_shift * iz * 1j) 
-    #                         -  U1_0_Squared_modulated_2 * math.e ** (k2_z_shift * iz * 1j))
+        U1_z_Squared_modulated_2 = fft2(
+            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (kiiz_shift * dz * 1j))) \
+                * Uz_AST(U1_0, k1, iz) ** 2)
+        
+        U1_0_Squared_modulated = fft2(
+            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) 
+                  * (1 / (1 + math.e ** (- dkiiz_shift * dz * 1j)) - 1 / (1 + math.e ** (kiiz_shift * dz * 1j)))) \
+                * U1_0 ** 2)
+        
+        G2_z_shift = - const * (U1_z_Squared_modulated_1 * (-1) ** J 
+                                -  U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z_shift * iz * 1j)
+                                + U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
+        
+    else:
+        #%% version 2（少近似）
+        
+        U1_z_Squared_modulated_1 = fft2(
+            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz_shift * dz * 1j))) \
+                * Uz_AST(U1_0, k1, iz) ** 2)
+        
+        U1_z_Squared_modulated_2 = fft2(
+            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) \
+                * Uz_AST(U1_0, k1, iz) ** 2 / (1 + math.e ** (kiiz_shift * dz * 1j)))
+        
+        U1_0_Squared_modulated_1 = fft2(
+            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz_shift * dz * 1j))) \
+                * U1_0 ** 2)
+        
+        U1_0_Squared_modulated_2 = fft2(
+            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) \
+                * U1_0 ** 2 / (1 + math.e ** (kiiz_shift * dz * 1j)))
+        
+        G2_z_shift = - const * (U1_z_Squared_modulated_1 * (-1) ** J 
+                                -  U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z_shift * iz * 1j)
+                                + U1_0_Squared_modulated_1 * math.e ** (k2_z_shift * iz * 1j) 
+                                -  U1_0_Squared_modulated_2 * math.e ** (k2_z_shift * iz * 1j))
     
     return G2_z_shift
 
@@ -233,12 +245,17 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
                                      roll_x, roll_y,
                                      is_linear_convolution, )
 
-    molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j) \
-                - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
+    Res_version = 1
     
-    # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j)
-    # molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j)
-    # molecule = g_U1_0_Squared_shift_Q
+    if Res_version == 1:
+        molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j) \
+                    - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
+    
+    elif Res_version == 2:
+        molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j)
+        
+    elif Res_version == 3:
+        molecule = - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j)
     
     #%%
     

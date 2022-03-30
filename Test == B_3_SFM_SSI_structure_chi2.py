@@ -20,6 +20,7 @@ from fun_linear import Cal_n
 from fun_nonlinear import Eikz, Info_find_contours_SHG
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
+from fun_statistics import U_Drop_n_sigma
 np.seterr(divide='ignore',invalid='ignore')
 #%%
 U1_name = ""
@@ -669,10 +670,7 @@ if is_energy_evolution_on == 1:
 
 H2_z0_SSI_shift = G2_z0_SSI_shift/np.max(np.abs(G2_z0_SSI_shift)) / (g1_shift/np.max(np.abs(g1_shift)))
 # 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。
-H2_z0_SSI_shift_amp_mean = np.mean(np.abs(H2_z0_SSI_shift))
-H2_z0_SSI_shift_amp_std = np.std(np.abs(H2_z0_SSI_shift))
-H2_z0_SSI_shift_amp_trust = np.abs(np.abs(H2_z0_SSI_shift) - H2_z0_SSI_shift_amp_mean) <= 3*H2_z0_SSI_shift_amp_std
-H2_z0_SSI_shift = H2_z0_SSI_shift * H2_z0_SSI_shift_amp_trust.astype(np.int8)
+H2_z0_SSI_shift = U_Drop_n_sigma(H2_z0_SSI_shift, 3, is_energy)
 
 if is_save == 1:
     if not os.path.isdir("4. H2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift"):

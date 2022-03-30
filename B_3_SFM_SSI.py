@@ -9,7 +9,6 @@ Created on Sun Dec 26 22:09:04 2021
 
 import os
 import numpy as np
-np.seterr(divide='ignore',invalid='ignore')
 import math
 from scipy.io import loadmat, savemat
 from fun_os import img_squared_bordered_Read, U_Read
@@ -19,7 +18,8 @@ from fun_SSI import Cal_diz, Cal_Iz_frontface, Cal_Iz_structure, Cal_Iz_endface,
 from fun_linear import Cal_n, Cal_kz
 from fun_nonlinear import Eikz, Cal_lc_SHG, Cal_GxGyGz, Info_find_contours_SHG
 from fun_thread import my_thread
-
+from fun_statistics import U_Drop_n_sigma
+np.seterr(divide='ignore',invalid='ignore')
 #%%
 
 def SFM_SSI(U1_name = "", 
@@ -642,10 +642,7 @@ def SFM_SSI(U1_name = "",
 
     H2_z0_SSI_shift = G2_z0_SSI_shift/np.max(np.abs(G2_z0_SSI_shift)) / (g1_shift/np.max(np.abs(g1_shift)))
     # 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。
-    H2_z0_SSI_shift_amp_mean = np.mean(np.abs(H2_z0_SSI_shift))
-    H2_z0_SSI_shift_amp_std = np.std(np.abs(H2_z0_SSI_shift))
-    H2_z0_SSI_shift_amp_trust = np.abs(np.abs(H2_z0_SSI_shift) - H2_z0_SSI_shift_amp_mean) <= 3*H2_z0_SSI_shift_amp_std
-    H2_z0_SSI_shift = H2_z0_SSI_shift * H2_z0_SSI_shift_amp_trust.astype(np.int8)
+    H2_z0_SSI_shift = U_Drop_n_sigma(H2_z0_SSI_shift, 3, is_energy)
 
     if is_save == 1:
         if not os.path.isdir("4. H2_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift"):

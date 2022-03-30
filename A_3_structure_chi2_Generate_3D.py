@@ -14,9 +14,7 @@ from fun_SSI import Cal_diz, Cal_Iz_structure
 from fun_nonlinear import Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
-
 np.seterr(divide='ignore', invalid='ignore')
-
 
 # %%
 

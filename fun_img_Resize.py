@@ -7,12 +7,11 @@ Created on Tue Oct 26 14:41:11 2021
 
 #%%
 
-import os
 import cv2
 import numpy as np
 from PIL import Image
+from fun_os import get_desktop, Info_img
 Image.MAX_IMAGE_PIXELS = 10E10 #Image 的 默认参数 无法处理那么大的图片
-from fun_os import Info_img
 
 #%%
 
@@ -95,7 +94,7 @@ def image_Add_black_border(img_full_name = "Grating.png",
     else:
         image_Border(img_address, img_squared_address, loc='a', width=0, color=(0, 0, 0, 255))
     
-    img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0) # 按 相对路径 + 灰度图 读取图片
+    img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0) # 按 绝对路径 + 灰度图 读取图片
     is_print and print("img_squared.shape = {}".format(img_squared.shape))
     
     border_width = int(img_squared.shape[0] * border_percentage)
@@ -110,18 +109,18 @@ def image_Add_black_border(img_full_name = "Grating.png",
 # 需要先将 目标 U1_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix, Iy 相同，才能开始 之后的工作
 
 def img_squared_Resize(img_name, img_name_extension, img_squared, 
-         Ix, Iy, I1_x, 
-         is_print = 1, ):
+                       Ix, Iy, I1_x, 
+                       is_print = 1, ):
     
-    location = os.path.dirname(os.path.abspath(__file__)) # 其实不需要，默认就是在 相对路径下 读，只需要 文件名 即可
+    desktop = get_desktop
     
     img_squared_resize = cv2.resize(img_squared, (Ix, Iy), interpolation=cv2.INTER_AREA)
     img_squared_resize_full_name = "1." + img_name + "_squared" + "_resize" + img_name_extension
-    img_squared_resize_address = location + "\\" + "1." + img_name + "_squared" + "_resize" + img_name_extension
+    img_squared_resize_address = desktop + "\\" + "1." + img_name + "_squared" + "_resize" + img_name_extension
     cv2.imwrite(img_squared_resize_full_name, img_squared_resize) # 保存 img_squared_resize
     is_print and print("img_squared_resize.shape = {}".format(img_squared_resize.shape))
 
-    img_squared_resize_bordered_address = location + "\\" + "2." + img_name + "_squared" + "_resize" + "_bordered" + img_name_extension
+    img_squared_resize_bordered_address = desktop + "\\" + "2." + img_name + "_squared" + "_resize" + "_bordered" + img_name_extension
     border_width = (I1_x - Ix) // 2
     image_Border(img_squared_resize_address, img_squared_resize_bordered_address, loc='a', width=border_width, color=(0, 0, 0, 255))
     img_squared_resize_bordered = cv2.imdecode(np.fromfile(img_squared_resize_bordered_address, dtype=np.uint8), 0) # 按 相对路径 + 灰度图 读取图片

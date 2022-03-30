@@ -20,3 +20,14 @@ def var_or_tuple_to_list(var_or_tuple):
         var_or_tuple = [var_or_tuple]
         
     return var_or_tuple
+
+def get_var_name(var):
+    
+    # 这里的 name 就是 key，但可能 一个 var 对应多个 key，比如 a,b,c 都指向 同一块 内存区域，多 key 对 1 值，比较鸡肋
+    for name, value in globals().items():
+        if value is var:
+            return name
+
+# b = 45
+# a = 45
+# print(get_var_name(a))
