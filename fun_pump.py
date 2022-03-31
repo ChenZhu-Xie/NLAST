@@ -10,6 +10,7 @@ import math
 import numpy as np
 import scipy.stats
 from scipy.io import savemat
+from fun_os import U_dir, U_energy_print, U_plot, U_save
 from fun_plot import plot_2d
 from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase
 from fun_linear import Cal_kz
@@ -242,9 +243,9 @@ def pump_LG(file_full_name = "Grating.png",
             is_print = 1, ):
     
     #%%
-    file_name = os.path.splitext(file_full_name)[0]
-    file_name_extension = os.path.splitext(file_full_name)[1]
-    location = os.path.dirname(os.path.abspath(__file__))
+    
+    # file_name = os.path.splitext(file_full_name)[0]
+    img_name_extension = os.path.splitext(file_full_name)[1]
     size_fig = Ix / dpi
     #%%
     # 将输入场 改为 LG 光束
@@ -369,107 +370,52 @@ def pump_LG(file_full_name = "Grating.png",
     #%%
     #绘图：G1_0_amp
     
-    if is_save == 1:
-        if not os.path.isdir("2. G1_0"):
-            os.makedirs("2. G1_0")
-    
-    G1_0_shift_amp = np.abs(G_z0_shift)
-    G1_0_shift_phase = np.angle(G_z0_shift)
-
-    G1_0_shift_amp_address = location + "\\" + "2. G1_0" + "\\" + "5.1. AST - " + "G1_0_shift_amp" + file_name_extension
-
-    plot_2d([], 1, size_PerPixel,
-            G1_0_shift_amp, G1_0_shift_amp_address, "G1_0_shift_amp", 
-            is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            1, is_colorbar_on, is_energy, vmax, vmin)
-
-    #%%
-    #绘图：G1_0_phase
-
-    G1_0_shift_phase_address = location + "\\" + "2. G1_0" + "\\" + "5.2. AST - " + "G1_0_shift_phase" + file_name_extension
-
-    plot_2d([], 1, size_PerPixel,
-            G1_0_shift_phase, G1_0_shift_phase_address, "G1_0_shift_phase", 
-            is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font,
-            1, is_colorbar_on, 0, vmax, vmin)
-    
-    #%%
-    # 储存 U1_0 到 txt 文件
-
-    if is_save == 1:
-        G1_0_shift_full_name = "5. AST - G1_0_shift" + (is_save_txt and ".txt" or ".mat")
-        G1_0_shift_txt_address = location + "\\" + "2. G1_0" + "\\" + G1_0_shift_full_name
-        np.savetxt(G1_0_shift_txt_address, G_z0_shift) if is_save_txt else savemat(G1_0_shift_txt_address, {'G':G_z0_shift})
-    
-    #%%
+    folder_address = ''
     
     if is_save == 1:
-        if not os.path.isdir("2. U1_0"):
-            os.makedirs("2. U1_0")
-
-    U1_0_amp = np.abs(U_z0)
-    U1_0_phase = np.angle(U_z0)
-
-    is_print and print("AST - U1_0.total_energy = {}".format(np.sum(np.power(U1_0_amp, 2))))
-
-    #%%
-    #绘图：U1_0_amp
-
-    U1_0_amp_address = location + "\\" + "2. U1_0" + "\\" + "6.1. AST - " + "U1_0_amp" + file_name_extension
-
-    plot_2d([], 1, size_PerPixel,
-            U1_0_amp, U1_0_amp_address, "U1_0_amp", 
-            is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font, 
-            1, is_colorbar_on, is_energy, vmax, vmin)
-
-    #%%
-    #绘图：U1_0_phase
-
-    U1_0_phase_address = location + "\\" + "2. U1_0" + "\\" + "6.2. AST - " + "U1_0_phase" + file_name_extension
-
-    plot_2d([], 1, size_PerPixel,
-            U1_0_phase, U1_0_phase_address, "U1_0_phase", 
-            is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-            fontsize, font,
-            1, is_colorbar_on, 0, vmax, vmin)
-    
-    #%%
-    # 储存 U1_0 到 txt 文件
-
-    if is_save == 1:
-        U1_0_full_name = "6. AST - U1_0" + (is_save_txt and ".txt" or ".mat")
-        U1_0_txt_address = location + "\\" + "2. U1_0" + "\\" + U1_0_full_name
-        np.savetxt(U1_0_txt_address, U_z0) if is_save_txt else savemat(U1_0_txt_address, {'U':U_z0})
+        folder_address = U_dir("", "2. G1_0", 0, z, )
         
-        #%%
-        #再次绘图：U1_0_amp
+    U_amp_plot_address, U_phase_plot_address = U_plot("", folder_address, 1, 
+                                                      G_z0_shift, "G1_0_shift", "AST", 
+                                                      img_name_extension, 
+                                                      #%%
+                                                      [], 1, size_PerPixel,
+                                                      is_save, dpi, size_fig,
+                                                      cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+                                                      fontsize, font,
+                                                      1, is_colorbar_on, is_energy, vmax, vmin, 
+                                                      #%%
+                                                      z, )
     
-        U1_0_amp_address = location + "\\" + "2." + "U1_0_amp" + file_name_extension
+    if is_save == 1:
+        U_address = U_save("", folder_address, 1, 
+                           G_z0_shift, "G1_0_shift", "AST", 
+                           is_save_txt, z, )
     
-        plot_2d([], 1, size_PerPixel,
-                U1_0_amp, U1_0_amp_address, "U1_0_amp", 
-                is_save, dpi, size_fig,  
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-                fontsize, font,
-                1, is_colorbar_on, is_energy, vmax, vmin)
+    #%%
     
-        #再次绘图：U1_0_phase
+    if is_save == 1:
+        folder_address = U_dir("", "2. U1_0", 0, z, )
+
+    U_energy_print("", is_print, 1, 
+                   U_z0, "U1_0", "AST", )
     
-        U1_0_phase_address = location + "\\" + "2." + "U1_0_phase" + file_name_extension
+    U_amp_plot_address, U_phase_plot_address = U_plot("", folder_address, 1, 
+                                                      U_z0, "U1_0", "AST", 
+                                                      img_name_extension, 
+                                                      #%%
+                                                      [], 1, size_PerPixel,
+                                                      is_save, dpi, size_fig,
+                                                      cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+                                                      fontsize, font,
+                                                      1, is_colorbar_on, is_energy, vmax, vmin, 
+                                                      #%%
+                                                      z, )
     
-        plot_2d([], 1, size_PerPixel,
-                U1_0_phase, U1_0_phase_address, "U1_0_phase", 
-                is_save, dpi, size_fig,  
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-                fontsize, font,
-                1, is_colorbar_on, 0, vmax, vmin)
+    if is_save == 1:
+        U_address = U_save("", folder_address, 1, 
+                           U_z0, "U1_0", "AST", 
+                           is_save_txt, z, )
     
-    return U_z0
+    return U_z0, G_z0_shift
 

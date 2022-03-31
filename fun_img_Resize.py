@@ -112,12 +112,13 @@ def img_squared_Resize(img_name, img_name_extension, img_squared,
                        Ix, Iy, I1_x, 
                        is_print = 1, ):
     
-    desktop = get_desktop
+    desktop = get_desktop()
     
     img_squared_resize = cv2.resize(img_squared, (Ix, Iy), interpolation=cv2.INTER_AREA)
     img_squared_resize_full_name = "1." + img_name + "_squared" + "_resize" + img_name_extension
-    img_squared_resize_address = desktop + "\\" + "1." + img_name + "_squared" + "_resize" + img_name_extension
-    cv2.imwrite(img_squared_resize_full_name, img_squared_resize) # 保存 img_squared_resize
+    img_squared_resize_address = desktop + "\\" + img_squared_resize_full_name
+    # cv2.imwrite(img_squared_resize_address, img_squared_resize) # 保存 img_squared_resize，但不能有 中文路径
+    cv2.imencode(img_squared_resize_address, img_squared_resize)[1].tofile(img_squared_resize_address)
     is_print and print("img_squared_resize.shape = {}".format(img_squared_resize.shape))
 
     img_squared_resize_bordered_address = desktop + "\\" + "2." + img_name + "_squared" + "_resize" + "_bordered" + img_name_extension

@@ -262,21 +262,21 @@ def structure_chi2_Generate_2D(U1_name = "",
                        is_air_pump, 
                        lam1, T, p = "e")
         
-        U1_0 = pump_LG(img_squared_resize_full_name, 
-                       Ix, Iy, size_PerPixel, 
-                       U1_0, w0, k1, z_pump, 
-                       is_LG, is_Gauss, is_OAM, 
-                       l, p, 
-                       theta_x, theta_y, 
-                       is_random_phase, 
-                       is_H_l, is_H_theta, is_H_random_phase, 
-                       is_save, is_save_txt, dpi, 
-                       cmap_2d, ticks_num, is_contourf, 
-                       is_title_on, is_axes_on, is_mm, 0, 
-                       fontsize, font, 
-                       1, is_colorbar_on, is_energy, 
-                       vmax, vmin, 
-                       is_print, ) 
+        U1_0, g1_shift = pump_LG(img_squared_resize_full_name, 
+                                 Ix, Iy, size_PerPixel, 
+                                 U1_0, w0, k1, z_pump, 
+                                 is_LG, is_Gauss, is_OAM, 
+                                 l, p, 
+                                 theta_x, theta_y, 
+                                 is_random_phase, 
+                                 is_H_l, is_H_theta, is_H_random_phase, 
+                                 is_save, is_save_txt, dpi, 
+                                 cmap_2d, ticks_num, is_contourf, 
+                                 is_title_on, is_axes_on, is_mm, 0, 
+                                 fontsize, font, 
+                                 1, is_colorbar_on, is_energy, 
+                                 vmax, vmin, 
+                                 is_print, )
 
     else:
         
@@ -298,12 +298,6 @@ def structure_chi2_Generate_2D(U1_name = "",
                    lam1, T, p = "e")
     
     k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
-    
-    #%%
-    # 线性 角谱理论 - 基波 begin
-
-    g1 = np.fft.fft2(U1_0)
-    g1_shift = np.fft.fftshift(g1)
 
     #%%
 
@@ -476,21 +470,21 @@ def structure_n1_Generate_2D(U1_name = "",
                        is_air_pump, 
                        lam1, T, p = "e")
         
-        U1_0 = pump_LG(img_squared_resize_full_name, 
-                       Ix, Iy, size_PerPixel, 
-                       U1_0, w0, k1, z_pump, 
-                       is_LG, is_Gauss, is_OAM, 
-                       l, p, 
-                       theta_x, theta_y, 
-                       is_random_phase, 
-                       is_H_l, is_H_theta, is_H_random_phase, 
-                       is_save, is_save_txt, dpi, 
-                       cmap_2d, ticks_num, is_contourf, 
-                       is_title_on, is_axes_on, is_mm, 0, 
-                       fontsize, font, 
-                       1, is_colorbar_on, is_energy, 
-                       vmax, vmin, 
-                       is_print, ) 
+        U1_0, g1_shift = pump_LG(img_squared_resize_full_name, 
+                                 Ix, Iy, size_PerPixel, 
+                                 U1_0, w0, k1, z_pump, 
+                                 is_LG, is_Gauss, is_OAM, 
+                                 l, p, 
+                                 theta_x, theta_y, 
+                                 is_random_phase, 
+                                 is_H_l, is_H_theta, is_H_random_phase, 
+                                 is_save, is_save_txt, dpi, 
+                                 cmap_2d, ticks_num, is_contourf, 
+                                 is_title_on, is_axes_on, is_mm, 0, 
+                                 fontsize, font, 
+                                 1, is_colorbar_on, is_energy, 
+                                 vmax, vmin, 
+                                 is_print, )
 
     else:
         
@@ -512,12 +506,6 @@ def structure_n1_Generate_2D(U1_name = "",
                    lam1, T, p = "e")
 
     k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
-
-    # %%
-    # 线性 角谱理论 - 基波 begin
-
-    g1 = np.fft.fft2(U1_0)
-    g1_shift = np.fft.fftshift(g1)
 
     #%%
 

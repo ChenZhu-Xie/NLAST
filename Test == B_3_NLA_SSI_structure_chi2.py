@@ -29,8 +29,8 @@ border_percentage = 0.1 # 边框 占图片的 百分比，也即 图片 放大�
 is_phase_only = 0
 #%%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 0, 1, 0
-l, p = 0, 0
+is_LG, is_Gauss, is_OAM = 1, 1, 1
+l, p = 1, 0
 theta_x, theta_y = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
@@ -46,8 +46,8 @@ is_phase_only_Structure = 0
 w0_Structure = 10
 z_pump_Structure = 0
 
-is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0, 1, 1
-l_Structure, p_Structure = 1, 0
+is_LG_Structure, is_Gauss_Structure, is_OAM_Structure = 0, 1, 0
+l_Structure, p_Structure = 0, 0
 theta_x_Structure, theta_y_Structure = 0, 0
 
 is_random_phase_Structure = 0
@@ -67,7 +67,7 @@ X, Y = 0, 0 # Unit: mm 切片 中心点 平移 矢量（逆着 z 正向看去，
 # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
 is_bulk = 0 # 是否 不读取 结构，1 为 不读取，即 均一晶体；0 为 读取结构
 is_no_backgroud = 0 # 1 -1 调制，改为 0 -2 调制
-is_stored = 0 # 如果要储存中间结果，则不能多线程，只能单线程
+is_stored = 1 # 如果要储存中间结果，则不能多线程，只能单线程
 is_show_structure_face = 0 # 如果要显示 结构 前后端面 的 场分布，就打开这个
 is_energy_evolution_on = 1 # 储存 能量 随 z 演化 的 曲线
 #%%
@@ -76,7 +76,7 @@ is_air_pump, is_air, T = 0, 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KT
 #%%
 deff = 30 # pm / V
 Tx, Ty, Tz = 10, 20, 7.004 # Unit: um "2*lc"，测试： 0 度 - 20.155, 20, 17.885 、 -2 度 ： 6.633, 20, 18.437 、-3 度 ： 4.968, 20, 19.219
-mx, my, mz = 1, 0, 0
+mx, my, mz = 1, 0, 0 # 6.973
 # 倒空间：右, 下 = +, +
 is_stripe = 0
 is_NLAST = 1 # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；

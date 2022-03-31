@@ -225,7 +225,6 @@ def structure_chi2_Generate_z(for_th, fors_num, *arg, ):
             np.savetxt(modulation_squared_address, m, fmt='%i') if is_save_txt else savemat(
                 modulation_squared_address, {'chi2_modulation_squared': m})
 
-
 my_thread(10, sheets_num,
           structure_chi2_Generate_z, noop, noop,
           is_ordered=1, is_print=is_print, )

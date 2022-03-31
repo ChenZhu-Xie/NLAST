@@ -30,8 +30,8 @@ border_percentage = 0.1  # 边框 占图片的 百分比，也即 图片 放大�
 is_phase_only = 0
 # %%
 z_pump = 0
-is_LG, is_Gauss, is_OAM = 1, 1, 1
-l, p = 1, 0
+is_LG, is_Gauss, is_OAM = 0, 1, 0
+l, p = 0, 0
 theta_x, theta_y = 0, 0
 # 正空间：右，下 = +, +
 # 倒空间：左, 上 = +, +
@@ -48,7 +48,7 @@ lam1 = 1.064  # Unit: um 基波波长
 is_air_pump, is_air, T = 0, 0, 25  # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
 # %%
 deff = 30  # pm / V
-Tx, Ty, Tz = 10, 50, 7.004  # Unit: um
+Tx, Ty, Tz = 10, 50, 6.973  # Unit: um
 mx, my, mz = 1, 0, 0
 # 倒空间：右, 下 = +, +
 is_fft = 1
@@ -84,7 +84,7 @@ is_energy = 0
 vmax, vmin = 1, 0
 #%%
 is_energy_evolution_on = 1
-is_stored = 0
+is_stored = 1
 sheets_stored_num = 10
 sample = 2
 # %%
