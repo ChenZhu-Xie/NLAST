@@ -229,7 +229,7 @@ def pump_LG(file_full_name = "Grating.png",
             #%%
             ticks_num = 6, is_contourf = 0, 
             is_title_on = 1, is_axes_on = 1, 
-            is_mm = 1, is_propagation = 0, 
+            is_mm = 1,
             #%%
             fontsize = 9, 
             font = {'family': 'serif',
@@ -238,8 +238,7 @@ def pump_LG(file_full_name = "Grating.png",
                     'color': 'black', # 'black','gray','darkred'
                     }, 
             #%%
-            is_self_colorbar = 0, is_colorbar_on = 1, 
-            is_energy = 0, vmax = 1, vmin = 0, 
+            is_colorbar_on = 1, is_energy = 0,
             is_print = 1, ):
     
     #%%
@@ -379,11 +378,12 @@ def pump_LG(file_full_name = "Grating.png",
                                                       G_z0_shift, "G1_0_shift", "AST", 
                                                       img_name_extension, 
                                                       #%%
-                                                      [], 1, size_PerPixel,
+                                                      1, size_PerPixel,
                                                       is_save, dpi, size_fig,
-                                                      cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+                                                      cmap_2d, ticks_num, is_contourf,
+                                                      is_title_on, is_axes_on, is_mm,
                                                       fontsize, font,
-                                                      1, is_colorbar_on, is_energy, vmax, vmin, 
+                                                      is_colorbar_on, is_energy,
                                                       #%%
                                                       z, )
     
@@ -404,11 +404,12 @@ def pump_LG(file_full_name = "Grating.png",
                                                       U_z0, "U1_0", "AST", 
                                                       img_name_extension, 
                                                       #%%
-                                                      [], 1, size_PerPixel,
+                                                      1, size_PerPixel,
                                                       is_save, dpi, size_fig,
-                                                      cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+                                                      cmap_2d, ticks_num, is_contourf,
+                                                      is_title_on, is_axes_on, is_mm,
                                                       fontsize, font,
-                                                      1, is_colorbar_on, is_energy, vmax, vmin, 
+                                                      is_colorbar_on, is_energy,
                                                       #%%
                                                       z, )
     

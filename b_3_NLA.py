@@ -11,7 +11,8 @@ import os
 import numpy as np
 import math
 from scipy.io import savemat
-from fun_os import img_squared_bordered_Read, U_Read
+from fun_os import img_squared_bordered_Read, U_Read, U_dir, U_energy_print, U_plot, U_save
+from fun_img_Resize import image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_plot import plot_2d
 from fun_pump import pump_LG
@@ -70,7 +71,7 @@ def NLA(U1_name="",
         # %%
         ticks_num=6, is_contourf=0,
         is_title_on=1, is_axes_on=1,
-        is_mm=1, is_propagation=0,
+        is_mm=1,
         # %%
         fontsize=9,
         font={'family': 'serif',
@@ -79,67 +80,25 @@ def NLA(U1_name="",
               'color': 'black',  # 'black','gray','darkred'
               },
         # %%
-        is_self_colorbar=0, is_colorbar_on=1,
-        is_energy=0, vmax=1, vmin=0,
+        is_colorbar_on=1, is_energy=0,
         # %%
         is_print=1, is_contours=1, n_TzQ=1, 
-        Gz_max_Enhance=1, match_mode=1, ):
-    # #%%
-    # U1_name = ""
-    # img_full_name = "lena.png"
-    # #%%
-    # is_phase_only = 0
-    # is_LG, is_Gauss, is_OAM = 0, 1, 1
-    # l, p = 1, 0
-    # theta_x, theta_y = 1, 0
-    # is_H_l, is_H_theta = 0, 0
-    # # 正空间：右，下 = +, +
-    # # 倒空间：左, 上 = +, +
-    # # 朝着 x, y 轴 分别偏离 θ_1_x, θ_1_y 度
-    # #%%
-    # U1_0_NonZero_size = 1 # Unit: mm 不包含边框，图片 的 实际尺寸
-    # w0 = 0.5 # Unit: mm 束腰（z = 0 处）
-    # z0 = 10 # Unit: mm 传播距离
-    # # size_modulate = 1e-3 # Unit: mm χ2 调制区域 的 横向尺寸，即 公式中的 d
-    # #%%
-    # lam1 = 1.064 # Unit: um 基波波长
-    # is_air, T = 0, 25 # is_air = 0, 1, 2 分别表示 LN, 空气, KTP；T 表示 温度
-    # #%%
-    # deff = 30 # pm / V
-    # Tx, Ty, Tz = 10, 10, "2*lc" # Unit: um
-    # mx, my, mz = 0, 0, 0
-    # # 倒空间：右, 下 = +, +
-    # is_linear_convolution = 0 # 0 代表 循环卷积，1 代表 线性卷积
-    # #%%
-    # is_save = 0
-    # is_save_txt = 0
-    # dpi = 100
-    # #%%
-    # cmap_2d='viridis'
-    # # cmap_2d.set_under('black')
-    # # cmap_2d.set_over('red')
-    # #%%
-    # ticks_num = 6 # 不包含 原点的 刻度数，也就是 区间数（植数问题）
-    # is_contourf = 0
-    # is_title_on, is_axes_on = 1, 1
-    # is_mm, is_propagation = 1, 0
-    # #%%
-    # fontsize = 9
-    # font = {'family': 'serif',
-    #         'style': 'normal', # 'normal', 'italic', 'oblique'
-    #         'weight': 'normal',
-    #         'color': 'black', # 'black','gray','darkred'
-    #         }
-    # #%%
-    # is_self_colorbar, is_colorbar_on = 0, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
-    # is_energy = 0
-    # vmax, vmin = 1, 0
+        Gz_max_Enhance=1, match_mode=1,
+        # %%
+        **kwargs, ):
 
     # %%
 
     location = os.path.dirname(os.path.abspath(__file__))  # 其实不需要，默认就是在 相对路径下 读，只需要 文件名 即可
 
     if (type(U1_name) != str) or U1_name == "":
+
+        if __name__ == "__main__":
+            border_percentage = kwargs["border_percentage"] if len(kwargs) != 0 else 0.1
+
+            image_Add_black_border(img_full_name,  # 预处理 导入图片 为方形，并加边框
+                                   border_percentage,
+                                   is_print, )
 
         # %%
         # 导入 方形，以及 加边框 的 图片
@@ -156,21 +115,20 @@ def NLA(U1_name="",
                        is_air_pump,
                        lam1, T, p="e")
 
-        U1_0 = pump_LG(img_full_name,
-                       I1_x, I1_y, size_PerPixel,
-                       U1_0, w0, k1, z_pump,
-                       is_LG, is_Gauss, is_OAM,
-                       l, p,
-                       theta_x, theta_y,
-                       is_random_phase,
-                       is_H_l, is_H_theta, is_H_random_phase,
-                       is_save, is_save_txt, dpi,
-                       cmap_2d, ticks_num, is_contourf, 
-                       is_title_on, is_axes_on, is_mm, 0,
-                       fontsize, font,
-                       1, is_colorbar_on, is_energy, 
-                       vmax, vmin,
-                       is_print, )
+        U1_0, g1_shift = pump_LG(img_full_name,
+                                 I1_x, I1_y, size_PerPixel,
+                                 U1_0, w0, k1, z_pump,
+                                 is_LG, is_Gauss, is_OAM,
+                                 l, p,
+                                 theta_x, theta_y,
+                                 is_random_phase,
+                                 is_H_l, is_H_theta, is_H_random_phase,
+                                 is_save, is_save_txt, dpi,
+                                 cmap_2d, ticks_num, is_contourf,
+                                 is_title_on, is_axes_on, is_mm,
+                                 fontsize, font,
+                                 is_colorbar_on, is_energy,
+                                 is_print, )
 
     else:
 
@@ -188,12 +146,6 @@ def NLA(U1_name="",
     n1, k1 = Cal_n(size_PerPixel,
                    is_air,
                    lam1, T, p="e")
-
-    # %%
-    # 线性 角谱理论 - 基波 begin
-
-    g1 = np.fft.fft2(U1_0)
-    g1_shift = np.fft.fftshift(g1)
 
     k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
 
@@ -324,12 +276,11 @@ def NLA(U1_name="",
                                              # %%
                                              ticks_num, is_contourf,
                                              is_title_on, is_axes_on,
-                                             is_mm, is_propagation,
+                                             is_mm,
                                              # %%
                                              fontsize, font,
                                              # %%
-                                             is_self_colorbar, is_colorbar_on,
-                                             is_energy, vmax, vmin,
+                                             is_colorbar_on, is_energy,
                                              # %%
                                              is_print, )
 
@@ -529,4 +480,69 @@ def NLA(U1_name="",
     # if is_save == 1:
     np.savetxt(U2_z0_full_name, U2_z0) if is_save_txt else savemat(U2_z0_full_name, {"U": U2_z0})
 
-    return G2_z0_shift, U2_z0
+    return U2_z0, G2_z0_shift
+
+if __name__ == '__main__':
+
+    NLA(U1_name="",
+        img_full_name="Grating.png",
+        is_phase_only=0,
+        # %%
+        z_pump=0,
+        is_LG=0, is_Gauss=0, is_OAM=0,
+        l=0, p=0,
+        theta_x=0, theta_y=0,
+        # %%
+        is_random_phase=0,
+        is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+        # %%
+        # 生成横向结构
+        U1_name_Structure='',
+        structure_size_Enlarge=0.1,
+        is_phase_only_Structure=0,
+        # %%
+        w0_Structure=0, z_pump_Structure=0,
+        is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
+        l_Structure=0, p_Structure=0,
+        theta_x_Structure=0, theta_y_Structure=0,
+        # %%
+        is_random_phase_Structure=0,
+        is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+        # %%
+        U1_0_NonZero_size=1, w0=0.3,
+        z0=1,
+        # %%
+        lam1=0.8, is_air_pump=0, is_air=0, T=25,
+        deff=30, is_fft=1, fft_mode=0,
+        is_linear_convolution=0,
+        # %%
+        Tx=10, Ty=10, Tz="2*lc",
+        mx=0, my=0, mz=0,
+        # %%
+        # 生成横向结构
+        Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+        Depth=2, structure_xy_mode='x',
+        is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+        is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
+        # %%
+        is_save=0, is_save_txt=0, dpi=100,
+        # %%
+        cmap_2d='viridis',
+        # %%
+        ticks_num=6, is_contourf=0,
+        is_title_on=1, is_axes_on=1,
+        is_mm=1,
+        # %%
+        fontsize=9,
+        font={'family': 'serif',
+              'style': 'normal',  # 'normal', 'italic', 'oblique'
+              'weight': 'normal',
+              'color': 'black',  # 'black','gray','darkred'
+              },
+        # %%
+        is_colorbar_on=1, is_energy=0,
+        # %%
+        is_print=1, is_contours=1, n_TzQ=1,
+        Gz_max_Enhance=1, match_mode=1,
+        # %%
+        border_percentage=0.1, )

@@ -206,7 +206,7 @@ def structure_chi2_Generate_2D(U1_name = "",
                               #%%
                               ticks_num = 6, is_contourf = 0, 
                               is_title_on = 1, is_axes_on = 1, 
-                              is_mm = 1, is_propagation = 0, 
+                              is_mm = 1,
                               #%%
                               fontsize = 9, 
                               font = {'family': 'serif',
@@ -215,8 +215,7 @@ def structure_chi2_Generate_2D(U1_name = "",
                                       'color': 'black', # 'black','gray','darkred'
                                       }, 
                               #%%
-                              is_self_colorbar = 0, is_colorbar_on = 1, 
-                              is_energy = 0, vmax = 1, vmin = 0, 
+                              is_colorbar_on = 1, is_energy = 0,
                               #%%
                               is_print = 1, ):
 
@@ -272,10 +271,9 @@ def structure_chi2_Generate_2D(U1_name = "",
                                  is_H_l, is_H_theta, is_H_random_phase, 
                                  is_save, is_save_txt, dpi, 
                                  cmap_2d, ticks_num, is_contourf, 
-                                 is_title_on, is_axes_on, is_mm, 0, 
+                                 is_title_on, is_axes_on, is_mm,
                                  fontsize, font, 
-                                 1, is_colorbar_on, is_energy, 
-                                 vmax, vmin, 
+                                 is_colorbar_on, is_energy,
                                  is_print, )
 
     else:
@@ -346,7 +344,8 @@ def structure_chi2_Generate_2D(U1_name = "",
     # plot_2d([], 1, size_PerPixel,  
     #         structure, "χ2_structure" + img_name_extension, "χ2_structure", 
     #         is_save, dpi, size_fig,  
-    #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+    #         cmap_2d, ticks_num, is_contourf,
+    #         is_title_on, is_axes_on, is_mm, 0,
     #         fontsize, font,
     #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
 
@@ -356,7 +355,8 @@ def structure_chi2_Generate_2D(U1_name = "",
     plot_2d([], 1, size_PerPixel, 
             modulation_squared, "χ2_modulation_squared" + img_name_extension, "χ2_modulation_squared", 
             is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
             0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
 
@@ -370,7 +370,8 @@ def structure_chi2_Generate_2D(U1_name = "",
     # plot_2d([], 1, size_PerPixel,  
     #         structure_opposite, "χ2_structure_opposite" + img_name_extension, "χ2_structure_opposite", 
     #         is_save, dpi, size_fig,
-    #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+    #         cmap_2d, ticks_num, is_contourf,
+    #         is_title_on, is_axes_on, is_mm, 0,
     #         fontsize, font,
     #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
         
@@ -380,7 +381,8 @@ def structure_chi2_Generate_2D(U1_name = "",
     plot_2d([], 1, size_PerPixel, 
             modulation_opposite_squared, "χ2_modulation_opposite_squared" + img_name_extension, "χ2_modulation_opposite_squared", 
             is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, 0,
             fontsize, font, 
             0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
         
@@ -416,7 +418,7 @@ def structure_n1_Generate_2D(U1_name = "",
                               #%%
                               ticks_num = 6, is_contourf = 0, 
                               is_title_on = 1, is_axes_on = 1, 
-                              is_mm = 1, is_propagation = 0, 
+                              is_mm = 1,
                               #%%
                               fontsize = 9, 
                               font = {'family': 'serif',
@@ -425,15 +427,15 @@ def structure_n1_Generate_2D(U1_name = "",
                                       'color': 'black', # 'black','gray','darkred'
                                       }, 
                               #%%
-                              is_self_colorbar = 0, is_colorbar_on = 1, 
-                              is_energy = 0, vmax = 1, vmin = 0, 
+                              is_colorbar_on = 1, is_energy = 0,
                               #%%
                               is_print = 1, ):
 
     #%%
     # 导入 方形，以及 加边框 的 图片
     
-    img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(img_full_name, 
+    img_name, img_name_extension, img_squared, \
+    size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(img_full_name,
                                                                                                                      U1_0_NonZero_size, dpi, 
                                                                                                                      is_phase_only)
 
@@ -480,10 +482,9 @@ def structure_n1_Generate_2D(U1_name = "",
                                  is_H_l, is_H_theta, is_H_random_phase, 
                                  is_save, is_save_txt, dpi, 
                                  cmap_2d, ticks_num, is_contourf, 
-                                 is_title_on, is_axes_on, is_mm, 0, 
+                                 is_title_on, is_axes_on, is_mm,
                                  fontsize, font, 
-                                 1, is_colorbar_on, is_energy, 
-                                 vmax, vmin, 
+                                 is_colorbar_on, is_energy,
                                  is_print, )
 
     else:
@@ -552,9 +553,11 @@ def structure_n1_Generate_2D(U1_name = "",
     # plot_2d([], 1, size_PerPixel,  
     #         structure, "n1_structure" + img_name_extension, "n1_structure", 
     #         is_save, dpi, size_fig,  
-    #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+    #         cmap_2d, ticks_num, is_contourf,
+    #         is_title_on, is_axes_on, is_mm, 0,
     #         fontsize, font,
-    #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
+    #         0, is_colorbar_on,
+    #         0, vmax_structure, vmin_structure)
 
     modulation = n1 - Depth * structure
     modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (n1, n1))
@@ -562,9 +565,11 @@ def structure_n1_Generate_2D(U1_name = "",
     plot_2d([], 1, size_PerPixel, 
             modulation_squared, "n1_modulation_squared" + img_name_extension, "n1_modulation_squared", 
             is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
-            0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
+            0, is_colorbar_on,
+            0, vmax_modulation, vmin_modulation)
 
     #%%
     
@@ -576,9 +581,11 @@ def structure_n1_Generate_2D(U1_name = "",
     # plot_2d([], 1, size_PerPixel,  
     #         structure_opposite, "n1_structure_opposite" + img_name_extension, "n1_structure_opposite", 
     #         is_save, dpi, size_fig,  
-    #         cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+    #         cmap_2d, ticks_num, is_contourf,
+    #         is_title_on, is_axes_on, is_mm, 0,
     #         fontsize, font,
-    #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
+    #         0, is_colorbar_on,
+    #         0, vmax_structure, vmin_structure)
 
     modulation_opposite = n1 - Depth * structure_opposite
     modulation_opposite_squared = np.pad(modulation_opposite, ((border_width, border_width), (border_width, border_width)), 'constant', constant_values = (n1, n1))
@@ -586,9 +593,11 @@ def structure_n1_Generate_2D(U1_name = "",
     plot_2d([], 1, size_PerPixel, 
             modulation_opposite_squared, "n1_modulation_opposite_squared" + img_name_extension, "n1_modulation_opposite_squared", 
             is_save, dpi, size_fig, 
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, 0,
             fontsize, font, 
-            0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
+            0, is_colorbar_on,
+            0, vmax_modulation, vmin_modulation)
         
     return n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
            dk, lc, Tz, Gx, Gy, Gz, \

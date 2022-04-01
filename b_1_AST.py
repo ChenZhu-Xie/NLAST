@@ -13,7 +13,10 @@ from fun_os import img_squared_bordered_Read, U_Read, U_dir, U_energy_print, U_p
 from fun_img_Resize import image_Add_black_border
 from fun_pump import pump_LG
 from fun_linear import Cal_n, Cal_kz
+
 np.seterr(divide='ignore', invalid='ignore')
+
+
 # %%
 
 def AST(U1_name="",
@@ -24,7 +27,7 @@ def AST(U1_name="",
         is_LG=0, is_Gauss=0, is_OAM=0,
         l=0, p=0,
         theta_x=0, theta_y=0,
-        #%%
+        # %%
         is_random_phase=0,
         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
         # %%
@@ -39,7 +42,7 @@ def AST(U1_name="",
         # %%
         ticks_num=6, is_contourf=0,
         is_title_on=1, is_axes_on=1,
-        is_mm=1, is_propagation=0,
+        is_mm=1,
         # %%
         fontsize=9,
         font={'family': 'serif',
@@ -48,30 +51,30 @@ def AST(U1_name="",
               'color': 'black',  # 'black','gray','darkred'
               },
         # %%
-        is_self_colorbar=0, is_colorbar_on=1,
-        is_energy=0, vmax=1, vmin=0,
+        is_colorbar_on=1, is_energy=0,
         # %%
-        is_print=1, **kwargs, ):
-    
+        is_print=1,
+        # %%
+        **kwargs, ):
     # %%
 
     if (type(U1_name) != str) or U1_name == "":
-        
-        if __name__ == "__main__" :
-            
+
+        if __name__ == "__main__":
             border_percentage = kwargs["border_percentage"] if len(kwargs) != 0 else 0.1
-            
-            image_Add_black_border(img_full_name, # 预处理 导入图片 为方形，并加边框
+
+            image_Add_black_border(img_full_name,  # 预处理 导入图片 为方形，并加边框
                                    border_percentage,
                                    is_print, )
 
         # %%
         # 导入 方形，以及 加边框 的 图片
 
-        img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(
-                            img_full_name,
-                            U1_0_NonZero_size, dpi,
-                            is_phase_only)
+        img_name, img_name_extension, img_squared, \
+        size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(
+            img_full_name,
+            U1_0_NonZero_size, dpi,
+            is_phase_only)
 
         # %%
         # 预处理 输入场
@@ -89,9 +92,10 @@ def AST(U1_name="",
                                  is_random_phase,
                                  is_H_l, is_H_theta, is_H_random_phase,
                                  is_save, is_save_txt, dpi,
-                                 cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+                                 cmap_2d, ticks_num, is_contourf,
+                                 is_title_on, is_axes_on, is_mm,
                                  fontsize, font,
-                                 1, is_colorbar_on, is_energy, vmax, vmin,
+                                 is_colorbar_on,is_energy,
                                  is_print, )
 
     else:
@@ -99,11 +103,12 @@ def AST(U1_name="",
         # %%
         # 导入 方形 的 图片，以及 U
 
-        img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = U_Read(U1_name,
-                                                                                                      img_full_name,
-                                                                                                      U1_0_NonZero_size,
-                                                                                                      dpi,
-                                                                                                      is_save_txt, )
+        img_name, img_name_extension, img_squared, \
+        size_PerPixel, size_fig, I1_x, I1_y, U1_0 = U_Read(U1_name,
+                                                           img_full_name,
+                                                           U1_0_NonZero_size,
+                                                           dpi,
+                                                           is_save_txt, )
 
     # %%
 
@@ -122,18 +127,19 @@ def AST(U1_name="",
     if is_save == 1:
         folder_address = U_dir(U1_name, "g1_shift", 1, )
 
-    #%%
-    #绘图：g1_shift
+    # %%
+    # 绘图：g1_shift
 
     # U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1, 
     #                                                   g1_shift, "g1_shift", "AST", 
     #                                                   img_name_extension, 
     #                                                   #%%
-    #                                                   [], 1, size_PerPixel,
+    #                                                   1, size_PerPixel,
     #                                                   is_save, dpi, size_fig,
-    #                                                   cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+    #                                                   cmap_2d, ticks_num, is_contourf,
+    #                                                   is_title_on, is_axes_on, is_mm,
     #                                                   fontsize, font,
-    #                                                   1, is_colorbar_on, is_energy, vmax, vmin, 
+    #                                                   is_colorbar_on, is_energy,
     #                                                   #%%
     #                                                   z0, )
 
@@ -141,8 +147,8 @@ def AST(U1_name="",
     # 储存 g1_shift 到 txt 文件
 
     if is_save == 1:
-        U_address = U_save(U1_name, folder_address, 1, 
-                           g1_shift, "g1_shift", "AST", 
+        U_address = U_save(U1_name, folder_address, 1,
+                           g1_shift, "g1_shift", "AST",
                            is_save_txt, )
 
     # %%
@@ -157,18 +163,19 @@ def AST(U1_name="",
     if is_save == 1:
         folder_address = U_dir(U1_name, "H1_z0_shift", 1, z0, )
 
-    #%%
-    #绘图：H1_z0_shift
+    # %%
+    # 绘图：H1_z0_shift
 
-    # U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1, 
-    #                                                   H1_z0_shift, "H1_z0_shift", "AST", 
-    #                                                   img_name_extension, 
+    # U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1,
+    #                                                   H1_z0_shift, "H1_z0_shift", "AST",
+    #                                                   img_name_extension,
     #                                                   #%%
-    #                                                   [], 1, size_PerPixel,
+    #                                                   1, size_PerPixel,
     #                                                   is_save, dpi, size_fig,
-    #                                                   cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+    #                                                   cmap_2d, ticks_num, is_contourf,
+    #                                                   is_title_on, is_axes_on, is_mm,
     #                                                   fontsize, font,
-    #                                                   1, is_colorbar_on, is_energy, vmax, vmin, 
+    #                                                   is_colorbar_on, is_energy,
     #                                                   #%%
     #                                                   z0, )
 
@@ -176,8 +183,8 @@ def AST(U1_name="",
     # 储存 H1_z0_shift 到 txt 文件
 
     if is_save == 1:
-        U_address = U_save(U1_name, folder_address, 1, 
-                           H1_z0_shift, "H1_z0_shift", "AST", 
+        U_address = U_save(U1_name, folder_address, 1,
+                           H1_z0_shift, "H1_z0_shift", "AST",
                            is_save_txt, z0, )
 
     # %%
@@ -190,24 +197,25 @@ def AST(U1_name="",
     # %%
     # 绘图：G1_z0_shift
 
-    U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1, 
-                                                      G1_z0_shift, "G1_z0_shift", "AST", 
-                                                      img_name_extension, 
-                                                      #%%
-                                                      [], 1, size_PerPixel,
+    U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1,
+                                                      G1_z0_shift, "G1_z0_shift", "AST",
+                                                      img_name_extension,
+                                                      # %%
+                                                      1, size_PerPixel,
                                                       is_save, dpi, size_fig,
-                                                      cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+                                                      cmap_2d, ticks_num, is_contourf,
+                                                      is_title_on, is_axes_on, is_mm,
                                                       fontsize, font,
-                                                      1, is_colorbar_on, is_energy, vmax, vmin, 
-                                                      #%%
+                                                      is_colorbar_on, is_energy,
+                                                      # %%
                                                       z0, )
 
     # %%
     # 储存 G1_z0_shift 到 txt 文件
 
     if is_save == 1:
-        U_address = U_save(U1_name, folder_address, 1, 
-                           G1_z0_shift, "G1_z0_shift", "AST", 
+        U_address = U_save(U1_name, folder_address, 1,
+                           G1_z0_shift, "G1_z0_shift", "AST",
                            is_save_txt, z0, )
 
     # %%
@@ -216,8 +224,8 @@ def AST(U1_name="",
     G1_z0 = np.fft.ifftshift(G1_z0_shift)
     U1_z0 = np.fft.ifft2(G1_z0)
 
-    U_energy_print(U1_name, 1, 1, 
-                   U1_z0, "U1_z0", "AST", 
+    U_energy_print(U1_name, 1, 1,
+                   U1_z0, "U1_z0", "AST",
                    z0, )
 
     if is_save == 1:
@@ -226,30 +234,31 @@ def AST(U1_name="",
     # %%
     # 绘图：U1_z0
 
-    U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1, 
-                                                      U1_z0, "U1_z0", "AST", 
-                                                      img_name_extension, 
-                                                      #%%
-                                                      [], 1, size_PerPixel,
+    U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1,
+                                                      U1_z0, "U1_z0", "AST",
+                                                      img_name_extension,
+                                                      # %%
+                                                      1, size_PerPixel,
                                                       is_save, dpi, size_fig,
-                                                      cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
+                                                      cmap_2d, ticks_num, is_contourf,
+                                                      is_title_on, is_axes_on, is_mm,
                                                       fontsize, font,
-                                                      1, is_colorbar_on, is_energy, vmax, vmin, 
-                                                      #%%
+                                                      is_colorbar_on, is_energy,
+                                                      # %%
                                                       z0, )
 
     # %%
     # 储存 U1_z0 到 txt 文件
 
     if is_save == 1:
-        U_address = U_save(U1_name, folder_address, 1, 
-                           U1_z0, "U1_z0", "AST", 
+        U_address = U_save(U1_name, folder_address, 1,
+                           U1_z0, "U1_z0", "AST",
                            is_save_txt, z0, )
 
     return U1_z0, G1_z0_shift
 
+
 if __name__ == '__main__':
-    
     AST(U1_name="",
         img_full_name="Grating.png",
         is_phase_only=0,
@@ -258,7 +267,7 @@ if __name__ == '__main__':
         is_LG=0, is_Gauss=0, is_OAM=0,
         l=0, p=0,
         theta_x=0, theta_y=0,
-        #%%
+        # %%
         is_random_phase=0,
         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
         # %%
@@ -273,7 +282,7 @@ if __name__ == '__main__':
         # %%
         ticks_num=6, is_contourf=0,
         is_title_on=1, is_axes_on=1,
-        is_mm=1, is_propagation=0,
+        is_mm=1,
         # %%
         fontsize=9,
         font={'family': 'serif',
@@ -282,7 +291,8 @@ if __name__ == '__main__':
               'color': 'black',  # 'black','gray','darkred'
               },
         # %%
-        is_self_colorbar=0, is_colorbar_on=1,
-        is_energy=0, vmax=1, vmin=0,
+        is_colorbar_on=1, is_energy=0,
         # %%
-        is_print=1, border_percentage=0.1, )
+        is_print=1,
+        # %%
+        border_percentage=0.1, )

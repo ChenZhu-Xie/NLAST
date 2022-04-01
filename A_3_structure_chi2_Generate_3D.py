@@ -52,7 +52,7 @@ def structure_chi2_3D(U1_name="",
                       # %%
                       ticks_num=6, is_contourf=0,
                       is_title_on=1, is_axes_on=1,
-                      is_mm=1, is_propagation=0,
+                      is_mm=1,
                       # %%
                       fontsize=9,
                       font={'family': 'serif',
@@ -61,8 +61,7 @@ def structure_chi2_3D(U1_name="",
                             'color': 'black',  # 'black','gray','darkred'
                             },
                       # %%
-                      is_self_colorbar=0, is_colorbar_on=1,
-                      is_energy=0, vmax=1, vmin=0,
+                      is_colorbar_on=1, is_energy=0,
                       # %%
                       is_print=1, is_contours=1, n_TzQ=1, 
                       Gz_max_Enhance=1, match_mode=1,
@@ -118,12 +117,11 @@ def structure_chi2_3D(U1_name="",
                                      # %%
                                      ticks_num, is_contourf,
                                      is_title_on, is_axes_on,
-                                     is_mm, is_propagation,
+                                     is_mm,
                                      # %%
                                      fontsize, font,
                                      # %%
-                                     is_self_colorbar, is_colorbar_on,
-                                     is_energy, vmax, vmin,
+                                     is_colorbar_on, is_energy,
                                      # %%
                                      is_print, )
 
@@ -246,7 +244,7 @@ if __name__ == '__main__':
                     # %%
                     ticks_num=6, is_contourf=0,
                     is_title_on=1, is_axes_on=1,
-                    is_mm=1, is_propagation=0,
+                    is_mm=1,
                     # %%
                     fontsize=9,
                     font={'family': 'serif',
@@ -255,8 +253,7 @@ if __name__ == '__main__':
                           'color': 'black',  # 'black','gray','darkred'
                           },
                     # %%
-                    is_self_colorbar=0, is_colorbar_on=1,
-                    is_energy=0, vmax=1, vmin=0,
+                    is_colorbar_on=1, is_energy=0,
                     # %%
                     is_print=1, is_contours=1, n_TzQ=1, 
                     Gz_max_Enhance=1, match_mode=1,

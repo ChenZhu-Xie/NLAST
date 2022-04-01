@@ -33,37 +33,6 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
                   },
             # %%
             is_energy=1, vmax=1, vmin=0):
-    # #%%
-    # Iz = 343
-    # size_PerPixel = 0.007
-    # diz = 0.774
-    # #%%
-    # array1D = 0
-    # array1D_address = os.path.dirname(os.path.abspath(__file__))
-    # array1D_title = ''
-    # is_energy = 1
-    # #%%
-    # is_save = 0
-    # dpi = 100
-    # size_fig_x, size_fig_y = 3, 3
-    # #%%
-    # color_1d='b'
-    # ticks_num = 6 # 不包含 原点的 刻度数，也就是 区间数（植数问题）
-    # is_title_on = 1
-    # is_axes_on = 1
-    # is_mm = 1
-    # is_propagation = 0
-    # #%%
-    # fontsize = 9
-    # font = {'family': 'Times New Roman', # 'serif'
-    #         'style': 'normal', # 'normal', 'italic', 'oblique'
-    #         'weight': 'normal',
-    #         'color': 'black', # 'black','gray','darkred'
-    #         'size': fontsize,
-    #         }
-    # #%%
-    # vmax = 1
-    # vmin = 0
 
     # %%
 
@@ -176,43 +145,6 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
                   },
             # %%
             is_self_colorbar=1, is_colorbar_on=1, is_energy=1, vmax=1, vmin=0):
-    # #%%
-    # Ix = 343
-    # Iy = 343
-    # size_PerPixel = 0.007
-    # diz = 0.774
-    # #%%
-    # array2D = 0
-    # array2D_address = os.path.dirname(os.path.abspath(__file__))
-    # array2D_title = ''
-    # is_energy = 1
-    # #%%
-    # is_save = 0
-    # dpi = 100
-    # size_fig = 3
-    # #%%
-    # cmap_2d='viridis'
-    # # cmap_2d.set_under('black')
-    # # cmap_2d.set_over('red')
-    # ticks_num = 6 # 不包含 原点的 刻度数，也就是 区间数（植数问题）
-    # is_contourf = 0
-    # is_title_on = 1
-    # is_axes_on = 1
-    # is_mm = 1
-    # is_propagation = 0
-    # #%%
-    # fontsize = 9
-    # font = {'family': 'Times New Roman', # 'serif'
-    #         'style': 'normal', # 'normal', 'italic', 'oblique'
-    #         'weight': 'normal',
-    #         'color': 'black', # 'black','gray','darkred'
-    #         'size': fontsize,
-    #         }
-    # #%%
-    # is_self_colorbar = 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
-    # is_colorbar_on = 1
-    # vmax = 1
-    # vmin = 0
 
     # %%
 
@@ -346,61 +278,6 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
                       },
                 # %%
                 is_self_colorbar=1, is_colorbar_on=1, is_energy=1, vmax=1, vmin=0):
-    # #%%
-    # Iz = 700
-    # Iy = 343
-    # Ix = 343
-    # size_PerPixel = 0.007
-    # diz = 0.774
-    # #%%
-    # U_YZ = 0
-    # U_XZ = 0
-    # U_1 = 0
-    # U_2 = 0
-    # #%%
-    # U_structure_front = 0
-    # U_structure_end = 0
-    # is_show_structure_face = 1
-    # is_energy = 1
-    # #%%
-    # img_address = os.path.dirname(os.path.abspath(__file__))
-    # img_title = ''
-    # #%%
-    # iX = 0
-    # iY = 0
-    # iZ_1 = 0
-    # iZ_2 = 0
-    # #%%
-    # iZ_structure_front = 0
-    # iZ_structure_end = 0
-    # #%%
-    # is_save = 0
-    # dpi = 100
-    # size_fig = 3
-    # #%%
-    # cmap_3d='viridis'
-    # # cmap_2d.set_under('black')
-    # # cmap_2d.set_over('red')
-    # elev, azim = 10, -65
-    # alpha = 2
-    # #%%
-    # ticks_num = 6 # 不包含 原点的 刻度数，也就是 区间数（植数问题）
-    # is_title_on = 1
-    # is_axes_on = 1
-    # is_mm = 1
-    # #%%
-    # fontsize = 9
-    # font = {'family': 'Times New Roman', # 'serif'
-    #         'style': 'normal', # 'normal', 'italic', 'oblique'
-    #         'weight': 'normal',
-    #         'color': 'black', # 'black','gray','darkred'
-    #         'size': fontsize,
-    #         }
-    # #%%
-    # is_self_colorbar = 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
-    # is_colorbar_on = 1
-    # vmax = 1
-    # vmin = 0
 
     # %%
 
@@ -537,7 +414,7 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
 
 
 def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007, 
-                sheets_stored_num=10, U_z_stored=0, z_stored=[],
+                U_z_stored=0, z_stored=[],
                 # %%
                 img_address=os.path.dirname(os.path.abspath(__file__)), img_title='',
                 # %%
@@ -553,43 +430,8 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
                       'color': 'black',  # 'black','gray','darkred'
                       },
                 # %%
-                is_self_colorbar=1, is_colorbar_on=1, is_energy=1, vmax=1, vmin=0):
-    # #%%
-    # Iy, Ix = 343, 343
-    # size_PerPixel = 0.007
-    # diz = 0.774
-    # #%%
-    # sheets_stored_num = 10
-    # U_z_stored = 0
-    # sheet_th_stored = []
-    # #%%
-    # img_address = os.path.dirname(os.path.abspath(__file__))
-    # img_title = ''
-    # is_energy = 1
-    # #%%
-    # is_save = 0
-    # dpi, size_fig = 100, 3
-    # #%%
-    # cmap_3d='viridis'
-    # # cmap_2d.set_under('black')
-    # # cmap_2d.set_over('red')
-    # elev, azim = 10, -65
-    # alpha = 2
-    # #%%
-    # ticks_num = 6 # 不包含 原点的 刻度数，也就是 区间数（植数问题）
-    # is_title_on, is_axes_on = 1, 1
-    # is_mm = 1
-    # #%%
-    # fontsize = 9
-    # font = {'family': 'Times New Roman', # 'serif'
-    #         'style': 'normal', # 'normal', 'italic', 'oblique'
-    #         'weight': 'normal',
-    #         'color': 'black', # 'black','gray','darkred'
-    #         'size': fontsize,
-    #         }
-    # #%%
-    # is_self_colorbar, is_colorbar_on = 1, 1 # vmax 与 vmin 是否以 自己的 U 的 最大值 最小值 为 相应的值；是，则覆盖设定；否的话，需要自己设定。
-    # vmax, vmin = 1, 0
+                is_self_colorbar=1, is_colorbar_on=1,
+                is_energy=1, vmax=1, vmin=0):
 
     # %%
 
@@ -633,6 +475,7 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
 
     axes.view_init(elev=elev, azim=azim);  # 后一个为负 = 绕 z 轴逆时针
 
+    sheets_stored_num = len(z_stored) - 1
     x_stretch_factor = sheets_stored_num ** 0.5 * 2
     # axes.get_proj = lambda: np.dot(Axes3D.get_proj(axes), np.diag([1 * x_stretch_factor, 1, 1, 1]))
     axes.get_proj = lambda: np.dot(Axes3D.get_proj(axes), np.diag([1, 1 / x_stretch_factor, 1 / x_stretch_factor, 1]))
