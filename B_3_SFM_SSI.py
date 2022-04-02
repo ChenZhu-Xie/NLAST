@@ -253,7 +253,8 @@ def SFM_SSI(U1_name="",
     # %%
     # G2_z0_shift
 
-    folder_address = U_dir("", "0.n1_modulation_squared", 0, )
+    folder_address = U_dir("", "0.n1_modulation_squared", 0,
+                           is_bulk, )
 
     cal_mode = [1, 1, 0]
     # 以 G 算 还是以 U 算、源项 是否 也衍射、k_2z 是否是 matrix 版
@@ -1420,8 +1421,7 @@ if __name__ == '__main__':
             elev=10, azim=-65, alpha=2,
             # %%
             sample=2, ticks_num=6, is_contourf=0,
-            is_title_on=1, is_axes_on=1,
-            is_mm=1,
+            is_title_on=1, is_axes_on=1, is_mm=1,
             # %%
             fontsize=9,
             font={'family': 'serif',

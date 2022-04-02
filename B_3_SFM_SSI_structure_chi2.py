@@ -80,8 +80,7 @@ def SFM_SSI_chi2(U1_name="",
                  elev=10, azim=-65, alpha=2,
                  # %%
                  sample=2, ticks_num=6, is_contourf=0,
-                 is_title_on=1, is_axes_on=1,
-                 is_mm=1,
+                 is_title_on=1, is_axes_on=1, is_mm=1,
                  # %%
                  fontsize=9,
                  font={'family': 'serif',
@@ -1486,8 +1485,7 @@ if __name__ == '__main__':
                  elev=10, azim=-65, alpha=2,
                  # %%
                  sample=2, ticks_num=6, is_contourf=0,
-                 is_title_on=1, is_axes_on=1,
-                 is_mm=1,
+                 is_title_on=1, is_axes_on=1, is_mm=1,
                  # %%
                  fontsize=9,
                  font={'family': 'serif',

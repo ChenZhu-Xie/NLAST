@@ -10,16 +10,18 @@ Created on Sun Dec 26 22:09:04 2021
 import numpy as np
 import math
 from scipy.io import loadmat
-from fun_os import img_squared_bordered_Read, U_Read, U_dir, U_energy_print, \
-    U_plot, U_energy_plot, U_amps_z_plot, U_phases_z_plot, U_amp_plot_3d, U_slices_plot, U_selects_plot, U_save
+from fun_os import U_dir, GHU_plot_save, U_SSI_plot
 from fun_img_Resize import image_Add_black_border
-from fun_pump import pump_LG
-from fun_SSI import Cal_diz, Cal_Iz_frontface, Cal_Iz_structure, Cal_Iz_endface, Cal_Iz, Cal_iz_1, Cal_iz_2
+from fun_pump import pump_pic_or_U
+from fun_SSI import Cal_diz, Cal_Iz_frontface, Cal_Iz_structure, cal_Iz_endface_1, Cal_Iz_endface, Cal_Iz, Cal_iz_1, \
+    Cal_iz_2
 from fun_linear import Cal_n, Cal_kz
 from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz
 from fun_thread import my_thread
 from fun_statistics import U_Drop_n_sigma
+
 np.seterr(divide='ignore', invalid='ignore')
+
 
 # %%
 
@@ -36,7 +38,7 @@ def nLA_SSI(U1_name="",
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
             U1_0_NonZero_size=1, w0=0.3,
-            L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
+            L0_Crystal=1, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
             deff_structure_sheet_expect=1.8, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
@@ -56,8 +58,7 @@ def nLA_SSI(U1_name="",
             elev=10, azim=-65, alpha=2,
             # %%
             sample=2, ticks_num=6, is_contourf=0,
-            is_title_on=1, is_axes_on=1,
-            is_mm=1,
+            is_title_on=1, is_axes_on=1, is_mm=1,
             # %%
             fontsize=9,
             font={'family': 'serif',
@@ -74,7 +75,6 @@ def nLA_SSI(U1_name="",
     # %%
 
     if (type(U1_name) != str) or U1_name == "":
-
         if __name__ == "__main__":
             border_percentage = kwargs["border_percentage"] if len(kwargs) != 0 else 0.1
 
@@ -82,50 +82,37 @@ def nLA_SSI(U1_name="",
                                    border_percentage,
                                    is_print, )
 
-        # %%
-        # 导入 方形，以及 加边框 的 图片
-
-        img_name, img_name_extension, img_squared, \
-        size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(
-            img_full_name,
-            U1_0_NonZero_size, dpi,
-            is_phase_only)
-
-        # %%
-        # 预处理 输入场
-
-        n1, k1 = Cal_n(size_PerPixel,
-                       is_air_pump,
-                       lam1, T, p="e")
-
-        U1_0, g1_shift = pump_LG(img_full_name,
-                                 I1_x, I1_y, size_PerPixel,
-                                 U1_0, w0, k1, z_pump,
-                                 is_LG, is_Gauss, is_OAM,
-                                 l, p,
-                                 theta_x, theta_y,
-                                 is_random_phase,
-                                 is_H_l, is_H_theta, is_H_random_phase,
-                                 is_save, is_save_txt, dpi,
-                                 cmap_2d, ticks_num, is_contourf,
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font,
-                                 is_colorbar_on, is_energy,
-                                 is_print, )
-
-    else:
-
-        # %%
-        # 导入 方形 的 图片，以及 U
-
-        img_name, img_name_extension, img_squared, \
-        size_PerPixel, size_fig, I1_x, I1_y, U1_0 = U_Read(U1_name,
-                                                           img_full_name,
-                                                           U1_0_NonZero_size,
-                                                           dpi,
-                                                           is_save_txt, )
-
     # %%
+
+    img_name, img_name_extension, img_squared, \
+    size_PerPixel, size_fig, I1_x, I1_y, \
+    U1_0, g1_shift = pump_pic_or_U(U1_name,
+                                  img_full_name,
+                                  is_phase_only,
+                                  # %%
+                                  z_pump,
+                                  is_LG, is_Gauss, is_OAM,
+                                  l, p,
+                                  theta_x, theta_y,
+                                  # %%
+                                  is_random_phase,
+                                  is_H_l, is_H_theta, is_H_random_phase,
+                                  # %%
+                                  U1_0_NonZero_size, w0,
+                                  # %%
+                                  lam1, is_air_pump, T,
+                                  # %%
+                                  is_save, is_save_txt, dpi,
+                                  cmap_2d,
+                                  # %%
+                                  ticks_num, is_contourf,
+                                  is_title_on, is_axes_on, is_mm,
+                                  # %%
+                                  fontsize,font,
+                                  # %%
+                                  is_colorbar_on, is_energy,
+                                  # %%
+                                  is_print, )
 
     n1, k1 = Cal_n(size_PerPixel,
                    is_air,
@@ -173,15 +160,21 @@ def nLA_SSI(U1_name="",
                                                                                                       is_print)
 
     # %%
+    # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸 1
+    deff_structure_length, z0_structure_endface = cal_Iz_endface_1(z0_structure_frontface, deff_structure_length_expect,
+                                                                   L0_Crystal,
+                                                                   is_print)
+
+    # %%
     # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
 
     sheets_num_structure, Iz_structure, deff_structure_length = Cal_Iz_structure(diz,
-                                                                                 deff_structure_length_expect,
+                                                                                 deff_structure_length,
                                                                                  size_PerPixel,
                                                                                  is_print)
 
     # %%
-    # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸
+    # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸 2
 
     sheet_th_endface, sheets_num_endface, Iz_endface, z0_structure_endface = Cal_Iz_endface(sheets_num_frontface,
                                                                                             sheets_num_structure,
@@ -239,7 +232,8 @@ def nLA_SSI(U1_name="",
     # %%
     # G1_z0_shift
 
-    folder_address = U_dir("", "0.n1_modulation_squared", 0, )
+    folder_address = U_dir("", "0.n1_modulation_squared", 0,
+                           is_bulk, )
 
     global G1_z_plus_dz_shift
     G1_z_plus_dz_shift = g1_shift
@@ -339,8 +333,8 @@ def nLA_SSI(U1_name="",
 
             # %%
 
-            if np.mod(for_th,
-                      sheets_num // sheets_stored_num) == 0:  # 如果 for_th 是 sheets_num // sheets_stored_num 的 整数倍（包括零），则 储存之
+            if np.mod(for_th, sheets_num // sheets_stored_num) == 0:
+                # 如果 for_th 是 sheets_num // sheets_stored_num 的 整数倍（包括零），则 储存之
                 sheet_th_stored[int(for_th // (sheets_num // sheets_stored_num))] = for_th + 1
                 iz_stored[int(for_th // (sheets_num // sheets_stored_num))] = izj[for_th + 1]
                 z_stored[int(for_th // (sheets_num // sheets_stored_num))] = zj[for_th + 1]
@@ -372,87 +366,16 @@ def nLA_SSI(U1_name="",
     # print(zj)
     # print(z_stored)
 
+    # %%
+
     G1_z0_SSI_shift = G1_z_plus_dz_shift
-
-    folder_address = ''
-
-    if is_save == 1:
-        folder_address = U_dir(U1_name, "G1_z0_SSI_shift", 1, z0)
-
-    # %%
-    # 绘图：G1_z0_SSI_shift_amp
-
-    U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1,
-                                                      G1_z0_SSI_shift, "G1_z0_SSI_shift", "NLA",
-                                                      img_name_extension,
-                                                      # %%
-                                                      1, size_PerPixel,
-                                                      is_save, dpi, size_fig,
-                                                      cmap_2d, ticks_num, is_contourf,
-                                                      is_title_on, is_axes_on, is_mm,
-                                                      fontsize, font,
-                                                      is_colorbar_on, is_energy,
-                                                      # %%
-                                                      z0, )
-
-    # %%
-    # 储存 G1_z0_SSI_shift 到 txt 文件
-
-    if is_save == 1:
-        U_address = U_save(U1_name, folder_address, 1,
-                           G1_z0_SSI_shift, "G1_z0_SSI_shift", "NLA",
-                           is_save_txt, z0, )
-
-    # %%
-    # 绘制 G1_z_shift_energy 随 z 演化的 曲线
-
-    if is_energy_evolution_on == 1:
-        U_energy_plot_address = U_energy_plot(U1_name, folder_address, 1,
-                                              G1_z_shift_energy, "G1_z_SSI_shift_energy", "NLA",
-                                              img_name_extension,
-                                              # %%
-                                              zj, sample, size_PerPixel,
-                                              is_save, dpi, size_fig * 10, size_fig,
-                                              color_1d, ticks_num,
-                                              is_title_on, is_axes_on, is_mm,
-                                              fontsize, font,
-                                              # %%
-                                              z0, )
 
     # %%
     # % H1_z0
-
     H1_z0_SSI_shift = G1_z0_SSI_shift / np.max(np.abs(G1_z0_SSI_shift)) / \
                       (g1_shift / np.max(np.abs(g1_shift)))
     # 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。
     H1_z0_SSI_shift = U_Drop_n_sigma(H1_z0_SSI_shift, 3, is_energy)
-
-    if is_save == 1:
-        folder_address = U_dir(U1_name, "H1_z0_SSI_shift", 1, z0, )
-
-    # %%
-    # % H1_z0_SSI_shift
-
-    U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1,
-                                                      H1_z0_SSI_shift, "H1_z0_SSI_shift", "NLA",
-                                                      img_name_extension,
-                                                      # %%
-                                                      1, size_PerPixel,
-                                                      is_save, dpi, size_fig,
-                                                      cmap_2d, ticks_num, is_contourf,
-                                                      is_title_on, is_axes_on, is_mm,
-                                                      fontsize, font,
-                                                      is_colorbar_on, is_energy,
-                                                      # %%
-                                                      z0, )
-
-    # %%
-    # 储存 H1_z0_SSI_shift 到 txt 文件
-
-    if is_save == 1:
-        U_address = U_save(U1_name, folder_address, 1,
-                           H1_z0_SSI_shift, "H1_z0_SSI_shift", "NLA",
-                           is_save_txt, z0, )
 
     # %%
     # G1_z0_SSI = G1_z0_SSI(k1_x, k1_y) → IFFT2 → U1(x0, y0, z0) = U1_z0_SSI
@@ -460,52 +383,25 @@ def nLA_SSI(U1_name="",
     G1_z0_SSI = np.fft.ifftshift(G1_z0_SSI_shift)
     U1_z0_SSI = np.fft.ifft2(G1_z0_SSI)
 
-    U_energy_print(U1_name, 1, 1,
-                   U1_z0_SSI, "U1_z0_SSI", "NLA",
-                   z0, )
-
-    if is_save == 1:
-        folder_address = U_dir(U1_z0_SSI, "U1_z0_SSI", 1, z0)
-
-    # %%
-    # 绘图：U1_z0_SSI
-
-    U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1,
-                                                      U1_z0_SSI, "U1_z0_SSI", "NLA",
-                                                      img_name_extension,
-                                                      # %%
-                                                      1, size_PerPixel,
-                                                      is_save, dpi, size_fig,
-                                                      cmap_2d, ticks_num, is_contourf,
-                                                      is_title_on, is_axes_on, is_mm,
-                                                      fontsize, font,
-                                                      is_colorbar_on, is_energy,
-                                                      # %%
-                                                      z0, )
-
-    # %%
-    # 储存 U1_z0_SSI 到 txt 文件
-
-    if is_save == 1:
-        U_address = U_save(U1_name, folder_address, 1,
-                           U1_z0_SSI, "U1_z0_SSI", "NLA",
-                           is_save_txt, z0, )
-
-    # %%
-    # 绘制 U1_z_energy 随 z 演化的 曲线
-
-    if is_energy_evolution_on == 1:
-        U_energy_plot_address = U_energy_plot(U1_name, folder_address, 1,
-                                              U1_z_energy, "U1_z_SSI_energy", "NLA",
-                                              img_name_extension,
-                                              # %%
-                                              zj, sample, size_PerPixel,
-                                              is_save, dpi, size_fig * 10, size_fig,
-                                              color_1d, ticks_num,
-                                              is_title_on, is_axes_on, is_mm,
-                                              fontsize, font,
-                                              # %%
-                                              z0, )
+    GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
+                  G1_z0_SSI_shift, "G1_z0" + "_SSI", "nLA",
+                  G1_z_shift_energy,
+                  H1_z0_SSI_shift, "H1_z0" + "_SSI",
+                  U1_z0_SSI, "U1_z0" + "_SSI",
+                  U1_z_energy,
+                  img_name_extension,
+                  # %%
+                  zj, sample, size_PerPixel,
+                  is_save, is_save_txt, dpi, size_fig,
+                  # %%
+                  color_1d, cmap_2d,
+                  ticks_num, is_contourf,
+                  is_title_on, is_axes_on, is_mm,
+                  fontsize, font,
+                  # %%
+                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                  # %%                          何况 一般默认 is_self_colorbar = 1...
+                  z0, )
 
     # %%
 
@@ -517,288 +413,42 @@ def nLA_SSI(U1_name="",
         G1_z_shift_stored[:, :, sheets_stored_num] = G1_z0_SSI_shift  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
         U1_z_stored[:, :, sheets_stored_num] = U1_z0_SSI  # 储存的 第一层，实际上不是 U1_0，而是 U1_dz
 
-        # %%
-
-        if is_save == 1:
-            folder_address = U_dir(U1_name, "G1_z0_SSI_shift_sheets_stored", 1, z0, )
-
-        # -------------------------
-
-        U_amps_z_plot(U1_name, folder_address, 1,
-                      G1_z_shift_stored, "G1_z_SSI_shift", "NLA",
-                      img_name_extension,
-                      # %%
-                      sample, size_PerPixel,
-                      is_save, dpi, size_fig,
-                      # %%
-                      cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm,
-                      fontsize, font,
-                      # %%
-                      is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                      # %%                          何况 一般默认 is_self_colorbar = 1...
-                      z_stored, )
-
-        U_phases_z_plot(U1_name, folder_address, 1,
-                        G1_z_shift_stored, "G1_z_SSI_shift", "NLA",
-                        img_name_extension,
-                        # %%
-                        sample, size_PerPixel,
-                        is_save, dpi, size_fig,
-                        # %%
-                        cmap_2d, ticks_num, is_contourf,
-                        is_title_on, is_axes_on, is_mm,
-                        fontsize, font,
-                        # %%
-                        is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
-                        # %%
-                        z_stored, )
-
-        # -------------------------
-
-        if is_save == 1:
-            folder_address = U_dir(U1_name, "U1_z0_SSI_sheets_stored", 1, z0, )
-
-        U_amps_z_plot(U1_name, folder_address, 1,
-                      U1_z_stored, "U1_z_SSI", "NLA",
-                      img_name_extension,
-                      # %%
-                      sample, size_PerPixel,
-                      is_save, dpi, size_fig,
-                      # %%
-                      cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm,
-                      fontsize, font,
-                      # %%
-                      is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                      # %%                          何况 一般默认 is_self_colorbar = 1...
-                      z_stored, )
-
-        U_phases_z_plot(U1_name, folder_address, 1,
-                        U1_z_stored, "U1_z_SSI", "NLA",
-                        img_name_extension,
-                        # %%
-                        sample, size_PerPixel,
-                        is_save, dpi, size_fig,
-                        # %%
-                        cmap_2d, ticks_num, is_contourf,
-                        is_title_on, is_axes_on, is_mm,
-                        fontsize, font,
-                        # %%
-                        is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
-                        # %%
-                        z_stored, )
-
-        # %%
-        # 这 sheets_stored_num 层 也可以 画成 3D，就是太丑了，所以只 整个 U1_amp 示意一下即可
-
-        U_amp_plot_address = U_amp_plot_3d(U1_name, folder_address, 1,
-                                           U1_z_stored, "U1_z0_SSI_sheets_stored", "NLA",
-                                           img_name_extension,
-                                           # %%
-                                           sample, size_PerPixel,
-                                           is_save, dpi, size_fig,
-                                           elev, azim, alpha,
-                                           # %%
-                                           cmap_3d, ticks_num,
-                                           is_title_on, is_axes_on, is_mm,
-                                           fontsize, font,
-                                           # %%
-                                           is_colorbar_on, is_energy,
-                                           # %%
-                                           zj, z_stored, )
-
-        # %%
-
         # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
-        # G1_shift_xz_stored[:, sheets_num] = G1_z0_SSI_shift[:, I1_y // 2 + int(X / size_PerPixel)]
-        # G1_shift_yz_stored[:, sheets_num] = G1_z0_SSI_shift[I1_x // 2 - int(Y / size_PerPixel), :]
-        # U1_xz_stored[:, sheets_num] = U1_z0_SSI[:, I1_y // 2 + int(X / size_PerPixel)]
-        # U1_yz_stored[:, sheets_num] = U1_z0_SSI[I1_x // 2 - int(Y / size_PerPixel), :]
         G1_shift_YZ_stored[:, sheets_num] = G1_z0_SSI_shift[:, I1_y // 2 + int(X / size_PerPixel)]
         G1_shift_XZ_stored[:, sheets_num] = G1_z0_SSI_shift[I1_x // 2 - int(Y / size_PerPixel), :]
         U1_YZ_stored[:, sheets_num] = U1_z0_SSI[:, I1_y // 2 + int(X / size_PerPixel)]
         U1_XZ_stored[:, sheets_num] = U1_z0_SSI[I1_x // 2 - int(Y / size_PerPixel), :]
 
-        # %%
-
-        if is_save == 1:
-            folder_address = U_dir(U1_name, "G1_z0_SSI_shift_YZ_XZ_stored", 1, z0, )
-
-        # ========================= G1_shift_YZ_stored_amp、G1_shift_XZ_stored_amp
-        # ------------------------- G1_shift_YZ_stored_phase、G1_shift_XZ_stored_phase
-
-        U_slices_plot(U1_name, folder_address, 1,
-                      G1_shift_YZ_stored, "G1_z0_SSI_shift_YZ", "NLA",
-                      G1_shift_XZ_stored, "G1_z0_SSI_shift_XZ",
-                      img_name_extension,
-                      # %%
-                      zj, sample, size_PerPixel,
-                      is_save, dpi, size_fig,
-                      # %%
-                      cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm,
-                      fontsize, font,
-                      # %%
-                      is_colorbar_on, is_energy,
-                      # %%
-                      X, Y, )
-
-        # %%
-
-        if is_save == 1:
-            folder_address = U_dir(U1_name, "U1_z0_SSI_YZ_XZ_stored", 1, z0, )
-
-        # ========================= U1_YZ_stored_amp、U1_XZ_stored_amp
-        # ------------------------- U1_YZ_stored_phase、U1_XZ_stored_phase
-
-        U_slices_plot(U1_name, folder_address, 1,
-                      U1_YZ_stored, "U1_z0_SSI_YZ", "NLA",
-                      U1_XZ_stored, "U1_z0_SSI_XZ",
-                      img_name_extension,
-                      # %%
-                      zj, sample, size_PerPixel,
-                      is_save, dpi, size_fig,
-                      # %%
-                      cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm,
-                      fontsize, font,
-                      # %%
-                      is_colorbar_on, is_energy,
-                      # %%
-                      X, Y, )
-
-        # %%
-
-        if is_save == 1:
-            folder_address = U_dir(U1_name, "G1_z0_SSI_shift_sheets_selective_stored", 1, z0, )
-
-        # ------------------------- 储存 G1_section_1_shift_amp、G1_section_1_shift_amp、G1_structure_frontface_shift_amp、G1_structure_endface_shift_amp
-        # ------------------------- 储存 G1_section_1_shift_phase、G1_section_1_shift_phase、G1_structure_frontface_shift_phase、G1_structure_endface_shift_phase
-
-        U_selects_plot(U1_name, folder_address, 1,
-                       G1_section_1_shift, "G1_z0_SSI_sec1_shift", "NLA",
-                       G1_section_2_shift, "G1_z0_SSI_sec2_shift",
-                       G1_structure_frontface_shift, "G1_z0_SSI_front_shift",
-                       G1_structure_endface_shift, "G1_z0_SSI_end_shift",
-                       img_name_extension,
-                       # %%
-                       sample, size_PerPixel,
-                       is_save, dpi, size_fig,
-                       # %%
-                       cmap_2d, ticks_num, is_contourf,
-                       is_title_on, is_axes_on, is_mm,
-                       fontsize, font,
-                       # %%
-                       is_colorbar_on, is_energy, is_show_structure_face,
-                       # %%
-                       z0_1, z0_2, z0_structure_frontface, z0_structure_endface, )
-
-        # %%
-
-        if is_save == 1:
-            folder_address = U_dir(U1_name, "U1_z0_SSI_sheets_selective_stored", 1, z0, )
-
-        # ------------------------- 储存 U1_section_1_amp、U1_section_1_amp、U1_structure_frontface_amp、U1_structure_endface_amp
-        # ------------------------- 储存 U1_section_1_phase、U1_section_1_phase、U1_structure_frontface_phase、U1_structure_endface_phase
-
-        U_selects_plot(U1_name, folder_address, 1,
-                       U1_section_1, "U1_z0_SSI_sec1", "NLA",
-                       U1_section_2, "U1_z0_SSI_sec2",
-                       U1_structure_frontface, "U1_z0_SSI_front",
-                       U1_structure_endface, "U1_z0_SSI_end",
-                       img_name_extension,
-                       # %%
-                       sample, size_PerPixel,
-                       is_save, dpi, size_fig,
-                       # %%
-                       cmap_2d, ticks_num, is_contourf,
-                       is_title_on, is_axes_on, is_mm,
-                       fontsize, font,
-                       # %%
-                       is_colorbar_on, is_energy, is_show_structure_face,
-                       # %%
-                       z0_1, z0_2, z0_structure_frontface, z0_structure_endface, )
-
-        # %%
-        # 绘制 G1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_amp（现在 可以 任选位置 了）
-
-        # vmax_G1_amp = np.max([vmax_G1_shift_YZ_XZ_stored_amp, vmax_G1_section_1_2_front_end_shift_amp])
-        # vmin_G1_amp = np.min([vmin_G1_shift_YZ_XZ_stored_amp, vmin_G1_section_1_2_front_end_shift_amp])
-
-        # G1_shift_XYZ_stored_amp_address = location + "\\" + "5. G1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_amp" + img_name_extension
-
-        # plot_3d_XYZ(zj, sample, size_PerPixel, 
-        #             np.abs(G1_shift_YZ_stored), np.abs(G1_shift_XZ_stored), np.abs(G1_section_1_shift), np.abs(G1_section_1_shift), 
-        #             np.abs(G1_structure_frontface_shift), np.abs(G1_structure_endface_shift), is_show_structure_face, 
-        #             G1_shift_XYZ_stored_amp_address, "G1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_amp", 
-        #             I1_y // 2 + int(X / size_PerPixel), I1_x // 2 + int(Y / size_PerPixel), sheet_th_section_1, sheet_th_section_2, 
-        #             sheets_num_frontface, sheets_num_endface, 
-        #             is_save, dpi, size_fig, 
-        #             cmap_3d, elev, azim, alpha, 
-        #             ticks_num, is_title_on, is_axes_on, is_mm,  
-        #             fontsize, font, 
-        #             is_self_colorbar, is_colorbar_on, is_energy, vmax_G1_amp, vmin_G1_amp)
-
-        # %%
-        # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
-
-        # vmax_G1_phase = np.max([vmax_G1_shift_YZ_XZ_stored_phase, vmax_G1_section_1_2_front_end_shift_phase])
-        # vmin_G1_phase = np.min([vmin_G1_shift_YZ_XZ_stored_phase, vmin_G1_section_1_2_front_end_shift_phase])
-
-        # G1_shift_XYZ_stored_phase_address = location + "\\" + "5. G1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored" + "\\" + "5.2. NLA - " + "G1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_phase" + img_name_extension
-
-        # plot_3d_XYZ(zj, sample, size_PerPixel, 
-        #             np.angle(G1_shift_YZ_stored), np.angle(G1_shift_XZ_stored), np.angle(G1_section_1_shift), np.angle(G1_section_1_shift), 
-        #             np.angle(G1_structure_frontface_shift), np.angle(G1_structure_endface_shift), is_show_structure_face, 
-        #             G1_shift_XYZ_stored_phase_address, "G1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_phase", 
-        #             I1_y // 2 + int(X / size_PerPixel), I1_x // 2 + int(Y / size_PerPixel), sheet_th_section_1, sheet_th_section_2, 
-        #             sheets_num_frontface, sheets_num_endface, 
-        #             is_save, dpi, size_fig, 
-        #             cmap_3d, elev, azim, alpha, 
-        #             ticks_num, is_title_on, is_axes_on, is_mm,  
-        #             fontsize, font, 
-        #             is_self_colorbar, is_colorbar_on, 0, vmax_G1_phase, vmin_G1_phase)
-
-        # %%
-        # 绘制 U1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_amp
-
-        # vmax_U1_amp = np.max([vmax_U1_YZ_XZ_stored_amp, vmax_U1_section_1_2_front_end_shift_amp])
-        # vmin_U1_amp = np.min([vmin_U1_YZ_XZ_stored_amp, vmin_U1_section_1_2_front_end_shift_amp])
-
-        # U1_XYZ_stored_amp_address = location + "\\" + "6. U1_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored" + "\\" + "6.1. NLA - " + "U1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_XYZ" + "_amp" + img_name_extension
-
-        # plot_3d_XYZ(zj, sample, size_PerPixel, 
-        #             np.abs(U1_YZ_stored), np.abs(U1_XZ_stored), np.abs(U1_section_1), np.abs(U1_section_2), 
-        #             np.abs(U1_structure_frontface), np.abs(U1_structure_endface), is_show_structure_face, 
-        #             U1_XYZ_stored_amp_address, "U1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_XYZ" + "_amp", 
-        #             I1_y // 2 + int(X / size_PerPixel), I1_x // 2 + int(Y / size_PerPixel), sheet_th_section_1, sheet_th_section_2, 
-        #             sheets_num_frontface, sheets_num_endface, 
-        #             is_save, dpi, size_fig, 
-        #             cmap_3d, elev, azim, alpha, 
-        #             ticks_num, is_title_on, is_axes_on, is_mm,  
-        #             fontsize, font, 
-        #             is_self_colorbar, is_colorbar_on, is_energy, vmax_U1_amp, vmin_U1_amp)
-
-        # %%
-        # 绘制 U1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_phase
-
-        # vmax_U1_phase = np.max([vmax_U1_YZ_XZ_stored_phase, vmax_U1_section_1_2_front_end_shift_phase])
-        # vmin_U1_phase = np.min([vmin_U1_YZ_XZ_stored_phase, vmin_U1_section_1_2_front_end_shift_phase])
-
-        # U1_XYZ_stored_phase_address = location + "\\" + "6. U1_" + str(float('%.2g' % z0)) + "mm" + "_SSI" + "_YZ_XZ_stored" + "\\" + "6.2. NLA - " + "U1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_XYZ" + "_phase" + img_name_extension
-
-        # plot_3d_XYZ(zj, sample, size_PerPixel, 
-        #             np.angle(U1_YZ_stored), np.angle(U1_XZ_stored), np.angle(U1_section_1), np.angle(U1_section_2), 
-        #             np.angle(U1_structure_frontface), np.angle(U1_structure_endface), is_show_structure_face, 
-        #             U1_XYZ_stored_phase_address, "U1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI" + "_XYZ" + "_phase", 
-        #             I1_y // 2 + int(X / size_PerPixel), I1_x // 2 + int(Y / size_PerPixel), sheet_th_section_1, sheet_th_section_2, 
-        #             sheets_num_frontface, sheets_num_endface, 
-        #             is_save, dpi, size_fig, 
-        #             cmap_3d, elev, azim, alpha, 
-        #             ticks_num, is_title_on, is_axes_on, is_mm,  
-        #             fontsize, font, 
-        #             is_self_colorbar, is_colorbar_on, 0, vmax_U1_phase, vmin_U1_phase)
+        U_SSI_plot(U1_name, folder_address,
+                   G1_z_shift_stored, "G1_z" + "_SSI", "nLA",
+                   U1_z_stored, "U1_z" + "_SSI",
+                   G1_shift_YZ_stored, G1_shift_XZ_stored,
+                   U1_YZ_stored, U1_XZ_stored,
+                   G1_section_1_shift, G1_section_2_shift,
+                   G1_structure_frontface_shift, G1_structure_endface_shift,
+                   U1_section_1, U1_section_2,
+                   U1_structure_frontface, U1_structure_endface,
+                   I1_y // 2 + int(X / size_PerPixel),
+                   I1_x // 2 + int(Y / size_PerPixel),
+                   sheet_th_section_1, sheet_th_section_2,
+                   sheets_num_frontface, sheets_num_endface,
+                   img_name_extension,
+                   # %%
+                   sample, size_PerPixel,
+                   is_save, dpi, size_fig,
+                   elev, azim, alpha,
+                   # %%
+                   cmap_2d, cmap_3d,
+                   ticks_num, is_contourf,
+                   is_title_on, is_axes_on, is_mm,
+                   fontsize, font,
+                   # %%
+                   is_colorbar_on, is_energy, is_show_structure_face,
+                   # %%
+                   X, Y,
+                   z0_1, z0_2,
+                   z0_structure_frontface, z0_structure_endface,
+                   zj, z_stored, z0, )
 
     return U1_z0_SSI, G1_z0_SSI_shift
 
@@ -817,7 +467,7 @@ if __name__ == '__main__':
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
             U1_0_NonZero_size=1, w0=0.3,
-            L0_Crystal=1, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
+            L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
             deff_structure_sheet_expect=1.8, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
@@ -837,8 +487,7 @@ if __name__ == '__main__':
             elev=10, azim=-65, alpha=2,
             # %%
             sample=2, ticks_num=6, is_contourf=0,
-            is_title_on=1, is_axes_on=1,
-            is_mm=1,
+            is_title_on=1, is_axes_on=1, is_mm=1,
             # %%
             fontsize=9,
             font={'family': 'serif',

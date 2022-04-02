@@ -66,7 +66,7 @@ def consistency_NLA_AST(U1_name = "",
                         #%%
                         ticks_num = 6, is_contourf = 0, 
                         is_title_on = 1, is_axes_on = 1, 
-                        is_mm = 1, is_propagation = 0, 
+                        is_mm = 1,
                         #%%
                         fontsize = 9, 
                         font = {'family': 'serif',
@@ -75,8 +75,7 @@ def consistency_NLA_AST(U1_name = "",
                                 'color': 'black', # 'black','gray','darkred'
                                 }, 
                         #%%
-                        is_self_colorbar = 0, is_colorbar_on = 1, 
-                        is_energy = 1, vmax = 1, vmin = 0, 
+                        is_colorbar_on = 1, is_energy = 1,
                         #%%
                         is_print = 1, is_contours = 1, n_TzQ = 1, 
                         Gz_max_Enhance = 1, match_mode = 1, ):
@@ -84,117 +83,114 @@ def consistency_NLA_AST(U1_name = "",
     # %%
     # 线性 惠更斯 菲涅尔 原理
     
-    # image_Add_black_border(img_full_name, 
-    #                         border_percentage, 
-    #                         is_print, )
+    image_Add_black_border(img_full_name, 
+                            border_percentage, 
+                            is_print, )
     
-    # #%%
-    # # 先衍射 z0 后衍射 z0_new
+    #%%
+    # 先衍射 z0 后衍射 z0_new
     
-    # AST('', 
-    #     img_full_name, 
-    #     is_phase_only, 
-    #     #%%
-    #     z_pump, 
-    #     is_LG, is_Gauss, is_OAM, 
-    #     l, p, 
-    #     theta_x, theta_y, 
-    #     #%%
-    #     is_random_phase, 
-    #     is_H_l, is_H_theta, is_H_random_phase, 
-    #     #%%
-    #     U1_0_NonZero_size, w0,
-    #     z0, 
-    #     #%%
-    #     lam1, is_air_pump, is_air, T, 
-    #     #%%
-    #     is_save, is_save_txt, dpi, 
-    #     #%%
-    #     cmap_2d, 
-    #     #%%
-    #     ticks_num, is_contourf, 
-    #     is_title_on, is_axes_on, 
-    #     is_mm, is_propagation, 
-    #     #%%
-    #     fontsize, font, 
-    #     #%%
-    #     is_self_colorbar, is_colorbar_on, 
-    #     is_energy, vmax, vmin, 
-    #     #%%
-    #     is_print,  )
+    AST('', 
+        img_full_name, 
+        is_phase_only, 
+        #%%
+        z_pump, 
+        is_LG, is_Gauss, is_OAM, 
+        l, p, 
+        theta_x, theta_y, 
+        #%%
+        is_random_phase, 
+        is_H_l, is_H_theta, is_H_random_phase, 
+        #%%
+        U1_0_NonZero_size, w0,
+        z0, 
+        #%%
+        lam1, is_air_pump, is_air, T, 
+        #%%
+        is_save, is_save_txt, dpi, 
+        #%%
+        cmap_2d, 
+        #%%
+        ticks_num, is_contourf, 
+        is_title_on, is_axes_on, 
+        is_mm, 
+        #%%
+        fontsize, font, 
+        #%%
+        is_colorbar_on, is_energy, 
+        #%%
+        is_print, )
     
-    # U1_name = "6. AST - U1_" + str(float('%.2g' % z0)) + "mm"
-    # # U1_full_name = U1_name + (is_save_txt and ".txt" or ".mat")
-    # # U1_short_name = U1_name.replace('6. AST - ', '')
+    U1_name = "6. AST - U1_" + str(float('%.2g' % z0)) + "mm"
+    # U1_full_name = U1_name + (is_save_txt and ".txt" or ".mat")
+    # U1_short_name = U1_name.replace('6. AST - ', '')
     
-    # AST(U1_name, 
-    #     img_full_name, 
-    #     is_phase_only, 
-    #     #%%
-    #     z_pump, 
-    #     is_LG, is_Gauss, is_OAM, 
-    #     l, p, 
-    #     theta_x, theta_y, 
-    #     #%%
-    #     is_random_phase, 
-    #     is_H_l, is_H_theta, is_H_random_phase, 
-    #     #%%
-    #     U1_0_NonZero_size, w0,
-    #     z0_new, 
-    #     #%%
-    #     lam1, is_air_pump, is_air, T, 
-    #     #%%
-    #     is_save, is_save_txt, dpi, 
-    #     #%%
-    #     cmap_2d, 
-    #     #%%
-    #     ticks_num, is_contourf, 
-    #     is_title_on, is_axes_on, 
-    #     is_mm, is_propagation, 
-    #     #%%
-    #     fontsize, font, 
-    #     #%%
-    #     is_self_colorbar, is_colorbar_on, 
-    #     is_energy, vmax, vmin, 
-    #     #%%
-    #     is_print, )
+    AST(U1_name, 
+        img_full_name, 
+        is_phase_only, 
+        #%%
+        z_pump, 
+        is_LG, is_Gauss, is_OAM, 
+        l, p, 
+        theta_x, theta_y, 
+        #%%
+        is_random_phase, 
+        is_H_l, is_H_theta, is_H_random_phase, 
+        #%%
+        U1_0_NonZero_size, w0,
+        z0_new, 
+        #%%
+        lam1, is_air_pump, is_air, T, 
+        #%%
+        is_save, is_save_txt, dpi, 
+        #%%
+        cmap_2d, 
+        #%%
+        ticks_num, is_contourf, 
+        is_title_on, is_axes_on, 
+        is_mm, 
+        #%%
+        fontsize, font, 
+        #%%
+        is_colorbar_on, is_energy, 
+        #%%
+        is_print, )
     
-    # #%%
-    # # 直接衍射 Z0 = z0 + z0_new
+    #%%
+    # 直接衍射 Z0 = z0 + z0_new
     
-    # Z0 = z0 + z0_new
+    Z0 = z0 + z0_new
     
-    # AST("", 
-    #     img_full_name, 
-    #     is_phase_only, 
-    #     #%%
-    #     z_pump, 
-    #     is_LG, is_Gauss, is_OAM, 
-    #     l, p, 
-    #     theta_x, theta_y, 
-    #     #%%
-    #     is_random_phase, 
-    #     is_H_l, is_H_theta, is_H_random_phase, 
-    #     #%%
-    #     U1_0_NonZero_size, w0,
-    #     Z0, 
-    #     #%%
-    #     lam1, is_air_pump, is_air, T, 
-    #     #%%
-    #     is_save, is_save_txt, dpi, 
-    #     #%%
-    #     cmap_2d, 
-    #     #%%
-    #     ticks_num, is_contourf, 
-    #     is_title_on, is_axes_on, 
-    #     is_mm, is_propagation, 
-    #     #%%
-    #     fontsize, font, 
-    #     #%%
-    #     is_self_colorbar, is_colorbar_on, 
-    #     is_energy, vmax, vmin, 
-    #     #%%
-    #     is_print, )
+    AST("", 
+        img_full_name, 
+        is_phase_only, 
+        #%%
+        z_pump, 
+        is_LG, is_Gauss, is_OAM, 
+        l, p, 
+        theta_x, theta_y, 
+        #%%
+        is_random_phase, 
+        is_H_l, is_H_theta, is_H_random_phase, 
+        #%%
+        U1_0_NonZero_size, w0,
+        Z0, 
+        #%%
+        lam1, is_air_pump, is_air, T, 
+        #%%
+        is_save, is_save_txt, dpi, 
+        #%%
+        cmap_2d, 
+        #%%
+        ticks_num, is_contourf, 
+        is_title_on, is_axes_on, 
+        is_mm, 
+        #%%
+        fontsize, font, 
+        #%%
+        is_colorbar_on, is_energy, 
+        #%%
+        is_print, )
     
     #%%
     # 非线性 惠更斯 菲涅尔 原理
@@ -229,12 +225,11 @@ def consistency_NLA_AST(U1_name = "",
         #%%
         ticks_num, is_contourf, 
         is_title_on, is_axes_on, 
-        is_mm, is_propagation, 
+        is_mm, 
         #%%
         fontsize, font, 
         #%%
-        is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin, 
+        is_colorbar_on, is_energy, 
         #%%
         is_print, )
     
@@ -291,12 +286,11 @@ def consistency_NLA_AST(U1_name = "",
         #%%
         ticks_num, is_contourf, 
         is_title_on, is_axes_on, 
-        is_mm, is_propagation, 
+        is_mm, 
         #%%
         fontsize, font, 
         #%%
-        is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin, 
+        is_colorbar_on, is_energy, 
         #%%
         is_print, is_contours, n_TzQ, 
         Gz_max_Enhance, match_mode, )
@@ -356,12 +350,11 @@ def consistency_NLA_AST(U1_name = "",
         #%%
         ticks_num, is_contourf, 
         is_title_on, is_axes_on, 
-        is_mm, is_propagation, 
+        is_mm, 
         #%%
         fontsize, font, 
         #%%
-        is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin, 
+        is_colorbar_on, is_energy, 
         #%%
         is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
     
@@ -394,12 +387,11 @@ def consistency_NLA_AST(U1_name = "",
         #%%
         ticks_num, is_contourf, 
         is_title_on, is_axes_on, 
-        is_mm, is_propagation, 
+        is_mm, 
         #%%
         fontsize, font, 
         #%%
-        is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin, 
+        is_colorbar_on, is_energy, 
         #%%
         is_print, )
     
@@ -460,12 +452,11 @@ def consistency_NLA_AST(U1_name = "",
         #%%
         ticks_num, is_contourf, 
         is_title_on, is_axes_on, 
-        is_mm, is_propagation, 
+        is_mm, 
         #%%
         fontsize, font, 
         #%%
-        is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin, 
+        is_colorbar_on, is_energy, 
         #%%
         is_print, is_contours, n_TzQ, Gz_max_Enhance, match_mode, )
     
@@ -570,78 +561,75 @@ def consistency_NLA_AST(U1_name = "",
               cmap_2d, 
               #%%
               ticks_num, is_contourf, 
-              is_title_on, is_axes_on, 
-              is_mm, is_propagation, 
+              is_title_on, is_axes_on, is_mm,
               #%%
               fontsize, font, 
               #%%S
-              is_self_colorbar, is_colorbar_on, 
-              is_energy, vmax, vmin, 
+              is_colorbar_on, is_energy,
               #%%
               0 )
     
     #%%
-    
-consistency_NLA_AST(U1_name = "", 
-                    img_full_name = "lena1.png", 
-                    border_percentage = 0.1, 
-                    is_phase_only = 0, 
-                    #%%
-                    z_pump = 0, 
-                    is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-                    l = 0, p = 0, 
-                    theta_x = 0, theta_y = 0, 
-                    # %%
-                    is_random_phase = 0, 
-                    is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
-                    # %%
-                    # 生成横向结构
-                    U1_name_Structure = '',
-                    structure_size_Enlarge = 0.1,
-                    is_phase_only_Structure = 0,
-                    # %%
-                    w0_Structure = 0, z_pump_Structure = 0,
-                    is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0, 
-                    l_Structure = 0, p_Structure = 0, 
-                    theta_x_Structure = 0, theta_y_Structure = 0,
-                    # %%
-                    is_random_phase_Structure = 0, 
-                    is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
-                    #%%
-                    U1_0_NonZero_size = 1, w0 = 0, 
-                    z0 = 3, z0_new = 5, 
-                    # %%
-                    lam1=0.8, is_air_pump=0, is_air=0, T=25,
-                    deff=30, is_fft = 1, fft_mode = 0, 
-                    is_linear_convolution = 0,
-                    # %%
-                    Tx=10, Ty=10, Tz="2*lc",
-                    mx=0, my=0, mz=0,
-                    # %%
-                    # 生成横向结构
-                    Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
-                    Depth = 2, structure_xy_mode = 'x', 
-                    is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
-                    is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
-                    #%%
-                    is_save = 0, is_save_txt = 0, dpi = 100, 
-                    #%%
-                    cmap_2d = 'viridis', 
-                    #%%
-                    ticks_num = 6, is_contourf = 0, 
-                    is_title_on = 1, is_axes_on = 1, 
-                    is_mm = 1, is_propagation = 0, 
-                    #%%
-                    fontsize = 9, 
-                    font = {'family': 'serif',
-                            'style': 'normal', # 'normal', 'italic', 'oblique'
-                            'weight': 'normal',
-                            'color': 'black', # 'black','gray','darkred'
-                            }, 
-                    #%%
-                    is_self_colorbar = 1, is_colorbar_on = 1, 
-                    is_energy = 1, vmax = 1, vmin = 0, 
-                    #%%
-                    is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, )
+
+if __name__ == '__main__':
+    consistency_NLA_AST(U1_name = "",
+                        img_full_name = "lena1.png",
+                        border_percentage = 0.1,
+                        is_phase_only = 0,
+                        #%%
+                        z_pump = 0,
+                        is_LG = 0, is_Gauss = 0, is_OAM = 0,
+                        l = 0, p = 0,
+                        theta_x = 0, theta_y = 0,
+                        # %%
+                        is_random_phase = 0,
+                        is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
+                        # %%
+                        # 生成横向结构
+                        U1_name_Structure = '',
+                        structure_size_Enlarge = 0.1,
+                        is_phase_only_Structure = 0,
+                        # %%
+                        w0_Structure = 0, z_pump_Structure = 0,
+                        is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0,
+                        l_Structure = 0, p_Structure = 0,
+                        theta_x_Structure = 0, theta_y_Structure = 0,
+                        # %%
+                        is_random_phase_Structure = 0,
+                        is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0,
+                        #%%
+                        U1_0_NonZero_size = 1, w0 = 0,
+                        z0 = 3, z0_new = 5,
+                        # %%
+                        lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                        deff=30, is_fft = 1, fft_mode = 0,
+                        is_linear_convolution = 0,
+                        # %%
+                        Tx=10, Ty=10, Tz="2*lc",
+                        mx=0, my=0, mz=0,
+                        # %%
+                        # 生成横向结构
+                        Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
+                        Depth = 2, structure_xy_mode = 'x',
+                        is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0,
+                        is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
+                        #%%
+                        is_save = 0, is_save_txt = 0, dpi = 100,
+                        #%%
+                        cmap_2d = 'viridis',
+                        #%%
+                        ticks_num = 6, is_contourf = 0,
+                        is_title_on = 1, is_axes_on = 1, is_mm = 1,
+                        #%%
+                        fontsize = 9,
+                        font = {'family': 'serif',
+                                'style': 'normal', # 'normal', 'italic', 'oblique'
+                                'weight': 'normal',
+                                'color': 'black', # 'black','gray','darkred'
+                                },
+                        #%%
+                        is_colorbar_on = 1, is_energy = 1,
+                        #%%
+                        is_print = 1, is_contours = 66, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, )
 
 # 注意 colorbar 上的数量级

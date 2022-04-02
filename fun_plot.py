@@ -302,7 +302,6 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
     U_YZ_new = f(ix_new, iy_new)
     f = interp2d(ix,iy,U_XZ,kind=kind)
     U_XZ_new = f(ix_new, iy_new)
-    
     #%% 插值 end
 
     if is_axes_on == 0:
@@ -332,7 +331,7 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
         axes.set_zlabel('Y', fontsize=fontsize, fontdict=font)  # 设置 z 轴的 标签名、标签字体；字体大小 fontsize=fontsize
 
     axes.view_init(elev=elev, azim=azim);  # 后一个为负 = 绕 z 轴逆时针
-
+    
     Ixy = Iy
     if is_self_colorbar == 1:
         i_Z, i_XY = np.meshgrid([i for i in range(Iz_new)], [j for j in range(Ixy)])

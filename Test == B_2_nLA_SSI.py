@@ -51,7 +51,7 @@ X, Y = 0, 0 # Unit: mm 切片 中心点 平移 矢量（逆着 z 正向看去，
 # Y 增加，则 从 G1_z_shift 中 读取的 行 向上移，也就是 yz 面向 行 减小的方向（G1_z_shift 的 上侧）移动
 # size_modulate = 1e-3 # Unit: mm n1 调制区域 的 横向尺寸，即 公式中的 d
 is_bulk = 1 # 是否 不读取 结构，1 为 不读取，即 均一晶体；0 为 读取结构
-is_stored = 0 # 如果要储存中间结果，则不能多线程，只能单线程
+is_stored = 1 # 如果要储存中间结果，则不能多线程，只能单线程
 is_show_structure_face = 0 # 如果要显示 结构 前后端面 的 场分布，就打开这个
 is_energy_evolution_on = 1 # 储存 能量 随 z 演化 的 曲线
 #%%
@@ -123,19 +123,20 @@ if (type(U1_name) != str) or U1_name == "":
                    is_air_pump, 
                    lam1, T, p = "e")
     
-    U1_0 = pump_LG(img_full_name, 
-                   I1_x, I1_y, size_PerPixel, 
-                   U1_0, w0, k1, z_pump,  
-                   is_LG, is_Gauss, is_OAM, 
-                   l, p, 
-                   theta_x, theta_y, 
-                   is_random_phase, 
-                   is_H_l, is_H_theta, is_H_random_phase, 
-                   is_save, is_save_txt, dpi, 
-                   cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
-                   fontsize, font, 
-                   1, is_colorbar_on, is_energy, vmax, vmin, 
-                   is_print, ) 
+    U1_0, g1_shift = pump_LG(img_full_name,
+                             I1_x, I1_y, size_PerPixel,
+                             U1_0, w0, k1, z_pump,
+                             is_LG, is_Gauss, is_OAM,
+                             l, p,
+                             theta_x, theta_y,
+                             is_random_phase,
+                             is_H_l, is_H_theta, is_H_random_phase,
+                             is_save, is_save_txt, dpi,
+                             cmap_2d, ticks_num, is_contourf,
+                             is_title_on, is_axes_on, is_mm,
+                             fontsize, font,
+                             is_colorbar_on, is_energy,
+                             is_print, )
     
 else:
 
@@ -151,12 +152,6 @@ else:
 n1, k1 = Cal_n(size_PerPixel, 
                is_air, 
                lam1, T, p = "e")
-
-#%%
-# 线性 角谱理论 - 基波 begin
-
-g1 = np.fft.fft2(U1_0)
-g1_shift = np.fft.fftshift(g1)
 
 k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
 
@@ -920,7 +915,7 @@ if is_stored == 1:
     # G1_shift_XYZ_stored_amp_address = location + "\\" + "5. G1_" + str(float('%.2g' % z0)) + "mm" + "_SSI_shift" + "_YZ_XZ_stored" + "\\" + "5.1. NLA - " + "G1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_amp" + img_name_extension
     
     # plot_3d_XYZ(zj, sample, size_PerPixel, 
-    #             np.abs(G1_shift_YZ_stored), np.abs(G1_shift_XZ_stored), np.abs(G1_section_1_shift), np.abs(G1_section_1_shift), 
+    #             np.abs(G1_shift_YZ_stored), np.abs(G1_shift_XZ_stored), np.abs(G1_section_1_shift), np.abs(G1_section_2_shift), 
     #             np.abs(G1_structure_frontface_shift), np.abs(G1_structure_endface_shift), is_show_structure_face, 
     #             G1_shift_XYZ_stored_amp_address, "G1_" + str(float('%.2g' % X)) + "mm" + "_" + str(float('%.2g' % Y)) + "mm" + "__" + str(float('%.2g' % z0_1)) + "mm" + "_" + str(float('%.2g' % z0_2)) + "mm" + "_SSI_shift" + "_XYZ" + "_amp", 
     #             I1_y // 2 + int(X / size_PerPixel), I1_x // 2 + int(Y / size_PerPixel), sheets_num_section_1, sheets_num_section_2, 
@@ -929,7 +924,7 @@ if is_stored == 1:
     #             cmap_3d, elev, azim, alpha, 
     #             ticks_num, is_title_on, is_axes_on, is_mm,  
     #             fontsize, font, 
-    #             is_self_colorbar, is_colorbar_on, is_energy, vmax_G1_amp, vmin_G1_amp)
+    #             1, is_colorbar_on, is_energy, vmax_G1_amp, vmin_G1_amp)
     
     #%%
     # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
@@ -969,7 +964,7 @@ if is_stored == 1:
     #             cmap_3d, elev, azim, alpha, 
     #             ticks_num, is_title_on, is_axes_on, is_mm,  
     #             fontsize, font, 
-    #             is_self_colorbar, is_colorbar_on, is_energy, vmax_U1_amp, vmin_U1_amp)
+    #             1, is_colorbar_on, is_energy, vmax_U1_amp, vmin_U1_amp)
     
     #%%
     # 绘制 U1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_phase

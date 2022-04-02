@@ -51,8 +51,7 @@ def structure_chi2_3D(U1_name="",
                       cmap_2d='viridis',
                       # %%
                       ticks_num=6, is_contourf=0,
-                      is_title_on=1, is_axes_on=1,
-                      is_mm=1,
+                      is_title_on=1, is_axes_on=1, is_mm=1,
                       # %%
                       fontsize=9,
                       font={'family': 'serif',
@@ -116,8 +115,7 @@ def structure_chi2_3D(U1_name="",
                                      cmap_2d,
                                      # %%
                                      ticks_num, is_contourf,
-                                     is_title_on, is_axes_on,
-                                     is_mm,
+                                     is_title_on, is_axes_on, is_mm,
                                      # %%
                                      fontsize, font,
                                      # %%
@@ -165,7 +163,8 @@ def structure_chi2_3D(U1_name="",
     folder_address = ''
     
     if is_save == 1:
-        folder_address = U_dir("", "0.χ2_modulation_squared", 0, )
+        folder_address = U_dir("", "0.χ2_modulation_squared", 0,
+                               0, )
 
     def structure_chi2_Generate_z(for_th, fors_num, *args, ):
         iz = for_th * diz
@@ -243,8 +242,7 @@ if __name__ == '__main__':
                     cmap_2d='viridis',
                     # %%
                     ticks_num=6, is_contourf=0,
-                    is_title_on=1, is_axes_on=1,
-                    is_mm=1,
+                    is_title_on=1, is_axes_on=1, is_mm=1,
                     # %%
                     fontsize=9,
                     font={'family': 'serif',

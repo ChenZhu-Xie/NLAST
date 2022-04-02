@@ -70,8 +70,7 @@ def NLA(U1_name="",
         cmap_2d='viridis',
         # %%
         ticks_num=6, is_contourf=0,
-        is_title_on=1, is_axes_on=1,
-        is_mm=1,
+        is_title_on=1, is_axes_on=1, is_mm=1,
         # %%
         fontsize=9,
         font={'family': 'serif',
@@ -530,8 +529,7 @@ if __name__ == '__main__':
         cmap_2d='viridis',
         # %%
         ticks_num=6, is_contourf=0,
-        is_title_on=1, is_axes_on=1,
-        is_mm=1,
+        is_title_on=1, is_axes_on=1, is_mm=1,
         # %%
         fontsize=9,
         font={'family': 'serif',

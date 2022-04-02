@@ -22,8 +22,7 @@ def U_compare(U, U_0, z,
               cmap_2d = 'viridis', 
               #%%
               ticks_num = 6, is_contourf = 0, 
-              is_title_on = 1, is_axes_on = 1, 
-              is_mm = 1, is_propagation = 0, 
+              is_title_on = 1, is_axes_on = 1, is_mm = 1,
               #%%
               fontsize = 9, 
               font = {'family': 'serif',
@@ -32,7 +31,7 @@ def U_compare(U, U_0, z,
                       'color': 'black', # 'black','gray','darkred'
                       }, 
               #%%
-              is_self_colorbar = 0, is_colorbar_on = 1, 
+              is_colorbar_on = 1,
               is_energy = 1, vmax = 1, vmin = 0, 
               #%%
               is_print = 0 ):
@@ -61,7 +60,8 @@ def U_compare(U, U_0, z,
     plot_2d([], 1, size_PerPixel, 
             U_error_amp, U_error_amp_address, "U_" + str(float('%.2g' % z)) + "mm" + "_error" + "_amp", 
             is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
             1, is_colorbar_on, is_energy, vmax, vmin)
 
@@ -73,7 +73,8 @@ def U_compare(U, U_0, z,
     plot_2d([], 1, size_PerPixel, 
             U_error_phase, U_error_phase_address, "U_" + str(float('%.2g' % z)) + "mm" + "_error" + "_phase", 
             is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
             1, is_colorbar_on, 0, vmax, vmin)
     
@@ -93,7 +94,8 @@ def U_compare(U, U_0, z,
         plot_2d([], 1, size_PerPixel, 
                 U_error_amp, U_error_amp_address, "U_" + str(float('%.2g' % z)) + "mm" + "_error" + "_amp", 
                 is_save, dpi, size_fig,  
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm, 0,
                 fontsize, font,
                 1, is_colorbar_on, is_energy, vmax, vmin)
     
@@ -104,7 +106,8 @@ def U_compare(U, U_0, z,
         plot_2d([], 1, size_PerPixel, 
                 U_error_phase, U_error_phase_address, "U_" + str(float('%.2g' % z)) + "mm" + "_error" + "_phase", 
                 is_save, dpi, size_fig,  
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm, 0,
                 fontsize, font,
                 1, is_colorbar_on, 0, vmax, vmin)
 
@@ -141,7 +144,8 @@ def U_compare(U, U_0, z,
     plot_2d([], 1, size_PerPixel, 
             U_amp_error, U_amp_error_address, "U_" + str(float('%.2g' % z)) + "mm" + "_amp_error", 
             is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
             1, is_colorbar_on, is_energy, vmax, vmin)
 
@@ -153,7 +157,8 @@ def U_compare(U, U_0, z,
     plot_2d([], 1, size_PerPixel, 
             U_phase_error, U_phase_error_address, "U_" + str(float('%.2g' % z)) + "mm" + "_phase_error", 
             is_save, dpi, size_fig,  
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
             1, is_colorbar_on, 0, vmax, vmin)
 
@@ -166,7 +171,8 @@ def U_compare(U, U_0, z,
         plot_2d([], 1, size_PerPixel, 
                 U_amp_error, U_amp_error_address, "U_" + str(float('%.2g' % z)) + "mm" + "_amp_error", 
                 is_save, dpi, size_fig,  
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm, 0,
                 fontsize, font,
                 1, is_colorbar_on, is_energy, vmax, vmin)
     
@@ -177,7 +183,8 @@ def U_compare(U, U_0, z,
         plot_2d([], 1, size_PerPixel, 
                 U_phase_error, U_phase_error_address, "U_" + str(float('%.2g' % z)) + "mm" + "_phase_error", 
                 is_save, dpi, size_fig,  
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0, 
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm, 0,
                 fontsize, font,
                 1, is_colorbar_on, 0, vmax, vmin)
     

@@ -7,15 +7,10 @@ Created on Tue Oct 26 14:41:11 2021
 
 #%%
 
-import cv2
 import math
 import numpy as np
-from scipy.io import loadmat
-from fun_os import img_squared_bordered_Read
-from fun_img_Resize import img_squared_Resize
 from fun_plot import plot_2d
-from fun_pump import pump_LG
-from fun_SSI import Cal_IxIy
+from fun_pump import pump_pic_or_U_structure
 from fun_linear import Cal_n, Cal_kz
 from fun_nonlinear import Cal_lc_SHG, Cal_GxGyGz
 
@@ -205,8 +200,7 @@ def structure_chi2_Generate_2D(U1_name = "",
                               cmap_2d = 'viridis', 
                               #%%
                               ticks_num = 6, is_contourf = 0, 
-                              is_title_on = 1, is_axes_on = 1, 
-                              is_mm = 1,
+                              is_title_on = 1, is_axes_on = 1, is_mm = 1,
                               #%%
                               fontsize = 9, 
                               font = {'family': 'serif',
@@ -219,75 +213,37 @@ def structure_chi2_Generate_2D(U1_name = "",
                               #%%
                               is_print = 1, ):
 
-    
-    
-    #%%
-    # 导入 方形，以及 加边框 的 图片
-    
-    img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(img_full_name, 
-                                                                                                                     U1_0_NonZero_size, dpi, 
-                                                                                                                     is_phase_only)
-
-    #%%
-    # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
-    
-    deff_structure_size_expect = U1_0_NonZero_size * ( 1 + structure_size_Enlarge )
-    is_print and print("deff_structure_size_expect = {} mm".format(deff_structure_size_expect))
-
-    Ix, Iy, deff_structure_size = Cal_IxIy(I1_x, I1_y, 
-                                           deff_structure_size_expect, size_PerPixel, 
-                                           is_print)
-
-    #%%
-    # 需要先将 目标 U1_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix, Iy 相同，才能开始 之后的工作
-
-    border_width, img_squared_resize_full_name, img_squared_resize = img_squared_Resize(img_name, img_name_extension, img_squared, 
-                                                                                        Ix, Iy, I1_x, 
-                                                                                        is_print, )
-    
-    if (type(U1_name) != str) or U1_name == "":
-        #%%
-        # U1_0 = U(x, y, 0) = img_squared_resize
-        
-        if is_phase_only == 1:
-            U1_0 = np.power(math.e, (img_squared_resize.astype(np.complex128()) / 255 * 2 * math.pi - math.pi) * 1j) # 变成相位图
-        else:
-            U1_0 = img_squared_resize.astype(np.complex128)
-        
-        #%%
-        # 预处理 输入场
-        
-        n1, k1 = Cal_n(size_PerPixel, 
-                       is_air_pump, 
-                       lam1, T, p = "e")
-        
-        U1_0, g1_shift = pump_LG(img_squared_resize_full_name, 
-                                 Ix, Iy, size_PerPixel, 
-                                 U1_0, w0, k1, z_pump, 
-                                 is_LG, is_Gauss, is_OAM, 
-                                 l, p, 
-                                 theta_x, theta_y, 
-                                 is_random_phase, 
-                                 is_H_l, is_H_theta, is_H_random_phase, 
-                                 is_save, is_save_txt, dpi, 
-                                 cmap_2d, ticks_num, is_contourf, 
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font, 
-                                 is_colorbar_on, is_energy,
-                                 is_print, )
-
-    else:
-        
-        #%%
-        # 导入 方形，以及 加边框 的 图片
-        
-        U1_full_name = U1_name + (is_save_txt and ".txt" or ".mat")
-        U1_0 = np.loadtxt(U1_full_name, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U1_full_name)['U'] # 加载 复振幅场
-        
-        U1_0 = cv2.resize(np.real(U1_0), (Ix, Iy), interpolation=cv2.INTER_AREA) + cv2.resize(np.imag(U1_0), (Ix, Iy), interpolation=cv2.INTER_AREA) * 1j
-        # U1_0 必须 resize 为 Ix,Iy 大小； 
-        # 但 cv2 、 skimage.transform 中 resize 都能处理 图片 和 float64，
-        # 但似乎 没有东西 能直接 处理 complex128，但可 分别处理 实部和虚部，再合并为 complex128
+    img_name, img_name_extension, img_squared, \
+    size_PerPixel, size_fig, I1_x, I1_y, \
+    Ix, Iy, deff_structure_size, \
+    border_width, img_squared_resize_full_name, img_squared_resize, \
+    U1_0, g1_shift = pump_pic_or_U_structure(U1_name,
+                                   img_full_name,
+                                   is_phase_only,
+                                   # %%
+                                   z_pump,
+                                   is_LG, is_Gauss, is_OAM,
+                                   l, p,
+                                   theta_x, theta_y,
+                                   # %%
+                                   is_random_phase,
+                                   is_H_l, is_H_theta, is_H_random_phase,
+                                   # %%
+                                   U1_0_NonZero_size, w0, structure_size_Enlarge,
+                                   # %%
+                                   lam1, is_air_pump, T,
+                                   # %%
+                                   is_save, is_save_txt, dpi,
+                                   cmap_2d,
+                                   # %%
+                                   ticks_num, is_contourf,
+                                   is_title_on, is_axes_on, is_mm,
+                                   # %%
+                                   fontsize, font,
+                                   # %%
+                                   is_colorbar_on, is_energy,
+                                   # %%
+                                   is_print, )
 
     #%%
 
@@ -417,8 +373,7 @@ def structure_n1_Generate_2D(U1_name = "",
                               cmap_2d = 'viridis', 
                               #%%
                               ticks_num = 6, is_contourf = 0, 
-                              is_title_on = 1, is_axes_on = 1, 
-                              is_mm = 1,
+                              is_title_on = 1, is_axes_on = 1, is_mm = 1,
                               #%%
                               fontsize = 9, 
                               font = {'family': 'serif',
@@ -431,74 +386,37 @@ def structure_n1_Generate_2D(U1_name = "",
                               #%%
                               is_print = 1, ):
 
-    #%%
-    # 导入 方形，以及 加边框 的 图片
-    
     img_name, img_name_extension, img_squared, \
-    size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(img_full_name,
-                                                                                                                     U1_0_NonZero_size, dpi, 
-                                                                                                                     is_phase_only)
-
-    #%%
-    # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
-    
-    deff_structure_size_expect = U1_0_NonZero_size * ( 1 + structure_size_Enlarge )
-    is_print and print("deff_structure_size_expect = {} mm".format(deff_structure_size_expect))
-
-    Ix, Iy, deff_structure_size = Cal_IxIy(I1_x, I1_y, 
-                                           deff_structure_size_expect, size_PerPixel, 
-                                           is_print)
-
-    #%%
-    # 需要先将 目标 U1_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix, Iy 相同，才能开始 之后的工作
-
-    border_width, img_squared_resize_full_name, img_squared_resize = img_squared_Resize(img_name, img_name_extension, img_squared, 
-                                                                                        Ix, Iy, I1_x, 
-                                                                                        is_print, )
-
-    if (type(U1_name) != str) or U1_name == "":
-        #%%
-        # U1_0 = U(x, y, 0) = img_squared_resize
-        
-        if is_phase_only == 1:
-            U1_0 = np.power(math.e, (img_squared_resize.astype(np.complex128()) / 255 * 2 * math.pi - math.pi) * 1j) # 变成相位图
-        else:
-            U1_0 = img_squared_resize.astype(np.complex128)
-        
-        #%%
-        # 预处理 输入场
-        
-        n1, k1 = Cal_n(size_PerPixel, 
-                       is_air_pump, 
-                       lam1, T, p = "e")
-        
-        U1_0, g1_shift = pump_LG(img_squared_resize_full_name, 
-                                 Ix, Iy, size_PerPixel, 
-                                 U1_0, w0, k1, z_pump, 
-                                 is_LG, is_Gauss, is_OAM, 
-                                 l, p, 
-                                 theta_x, theta_y, 
-                                 is_random_phase, 
-                                 is_H_l, is_H_theta, is_H_random_phase, 
-                                 is_save, is_save_txt, dpi, 
-                                 cmap_2d, ticks_num, is_contourf, 
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font, 
-                                 is_colorbar_on, is_energy,
-                                 is_print, )
-
-    else:
-        
-        #%%
-        # 导入 方形，以及 加边框 的 图片
-        
-        U1_full_name = U1_name + (is_save_txt and ".txt" or ".mat")
-        U1_0 = np.loadtxt(U1_full_name, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U1_full_name)['U'] # 加载 复振幅场
-        
-        U1_0 = cv2.resize(np.real(U1_0), (Ix, Iy), interpolation=cv2.INTER_AREA) + cv2.resize(np.imag(U1_0), (Ix, Iy), interpolation=cv2.INTER_AREA) * 1j
-        # U1_0 必须 resize 为 Ix,Iy 大小； 
-        # 但 cv2 、 skimage.transform 中 resize 都能处理 图片 和 float64，
-        # 但似乎 没有东西 能直接 处理 complex128，但可 分别处理 实部和虚部，再合并为 complex128
+    size_PerPixel, size_fig, I1_x, I1_y, \
+    Ix, Iy, deff_structure_size, \
+    border_width, img_squared_resize_full_name, img_squared_resize, \
+    U1_0, g1_shift = pump_pic_or_U_structure(U1_name,
+                                   img_full_name,
+                                   is_phase_only,
+                                   # %%
+                                   z_pump,
+                                   is_LG, is_Gauss, is_OAM,
+                                   l, p,
+                                   theta_x, theta_y,
+                                   # %%
+                                   is_random_phase,
+                                   is_H_l, is_H_theta, is_H_random_phase,
+                                   # %%
+                                   U1_0_NonZero_size, w0, structure_size_Enlarge,
+                                   # %%
+                                   lam1, is_air_pump, T,
+                                   # %%
+                                   is_save, is_save_txt, dpi,
+                                   cmap_2d,
+                                   # %%
+                                   ticks_num, is_contourf,
+                                   is_title_on, is_axes_on, is_mm,
+                                   # %%
+                                   fontsize, font,
+                                   # %%
+                                   is_colorbar_on, is_energy,
+                                   # %%
+                                   is_print, )
 
     #%%
 

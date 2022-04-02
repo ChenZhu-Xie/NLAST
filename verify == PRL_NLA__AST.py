@@ -60,8 +60,7 @@ def PRL_NLA__AST(U1_name = "",
                  cmap_2d = 'viridis', 
                  #%%
                  ticks_num = 6, is_contourf = 0, 
-                 is_title_on = 1, is_axes_on = 1, 
-                 is_mm = 1,
+                 is_title_on = 1, is_axes_on = 1, is_mm = 1,
                  #%%
                  fontsize = 9, 
                  font = {'family': 'serif',
@@ -131,8 +130,7 @@ def PRL_NLA__AST(U1_name = "",
         cmap_2d, 
         #%%
         ticks_num, is_contourf, 
-        is_title_on, is_axes_on, 
-        is_mm, 
+        is_title_on, is_axes_on, is_mm,
         #%%
         fontsize, font, 
         #%%
@@ -167,8 +165,7 @@ def PRL_NLA__AST(U1_name = "",
         cmap_2d, 
         #%%
         ticks_num, is_contourf, 
-        is_title_on, is_axes_on, 
-        is_mm, 
+        is_title_on, is_axes_on, is_mm,
         #%%
         fontsize, font, 
         #%%
@@ -236,8 +233,7 @@ if __name__ == '__main__':
                  cmap_2d = 'viridis',
                  #%%
                  ticks_num = 6, is_contourf = 0,
-                 is_title_on = 1, is_axes_on = 1,
-                 is_mm = 1,
+                 is_title_on = 1, is_axes_on = 1, is_mm = 1,
                  #%%
                  fontsize = 9,
                  font = {'family': 'serif',

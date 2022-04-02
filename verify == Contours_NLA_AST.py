@@ -64,8 +64,7 @@ def contours_NLA_AST(U1_name = "",
                      cmap_2d = 'viridis', 
                      #%%
                      ticks_num = 6, is_contourf = 0, 
-                     is_title_on = 1, is_axes_on = 1, 
-                     is_mm = 1, is_propagation = 0, 
+                     is_title_on = 1, is_axes_on = 1, is_mm = 1,
                      #%%
                      fontsize = 9, 
                      font = {'family': 'serif',
@@ -74,8 +73,7 @@ def contours_NLA_AST(U1_name = "",
                              'color': 'black', # 'black','gray','darkred'
                              }, 
                      #%%
-                     is_self_colorbar = 0, is_colorbar_on = 1, 
-                     is_energy = 1, vmax = 1, vmin = 0, 
+                     is_colorbar_on = 1, is_energy = 1,
                      #%%
                      is_print = 1, is_contours = 1, n_TzQ = 1, 
                      Gz_max_Enhance = 1, match_mode = 1, ):
@@ -112,13 +110,11 @@ def contours_NLA_AST(U1_name = "",
         cmap_2d, 
         #%%
         ticks_num, is_contourf, 
-        is_title_on, is_axes_on, 
-        is_mm, is_propagation, 
+        is_title_on, is_axes_on, is_mm,
         #%%
         fontsize, font, 
         #%%
-        is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin, 
+        is_colorbar_on, is_energy, 
         #%%
         is_print, )
     
@@ -172,13 +168,11 @@ def contours_NLA_AST(U1_name = "",
         cmap_2d, 
         #%%
         ticks_num, is_contourf, 
-        is_title_on, is_axes_on, 
-        is_mm, is_propagation, 
+        is_title_on, is_axes_on, is_mm,
         #%%
         fontsize, font, 
         #%%
-        is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin, 
+        is_colorbar_on, is_energy, 
         #%%
         is_print, is_contours, n_TzQ, 
         Gz_max_Enhance, match_mode, )
@@ -237,13 +231,11 @@ def contours_NLA_AST(U1_name = "",
         cmap_2d, 
         #%%
         ticks_num, is_contourf, 
-        is_title_on, is_axes_on, 
-        is_mm, is_propagation, 
+        is_title_on, is_axes_on, is_mm,
         #%%
         fontsize, font, 
         #%%
-        is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin, 
+        is_colorbar_on, is_energy, 
         #%%
         is_print, is_contours, n_TzQ, 
         Gz_max_Enhance, match_mode, )
@@ -274,13 +266,11 @@ def contours_NLA_AST(U1_name = "",
         cmap_2d, 
         #%%
         ticks_num, is_contourf, 
-        is_title_on, is_axes_on, 
-        is_mm, is_propagation, 
+        is_title_on, is_axes_on, is_mm,
         #%%
         fontsize, font, 
         #%%
-        is_self_colorbar, is_colorbar_on, 
-        is_energy, vmax, vmin, 
+        is_colorbar_on, is_energy, 
         #%%
         is_print, )
     
@@ -375,68 +365,67 @@ def contours_NLA_AST(U1_name = "",
     np.savetxt(U2_Z0_Superposition_full_name, U2_Z0_Superposition) if is_save_txt else savemat(U2_Z0_Superposition_full_name, {"U":U2_Z0_Superposition})
     
 #%%
-    
-contours_NLA_AST(U1_name = "", 
-                 img_full_name = "grating.png", 
-                 border_percentage = 0.3, 
-                 is_phase_only = 0, 
-                 #%%
-                 z_pump = 0, 
-                 is_LG = 0, is_Gauss = 0, is_OAM = 0, 
-                 l = 0, p = 0, 
-                 theta_x = 0, theta_y = 0, 
-                 #%%
-                 is_random_phase = 0, 
-                 is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
-                 # %%
-                 # 生成横向结构
-                 U1_name_Structure = '',
-                 structure_size_Enlarge = 0.1,
-                 is_phase_only_Structure = 0,
-                 # %%
-                 w0_Structure = 0, z_pump_Structure = 0,
-                 is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0, 
-                 l_Structure = 0, p_Structure = 0, 
-                 theta_x_Structure = 0, theta_y_Structure = 0,
-                 # %%
-                 is_random_phase_Structure = 0, 
-                 is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
-                 #%%
-                 U1_0_NonZero_size = 1, w0 = 0, 
-                 z0_AST = 0.17, z0_NLA = 0.1, 
-                 # %%
-                 lam1=0.8, is_air_pump=0, is_air=0, T=25,
-                 deff=30, is_fft = 1, fft_mode = 0, 
-                 is_linear_convolution = 0,
-                 #%%
-                 Tx=10, Ty=10, Tz="2*lc",
-                 mx=0, my=0, mz=0, # 可 mz = 1 查看匹配时 的 情况，理应效果 更好。
-                 # %%
-                 # 生成横向结构
-                 Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
-                 Depth = 2, structure_xy_mode = 'x', 
-                 is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
-                 is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
-                 #%%
-                 is_save = 0, is_save_txt = 0, dpi = 100, 
-                 #%%
-                 cmap_2d = 'viridis', 
-                 #%%
-                 ticks_num = 6, is_contourf = 0, 
-                 is_title_on = 1, is_axes_on = 1, 
-                 is_mm = 1, is_propagation = 0, 
-                 #%%
-                 fontsize = 6, 
-                 font = {'family': 'serif',
-                         'style': 'normal', # 'normal', 'italic', 'oblique'
-                         'weight': 'normal',
-                         'color': 'black', # 'black','gray','darkred'
-                         }, 
-                 #%%
-                 is_self_colorbar = 1, is_colorbar_on = 1, 
-                 is_energy = 0, vmax = 1, vmin = 0, 
-                 #%%
-                 is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, )
+
+if __name__ == '__main__':
+    contours_NLA_AST(U1_name = "",
+                     img_full_name = "grating.png",
+                     border_percentage = 0.3,
+                     is_phase_only = 0,
+                     #%%
+                     z_pump = 0,
+                     is_LG = 0, is_Gauss = 0, is_OAM = 0,
+                     l = 0, p = 0,
+                     theta_x = 0, theta_y = 0,
+                     #%%
+                     is_random_phase = 0,
+                     is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
+                     # %%
+                     # 生成横向结构
+                     U1_name_Structure = '',
+                     structure_size_Enlarge = 0.1,
+                     is_phase_only_Structure = 0,
+                     # %%
+                     w0_Structure = 0, z_pump_Structure = 0,
+                     is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0,
+                     l_Structure = 0, p_Structure = 0,
+                     theta_x_Structure = 0, theta_y_Structure = 0,
+                     # %%
+                     is_random_phase_Structure = 0,
+                     is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0,
+                     #%%
+                     U1_0_NonZero_size = 1, w0 = 0,
+                     z0_AST = 0.17, z0_NLA = 0.1,
+                     # %%
+                     lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                     deff=30, is_fft = 1, fft_mode = 0,
+                     is_linear_convolution = 0,
+                     #%%
+                     Tx=10, Ty=10, Tz="2*lc",
+                     mx=0, my=0, mz=0, # 可 mz = 1 查看匹配时 的 情况，理应效果 更好。
+                     # %%
+                     # 生成横向结构
+                     Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
+                     Depth = 2, structure_xy_mode = 'x',
+                     is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0,
+                     is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
+                     #%%
+                     is_save = 0, is_save_txt = 0, dpi = 100,
+                     #%%
+                     cmap_2d = 'viridis',
+                     #%%
+                     ticks_num = 6, is_contourf = 0,
+                     is_title_on = 1, is_axes_on = 1, is_mm = 1,
+                     #%%
+                     fontsize = 6,
+                     font = {'family': 'serif',
+                             'style': 'normal', # 'normal', 'italic', 'oblique'
+                             'weight': 'normal',
+                             'color': 'black', # 'black','gray','darkred'
+                             },
+                     #%%
+                     is_colorbar_on = 1, is_energy = 1,
+                     #%%
+                     is_print = 1, is_contours = 1, n_TzQ = 1, Gz_max_Enhance = 1, match_mode = 1, )
 
 # 搭配 - 1
 # U2_Z0_Superposition = U1_NLA - U2_AST

@@ -63,8 +63,7 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                      elev = 10, azim = -65, alpha = 2, 
                      #%%
                      sample = 2, ticks_num = 6, is_contourf = 0, 
-                     is_title_on = 1, is_axes_on = 1, 
-                     is_mm = 1, is_propagation = 0, 
+                     is_title_on = 1, is_axes_on = 1, is_mm = 1,
                      #%%
                      fontsize = 9, 
                      font = {'family': 'serif',
@@ -73,8 +72,7 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                              'color': 'black', # 'black','gray','darkred'
                              }, 
                      #%%
-                     is_self_colorbar = 0, is_colorbar_on = 1, 
-                     is_energy = 1, vmax = 1, vmin = 0, 
+                     is_colorbar_on = 1, is_energy = 1,
                      #%%
                      is_print = 1, ):
     
@@ -118,13 +116,11 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                   cmap_2d, 
                   #%%
                   ticks_num, is_contourf, 
-                  is_title_on, is_axes_on, 
-                  is_mm, is_propagation, 
+                  is_title_on, is_axes_on, is_mm,
                   #%%
                   fontsize, font, 
                   #%%
-                  is_self_colorbar, is_colorbar_on, 
-                  is_energy, vmax, vmin, 
+                  is_colorbar_on, is_energy,
                   #%%
                   is_print, )
     
@@ -163,13 +159,11 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
             elev, azim, alpha, 
             #%%
             sample, ticks_num, is_contourf, 
-            is_title_on, is_axes_on, 
-            is_mm, is_propagation, 
+            is_title_on, is_axes_on, is_mm,
             #%%
             fontsize, font, 
             #%%
-            is_self_colorbar, is_colorbar_on, 
-            is_energy, vmax, vmin, 
+            is_colorbar_on, is_energy,
             #%%
             is_print, )
 
@@ -222,8 +216,7 @@ a_to_B_2_nLA_SSI(U1_name_Structure = "",
                  elev = 10, azim = -65, alpha = 2, 
                  #%%
                  sample = 2, ticks_num = 6, is_contourf = 0, 
-                 is_title_on = 1, is_axes_on = 1, 
-                 is_mm = 1, is_propagation = 0, 
+                 is_title_on = 1, is_axes_on = 1, is_mm = 1,
                  #%%
                  fontsize = 9, 
                  font = {'family': 'serif',
@@ -232,7 +225,6 @@ a_to_B_2_nLA_SSI(U1_name_Structure = "",
                          'color': 'black', # 'black','gray','darkred'
                          }, 
                  #%%
-                 is_self_colorbar = 0, is_colorbar_on = 1, 
-                 is_energy = 1, vmax = 1, vmin = 0, 
+                 is_colorbar_on = 1, is_energy = 1,
                  #%%
                  is_print = 1, )
