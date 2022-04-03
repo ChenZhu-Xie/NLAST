@@ -9,10 +9,11 @@ Created on Sun Dec 26 22:09:04 2021
 
 import numpy as np
 import math
-from fun_os import GHU_plot_save
+from fun_os import set_ray, GHU_plot_save
 from fun_img_Resize import image_Add_black_border
 from fun_pump import pump_pic_or_U
-from fun_linear import Cal_n, Cal_kz
+from fun_linear import Cal_n, Cal_kz, fft2, ifft2
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -56,16 +57,18 @@ def AST(U1_name="",
         **kwargs, ):
     # %%
 
-    if (type(U1_name) != str) or U1_name == "" and ("U" not in kwargs):
+    if (type(U1_name) != str) or U1_name == "" and "U" not in kwargs:
         if __name__ == "__main__":
-            border_percentage = kwargs["border_percentage"] if len(kwargs) != 0 else 0.1
+            border_percentage = kwargs["border_percentage"] if "border_percentage" in kwargs else 0.1
 
             image_Add_black_border(img_full_name,  # 预处理 导入图片 为方形，并加边框
                                    border_percentage,
                                    is_print, )
+    AST_ray = "1"
+    ray = set_ray(U1_name, AST_ray, **kwargs)
 
     img_name, img_name_extension, img_squared, \
-    size_PerPixel, size_fig, I1_x, I1_y, \
+    size_PerPixel, size_fig, Ix, Iy, \
     U1_0, g1_shift = pump_pic_or_U(U1_name,
                                    img_full_name,
                                    is_phase_only,
@@ -94,42 +97,41 @@ def AST(U1_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   **kwargs, )
+                                   ray=ray, **kwargs, )
 
     # %%
 
-    if U1_name.find("U2") != -1:  # 如果找到了 U2 字样
+    if ray != 1:  # 如果不是 U1
         lam1 = lam1 / 2
 
     n1, k1 = Cal_n(size_PerPixel,
                    is_air,
                    lam1, T, p="e")
 
-    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
+    k1_z, k1_xy = Cal_kz(Ix, Iy, k1)
 
     # %%
     # g1_shift = { g1_shift(k1_x, k1_y) } → 每个元素，乘以，频域 传递函数 e^{i*k1_z*z0} → G1_z0(k1_x, k1_y) = G1_z0
 
-    z1_0 = z0
-    i1_z0 = z1_0 / size_PerPixel
+    iz = z0 / size_PerPixel
 
-    H1_z0_shift = np.power(math.e, k1_z_shift * i1_z0 * 1j)
+    names = globals()
+    names["H" + ray + "_z"] = np.power(math.e, k1_z * iz * 1j)
 
     # %%
 
-    G1_z0_shift = g1_shift * H1_z0_shift
+    names["G" + ray + "_z"] = g1_shift * names["H" + ray + "_z"]
 
     # %%
     # G1_z0 = G1_z0(k1_x, k1_y) → IFFT2 → U1(x0, y0, z0) = U1_z0 ，毕竟 标量场 整体，是个 数组，就不写成 U1_x0_y0_z0 了
 
-    G1_z0 = np.fft.ifftshift(G1_z0_shift)
-    U1_z0 = np.fft.ifft2(G1_z0)
+    names["U" + ray + "_z"] = ifft2(names["G" + ray + "_z"])
 
     GHU_plot_save(U1_name, 0,  # 默认 全自动 is_auto = 1
-                  G1_z0_shift, "G1_z0", 'AST',
+                  names["G" + ray + "_z"], "G" + ray + "_z", 'AST',
                   0,
-                  H1_z0_shift, "H1_z0",
-                  U1_z0, "U1_z0",
+                  names["H" + ray + "_z"], "H" + ray + "_z",
+                  names["U" + ray + "_z"], "U" + ray + "_z",
                   0,
                   img_name_extension,
                   # %%
@@ -145,7 +147,7 @@ def AST(U1_name="",
                   # %%                          何况 一般默认 is_self_colorbar = 1...
                   z0, )
 
-    return U1_z0, G1_z0_shift
+    return names["U" + ray + "_z"], names["G" + ray + "_z"]
 
 
 if __name__ == '__main__':

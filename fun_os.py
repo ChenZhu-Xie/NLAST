@@ -20,7 +20,6 @@ from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 def GetDesktopPath():  # 修改过 桌面位置 后，就不准了
     return os.path.join(os.path.expanduser("~"), 'Desktop')
 
-
 # %%
 # 获取 桌面路径（注册表）
 
@@ -28,13 +27,11 @@ def get_desktop():  # 无论如何都准，因为读的是注册表
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
     return winreg.QueryValueEx(key, "Desktop")[0]
 
-
 # %%
 # 获取 当前 py 文件 所在路径 Current Directory
 
 def get_cd():
     return os.path.dirname(os.path.abspath(__file__))  # 其实不需要，默认就是在 相对路径下 读，只需要 文件名 即可
-
 
 # %%
 # 查找
@@ -43,19 +40,34 @@ def get_cd():
 def find_nums(text):
     return re.findall('(\d+)', text)
 
-
 # 查找 text 中的 非数字部分
 def find_NOT_nums(text):
     return re.findall('(\D+)', text)
 
-
-# %%
 # 查找 含 s 的 字符串 part，part 为在 text 中 被 separator（分隔符） 分隔 的 文字
 def find_part_has_s_in_text(text, s, separator):
     for i, part in enumerate(text.split(separator)):
         if s in part:  # 找到 第一个 part 之后，不加 含 z 的 part，就 跳出 for 循环
             return part
 
+def find_ray_sequence(U1_name):
+    if ' - ' in U1_name:
+        part_2 = U1_name.split(' - ')[1] # 取 由 AST - U1_ ... 分割的 第二部分：U1_ ...
+    else:
+        part_2 = U1_name # 应该不存在 没有 method 而有 sequence 的可能（只有 文件夹 才有这 可能）
+    part_1 = part_2.split('_')[0] # 再取 part_2 中的 第一部分 U1
+    ray = find_nums(part_1) # U1 中找到 1
+    return ray
+
+def set_ray(U1_name, set_ray, **kwargs):
+
+    if "U" not in kwargs:
+        ray_sequence = find_ray_sequence(U1_name)  # 从 U1_name 中找到 ray_sequence
+        ray = ray_sequence[0] + set_ray if len(ray_sequence) != 0 else set_ray
+    else:
+        ray = kwargs['ray'] + set_ray if "ray" in kwargs else set_ray # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
+
+    return ray
 
 # %%
 # 生成 part_1 （被 分隔符 分隔的 第一个） 字符串
@@ -76,7 +88,7 @@ def gan_part_1(U1_name, U_name, is_add_sequence,
 
         if len(args) == 2:  # 如果 还传入了 后缀 "_phase" 或 '_amp'
             suffix = args[1]
-            if suffix == '_amp' or '_energy':
+            if suffix == '_amp' or suffix == '_energy':
                 part_1_sequence += '1.'
             elif suffix == '_phase':
                 part_1_sequence += '2.'
@@ -94,10 +106,14 @@ def gan_part_1(U1_name, U_name, is_add_sequence,
 
     # 如果 U1_name 被 _ 分割出的 第一部分 不是空的 且 含有数字，则将其 数字部分 取出，作为 part_1 的 数字部分（传染性）
     U1_name_part_1_nums = find_nums(U1_name.split('_')[0])
-    if len(U1_name_part_1_nums) != 0:  # 如果 第一部分 含有数字
+    if len(U1_name_part_1_nums) != 0:  # 如果 U1_name 第一部分 含有数字
         part_1_num = U1_name_part_1_nums[0]
     else:
-        part_1_num = find_nums(U_name.split('_')[0])[0]  # 否则 用 U_name 第一部分 原本的 数字部分，作为 part_1 的 数字部分
+        U_name_part_1_nums = find_nums(U_name.split('_')[0])
+        if len(U_name_part_1_nums) != 0:  # 如果 U_name 第一部分 含有数字
+            part_1_num = U_name_part_1_nums[0]  # 否则 用 U_name 第一部分 原本的 数字部分，作为 part_1 的 数字部分
+        else:
+            part_1_num = ""
 
     part_1 = part_1_sequence + part_1_NOT_num + part_1_num
 
@@ -486,6 +502,27 @@ def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto =
                                               # %%
                                               z, )
 
+#%%
+
+# def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
+#                   G, G_name, method,
+#                   G_energy,
+#                   H, H_name,
+#                   U, U_name,
+#                   U_energy,
+#                   img_name_extension,
+#                   # %%
+#                   zj, sample, size_PerPixel,
+#                   is_save, is_save_txt, dpi, size_fig,
+#                   # %%
+#                   color_1d, cmap_2d,
+#                   ticks_num, is_contourf,
+#                   is_title_on, is_axes_on, is_mm,
+#                   fontsize, font,
+#                   # %%
+#                   is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+#                   # %%                          何况 一般默认 is_self_colorbar = 1...
+#                   z, ):
 
 # %%
 
@@ -1032,6 +1069,12 @@ def U_SSI_plot(U1_name, folder_address,
                z_f, z_e,
                zj, z_stored, z, ):
 
+    is_plot_3d_XYz = 0
+    is_plot_selective = 0
+    is_plot_3d_XYZ = ""
+
+    #%%
+
     if is_save == 1:
         folder_address = U_dir(U1_name, G_name + "_sheets_stored", 1,
                                0, z, )
@@ -1107,77 +1150,81 @@ def U_SSI_plot(U1_name, folder_address,
     # %%
     # 这 sheets_stored_num 层 也可以 画成 3D，就是太丑了，所以只 整个 U1_amp 示意一下即可
 
-    U_amp_plot_address = U_amp_plot_3d_XYz(U1_name, folder_address, 1,
-                                           U_stored, U_name + "_sheets_stored", method,
-                                           img_name_extension,
-                                           # %%
-                                           sample, size_PerPixel,
-                                           is_save, dpi, size_fig,
-                                           elev, azim, alpha,
-                                           # %%
-                                           cmap_3d, ticks_num,
-                                           is_title_on, is_axes_on, is_mm,
-                                           fontsize, font,
-                                           # %%
-                                           is_colorbar_on, is_energy,
-                                           # %%
-                                           zj, z_stored, )
+    if is_plot_3d_XYz == 1:
+
+        U_amp_plot_address = U_amp_plot_3d_XYz(U1_name, folder_address, 1,
+                                               U_stored, U_name + "_sheets_stored", method,
+                                               img_name_extension,
+                                               # %%
+                                               sample, size_PerPixel,
+                                               is_save, dpi, size_fig,
+                                               elev, azim, alpha,
+                                               # %%
+                                               cmap_3d, ticks_num,
+                                               is_title_on, is_axes_on, is_mm,
+                                               fontsize, font,
+                                               # %%
+                                               is_colorbar_on, is_energy,
+                                               # %%
+                                               zj, z_stored, )
 
     # %%
 
-    if is_save == 1:
-        folder_address = U_dir(U1_name, G_name + "_sheets_selective_stored", 1,
-                               0, z, )
+    if is_plot_selective == 1:
 
-    # ------------------------- 储存 G1_section_1_shift_amp、G1_section_1_shift_amp、G1_structure_frontface_shift_amp、G1_structure_endface_shift_amp
-    # ------------------------- 储存 G1_section_1_shift_phase、G1_section_1_shift_phase、G1_structure_frontface_shift_phase、G1_structure_endface_shift_phase
+        if is_save == 1:
+            folder_address = U_dir(U1_name, G_name + "_sheets_selective_stored", 1,
+                                   0, z, )
 
-    G_amps_max, G_amps_min, G_phases_max, G_phases_min = \
-        U_selects_plot(U1_name, folder_address, 1,
-                       G_1, G_name + "_sec1", method,
-                       G_2, G_name + "_sec2",
-                       G_f, G_name + "_front",
-                       G_e, G_name + "_end",
-                       img_name_extension,
-                       # %%
-                       sample, size_PerPixel,
-                       is_save, dpi, size_fig,
-                       # %%
-                       cmap_2d, ticks_num, is_contourf,
-                       is_title_on, is_axes_on, is_mm,
-                       fontsize, font,
-                       # %%
-                       is_colorbar_on, is_energy, is_show_structure_face,
-                       # %%
-                       z_1, z_2, z_f, z_e, )
+        # ------------------------- 储存 G1_section_1_shift_amp、G1_section_1_shift_amp、G1_structure_frontface_shift_amp、G1_structure_endface_shift_amp
+        # ------------------------- 储存 G1_section_1_shift_phase、G1_section_1_shift_phase、G1_structure_frontface_shift_phase、G1_structure_endface_shift_phase
 
-    # %%
+        G_amps_max, G_amps_min, G_phases_max, G_phases_min = \
+            U_selects_plot(U1_name, folder_address, 1,
+                           G_1, G_name + "_sec1", method,
+                           G_2, G_name + "_sec2",
+                           G_f, G_name + "_front",
+                           G_e, G_name + "_end",
+                           img_name_extension,
+                           # %%
+                           sample, size_PerPixel,
+                           is_save, dpi, size_fig,
+                           # %%
+                           cmap_2d, ticks_num, is_contourf,
+                           is_title_on, is_axes_on, is_mm,
+                           fontsize, font,
+                           # %%
+                           is_colorbar_on, is_energy, is_show_structure_face,
+                           # %%
+                           z_1, z_2, z_f, z_e, )
 
-    if is_save == 1:
-        folder_address = U_dir(U1_name, U_name + "_sheets_selective_stored", 1,
-                               0, z, )
+        # %%
 
-    # ------------------------- 储存 U1_section_1_amp、U1_section_1_amp、U1_structure_frontface_amp、U1_structure_endface_amp
-    # ------------------------- 储存 U1_section_1_phase、U1_section_1_phase、U1_structure_frontface_phase、U1_structure_endface_phase
+        if is_save == 1:
+            folder_address = U_dir(U1_name, U_name + "_sheets_selective_stored", 1,
+                                   0, z, )
 
-    U_amps_max, U_amps_min, U_phases_max, U_phases_min = \
-        U_selects_plot(U1_name, folder_address, 1,
-                       U_1, U_name + "_sec1", method,
-                       U_2, U_name + "_sec2",
-                       U_f, U_name + "_front",
-                       U_e, U_name + "_end",
-                       img_name_extension,
-                       # %%
-                       sample, size_PerPixel,
-                       is_save, dpi, size_fig,
-                       # %%
-                       cmap_2d, ticks_num, is_contourf,
-                       is_title_on, is_axes_on, is_mm,
-                       fontsize, font,
-                       # %%
-                       is_colorbar_on, is_energy, is_show_structure_face,
-                       # %%
-                       z_1, z_2, z_f, z_e, )
+        # ------------------------- 储存 U1_section_1_amp、U1_section_1_amp、U1_structure_frontface_amp、U1_structure_endface_amp
+        # ------------------------- 储存 U1_section_1_phase、U1_section_1_phase、U1_structure_frontface_phase、U1_structure_endface_phase
+
+        U_amps_max, U_amps_min, U_phases_max, U_phases_min = \
+            U_selects_plot(U1_name, folder_address, 1,
+                           U_1, U_name + "_sec1", method,
+                           U_2, U_name + "_sec2",
+                           U_f, U_name + "_front",
+                           U_e, U_name + "_end",
+                           img_name_extension,
+                           # %%
+                           sample, size_PerPixel,
+                           is_save, dpi, size_fig,
+                           # %%
+                           cmap_2d, ticks_num, is_contourf,
+                           is_title_on, is_axes_on, is_mm,
+                           fontsize, font,
+                           # %%
+                           is_colorbar_on, is_energy, is_show_structure_face,
+                           # %%
+                           z_1, z_2, z_f, z_e, )
 
     # %%
 
@@ -1208,34 +1255,9 @@ def U_SSI_plot(U1_name, folder_address,
     # %%
     # 绘制 G1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_amp（现在 可以 任选位置 了）
 
-    U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
-                                           G_name + "_XYZ", method,
-                                           G_YZ, G_XZ,
-                                           G_1, G_2,
-                                           G_f, G_e,
-                                           th_X, th_Y,
-                                           th_1, th_2,
-                                           th_f, th_e,
-                                           img_name_extension,
-                                           # %%
-                                           sample, size_PerPixel,
-                                           is_save, dpi, size_fig,
-                                           elev, azim, alpha,
-                                           # %%
-                                           cmap_3d, ticks_num,
-                                           is_title_on, is_axes_on, is_mm,
-                                           fontsize, font,
-                                           # %%
-                                           is_colorbar_on, is_energy, is_show_structure_face,
-                                           np.max([G_YZ_XZ_amp_max, G_amps_max]),
-                                           np.min([G_YZ_XZ_amp_min, G_amps_min]),
-                                           # %%
-                                           zj, z, )
+    if ("G" in is_plot_3d_XYZ and "a" in is_plot_3d_XYZ) or is_plot_3d_XYZ == "G" or is_plot_3d_XYZ == "a":
 
-    # %%
-    # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
-
-    U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
+        U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
                                                G_name + "_XYZ", method,
                                                G_YZ, G_XZ,
                                                G_1, G_2,
@@ -1253,11 +1275,40 @@ def U_SSI_plot(U1_name, folder_address,
                                                is_title_on, is_axes_on, is_mm,
                                                fontsize, font,
                                                # %%
-                                               is_colorbar_on, is_show_structure_face,
-                                               np.max([G_YZ_XZ_phase_max, G_phases_max]),
-                                               np.min([G_YZ_XZ_phase_min, G_phases_min]),
+                                               is_colorbar_on, is_energy, is_show_structure_face,
+                                               np.max([G_YZ_XZ_amp_max, G_amps_max]),
+                                               np.min([G_YZ_XZ_amp_min, G_amps_min]),
                                                # %%
                                                zj, z, )
+
+    # %%
+    # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
+
+    if ("G" in is_plot_3d_XYZ and "p" in is_plot_3d_XYZ) or is_plot_3d_XYZ == "G" or is_plot_3d_XYZ == "p":
+
+        U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
+                                                   G_name + "_XYZ", method,
+                                                   G_YZ, G_XZ,
+                                                   G_1, G_2,
+                                                   G_f, G_e,
+                                                   th_X, th_Y,
+                                                   th_1, th_2,
+                                                   th_f, th_e,
+                                                   img_name_extension,
+                                                   # %%
+                                                   sample, size_PerPixel,
+                                                   is_save, dpi, size_fig,
+                                                   elev, azim, alpha,
+                                                   # %%
+                                                   cmap_3d, ticks_num,
+                                                   is_title_on, is_axes_on, is_mm,
+                                                   fontsize, font,
+                                                   # %%
+                                                   is_colorbar_on, is_show_structure_face,
+                                                   np.max([G_YZ_XZ_phase_max, G_phases_max]),
+                                                   np.min([G_YZ_XZ_phase_min, G_phases_min]),
+                                                   # %%
+                                                   zj, z, )
 
     # %%
 
@@ -1288,34 +1339,9 @@ def U_SSI_plot(U1_name, folder_address,
     # %%
     # 绘制 U1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_amp
 
-    U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
-                                           U_name + "_XYZ", method,
-                                           U_YZ, U_XZ,
-                                           U_1, U_2,
-                                           U_f, U_e,
-                                           th_X, th_Y,
-                                           th_1, th_2,
-                                           th_f, th_e,
-                                           img_name_extension,
-                                           # %%
-                                           sample, size_PerPixel,
-                                           is_save, dpi, size_fig,
-                                           elev, azim, alpha,
-                                           # %%
-                                           cmap_3d, ticks_num,
-                                           is_title_on, is_axes_on, is_mm,
-                                           fontsize, font,
-                                           # %%
-                                           is_colorbar_on, is_energy, is_show_structure_face,
-                                           np.max([U_YZ_XZ_amp_max, U_amps_max]),
-                                           np.min([U_YZ_XZ_amp_min, U_amps_min]),
-                                           # %%
-                                           zj, z, )
+    if ("U" in is_plot_3d_XYZ and "a" in is_plot_3d_XYZ) or is_plot_3d_XYZ == "U" or is_plot_3d_XYZ == "a":
 
-    # %%
-    # 绘制 U1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_phase
-
-    U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
+        U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
                                                U_name + "_XYZ", method,
                                                U_YZ, U_XZ,
                                                U_1, U_2,
@@ -1333,11 +1359,40 @@ def U_SSI_plot(U1_name, folder_address,
                                                is_title_on, is_axes_on, is_mm,
                                                fontsize, font,
                                                # %%
-                                               is_colorbar_on, is_show_structure_face,
-                                               np.max([U_YZ_XZ_phase_max, U_phases_max]),
-                                               np.min([U_YZ_XZ_phase_min, U_phases_min]),
+                                               is_colorbar_on, is_energy, is_show_structure_face,
+                                               np.max([U_YZ_XZ_amp_max, U_amps_max]),
+                                               np.min([U_YZ_XZ_amp_min, U_amps_min]),
                                                # %%
                                                zj, z, )
+
+    # %%
+    # 绘制 U1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_phase
+
+    if ("U" in is_plot_3d_XYZ and "p" in is_plot_3d_XYZ) or is_plot_3d_XYZ == "U" or is_plot_3d_XYZ == "p":
+
+        U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
+                                                   U_name + "_XYZ", method,
+                                                   U_YZ, U_XZ,
+                                                   U_1, U_2,
+                                                   U_f, U_e,
+                                                   th_X, th_Y,
+                                                   th_1, th_2,
+                                                   th_f, th_e,
+                                                   img_name_extension,
+                                                   # %%
+                                                   sample, size_PerPixel,
+                                                   is_save, dpi, size_fig,
+                                                   elev, azim, alpha,
+                                                   # %%
+                                                   cmap_3d, ticks_num,
+                                                   is_title_on, is_axes_on, is_mm,
+                                                   fontsize, font,
+                                                   # %%
+                                                   is_colorbar_on, is_show_structure_face,
+                                                   np.max([U_YZ_XZ_phase_max, U_phases_max]),
+                                                   np.min([U_YZ_XZ_phase_min, U_phases_min]),
+                                                   # %%
+                                                   zj, z, )
 
 
 # %%
