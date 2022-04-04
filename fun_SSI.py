@@ -7,6 +7,7 @@ Created on Fri Feb 25 20:23:31 2022
 
 import numpy as np
 from fun_algorithm import find_nearest
+from fun_global_var import set, get
 
 # %%
 # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
@@ -176,11 +177,36 @@ def Cal_IxIy(I1_x, I1_y,
 
     return Ix, Iy, deff_structure_size
 
+# %%
+
+def slice_structure_SSI(deff_structure_sheet_expect, deff_structure_length_expect,
+               Tz, mz, size_PerPixel,
+               is_print):
+    # %%
+    # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
+
+    diz, deff_structure_sheet = Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel,
+                                        Tz, mz,
+                                        is_print)
+
+    # %%
+    # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
+
+    sheets_num, Iz, deff_structure_length = Cal_Iz_structure(diz,
+                                                             deff_structure_length_expect, size_PerPixel,
+                                                             is_print)
+
+    # %%
+
+    Tz_unit = (Tz / 1000) / size_PerPixel
+
+    return diz, deff_structure_sheet, sheets_num, \
+           Iz, deff_structure_length, Tz_unit
 
 # %%
 # 等间距切片
 
-def normal_SSI(L0_Crystal, deff_structure_sheet_expect,
+def slice_SSI(L0_Crystal, deff_structure_sheet_expect,
                z0_structure_frontface_expect, deff_structure_length_expect,
                z0_section_1_expect, z0_section_2_expect,
                Tz, mz, size_PerPixel,
@@ -264,6 +290,15 @@ def normal_SSI(L0_Crystal, deff_structure_sheet_expect,
                                                                     Iz, diz,
                                                                     z0_section_2_expect, size_PerPixel,
                                                                     is_print)
+
+    #%%
+
+    set("izj", izj)
+    set("zj", zj)
+    set("sheet_th_frontface", sheet_th_frontface)
+    set("sheet_th_endface", sheet_th_endface)
+    set("sheet_th_sec1", sheet_th_section_1)
+    set("sheet_th_sec2", sheet_th_section_2)
 
     return diz, deff_structure_sheet, \
            sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \

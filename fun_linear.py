@@ -96,6 +96,7 @@ def ifft2(G_shift): # 返回 Uz
     return np.fft.ifft2(np.fft.ifftshift(G_shift))
 
 #%%
+
 def Uz_AST(U, k, iz):
     kz_shift, mesh_kx_ky_shift = Cal_kz(U.shape[0], U.shape[1], k)
     H = math.e ** (kz_shift * iz * 1j)
@@ -103,6 +104,33 @@ def Uz_AST(U, k, iz):
     Uz = ifft2(g_shift * H)
     return Uz
 
+#%%
+
+def init_AST(Ix, Iy, size_PerPixel,
+             lam1, is_air, T, ):
+
+    n1, k1 = Cal_n(size_PerPixel,
+                   is_air,
+                   lam1, T, p="e")
+
+    k1_z, k1_xy = Cal_kz(Ix, Iy, k1)
+
+    return n1, k1, k1_z, k1_xy
+
+#%%
+
+def init_SHG(Ix, Iy, size_PerPixel,
+             lam1, is_air, T, ):
+
+    lam2 = lam1 / 2
+
+    n2, k2 = Cal_n(size_PerPixel,
+                   is_air,
+                   lam2, T, p="e")
+
+    k2_z, k2_xy = Cal_kz(Ix, Iy, k2)
+
+    return lam2, n2, k2, k2_z, k2_xy
 
 # %%
 def Find_energy_Dropto_fraction(U, energy_fraction, relative_error):  # 类似 牛顿迭代法 的 思想
@@ -150,3 +178,4 @@ def Find_energy_Dropto_fraction(U, energy_fraction, relative_error):  # 类似 �
             U_slice_total_energy_record = U_slice_total_energy
         else:
             return ix, iy, scale, U_slice_total_energy / U_total_energy
+

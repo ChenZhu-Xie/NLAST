@@ -370,11 +370,11 @@ def pump(file_full_name="Grating.png",
     folder_address = ''
 
     if is_save == 1:
-        folder_address = U_dir("", "3. g" + ray, 0,
+        folder_address = U_dir("", "3. G" + ray, 0,
                                0, z, )
 
     U_amp_plot_address, U_phase_plot_address = U_plot("", folder_address, 1,
-                                                      G_z0_shift, "g" + ray, "AST",
+                                                      G_z0_shift, "G" + ray, "AST",
                                                       img_name_extension,
                                                       # %%
                                                       1, size_PerPixel,
@@ -388,7 +388,7 @@ def pump(file_full_name="Grating.png",
 
     if is_save == 1:
         U_address = U_save("", folder_address, 1,
-                           G_z0_shift, "g" + ray, "AST",
+                           G_z0_shift, "G" + ray, "AST",
                            is_save_txt, z, )
 
     # %%
@@ -462,10 +462,9 @@ def pump_pic_or_U(U_name="",
 
         img_name, img_name_extension, img_squared, \
         size_PerPixel, size_fig, Ix, Iy, U = \
-            img_squared_bordered_Read(
-                img_full_name,
-                U_NonZero_size, dpi,
-                is_phase_only)
+            img_squared_bordered_Read(img_full_name,
+                                      U_NonZero_size, dpi,
+                                      is_phase_only)
 
         if "U" in kwargs:
             U = kwargs["U"]

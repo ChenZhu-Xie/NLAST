@@ -10,15 +10,18 @@ import re
 import cv2
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 from scipy.io import loadmat, savemat
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
-
+from fun_gif_video import imgs2gif_imgio, imgs2gif_PIL
+import matplotlib.animation as animation
 
 # %%
 # 获取 桌面路径（C 盘 原生）
 
 def GetDesktopPath():  # 修改过 桌面位置 后，就不准了
     return os.path.join(os.path.expanduser("~"), 'Desktop')
+
 
 # %%
 # 获取 桌面路径（注册表）
@@ -27,11 +30,13 @@ def get_desktop():  # 无论如何都准，因为读的是注册表
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
     return winreg.QueryValueEx(key, "Desktop")[0]
 
+
 # %%
 # 获取 当前 py 文件 所在路径 Current Directory
 
 def get_cd():
     return os.path.dirname(os.path.abspath(__file__))  # 其实不需要，默认就是在 相对路径下 读，只需要 文件名 即可
+
 
 # %%
 # 查找
@@ -40,9 +45,11 @@ def get_cd():
 def find_nums(text):
     return re.findall('(\d+)', text)
 
+
 # 查找 text 中的 非数字部分
 def find_NOT_nums(text):
     return re.findall('(\D+)', text)
+
 
 # 查找 含 s 的 字符串 part，part 为在 text 中 被 separator（分隔符） 分隔 的 文字
 def find_part_has_s_in_text(text, s, separator):
@@ -50,24 +57,26 @@ def find_part_has_s_in_text(text, s, separator):
         if s in part:  # 找到 第一个 part 之后，不加 含 z 的 part，就 跳出 for 循环
             return part
 
+
 def find_ray_sequence(U1_name):
     if ' - ' in U1_name:
-        part_2 = U1_name.split(' - ')[1] # 取 由 AST - U1_ ... 分割的 第二部分：U1_ ...
+        part_2 = U1_name.split(' - ')[1]  # 取 由 AST - U1_ ... 分割的 第二部分：U1_ ...
     else:
-        part_2 = U1_name # 应该不存在 没有 method 而有 sequence 的可能（只有 文件夹 才有这 可能）
-    part_1 = part_2.split('_')[0] # 再取 part_2 中的 第一部分 U1
-    ray = find_nums(part_1) # U1 中找到 1
+        part_2 = U1_name  # 应该不存在 没有 method 而有 sequence 的可能（只有 文件夹 才有这 可能）
+    part_1 = part_2.split('_')[0]  # 再取 part_2 中的 第一部分 U1
+    ray = find_nums(part_1)  # U1 中找到 1
     return ray
 
-def set_ray(U1_name, set_ray, **kwargs):
 
+def set_ray(U1_name, set_ray, **kwargs):
     if "U" not in kwargs:
         ray_sequence = find_ray_sequence(U1_name)  # 从 U1_name 中找到 ray_sequence
         ray = ray_sequence[0] + set_ray if len(ray_sequence) != 0 else set_ray
     else:
-        ray = kwargs['ray'] + set_ray if "ray" in kwargs else set_ray # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
+        ray = kwargs['ray'] + set_ray if "ray" in kwargs else set_ray  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
 
     return ray
+
 
 # %%
 # 生成 part_1 （被 分隔符 分隔的 第一个） 字符串
@@ -104,16 +113,13 @@ def gan_part_1(U1_name, U_name, is_add_sequence,
     if len(args) >= 1:  # 如果 传入了 method（第一个 总是 method，因为 有后缀 "phase" or "amp" 则必然 先有 method，不可能 只有 phase or amp 而没有 method）
         part_1_sequence += args[0] + ' - '
 
-    # 如果 U1_name 被 _ 分割出的 第一部分 不是空的 且 含有数字，则将其 数字部分 取出，作为 part_1 的 数字部分（传染性）
-    U1_name_part_1_nums = find_nums(U1_name.split('_')[0])
-    if len(U1_name_part_1_nums) != 0:  # 如果 U1_name 第一部分 含有数字
-        part_1_num = U1_name_part_1_nums[0]
-    else:
-        U_name_part_1_nums = find_nums(U_name.split('_')[0])
-        if len(U_name_part_1_nums) != 0:  # 如果 U_name 第一部分 含有数字
-            part_1_num = U_name_part_1_nums[0]  # 否则 用 U_name 第一部分 原本的 数字部分，作为 part_1 的 数字部分
-        else:
-            part_1_num = ""
+    ray_sequence = find_ray_sequence(U1_name)  # 从 U1_name 中找到 ray_sequence
+    # 如果 U1_name 被 _ 分割出的 第一部分 不是空的 且 含有数字，则将其 数字部分 取出，暂作为 part_1 的 数字部分（传染性）
+    part_1_num = ray_sequence[0] if len(ray_sequence) != 0 else ""
+
+    U_name_part_1_nums = find_nums(U_name.split('_')[0])
+    # 如果 U_name 第一部分 含有数字，则 在 part_1 后面 追加 U_name 第一部分 原本的 数字部分
+    part_1_num += U_name_part_1_nums[0] if len(U_name_part_1_nums) != 0 else ""
 
     part_1 = part_1_sequence + part_1_NOT_num + part_1_num
 
@@ -147,8 +153,8 @@ def gan_part_1z(U1_name, U_name, is_add_sequence,
         if (U_name.find('z') != -1 or U_name.find('Z') != -1) and len(args) != 0 and args[0] != ():
             # 如果 找到 z 或 Z，且 传了 额外的 参数 进来，这个参数 解包后的 第一个参数 不是 空 tuple ()
             z = args[0]
-            U_new_name = U_new_name.replace(part_z, str(float(
-                '%.2g' % z)) + "mm")  # 把 原来含 z 的 part_z 替换为 str(float('%.2g' % z)) + "mm"
+            U_new_name = U_new_name.replace(part_z, str(float('%.2g' % z)) + "mm")
+            # 把 原来含 z 的 part_z 替换为 str(float('%.2g' % z)) + "mm"
     return U_new_name, part_1_NOT_num
 
 
@@ -250,22 +256,22 @@ def U_amp_plot(U1_name, folder_address, is_auto,
                is_self_colorbar, is_colorbar_on,
                is_energy, vmax, vmin,
                # %%
-               *args, ):  # args 是 z 或 ()
+               *args, **kwargs, ):  # args 是 z 或 ()
 
     U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U1_name, U_name, is_auto,
                                                                    method, folder_address, img_name_extension,
                                                                    *args, )
     # %%
-    plot_2d(zj, sample, size_PerPixel,
-            np.abs(U), U_amp_plot_address, U_amp_title,
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf,
-            is_title_on, is_axes_on, is_mm, is_propagation,
-            fontsize, font,
-            is_self_colorbar, is_colorbar_on,
-            is_energy, vmax, vmin, )
+    fig, axes = plot_2d(zj, sample, size_PerPixel,
+                    np.abs(U), U_amp_plot_address, U_amp_title,
+                    is_save, dpi, size_fig,
+                    cmap_2d, ticks_num, is_contourf,
+                    is_title_on, is_axes_on, is_mm, is_propagation,
+                    fontsize, font,
+                    is_self_colorbar, is_colorbar_on,
+                    is_energy, vmax, vmin, **kwargs, )
 
-    return U_amp_plot_address
+    return U_amp_plot_address, fig, axes
 
 
 # %%
@@ -284,22 +290,22 @@ def U_phase_plot(U1_name, folder_address, is_auto,
                  is_self_colorbar, is_colorbar_on,
                  vmax, vmin,
                  # %%
-                 *args, ):  # args 是 z 或 ()
+                 *args, **kwargs, ):  # args 是 z 或 ()
 
     U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U1_name, U_name, is_auto,
                                                                          method, folder_address, img_name_extension,
                                                                          *args, )
     # %%
-    plot_2d(zj, sample, size_PerPixel,
-            np.angle(U), U_phase_plot_address, U_phase_title,
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf,
-            is_title_on, is_axes_on, is_mm, is_propagation,
-            fontsize, font,
-            is_self_colorbar, is_colorbar_on,
-            0, vmax, vmin, )  # 相位 不能有 is_energy = 1
+    fig, axes = plot_2d(zj, sample, size_PerPixel,
+                    np.angle(U), U_phase_plot_address, U_phase_title,
+                    is_save, dpi, size_fig,
+                    cmap_2d, ticks_num, is_contourf,
+                    is_title_on, is_axes_on, is_mm, is_propagation,
+                    fontsize, font,
+                    is_self_colorbar, is_colorbar_on,
+                    0, vmax, vmin, **kwargs, )  # 相位 不能有 is_energy = 1
 
-    return U_phase_plot_address
+    return U_phase_plot_address, fig, axes
 
 
 # %%
@@ -502,27 +508,6 @@ def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto =
                                               # %%
                                               z, )
 
-#%%
-
-# def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
-#                   G, G_name, method,
-#                   G_energy,
-#                   H, H_name,
-#                   U, U_name,
-#                   U_energy,
-#                   img_name_extension,
-#                   # %%
-#                   zj, sample, size_PerPixel,
-#                   is_save, is_save_txt, dpi, size_fig,
-#                   # %%
-#                   color_1d, cmap_2d,
-#                   ticks_num, is_contourf,
-#                   is_title_on, is_axes_on, is_mm,
-#                   fontsize, font,
-#                   # %%
-#                   is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-#                   # %%                          何况 一般默认 is_self_colorbar = 1...
-#                   z, ):
 
 # %%
 
@@ -808,27 +793,33 @@ def U_amps_z_plot(U1_name, folder_address, is_auto,
                   # %%
                   is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                   # %%
-                  z_stored, ):  # 必须要传 z 序列 参数 进来
+                  z_stored, **kwargs, ):  # 必须要传 z 序列 参数 进来
 
     U_amp_max = np.max(np.abs(U))
     U_amp_min = np.min(np.abs(U))
 
+    imgs_address_list = []
+    axes_list = []
     for sheet_stored_th in range(U.shape[2]):  # 就不返回 address 了，大的 def 也不返回
-        U_amp_plot(U1_name, folder_address, is_auto,  # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                   U[:, :, sheet_stored_th], U_name, method,
-                   img_name_extension,
-                   # %%
-                   [], sample, size_PerPixel,
-                   is_save, dpi, size_fig,
-                   # %%
-                   cmap_2d, ticks_num, is_contourf,
-                   is_title_on, is_axes_on, is_mm, 0,
-                   fontsize, font,
-                   # %%
-                   0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
-                   is_energy, U_amp_max, U_amp_min,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
-                   # %%
-                   z_stored[sheet_stored_th], )
+        U_amp_plot_address, fig, axes = U_amp_plot(U1_name, folder_address, is_auto,  # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                                        U[:, :, sheet_stored_th], U_name, method,
+                                        img_name_extension,
+                                        # %%
+                                        [], sample, size_PerPixel,
+                                        is_save, dpi, size_fig,
+                                        # %%
+                                        cmap_2d, ticks_num, is_contourf,
+                                        is_title_on, is_axes_on, is_mm, 0,
+                                        fontsize, font,
+                                        # %%
+                                        0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
+                                        is_energy, U_amp_max, U_amp_min,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                                        # %%
+                                        z_stored[sheet_stored_th], **kwargs, )
+        imgs_address_list.append(U_amp_plot_address)
+        axes_list.append([axes]) # 每张图片都用单独list的形式加入到图片序列中
+
+    return imgs_address_list, fig, axes_list
 
 
 # %%
@@ -846,27 +837,34 @@ def U_phases_z_plot(U1_name, folder_address, is_auto,
                     # %%
                     is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                     # %%
-                    z_stored, ):  # 必须要传 z 序列 参数 进来
+                    z_stored, **kwargs, ):  # 必须要传 z 序列 参数 进来
 
     U_phase_max = np.max(np.angle(U))
     U_phase_min = np.min(np.angle(U))
 
+    imgs_address_list = []
+    axes_list = []
     for sheet_stored_th in range(U.shape[2]):  # 就不返回 address 了，大的 def 也不返回
-        U_phase_plot(U1_name, folder_address, is_auto,
-                     U[:, :, sheet_stored_th], U_name, method,
-                     img_name_extension,
-                     # %%
-                     [], sample, size_PerPixel,
-                     is_save, dpi, size_fig,
-                     # %%
-                     cmap_2d, ticks_num, is_contourf,
-                     is_title_on, is_axes_on, is_mm, 0,
-                     fontsize, font,
-                     # %%
-                     0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
-                     U_phase_max, U_phase_min,
-                     # %%
-                     z_stored[sheet_stored_th], )
+        U_phase_plot_address, fig, axes = U_phase_plot(U1_name, folder_address, is_auto,
+                                                U[:, :, sheet_stored_th], U_name, method,
+                                                img_name_extension,
+                                                # %%
+                                                [], sample, size_PerPixel,
+                                                is_save, dpi, size_fig,
+                                                # %%
+                                                cmap_2d, ticks_num, is_contourf,
+                                                is_title_on, is_axes_on, is_mm, 0,
+                                                fontsize, font,
+                                                # %%
+                                                0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
+                                                U_phase_max, U_phase_min,
+                                                # %%
+                                                z_stored[sheet_stored_th], **kwargs, )
+
+        imgs_address_list.append(U_phase_plot_address)
+        axes_list.append([axes]) # 每张图片都用单独list的形式加入到图片序列中
+
+    return imgs_address_list, fig, axes_list
 
 
 # %%
@@ -1068,92 +1066,154 @@ def U_SSI_plot(U1_name, folder_address,
                z_1, z_2,
                z_f, z_e,
                zj, z_stored, z, ):
-
     is_plot_3d_XYz = 0
     is_plot_selective = 0
     is_plot_3d_XYZ = ""
 
-    #%%
+    is_PIL = 3
+    loop = 0
+    duration = 0.033 # 单位为 s
+    fps = 10
+    if fps: duration = 1/fps # 如果传入了 fps，则可 over write duration
+    repeat_delay = 0 # 延迟多少秒后 再开始下一个循环
+
+    # %%
 
     if is_save == 1:
-        folder_address = U_dir(U1_name, G_name + "_sheets_stored", 1,
+        folder_address = U_dir(U1_name, G_name + "_sheets", 1,
                                0, z, )
 
     # -------------------------
 
-    U_amps_z_plot(U1_name, folder_address, 1,
-                  G_stored, G_name, method,
-                  img_name_extension,
-                  # %%
-                  sample, size_PerPixel,
-                  is_save, dpi, size_fig,
-                  # %%
-                  cmap_2d, ticks_num, is_contourf,
-                  is_title_on, is_axes_on, is_mm,
-                  fontsize, font,
-                  # %%
-                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                  z_stored, )
+    imgs_address_list, fig, axes_list = U_amps_z_plot(U1_name, folder_address, 1,
+                                      G_stored, G_name, method,
+                                      img_name_extension,
+                                      # %%
+                                      sample, size_PerPixel,
+                                      is_save, dpi, size_fig,
+                                      # %%
+                                      cmap_2d, ticks_num, is_contourf,
+                                      is_title_on, is_axes_on, is_mm,
+                                      fontsize, font,
+                                      # %%
+                                      is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                      # %%                          何况 一般默认 is_self_colorbar = 1...
+                                      z_stored, animated = True, )
 
-    U_phases_z_plot(U1_name, folder_address, 1,
-                    G_stored, G_name, method,
-                    img_name_extension,
-                    # %%
-                    sample, size_PerPixel,
-                    is_save, dpi, size_fig,
-                    # %%
-                    cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm,
-                    fontsize, font,
-                    # %%
-                    is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
-                    # %%
-                    z_stored, )
+    gif_address = imgs_address_list[-1].replace(img_name_extension, ".gif")
+    if is_PIL == 0:
+        imgs2gif_imgio(imgs_address_list, gif_address,
+                       duration, fps, loop, )
+    elif is_PIL == 1:
+        imgs2gif_PIL(imgs_address_list, gif_address,
+                     duration, fps, loop, )
+    else:
+        # fig, axes = plt.subplots(1, 1, figsize=(size_fig, size_fig), dpi=dpi)
+        # fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        ani = animation.ArtistAnimation(fig, axes_list, interval=duration*1000, blit=True,
+                                        repeat_delay=repeat_delay*1000)
+        ani.save(gif_address)
+
+
+    imgs_address_list, fig, axes_list = U_phases_z_plot(U1_name, folder_address, 1,
+                                        G_stored, G_name, method,
+                                        img_name_extension,
+                                        # %%
+                                        sample, size_PerPixel,
+                                        is_save, dpi, size_fig,
+                                        # %%
+                                        cmap_2d, ticks_num, is_contourf,
+                                        is_title_on, is_axes_on, is_mm,
+                                        fontsize, font,
+                                        # %%
+                                        is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                                        # %%
+                                        z_stored, animated = True, )
+
+    gif_address = imgs_address_list[-1].replace(img_name_extension, ".gif")
+    if is_PIL == 0:
+        imgs2gif_imgio(imgs_address_list, gif_address,
+                       duration, fps, loop, )
+    elif is_PIL == 1:
+        imgs2gif_PIL(imgs_address_list, gif_address,
+                     duration, fps, loop, )
+    else:
+        # fig, axes = plt.subplots(1, 1, figsize=(size_fig, size_fig), dpi=dpi)
+        # fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        ani = animation.ArtistAnimation(fig, axes_list, interval=duration * 1000, blit=True,
+                                        repeat_delay=repeat_delay * 1000)
+        ani.save(gif_address)
 
     # -------------------------
 
     if is_save == 1:
-        folder_address = U_dir(U1_name, U_name + "_sheets_stored", 1,
+        folder_address = U_dir(U1_name, U_name + "_sheets", 1,
                                0, z, )
 
-    U_amps_z_plot(U1_name, folder_address, 1,
-                  U_stored, U_name, method,
-                  img_name_extension,
-                  # %%
-                  sample, size_PerPixel,
-                  is_save, dpi, size_fig,
-                  # %%
-                  cmap_2d, ticks_num, is_contourf,
-                  is_title_on, is_axes_on, is_mm,
-                  fontsize, font,
-                  # %%
-                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                  z_stored, )
+    imgs_address_list, fig, axes_list = U_amps_z_plot(U1_name, folder_address, 1,
+                                      U_stored, U_name, method,
+                                      img_name_extension,
+                                      # %%
+                                      sample, size_PerPixel,
+                                      is_save, dpi, size_fig,
+                                      # %%
+                                      cmap_2d, ticks_num, is_contourf,
+                                      is_title_on, is_axes_on, is_mm,
+                                      fontsize, font,
+                                      # %%
+                                      is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                      # %%                          何况 一般默认 is_self_colorbar = 1...
+                                      z_stored, animated = True, )
 
-    U_phases_z_plot(U1_name, folder_address, 1,
-                    U_stored, U_name, method,
-                    img_name_extension,
-                    # %%
-                    sample, size_PerPixel,
-                    is_save, dpi, size_fig,
-                    # %%
-                    cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm,
-                    fontsize, font,
-                    # %%
-                    is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
-                    # %%
-                    z_stored, )
+    gif_address = imgs_address_list[-1].replace(img_name_extension, ".gif")
+    if is_PIL == 0:
+        imgs2gif_imgio(imgs_address_list, gif_address,
+                       duration, fps, loop, )
+    elif is_PIL == 1:
+        imgs2gif_PIL(imgs_address_list, gif_address,
+                     duration, fps, loop, )
+    else:
+        # fig, axes = plt.subplots(1, 1, figsize=(size_fig, size_fig), dpi=dpi)
+        # fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        ani = animation.ArtistAnimation(fig, axes_list, interval=duration * 1000, blit=True,
+                                        repeat_delay=repeat_delay * 1000)
+        ani.save(gif_address)
+
+    imgs_address_list, fig, axes_list = U_phases_z_plot(U1_name, folder_address, 1,
+                                        U_stored, U_name, method,
+                                        img_name_extension,
+                                        # %%
+                                        sample, size_PerPixel,
+                                        is_save, dpi, size_fig,
+                                        # %%
+                                        cmap_2d, ticks_num, is_contourf,
+                                        is_title_on, is_axes_on, is_mm,
+                                        fontsize, font,
+                                        # %%
+                                        is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                                        # %%
+                                        z_stored, animated = True, )
+
+    gif_address = imgs_address_list[-1].replace(img_name_extension, ".gif")
+    if is_PIL == 0:
+        imgs2gif_imgio(imgs_address_list, gif_address,
+                       duration, fps, loop, )
+    elif is_PIL == 1:
+        imgs2gif_PIL(imgs_address_list, gif_address,
+                     duration, fps, loop, )
+    else:
+        # fig, axes = plt.subplots(1, 1, figsize=(size_fig, size_fig), dpi=dpi)
+        # fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+        ani = animation.ArtistAnimation(fig, axes_list, interval=duration * 1000, blit=True, repeat=(loop == 1),
+                                        repeat_delay=repeat_delay * 1000)
+        ani.save(gif_address)
 
     # %%
     # 这 sheets_stored_num 层 也可以 画成 3D，就是太丑了，所以只 整个 U1_amp 示意一下即可
 
     if is_plot_3d_XYz == 1:
-
         U_amp_plot_address = U_amp_plot_3d_XYz(U1_name, folder_address, 1,
-                                               U_stored, U_name + "_sheets_stored", method,
+                                               U_stored, U_name + "_sheets", method,
                                                img_name_extension,
                                                # %%
                                                sample, size_PerPixel,
@@ -1173,7 +1233,7 @@ def U_SSI_plot(U1_name, folder_address,
     if is_plot_selective == 1:
 
         if is_save == 1:
-            folder_address = U_dir(U1_name, G_name + "_sheets_selective_stored", 1,
+            folder_address = U_dir(U1_name, G_name + "_sheets_selective", 1,
                                    0, z, )
 
         # ------------------------- 储存 G1_section_1_shift_amp、G1_section_1_shift_amp、G1_structure_frontface_shift_amp、G1_structure_endface_shift_amp
@@ -1201,7 +1261,7 @@ def U_SSI_plot(U1_name, folder_address,
         # %%
 
         if is_save == 1:
-            folder_address = U_dir(U1_name, U_name + "_sheets_selective_stored", 1,
+            folder_address = U_dir(U1_name, U_name + "_sheets_selective", 1,
                                    0, z, )
 
         # ------------------------- 储存 U1_section_1_amp、U1_section_1_amp、U1_structure_frontface_amp、U1_structure_endface_amp
@@ -1229,7 +1289,7 @@ def U_SSI_plot(U1_name, folder_address,
     # %%
 
     if is_save == 1:
-        folder_address = U_dir(U1_name, G_name + "_YZ_XZ_stored", 1,
+        folder_address = U_dir(U1_name, G_name + "_YZ_XZ", 1,
                                0, z, )
 
     # ========================= G1_shift_YZ_stored_amp、G1_shift_XZ_stored_amp
@@ -1256,7 +1316,6 @@ def U_SSI_plot(U1_name, folder_address,
     # 绘制 G1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_amp（现在 可以 任选位置 了）
 
     if ("G" in is_plot_3d_XYZ and "a" in is_plot_3d_XYZ) or is_plot_3d_XYZ == "G" or is_plot_3d_XYZ == "a":
-
         U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
                                                G_name + "_XYZ", method,
                                                G_YZ, G_XZ,
@@ -1285,7 +1344,6 @@ def U_SSI_plot(U1_name, folder_address,
     # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
 
     if ("G" in is_plot_3d_XYZ and "p" in is_plot_3d_XYZ) or is_plot_3d_XYZ == "G" or is_plot_3d_XYZ == "p":
-
         U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
                                                    G_name + "_XYZ", method,
                                                    G_YZ, G_XZ,
@@ -1313,7 +1371,7 @@ def U_SSI_plot(U1_name, folder_address,
     # %%
 
     if is_save == 1:
-        folder_address = U_dir(U1_name, U_name + "_YZ_XZ_stored", 1,
+        folder_address = U_dir(U1_name, U_name + "_YZ_XZ", 1,
                                0, z, )
 
     # ========================= U1_YZ_stored_amp、U1_XZ_stored_amp
@@ -1340,7 +1398,6 @@ def U_SSI_plot(U1_name, folder_address,
     # 绘制 U1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_amp
 
     if ("U" in is_plot_3d_XYZ and "a" in is_plot_3d_XYZ) or is_plot_3d_XYZ == "U" or is_plot_3d_XYZ == "a":
-
         U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
                                                U_name + "_XYZ", method,
                                                U_YZ, U_XZ,
@@ -1369,7 +1426,6 @@ def U_SSI_plot(U1_name, folder_address,
     # 绘制 U1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_phase
 
     if ("U" in is_plot_3d_XYZ and "p" in is_plot_3d_XYZ) or is_plot_3d_XYZ == "U" or is_plot_3d_XYZ == "p":
-
         U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
                                                    U_name + "_XYZ", method,
                                                    U_YZ, U_XZ,
@@ -1408,7 +1464,6 @@ def U_save(U1_name, folder_address, is_auto,
     np.savetxt(U_address, U) if is_save_txt else savemat(U_address, {part_1_NOT_num: U})
 
     return U_address
-
 
 # %%
 

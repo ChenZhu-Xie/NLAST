@@ -102,8 +102,19 @@ def image_Add_black_border(img_full_name = "Grating.png",
     
     img_squared_bordered = cv2.imdecode(np.fromfile(img_squared_bordered_address, dtype=np.uint8), 0) # 按 相对路径 + 灰度图 读取图片
     is_print and print("U.shape = img_squared_bordered.shape = {}".format(img_squared_bordered.shape))
-    
-# Image_Add_Black_border(border_percentage = 0.5)
+
+#%%
+
+def if_image_Add_black_border(U1_name, img_full_name,
+                              is_name_main, is_print, **kwargs, ):
+
+    if (type(U1_name) != str) or U1_name == "" and "U" not in kwargs:
+        if is_name_main:
+            border_percentage = kwargs["border_percentage"] if "border_percentage" in kwargs else 0.1
+
+            image_Add_black_border(img_full_name,  # 预处理 导入图片 为方形，并加边框
+                                   border_percentage,
+                                   is_print, )
 
 #%%
 # 需要先将 目标 U1_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix, Iy 相同，才能开始 之后的工作

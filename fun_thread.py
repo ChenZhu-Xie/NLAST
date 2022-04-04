@@ -12,7 +12,7 @@ from fun_built_in import var_or_tuple_to_list
 #%%
 # 一个接受 任何参数，并且啥也不做的 参数黑洞，垃圾桶（有点 linux bash 中的 那某命令 的 感觉：吞掉所有输出）
 
-def noop(*args, **kw): pass
+def noop(*args, **kwargs): pass
 
 #%%
 # 多线程
@@ -20,7 +20,8 @@ def noop(*args, **kw): pass
 def my_thread(threads_num, fors_num, 
               fun_1, fun_2, fun_3, 
               *args, 
-              is_ordered = 1, is_print = 1, ):
+              is_ordered = 1, is_print = 1,
+              **kwargs, ):
     
     global thread_th, for_th # 好怪，作为 被封装 和 被引用的 函数，还得在 这一层 声明 全局变量，光是在 内层 子线程 里声明 的话，没用。
     thread_th = 0
@@ -84,7 +85,8 @@ def my_thread(threads_num, fors_num,
             使得方括号内 没有更多的方括号或圆括号，并且最外层的方括号不消失，
             这样无论如何都可以解包，且只需要解一次包，就直达内层
             '''
-            List = var_or_tuple_to_list(fun_1(self.for_th, fors_num)) # 把 函数1 的 运行结果 强制转换 为 1 个 list
+            List = var_or_tuple_to_list(fun_1(self.for_th, fors_num,
+                                              **kwargs, )) # 把 函数1 的 运行结果 强制转换 为 1 个 list
             self.list.append(List) # 把这个 list 放入 外层 list 中
             # print(List)
             """----- your code end 1 -----"""
@@ -104,7 +106,8 @@ def my_thread(threads_num, fors_num,
                         # self.list.append([fun_2(self.for_th, fors_num, *self.list[0])])
                         # self.list.append((fun_2(self.for_th, fors_num, *self.list[0]))) # 双层 tuple 等价于 单层 tuple，所以这里有一层 tuple 不用加；
                         # print(self.list[0])
-                        List = var_or_tuple_to_list(fun_2(self.for_th, fors_num, *self.list[0])) # 取 外层 list 储存的 第 1 个 list，并对其 解包后，作为参数 传入 函数2
+                        List = var_or_tuple_to_list(fun_2(self.for_th, fors_num, *self.list[0],
+                                                          **kwargs, )) # 取 外层 list 储存的 第 1 个 list，并对其 解包后，作为参数 传入 函数2
                         self.list.append(List)
                         """----- your code end 2 -----"""
                         for_th += 1
@@ -122,7 +125,8 @@ def my_thread(threads_num, fors_num,
                 # self.list.extend([fun_2(self.for_th, fors_num, *self.list[0])])
                 # self.list.append([fun_2(self.for_th, fors_num, *self.list[0])])
                 # self.list.append((fun_2(self.for_th, fors_num, *self.list[0]))) # 当全是 多变量 输出，即全是 tuple 输出时，是可以正确算的
-                List = var_or_tuple_to_list(fun_2(self.for_th, fors_num, *self.list[0]))
+                List = var_or_tuple_to_list(fun_2(self.for_th, fors_num, *self.list[0],
+                                                  **kwargs, ))
                 self.list.append(List)
                 """----- your code end 2 -----"""
                 for_th += 1
@@ -138,7 +142,8 @@ def my_thread(threads_num, fors_num,
             # self.list.extend([fun_3(self.for_th, fors_num, *self.list[1])])
             # self.list.append([fun_3(self.for_th, fors_num, *self.list[1])])
             # self.list.append((fun_3(self.for_th, fors_num, *self.list[1]))) # 当全是 多变量 输出，即全是 tuple 输出时，是可以正确算的
-            List = var_or_tuple_to_list(fun_3(self.for_th, fors_num, *self.list[1]))
+            List = var_or_tuple_to_list(fun_3(self.for_th, fors_num, *self.list[1],
+                                              **kwargs, ))
             self.list.append(List)
             """----- your code end 3 -----"""
 

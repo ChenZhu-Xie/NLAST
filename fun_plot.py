@@ -144,7 +144,8 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
                   'color': 'black',  # 'black','gray','darkred'
                   },
             # %%
-            is_self_colorbar=1, is_colorbar_on=1, is_energy=1, vmax=1, vmin=0):
+            is_self_colorbar=1, is_colorbar_on=1, is_energy=1, vmax=1, vmin=0,
+            **kwargs, ):
 
     # %%
 
@@ -216,19 +217,23 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
         axes.set_ylabel('', fontsize=fontsize, fontdict=font)  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         # plt.xlabel('', fontsize=fontsize, fontdict=font) # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         # plt.ylabel('', fontsize=fontsize, fontdict=font) # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-    
+
+    is_animated = "animated" in kwargs
+
     if is_contourf == 1:
         if is_self_colorbar == 1:
-            img = axes.contourf(array2D_new if is_energy != 1 else array2D_new ** 2, cmap=cmap_2d)
+            img = axes.contourf(array2D_new if is_energy != 1 else array2D_new ** 2, cmap=cmap_2d, animated = is_animated, )
         else:
             img = axes.contourf(array2D_new if is_energy != 1 else array2D_new ** 2, cmap=cmap_2d,
-                                vmin=vmin if is_energy != 1 else vmin ** 2, vmax=vmax if is_energy != 1 else vmax ** 2)
+                                vmin=vmin if is_energy != 1 else vmin ** 2, vmax=vmax if is_energy != 1 else vmax ** 2,
+                                animated = is_animated, )
     else:
         if is_self_colorbar == 1:
-            img = axes.imshow(array2D_new if is_energy != 1 else array2D_new ** 2, cmap=cmap_2d)
+            img = axes.imshow(array2D_new if is_energy != 1 else array2D_new ** 2, cmap=cmap_2d, animated = is_animated, )
         else:
             img = axes.imshow(array2D_new if is_energy != 1 else array2D_new ** 2, cmap=cmap_2d,
-                              vmin=vmin if is_energy != 1 else vmin ** 2, vmax=vmax if is_energy != 1 else vmax ** 2)
+                              vmin=vmin if is_energy != 1 else vmin ** 2, vmax=vmax if is_energy != 1 else vmax ** 2,
+                              animated = is_animated, )
 
     if is_colorbar_on == 1:
         cax = add_right_cax(axes, pad=0.05, width=0.05)
@@ -254,6 +259,8 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
             # fig.savefig(array2D_address, transparent = True, bbox_inches='tight', pad_inches=0) # 包含图例，且无白边
 
     plt.show()
+
+    return fig, axes
 
 def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007, 
                 # %%
