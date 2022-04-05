@@ -235,7 +235,7 @@ def nLA_SSI(U1_name="",
 
 if __name__ == '__main__':
     nLA_SSI(U1_name="",
-            img_full_name="Grating.png",
+            img_full_name="lena.png",
             is_phase_only=0,
             # %%
             z_pump=0,
@@ -261,7 +261,7 @@ if __name__ == '__main__':
             Tx=10, Ty=10, Tz="2*lc",
             mx=0, my=0, mz=0,
             # %%
-            is_save=1, is_save_txt=0, dpi=100,
+            is_save=0, is_save_txt=0, dpi=100,
             # %%
             color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
             elev=10, azim=-65, alpha=2,

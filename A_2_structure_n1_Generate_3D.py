@@ -135,7 +135,7 @@ def structure_n1_3D(U1_name="",
         folder_address = U_dir("", "0.n1_modulation_squared", 0,
                                0, )
 
-    def structure_n1_Generate_z(for_th, fors_num, *arg, ):
+    def fun1(for_th, fors_num, *arg, ):
         iz = for_th * diz
 
         if mz != 0:  # 如果 要用 Tz，则如下 分层；
@@ -174,7 +174,7 @@ def structure_n1_3D(U1_name="",
                     modulation_squared_address, {'n1_modulation_squared': m})
 
     my_thread(10, sheets_num,
-              structure_n1_Generate_z, noop, noop,
+              fun1, noop, noop,
               is_ordered=1, is_print=is_print, )
 
 

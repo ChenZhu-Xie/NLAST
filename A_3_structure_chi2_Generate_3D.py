@@ -157,7 +157,7 @@ def structure_chi2_3D(U1_name="",
         folder_address = U_dir("", "0.χ2_modulation_squared", 0,
                                0, )
 
-    def structure_chi2_Generate_z(for_th, fors_num, *args, ):
+    def fun1(for_th, fors_num, *args, ):
         iz = for_th * diz
 
         if mz != 0:  # 如果 要用 Tz，则如下 分层；
@@ -196,7 +196,7 @@ def structure_chi2_3D(U1_name="",
                     modulation_squared_address, {'chi2_modulation_squared': m})
 
     my_thread(10, sheets_num,
-              structure_chi2_Generate_z, noop, noop,
+              fun1, noop, noop,
               is_ordered=1, is_print=is_print, )
 
 if __name__ == '__main__':
