@@ -87,14 +87,13 @@ def Cal_Iz_structure(diz,
 # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸
 
 def Cal_Iz_endface(sheets_num_frontface, sheets_num_structure,
-                   Iz_frontface, Iz_structure, diz,
-                   size_PerPixel,
+                   diz, size_PerPixel,
                    is_print=1, ):
     # %%
-    Iz_endface = Iz_frontface + Iz_structure
-
+    # Iz_endface = Iz_frontface + Iz_structure
     sheets_num_endface = sheets_num_frontface + sheets_num_structure
     sheet_th_endface = sheets_num_endface - 1 if sheets_num_endface >= 1 else 0  # 但需要 前面一层 的 前端面 的 序数 来获取值
+
     Iz_endface = sheets_num_endface * diz
     z0_structure_endface = Iz_endface * size_PerPixel
     is_print and print("z0_structure_endface = {} mm".format(z0_structure_endface))
@@ -120,48 +119,6 @@ def Cal_Iz(diz,
     is_print and print("z0 = L0_Crystal = {} mm".format(L0_Crystal))
 
     return sheets_num, Iz
-
-
-# %%
-# 定义 需要展示的截面 1 距离晶体前端面 的 纵向实际像素、需要展示的截面 1 距离晶体前端面 的 实际纵向尺寸
-
-def Cal_iz_1(diz,
-             z0_section_1f_expect, size_PerPixel,
-             is_print=1, ):
-    # %%
-    Iz_1f = z0_section_1f_expect / size_PerPixel
-
-    sheets_num_section_1 = int(Iz_1f // diz)
-    # 将要计算的是 距离 Iz_1f 最近的（但在其前面的） 那个面，它是 前面一层 的 后端面，所以这里 用的是 e = endface（但是这一层的前端面，所以取消了这里的 e 的标记，容易引起混淆）
-    sheet_th_section_1 = sheets_num_section_1 - 1 if sheets_num_section_1 != 0 else 0  # 但需要 前面一层 的 前端面 的 序数 来获取值
-    iz_1 = sheets_num_section_1 * diz
-    z0_1 = iz_1 * size_PerPixel
-    is_print and print("z0_section_1 = {} mm".format(z0_1))
-
-    return sheet_th_section_1, sheets_num_section_1, iz_1, z0_1
-
-
-# %%
-# 定义 需要展示的截面 2 距离晶体后端面 的 纵向实际像素、需要展示的截面 2 距离晶体后端面 的 实际纵向尺寸
-
-def Cal_iz_2(sheets_num,
-             Iz, diz,
-             z0_section_2f_expect, size_PerPixel,
-             is_print=1, ):
-    leftover = Iz - Iz // diz * diz
-
-    # %%
-    Iz_2f = z0_section_2f_expect / size_PerPixel
-
-    sheets_num_section_2 = sheets_num - int((Iz_2f - leftover) // diz) * int(Iz_2f > leftover) - int(
-        Iz_2f > leftover)  # 距离 后端面 的 距离，转换为 距离 前端面 的 距离 （但要稍微 更靠 后端面 一点）
-    sheet_th_section_2 = sheets_num_section_2 - 1 if sheets_num_section_2 >= 1 else 0  # 但需要 前面一层 的 前端面 的 序数 来获取值
-    iz_2 = (sheets_num_section_2 - int(Iz_2f <= leftover)) * diz + int(Iz_2f <= leftover) * leftover
-    z0_2 = iz_2 * size_PerPixel
-    is_print and print("z0_section_2 = {} mm".format(z0_2))
-
-    return sheet_th_section_2, sheets_num_section_2, iz_2, z0_2
-
 
 # %%
 # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
@@ -244,12 +201,10 @@ def slice_SSI(L0_Crystal, deff_structure_sheet_expect,
     # %%
     # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸 2
 
-    sheet_th_endface, sheets_num_endface, Iz_endface, z0_structure_endface = Cal_Iz_endface(sheets_num_frontface,
-                                                                                            sheets_num_structure,
-                                                                                            Iz_frontface, Iz_structure,
-                                                                                            diz,
-                                                                                            size_PerPixel,
-                                                                                            is_print)
+    sheet_th_endface, sheets_num_endface, Iz_endface, z0_structure_endface = \
+        Cal_Iz_endface(sheets_num_frontface, sheets_num_structure,
+                       diz, size_PerPixel,
+                       is_print, )
 
     # %%
     # 定义 晶体 的 纵向实际像素、晶体 的 实际纵向尺寸
@@ -279,17 +234,14 @@ def slice_SSI(L0_Crystal, deff_structure_sheet_expect,
     # %%
     # 定义 需要展示的截面 1 距离晶体前端面 的 纵向实际像素、需要展示的截面 1 距离晶体前端面 的 实际纵向尺寸
 
-    sheet_th_section_1, sheets_num_section_1, iz_1, z0_1 = Cal_iz_1(diz,
-                                                                    z0_section_1_expect, size_PerPixel,
-                                                                    is_print)
+    sheet_th_section_1, sheets_num_section_1, iz_1, z0_1 \
+        = cal_iz_1(zj, z0_section_1_expect, size_PerPixel, is_print, )
 
     # %%
     # 定义 需要展示的截面 2 距离晶体后端面 的 纵向实际像素、需要展示的截面 2 距离晶体后端面 的 实际纵向尺寸
 
-    sheet_th_section_2, sheets_num_section_2, iz_2, z0_2 = Cal_iz_2(sheets_num,
-                                                                    Iz, diz,
-                                                                    z0_section_2_expect, size_PerPixel,
-                                                                    is_print)
+    sheet_th_section_2, sheets_num_section_2, iz_2, z0_2 \
+        = cal_iz_2(zj, L0_Crystal, z0_section_2_expect, size_PerPixel, is_print, )
 
     #%%
 
@@ -346,19 +298,31 @@ def cal_Iz_endface_1(z0_structure_frontface, deff_structure_length_expect, L0_Cr
     else:
         deff_structure_length = deff_structure_length_expect
 
-    is_print and print("deff_structure_length = {} mm".format(deff_structure_length))
-    is_print and print("z0_structure_endface = {} mm".format(z0_structure_endface))
-
     return deff_structure_length, z0_structure_endface
 
+# %%
+
+def cal_Iz_structure(deff_structure_length, size_PerPixel,
+                     is_print=1, ):
+
+    Iz_structure = deff_structure_length / size_PerPixel
+    is_print and print("deff_structure_length = {} mm".format(deff_structure_length))
+
+    return Iz_structure
 
 # %%
 # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸 2
 
-def cal_Iz_endface_2(sheets_num_frontface, sheets_num_structure, Iz_frontface, Iz_structure, ):
-    Iz_endface = Iz_frontface + Iz_structure
+def cal_Iz_endface_2(sheets_num_frontface, sheets_num_structure,
+                     z0_structure_endface, size_PerPixel,
+                     is_print=1, ):
+
+    # Iz_endface = Iz_frontface + Iz_structure
     sheets_num_endface = sheets_num_frontface + sheets_num_structure
     sheet_th_endface = sheets_num_endface - 1 if sheets_num_endface >= 1 else 0
+
+    Iz_endface = z0_structure_endface / size_PerPixel
+    is_print and print("z0_structure_endface = {} mm".format(z0_structure_endface))
 
     return sheet_th_endface, sheets_num_endface, Iz_endface
 
@@ -504,11 +468,11 @@ def cal_iz_1(zj, z0_section_1_expect, size_PerPixel,
 
 
 # %%
-# 定义 需要展示的截面 1 距离晶体前端面 的 纵向实际像素、需要展示的截面 1 距离晶体前端面 的 实际纵向尺寸
+# 定义 需要展示的截面 2 距离晶体后端面 的 纵向实际像素、需要展示的截面 2 距离晶体后端面 的 实际纵向尺寸
 
-def cal_iz_2(zj, deff_structure_length_expect, z0_section_2_expect, size_PerPixel,
+def cal_iz_2(zj, L0_Crystal, z0_section_2_expect, size_PerPixel,
              is_print=1, ):
-    sheets_num_section_2, z0_2 = find_nearest(zj, deff_structure_length_expect - z0_section_2_expect)
+    sheets_num_section_2, z0_2 = find_nearest(zj, L0_Crystal - z0_section_2_expect)
     is_print and print("z0_section_2 = {} mm".format(z0_2))
     Iz_2 = z0_2 / size_PerPixel
     sheet_th_section_2 = sheets_num_section_2 - 1 if sheets_num_section_2 >= 1 else 0

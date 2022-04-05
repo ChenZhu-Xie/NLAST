@@ -156,11 +156,11 @@ def nLA_SSI(U1_name="",
              sheets_num, sheets_stored_num,
              X, Y, Iz, size_PerPixel, )
 
-    def H1_z_plus_dz_shift_k1_z(diz):
+    def H1_zdz(diz):
         return np.power(math.e, k1_z * diz * 1j)
         # 注意 这里的 传递函数 的 指数是 正的 ！！！
 
-    def H1_z_shift_k1_z(diz):
+    def H1_z(diz):
         return (np.power(math.e, k1_z * diz * 1j) - 1) / k1_z ** 2 * size_PerPixel ** 2
         # 注意 这里的 传递函数 的 指数是 正的 ！！！
 
@@ -181,10 +181,10 @@ def nLA_SSI(U1_name="",
     def fun2(for_th, fors_num, modulation_squared_z, *args, **kwargs, ):
 
         U1_z = ifft2(dget("G"))
-        Q1_z_shift = fft2((k1 / size_PerPixel / n1) ** 2 * (modulation_squared_z ** 2 - n1 ** 2) * U1_z)
+        Q1_z = fft2((k1 / size_PerPixel / n1) ** 2 * (modulation_squared_z ** 2 - n1 ** 2) * U1_z)
 
-        dset("G", dget("G") * H1_z_plus_dz_shift_k1_z(dizj[for_th]) +
-             const * Q1_z_shift * H1_z_shift_k1_z(dizj[for_th]) )
+        dset("G", dget("G") * H1_zdz(dizj[for_th]) +
+             const * Q1_z * H1_z(dizj[for_th]) )
 
         return dget("G")
 

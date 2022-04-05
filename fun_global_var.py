@@ -185,23 +185,23 @@ def init_SSI(g1_shift, U1_0,
 
 # %%
 
-def fun3(for_th, fors_num, G1_z_plus_dz_shift, *args, **kwargs, ):
+def fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
 
-    U1_z_plus_dz = ifft2(G1_z_plus_dz_shift)
+    U_zdz = ifft2(G_zdz)
 
     if get("is_energy_evolution_on") == 1:
-        eget("G")[for_th + 1] = np.sum(np.abs(G1_z_plus_dz_shift) ** 2)
-        eget("U")[for_th + 1] = np.sum(np.abs(U1_z_plus_dz) ** 2)
+        eget("G")[for_th + 1] = np.sum(np.abs(G_zdz) ** 2)
+        eget("U")[for_th + 1] = np.sum(np.abs(U_zdz) ** 2)
 
     if get("is_stored") == 1:
 
         # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
-        YZget("G")[:, for_th] = G1_z_plus_dz_shift[:, get("th_X")]
+        YZget("G")[:, for_th] = G_zdz[:, get("th_X")]
         # X 增加，则 从 G1_z_shift 中 读取的 列 向右移，也就是 YZ 面向 列 增加的方向（G1_z_shift 的 右侧）移动
-        XZget("G")[:, for_th] = G1_z_plus_dz_shift[get("th_Y"), :]
+        XZget("G")[:, for_th] = G_zdz[get("th_Y"), :]
         # Y 增加，则 从 G1_z_shift 中 读取的 行 向上移，也就是 XZ 面向 行 减小的方向（G1_z_shift 的 上侧）移动
-        YZget("U")[:, for_th] = U1_z_plus_dz[:, get("th_X")]
-        XZget("U")[:, for_th] = U1_z_plus_dz[get("th_Y"), :]
+        YZget("U")[:, for_th] = U_zdz[:, get("th_X")]
+        XZget("U")[:, for_th] = U_zdz[get("th_Y"), :]
 
         # %%
 
@@ -210,23 +210,23 @@ def fun3(for_th, fors_num, G1_z_plus_dz_shift, *args, **kwargs, ):
             get("sheet_th_stored")[int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = for_th + 1
             get("iz_stored")[int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = get("izj")[for_th + 1]
             get("z_stored")[int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = get("zj")[for_th + 1]
-            sget("G")[:, :, int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = G1_z_plus_dz_shift
+            sget("G")[:, :, int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = G_zdz
             # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
-            sget("U")[:, :, int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = U1_z_plus_dz
+            sget("U")[:, :, int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = U_zdz
             # 储存的 第一层，实际上不是 U1_0，而是 U1_dz
 
         if for_th == get("sheet_th_frontface"):  # 如果 for_th 是 sheet_th_frontface，则把结构 前端面 场分布 储存起来，对应的是 zj[sheets_num_frontface]
-            setf("G", G1_z_plus_dz_shift)
-            setf("U", U1_z_plus_dz)
+            setf("G", G_zdz)
+            setf("U", U_zdz)
         if for_th == get("sheet_th_endface"):  # 如果 for_th 是 sheet_th_endface，则把结构 后端面 场分布 储存起来，对应的是 zj[sheets_num_endface]
-            sete("G", G1_z_plus_dz_shift)
-            sete("U", U1_z_plus_dz)
+            sete("G", G_zdz)
+            sete("U", U_zdz)
         if for_th == get("sheet_th_sec1"):  # 如果 for_th 是 想要观察的 第一个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
-            set1("G", G1_z_plus_dz_shift)  # 对应的是 zj[sheets_num_sec1]
-            set1("U", U1_z_plus_dz)
+            set1("G", G_zdz)  # 对应的是 zj[sheets_num_sec1]
+            set1("U", U_zdz)
         if for_th == get("sheet_th_sec2"):  # 如果 for_th 是 想要观察的 第二个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
-            set2("G", G1_z_plus_dz_shift)  # 对应的是 zj[sheets_num_sec2]
-            set2("U", U1_z_plus_dz)
+            set2("G", G_zdz)  # 对应的是 zj[sheets_num_sec2]
+            set2("U", U_zdz)
 
 # %%
 

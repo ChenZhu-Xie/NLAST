@@ -224,7 +224,8 @@ def NLA_SSI_chi2(U1_name="",
     # %%
     # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
 
-    Iz_structure = deff_structure_length / size_PerPixel
+    Iz_structure = cal_Iz_structure(deff_structure_length, size_PerPixel,
+                                    is_print=1, )
 
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
@@ -237,7 +238,9 @@ def NLA_SSI_chi2(U1_name="",
     # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸 2
 
     sheet_th_endface, sheets_num_endface, Iz_endface \
-        = cal_Iz_endface_2(sheets_num_frontface, sheets_num_structure, Iz_frontface, Iz_structure, )
+        = cal_Iz_endface_2(sheets_num_frontface, sheets_num_structure,
+                     z0_structure_endface, size_PerPixel,
+                     is_print, )
 
     # %%
     # 定义 晶体 的 纵向实际像素、晶体 的 实际纵向尺寸
