@@ -1578,20 +1578,30 @@ def Info_img(img_full_name):
     return img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address
 
 
+#%%
+
+def img_squared_Read(img_full_name, U_NonZero_size):
+    img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address = Info_img(
+        img_full_name)
+    img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
+    size_PerPixel = U_NonZero_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
+
+    return img_name, img_name_extension, img_address, \
+           img_squared_address, img_squared_bordered_address, \
+           img_squared, size_PerPixel
+
 # %%
 # 导入 方形，以及 加边框 的 图片
 
 def img_squared_bordered_Read(img_full_name,
                               U_NonZero_size, dpi,
                               is_phase_only, ):
-    img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address = Info_img(
-        img_full_name)
+    img_name, img_name_extension, img_address, \
+    img_squared_address, img_squared_bordered_address, \
+    img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size)
 
-    img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
     img_squared_bordered = cv2.imdecode(np.fromfile(img_squared_bordered_address, dtype=np.uint8),
                                         0)  # 按 相对路径 + 灰度图 读取图片
-
-    size_PerPixel = U_NonZero_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
     size_fig = img_squared_bordered.shape[0] / dpi
     Ix, Iy = img_squared_bordered.shape[0], img_squared_bordered.shape[1]
 
@@ -1602,6 +1612,15 @@ def img_squared_bordered_Read(img_full_name,
 
     return img_name, img_name_extension, img_squared, size_PerPixel, size_fig, Ix, Iy, U
 
+#%%
+
+def U_read_only(U_name, is_save_txt):
+    desktop = get_desktop()
+    U_full_name = U_name + (is_save_txt and ".txt" or ".mat")
+    U_address = desktop + "\\" + U_full_name
+    U = np.loadtxt(U_address, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U_full_name)['U']  # 加载 复振幅场
+
+    return U
 
 # %%
 # 导入 方形 图片，以及 U
@@ -1609,18 +1628,12 @@ def img_squared_bordered_Read(img_full_name,
 def U_Read(U_name, img_full_name,
            U_NonZero_size, dpi,
            is_save_txt, ):
-    desktop = get_desktop()
-
-    U_full_name = U_name + (is_save_txt and ".txt" or ".mat")
-    U_address = desktop + "\\" + U_full_name
-    img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address = Info_img(
-        img_full_name)
-
-    img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
-    U = np.loadtxt(U_address, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U_full_name)['U']  # 加载 复振幅场
-
-    size_PerPixel = U_NonZero_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
+    U = U_read_only(U_name, is_save_txt)
     size_fig = U.shape[0] / dpi
     Ix, Iy = U.shape[0], U.shape[1]
+
+    img_name, img_name_extension, img_address, \
+    img_squared_address, img_squared_bordered_address, \
+    img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size)
 
     return img_name, img_name_extension, img_squared, size_PerPixel, size_fig, Ix, Iy, U

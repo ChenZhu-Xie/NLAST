@@ -217,40 +217,39 @@ def structure_chi2_Generate_2D(U1_name="",
                                is_print=1,
                                # %%
                                **kwargs, ):
-    
     img_name, img_name_extension, img_squared, \
-    size_PerPixel, size_fig, I1_x, I1_y, \
-    Ix, Iy, deff_structure_size, \
+    size_PerPixel, size_fig, Ix, Iy, \
+    Ix_structure, Iy_structure, deff_structure_size, \
     border_width, img_squared_resize_full_name, img_squared_resize, \
-    U1_0, g1_shift = pump_pic_or_U_structure(U1_name,
-                                             img_full_name,
-                                             is_phase_only,
-                                             # %%
-                                             z_pump,
-                                             is_LG, is_Gauss, is_OAM,
-                                             l, p,
-                                             theta_x, theta_y,
-                                             # %%
-                                             is_random_phase,
-                                             is_H_l, is_H_theta, is_H_random_phase,
-                                             # %%
-                                             U1_0_NonZero_size, w0, structure_size_Enlarge,
-                                             # %%
-                                             lam1, is_air_pump, T,
-                                             # %%
-                                             is_save, is_save_txt, dpi,
-                                             cmap_2d,
-                                             # %%
-                                             ticks_num, is_contourf,
-                                             is_title_on, is_axes_on, is_mm,
-                                             # %%
-                                             fontsize, font,
-                                             # %%
-                                             is_colorbar_on, is_energy,
-                                             # %%
-                                             is_print,
-                                             # %%
-                                             **kwargs, )
+    U1_0_structure, g1_shift_structure = pump_pic_or_U_structure(U1_name,
+                                                                 img_full_name,
+                                                                 is_phase_only,
+                                                                 # %%
+                                                                 z_pump,
+                                                                 is_LG, is_Gauss, is_OAM,
+                                                                 l, p,
+                                                                 theta_x, theta_y,
+                                                                 # %%
+                                                                 is_random_phase,
+                                                                 is_H_l, is_H_theta, is_H_random_phase,
+                                                                 # %%
+                                                                 U1_0_NonZero_size, w0, structure_size_Enlarge,
+                                                                 # %%
+                                                                 lam1, is_air_pump, T,
+                                                                 # %%
+                                                                 is_save, is_save_txt, dpi,
+                                                                 cmap_2d,
+                                                                 # %%
+                                                                 ticks_num, is_contourf,
+                                                                 is_title_on, is_axes_on, is_mm,
+                                                                 # %%
+                                                                 fontsize, font,
+                                                                 # %%
+                                                                 is_colorbar_on, is_energy,
+                                                                 # %%
+                                                                 is_print,
+                                                                 # %%
+                                                                 **kwargs, )
 
     # %%
 
@@ -271,12 +270,12 @@ def structure_chi2_Generate_2D(U1_name="",
 
     if structure_xy_mode == "r":
 
-        structure = structure_Generate_2D_radial_G(Ix, Iy,
+        structure = structure_Generate_2D_radial_G(Ix_structure, Iy_structure,
                                                    Gx, Duty_Cycle_x,
                                                    is_positive_xy, is_continuous, is_reverse_xy, )
     else:
 
-        structure = structure_Generate_2D_CGH(U1_0, structure_xy_mode,
+        structure = structure_Generate_2D_CGH(U1_0_structure, structure_xy_mode,
                                               Duty_Cycle_x, Duty_Cycle_y,
                                               is_positive_xy,
                                               # %%
@@ -340,7 +339,7 @@ def structure_chi2_Generate_2D(U1_name="",
 
     return n1, k1, k1_z, lam2, n2, k2, k2_z, \
            dk, lc, Tz, Gx, Gy, Gz, \
-           size_PerPixel, U1_0, g1_shift, \
+           size_PerPixel, U1_0_structure, g1_shift_structure, \
            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
 
 
@@ -384,40 +383,39 @@ def structure_n1_Generate_2D(U1_name="",
                              is_print=1,
                              # %%
                              **kwargs, ):
-    
     img_name, img_name_extension, img_squared, \
-    size_PerPixel, size_fig, I1_x, I1_y, \
-    Ix, Iy, deff_structure_size, \
+    size_PerPixel, size_fig, Ix, Iy, \
+    Ix_structure, Iy_structure, deff_structure_size, \
     border_width, img_squared_resize_full_name, img_squared_resize, \
-    U1_0, g1_shift = pump_pic_or_U_structure(U1_name,
-                                             img_full_name,
-                                             is_phase_only,
-                                             # %%
-                                             z_pump,
-                                             is_LG, is_Gauss, is_OAM,
-                                             l, p,
-                                             theta_x, theta_y,
-                                             # %%
-                                             is_random_phase,
-                                             is_H_l, is_H_theta, is_H_random_phase,
-                                             # %%
-                                             U1_0_NonZero_size, w0, structure_size_Enlarge,
-                                             # %%
-                                             lam1, is_air_pump, T,
-                                             # %%
-                                             is_save, is_save_txt, dpi,
-                                             cmap_2d,
-                                             # %%
-                                             ticks_num, is_contourf,
-                                             is_title_on, is_axes_on, is_mm,
-                                             # %%
-                                             fontsize, font,
-                                             # %%
-                                             is_colorbar_on, is_energy,
-                                             # %%
-                                             is_print,
-                                             # %%
-                                             **kwargs, )
+    U1_0_structure, g1_shift_structure = pump_pic_or_U_structure(U1_name,
+                                                                 img_full_name,
+                                                                 is_phase_only,
+                                                                 # %%
+                                                                 z_pump,
+                                                                 is_LG, is_Gauss, is_OAM,
+                                                                 l, p,
+                                                                 theta_x, theta_y,
+                                                                 # %%
+                                                                 is_random_phase,
+                                                                 is_H_l, is_H_theta, is_H_random_phase,
+                                                                 # %%
+                                                                 U1_0_NonZero_size, w0, structure_size_Enlarge,
+                                                                 # %%
+                                                                 lam1, is_air_pump, T,
+                                                                 # %%
+                                                                 is_save, is_save_txt, dpi,
+                                                                 cmap_2d,
+                                                                 # %%
+                                                                 ticks_num, is_contourf,
+                                                                 is_title_on, is_axes_on, is_mm,
+                                                                 # %%
+                                                                 fontsize, font,
+                                                                 # %%
+                                                                 is_colorbar_on, is_energy,
+                                                                 # %%
+                                                                 is_print,
+                                                                 # %%
+                                                                 **kwargs, )
 
     # %%
 
@@ -425,7 +423,7 @@ def structure_n1_Generate_2D(U1_name="",
                                    lam1, is_air, T, )
 
     lam2, n2, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
-                                   lam1, is_air, T, )
+                                         lam1, is_air, T, )
 
     dk, lc, Tz, \
     Gx, Gy, Gz = args_SHG(k1, k2, size_PerPixel,
@@ -438,12 +436,12 @@ def structure_n1_Generate_2D(U1_name="",
 
     if structure_xy_mode == "r":
 
-        structure = structure_Generate_2D_radial_G(Ix, Iy,
+        structure = structure_Generate_2D_radial_G(Ix_structure, Iy_structure,
                                                    Gx, Duty_Cycle_x,
                                                    is_positive_xy, is_continuous, is_reverse_xy, )
     else:
 
-        structure = structure_Generate_2D_CGH(U1_0, structure_xy_mode,
+        structure = structure_Generate_2D_CGH(U1_0_structure, structure_xy_mode,
                                               Duty_Cycle_x, Duty_Cycle_y,
                                               is_positive_xy,
                                               # %%
@@ -511,5 +509,5 @@ def structure_n1_Generate_2D(U1_name="",
 
     return n1, k1, k1_z, lam2, n2, k2, k2_z, \
            dk, lc, Tz, Gx, Gy, Gz, \
-           size_PerPixel, U1_0, g1_shift, \
+           size_PerPixel, U1_0_structure, g1_shift_structure, \
            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared

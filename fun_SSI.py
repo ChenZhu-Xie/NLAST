@@ -163,7 +163,7 @@ def slice_structure_SSI(deff_structure_sheet_expect, deff_structure_length_expec
 # %%
 # 等间距切片
 
-def slice_SSI(L0_Crystal, deff_structure_sheet_expect,
+def Slice_SSI(L0_Crystal, deff_structure_sheet_expect,
                z0_structure_frontface_expect, deff_structure_length_expect,
                z0_section_1_expect, z0_section_2_expect,
                Tz, mz, size_PerPixel,
@@ -481,3 +481,99 @@ def cal_iz_2(zj, L0_Crystal, z0_section_2_expect, size_PerPixel,
 
 #%%
 
+# %%
+# 非等间距切片
+
+def slice_SSI(L0_Crystal, size_PerPixel,
+               z0_structure_frontface_expect, deff_structure_length_expect,
+               z0_section_1_expect, z0_section_2_expect,
+               is_stripe, mx, my, Tx, Ty, Tz, Duty_Cycle_z, structure_xy_mode, 
+               is_print):
+    # %%
+    # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
+
+    sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface \
+        = cal_Iz_frontface(z0_structure_frontface_expect, L0_Crystal, size_PerPixel,
+                           is_print, )
+
+    # %%
+    # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸 1
+
+    deff_structure_length, z0_structure_endface \
+        = cal_Iz_endface_1(z0_structure_frontface, deff_structure_length_expect, L0_Crystal,
+                           is_print, )
+
+    # %%
+    # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
+
+    Iz_structure = cal_Iz_structure(deff_structure_length, size_PerPixel,
+                                    is_print=1, )
+
+    # %%
+    # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
+    
+    sheets_num_structure, diz, deff_structure_sheet \
+        = cal_diz(Duty_Cycle_z, Tz, Iz_structure, size_PerPixel,
+                  is_print, )
+
+    # %%
+    # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸 2
+
+    sheet_th_endface, sheets_num_endface, Iz_endface \
+        = cal_Iz_endface_2(sheets_num_frontface, sheets_num_structure,
+                           z0_structure_endface, size_PerPixel,
+                           is_print, )
+
+    # %%
+    # 定义 晶体 的 纵向实际像素、晶体 的 实际纵向尺寸
+
+    sheets_num, Iz, z0 \
+        = cal_Iz(sheets_num_endface, z0_structure_endface, L0_Crystal, size_PerPixel,
+                 is_print, )
+
+    # %%
+    # 生成 structure 各层 z 序列，以及 正负畴 序列信息 mj
+
+    zj_structure, mj_structure \
+        = cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface,
+                              z0_structure_endface,
+                              is_stripe, mx, my, Tx, Ty, Tz, structure_xy_mode, size_PerPixel, )
+
+    # %%
+    # 生成 晶体内 各层 z 序列、izj、dizj，以及 正负畴 序列信息 mj
+
+    zj, izj, dizj, mj \
+        = cal_zj_izj_dizj_mj(zj_structure, mj_structure, z0_structure_frontface, z0_structure_endface, L0_Crystal,
+                             size_PerPixel)
+
+    # %%
+    # 定义 需要展示的截面 1 距离晶体前端面 的 纵向实际像素、需要展示的截面 1 距离晶体前端面 的 实际纵向尺寸
+
+    sheet_th_section_1, sheets_num_section_1, Iz_1, z0_1 \
+        = cal_iz_1(zj, z0_section_1_expect, size_PerPixel,
+                   is_print, )
+
+    # %%
+    # 定义 需要展示的截面 2 距离晶体后端面 的 纵向实际像素、需要展示的截面 2 距离晶体后端面 的 实际纵向尺寸
+
+    sheet_th_section_2, sheets_num_section_2, Iz_2, z0_2 \
+        = cal_iz_2(zj, deff_structure_length_expect, z0_section_2_expect, size_PerPixel,
+                   is_print, )
+
+    #%%
+
+    set("izj", izj)
+    set("zj", zj)
+    set("sheet_th_frontface", sheet_th_frontface)
+    set("sheet_th_endface", sheet_th_endface)
+    set("sheet_th_sec1", sheet_th_section_1)
+    set("sheet_th_sec2", sheet_th_section_2)
+
+    return diz, deff_structure_sheet, \
+           sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \
+           sheets_num_structure, Iz_structure, deff_structure_length, \
+           sheets_num, Iz, z0, \
+           mj, dizj, izj, zj, \
+           sheet_th_endface, sheets_num_endface, Iz_endface, z0_structure_endface, \
+           sheet_th_section_1, sheets_num_section_1, Iz_1, z0_1, \
+           sheet_th_section_2, sheets_num_section_2, Iz_2, z0_2

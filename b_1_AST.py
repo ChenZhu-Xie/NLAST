@@ -122,7 +122,7 @@ def AST(U1_name="",
                    # %%                          何况 一般默认 is_self_colorbar = 1...
                    z0, )
 
-    return fget("U"), fget("G")  # glv.
+    return fget("U"), fget("G")
 
 
 if __name__ == '__main__':

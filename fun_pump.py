@@ -11,7 +11,7 @@ import math
 import numpy as np
 import scipy.stats
 from scipy.io import loadmat
-from fun_os import img_squared_bordered_Read, U_Read, U_dir, U_energy_print, U_plot, U_save
+from fun_os import img_squared_bordered_Read, U_Read, U_read_only, U_dir, U_energy_print, U_plot, U_save
 from fun_img_Resize import img_squared_Resize
 from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase
 from fun_linear import Cal_n, Cal_kz, fft2, ifft2
@@ -558,16 +558,16 @@ def pump_pic_or_U_structure(U_name="",
     deff_structure_size_expect = U_NonZero_size * (1 + structure_size_Enlarge)
     is_print and print("deff_structure_size_expect = {} mm".format(deff_structure_size_expect))
 
-    Ix, Iy, deff_structure_size = Cal_IxIy(Ix, Iy,
-                                           deff_structure_size_expect, size_PerPixel,
-                                           is_print)
+    Ix_structure, Iy_structure, deff_structure_size = Cal_IxIy(Ix, Iy,
+                                                               deff_structure_size_expect, size_PerPixel,
+                                                               is_print)
 
     # %%
-    # 需要先将 目标 U_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix, Iy 相同，才能开始 之后的工作
+    # 需要先将 目标 U_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix_structure, Iy_structure 相同，才能开始 之后的工作
 
     border_width, img_squared_resize_full_name, img_squared_resize = \
         img_squared_Resize(img_name, img_name_extension, img_squared,
-                           Ix, Iy, Ix,
+                           Ix_structure, Iy_structure, Ix,
                            is_print, )
 
     if (type(U_name) != str) or U_name == "":
@@ -576,13 +576,13 @@ def pump_pic_or_U_structure(U_name="",
 
         if "U" in kwargs:
             U = kwargs["U"]
-            g_shift = fft2(U)
         else:
             if is_phase_only == 1:
-                U = np.power(math.e,
-                             (img_squared_resize.astype(np.complex128()) / 255 * 2 * math.pi - math.pi) * 1j)  # 变成相位图
+                U_structure = np.power(math.e,
+                                       (img_squared_resize.astype(
+                                           np.complex128()) / 255 * 2 * math.pi - math.pi) * 1j)  # 变成相位图
             else:
-                U = img_squared_resize.astype(np.complex128)
+                U_structure = img_squared_resize.astype(np.complex128)
 
             # %%
             # 预处理 输入场
@@ -591,39 +591,39 @@ def pump_pic_or_U_structure(U_name="",
                          is_air_pump,
                          lam1, T, p="e")
 
-            U, g_shift = pump(img_squared_resize_full_name,
-                              Ix, Iy, size_PerPixel,
-                              U, w0, k, z_pump,
-                              is_LG, is_Gauss, is_OAM,
-                              l, p,
-                              theta_x, theta_y,
-                              is_random_phase,
-                              is_H_l, is_H_theta, is_H_random_phase,
-                              is_save, is_save_txt, dpi,
-                              cmap_2d, ticks_num, is_contourf,
-                              is_title_on, is_axes_on, is_mm,
-                              fontsize, font,
-                              is_colorbar_on, is_energy,
-                              is_print,
-                              **kwargs, )
+            U_structure, g_shift_structure = pump(img_squared_resize_full_name,
+                                                  Ix_structure, Iy_structure, size_PerPixel,
+                                                  U_structure, w0, k, z_pump,
+                                                  is_LG, is_Gauss, is_OAM,
+                                                  l, p,
+                                                  theta_x, theta_y,
+                                                  is_random_phase,
+                                                  is_H_l, is_H_theta, is_H_random_phase,
+                                                  is_save, is_save_txt, dpi,
+                                                  cmap_2d, ticks_num, is_contourf,
+                                                  is_title_on, is_axes_on, is_mm,
+                                                  fontsize, font,
+                                                  is_colorbar_on, is_energy,
+                                                  is_print,
+                                                  **kwargs, )
 
     else:
 
         # %%
         # 导入 方形，以及 加边框 的 图片
 
-        U1_full_name = U_name + (is_save_txt and ".txt" or ".mat")
-        U = np.loadtxt(U1_full_name, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U1_full_name)[
-            'U']  # 加载 复振幅场
+        U = U_read_only(U_name, is_save_txt)
 
-        U = cv2.resize(np.real(U), (Ix, Iy), interpolation=cv2.INTER_AREA) + cv2.resize(np.imag(U), (Ix, Iy),
-                                                                                        interpolation=cv2.INTER_AREA) * 1j
-        # U 必须 resize 为 Ix,Iy 大小；
+    if ((type(U_name) == str) and U_name != "") or "U" in kwargs:
+        U_structure = cv2.resize(np.real(U), (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA) + \
+                      cv2.resize(np.imag(U), (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA) * 1j
+        # U 必须 resize 为 Ix_structure, Iy_structure 大小；
         # 但 cv2 、 skimage.transform 中 resize 都能处理 图片 和 float64，
         # 但似乎 没有东西 能直接 处理 complex128，但可 分别处理 实部和虚部，再合并为 complex128
+        g_shift_structure = fft2(U_structure)
 
     return img_name, img_name_extension, img_squared, \
            size_PerPixel, size_fig, Ix, Iy, \
-           Ix, Iy, deff_structure_size, \
+           Ix_structure, Iy_structure, deff_structure_size, \
            border_width, img_squared_resize_full_name, img_squared_resize, \
-           U, g_shift
+           U_structure, g_shift_structure

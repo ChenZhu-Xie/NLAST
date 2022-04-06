@@ -1,7 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Dec 26 22:09:04 2021
+
+@author: Xcz
+"""
+
+# %%
+
 import numpy as np
 import math
 from fun_os import set_ray, GHU_plot_save, U_SSI_plot
-from fun_linear import ifft2, Cal_n, Cal_kz
+from fun_linear import fft2, ifft2, Cal_n, Cal_kz
 from fun_statistics import U_Drop_n_sigma
 
 def init_GLV_DICT(U1_name, ray, way, method, **kwargs):
@@ -9,20 +18,20 @@ def init_GLV_DICT(U1_name, ray, way, method, **kwargs):
     GLOBALS_DICT = {}
 
     ray = set_ray(U1_name, ray, **kwargs)
-    set("ray", ray)
-    set("way", way)
-    set("method", method)
+    Set("ray", ray)
+    Set("way", way)
+    Set("method", method)
 
     return ray
 
-def set(key, value): # 第一次设置值的时候用 set，以后可直接用 get(key) = ~
-    try:
+def Set(key, value): # 第一次设置值的时候用 set，以后可直接用 Get(key) = ~
+    try: # 为了不与 set 集合 重名
         GLOBALS_DICT[key] = value
         return True  # 创建 key-value 成功
     except KeyError:
         return False  # 创建 key-value 失败
 
-def get(key):
+def Get(key):
     try:
         return GLOBALS_DICT[key]  # 取 value 成功，返回 value
     except KeyError:
@@ -31,92 +40,92 @@ def get(key):
 # %%
 
 def fkey(key):  # get_format_key
-    return key + get("ray") + "_z" + get("way")
+    return key + Get("ray") + "_z_" + Get("way")
 def fset(key, value):  # set_format_key_value
-    return set(fkey(key), value)
+    return Set(fkey(key), value)
 def fget(key):  # get_format_key_value
-    return get(fkey(key))
+    return Get(fkey(key))
 
 # %%
 
 def ekey(key):  # get_format_key
-    return key + get("ray") + "_z_energy"
+    return key + Get("ray") + "_z_energy"
 def eset(key, value):  # set_format_key_value
-    return set(ekey(key), value)
+    return Set(ekey(key), value)
 def eget(key):  # get_format_key_value
-    return get(ekey(key))
+    return Get(ekey(key))
 
 # %%
 
 def dkey(key):  # get_format_key
-    return key + get("ray") + "_zdz"
+    return key + Get("ray") + "_zdz"
 def dset(key, value):  # set_format_key_value
-    return set(dkey(key), value)
+    return Set(dkey(key), value)
 def dget(key):  # get_format_key_value
-    return get(dkey(key))
+    return Get(dkey(key))
 
 # %%
 
 def skey(key):  # get_format_key
-    return key + get("ray") + "_z_stored"
+    return key + Get("ray") + "_z_stored"
 def sset(key, value):  # set_format_key_value
-    return set(skey(key), value)
+    return Set(skey(key), value)
 def sget(key):  # get_format_key_value
-    return get(skey(key))
+    return Get(skey(key))
 
 # %%
 
 def YZkey(key):  # get_format_key
-    return key + get("ray") + "_YZ"
+    return key + Get("ray") + "_YZ"
 def YZset(key, value):  # set_format_key_value
-    return set(YZkey(key), value)
+    return Set(YZkey(key), value)
 def YZget(key):  # get_format_key_value
-    return get(YZkey(key))
+    return Get(YZkey(key))
 
 # %%
 
 def XZkey(key):  # get_format_key
-    return key + get("ray") + "_XZ"
+    return key + Get("ray") + "_XZ"
 def XZset(key, value):  # set_format_key_value
-    return set(XZkey(key), value)
+    return Set(XZkey(key), value)
 def XZget(key):  # get_format_key_value
-    return get(XZkey(key))
+    return Get(XZkey(key))
 
 # %%
 
 def key1(key):  # get_format_key
-    return key + get("ray") + "_sec1"
+    return key + Get("ray") + "_sec1"
 def set1(key, value):  # set_format_key_value
-    return set(key1(key), value)
+    return Set(key1(key), value)
 def get1(key):  # get_format_key_value
-    return get(key1(key))
+    return Get(key1(key))
 
 # %%
 
 def key2(key):  # get_format_key
-    return key + get("ray") + "_sec2"
+    return key + Get("ray") + "_sec2"
 def set2(key, value):  # set_format_key_value
-    return set(key2(key), value)
+    return Set(key2(key), value)
 def get2(key):  # get_format_key_value
-    return get(key2(key))
+    return Get(key2(key))
 
 # %%
 
 def keyf(key):  # get_format_key
-    return key + get("ray") + "_front"
+    return key + Get("ray") + "_front"
 def setf(key, value):  # set_format_key_value
-    return set(keyf(key), value)
+    return Set(keyf(key), value)
 def getf(key):  # get_format_key_value
-    return get(keyf(key))
+    return Get(keyf(key))
 
 # %%
 
 def keye(key):  # get_format_key
-    return key + get("ray") + "_end"
+    return key + Get("ray") + "_end"
 def sete(key, value):  # set_format_key_value
-    return set(keye(key), value)
+    return Set(keye(key), value)
 def gete(key):  # get_format_key_value
-    return get(keye(key))
+    return Get(keye(key))
 
 # %%
 
@@ -126,23 +135,23 @@ def init_SSI(g1_shift, U1_0,
              X, Y, Iz, size_PerPixel, ):
 
     Ix, Iy = U1_0.shape
-    # set("Ix", Ix)
-    # set("Iy", Iy)
+    # Set("Ix", Ix)
+    # Set("Iy", Iy)
 
-    set("is_energy_evolution_on", is_energy_evolution_on)
-    set("is_stored", is_stored)
-    set("sheets_num", sheets_num)
-    set("sheets_stored_num", sheets_stored_num)
+    Set("is_energy_evolution_on", is_energy_evolution_on)
+    Set("is_stored", is_stored)
+    Set("sheets_num", sheets_num)
+    Set("sheets_stored_num", sheets_stored_num)
 
-    set("X", X)
-    set("Y", Y)
-    set("th_X", Iy // 2 + int(X / size_PerPixel))
-    set("th_Y", Ix // 2 - int(Y / size_PerPixel))
+    Set("X", X)
+    Set("Y", Y)
+    Set("th_X", Iy // 2 + int(X / size_PerPixel))
+    Set("th_Y", Ix // 2 - int(Y / size_PerPixel))
 
     #%%
 
-    dset("G", g1_shift)
-    dset("U", U1_0)
+    dset("G", g1_shift) # 似乎 仅为了 B_2_nLA_SSI 而存在，或者 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
+    dset("U", U1_0) # 似乎 仅为了 B_2_nLA_SSI 而存在，或者 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
 
     if is_energy_evolution_on == 1:
 
@@ -161,9 +170,9 @@ def init_SSI(g1_shift, U1_0,
         iz_stored[sheets_stored_num] = Iz
         z_stored[sheets_stored_num] = Iz * size_PerPixel
 
-        set("sheet_th_stored", sheet_th_stored) # 设置成全局变量
-        set("iz_stored", iz_stored) # 方便之后在这个 py 和 主 py 文件里直接调用
-        set("z_stored", z_stored) # 懒得搞 返回 和 获取 这仨了
+        Set("sheet_th_stored", sheet_th_stored) # 设置成全局变量
+        Set("iz_stored", iz_stored) # 方便之后在这个 py 和 主 py 文件里直接调用
+        Set("z_stored", z_stored) # 懒得搞 返回 和 获取 这仨了
 
         sset("G", np.zeros((Ix, Iy, int(sheets_stored_num + 1)), dtype=np.complex128()))
         sset("U", np.zeros((Ix, Iy, int(sheets_stored_num + 1)), dtype=np.complex128()))
@@ -187,44 +196,48 @@ def init_SSI(g1_shift, U1_0,
 
 def fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
 
-    U_zdz = ifft2(G_zdz)
+    if "is_U" in kwargs and kwargs["is_U"] == 1:
+        U_zdz = G_zdz
+        G_zdz = fft2(U_zdz)
+    else:
+        U_zdz = ifft2(G_zdz)
 
-    if get("is_energy_evolution_on") == 1:
+    if Get("is_energy_evolution_on") == 1:
         eget("G")[for_th + 1] = np.sum(np.abs(G_zdz) ** 2)
         eget("U")[for_th + 1] = np.sum(np.abs(U_zdz) ** 2)
 
-    if get("is_stored") == 1:
+    if Get("is_stored") == 1:
 
         # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
-        YZget("G")[:, for_th] = G_zdz[:, get("th_X")]
+        YZget("G")[:, for_th] = G_zdz[:, Get("th_X")]
         # X 增加，则 从 G1_z_shift 中 读取的 列 向右移，也就是 YZ 面向 列 增加的方向（G1_z_shift 的 右侧）移动
-        XZget("G")[:, for_th] = G_zdz[get("th_Y"), :]
+        XZget("G")[:, for_th] = G_zdz[Get("th_Y"), :]
         # Y 增加，则 从 G1_z_shift 中 读取的 行 向上移，也就是 XZ 面向 行 减小的方向（G1_z_shift 的 上侧）移动
-        YZget("U")[:, for_th] = U_zdz[:, get("th_X")]
-        XZget("U")[:, for_th] = U_zdz[get("th_Y"), :]
+        YZget("U")[:, for_th] = U_zdz[:, Get("th_X")]
+        XZget("U")[:, for_th] = U_zdz[Get("th_Y"), :]
 
         # %%
 
-        if np.mod(for_th, get("sheets_num") // get("sheets_stored_num")) == 0:
-            # 如果 for_th 是 get("sheets_num") // get("sheets_stored_num") 的 整数倍（包括零），则 储存之
-            get("sheet_th_stored")[int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = for_th + 1
-            get("iz_stored")[int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = get("izj")[for_th + 1]
-            get("z_stored")[int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = get("zj")[for_th + 1]
-            sget("G")[:, :, int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = G_zdz
+        if np.mod(for_th, Get("sheets_num") // Get("sheets_stored_num")) == 0:
+            # 如果 for_th 是 Get("sheets_num") // Get("sheets_stored_num") 的 整数倍（包括零），则 储存之
+            Get("sheet_th_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = for_th + 1
+            Get("iz_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = Get("izj")[for_th + 1]
+            Get("z_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = Get("zj")[for_th + 1]
+            sget("G")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = G_zdz
             # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
-            sget("U")[:, :, int(for_th // (get("sheets_num") // get("sheets_stored_num")))] = U_zdz
+            sget("U")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = U_zdz
             # 储存的 第一层，实际上不是 U1_0，而是 U1_dz
 
-        if for_th == get("sheet_th_frontface"):  # 如果 for_th 是 sheet_th_frontface，则把结构 前端面 场分布 储存起来，对应的是 zj[sheets_num_frontface]
+        if for_th == Get("sheet_th_frontface"):  # 如果 for_th 是 sheet_th_frontface，则把结构 前端面 场分布 储存起来，对应的是 zj[sheets_num_frontface]
             setf("G", G_zdz)
             setf("U", U_zdz)
-        if for_th == get("sheet_th_endface"):  # 如果 for_th 是 sheet_th_endface，则把结构 后端面 场分布 储存起来，对应的是 zj[sheets_num_endface]
+        if for_th == Get("sheet_th_endface"):  # 如果 for_th 是 sheet_th_endface，则把结构 后端面 场分布 储存起来，对应的是 zj[sheets_num_endface]
             sete("G", G_zdz)
             sete("U", U_zdz)
-        if for_th == get("sheet_th_sec1"):  # 如果 for_th 是 想要观察的 第一个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
+        if for_th == Get("sheet_th_sec1"):  # 如果 for_th 是 想要观察的 第一个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
             set1("G", G_zdz)  # 对应的是 zj[sheets_num_sec1]
             set1("U", U_zdz)
-        if for_th == get("sheet_th_sec2"):  # 如果 for_th 是 想要观察的 第二个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
+        if for_th == Get("sheet_th_sec2"):  # 如果 for_th 是 想要观察的 第二个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
             set2("G", G_zdz)  # 对应的是 zj[sheets_num_sec2]
             set2("U", U_zdz)
 
@@ -240,13 +253,18 @@ def end_AST(z0, size_PerPixel,
 
 # %%
 
-def end_SSI(g1_shift, is_energy, n_sigma = 3, ):
-    fset("G", dget("G"))
+def end_SSI(g1_shift, is_energy, n_sigma = 3, **kwargs, ):
+    if "is_U" in kwargs and kwargs["is_U"] == 1:
+        fset("U", dget("U"))
+        fset("G", fft2(fget("U")))
+    else:
+        fset("G", dget("G"))
+        fset("U", ifft2(fget("G")))
     fset("H", fget("G") / np.max(np.abs(fget("G"))) / (g1_shift / np.max(np.abs(g1_shift))))
     if n_sigma > 0:
         # 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。
         fset("H", U_Drop_n_sigma(fget("H"), n_sigma, is_energy))
-    fset("U", ifft2(fget("G")))
+
 
 # %%
 
@@ -266,7 +284,7 @@ def fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto 
                    z, ):
 
     GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
-                  fget("G"), fkey("G"), get("method"),  # 这边 要省事 免代入 的话，得确保 提前 传入 ray,way,method 三个参数
+                  fget("G"), fkey("G"), Get("method"),  # 这边 要省事 免代入 的话，得确保 提前 传入 ray,way,method 三个参数
                   eget("G"),
                   fget("H"), fkey("H"),  # 以及 传入 GHU 这三个 小东西
                   fget("U"), fkey("U"),
@@ -305,19 +323,19 @@ def fU_SSI_plot(U1_name, folder_address,
                z_1, z_2,
                z_f, z_e, z, ):
 
-    if get("is_stored") == 1:
+    if Get("is_stored") == 1:
 
-        sget("G")[:, :, get("sheets_stored_num")] = fget("G")  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
-        sget("U")[:, :, get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U1_0，而是 U1_dz
+        sget("G")[:, :, Get("sheets_stored_num")] = fget("G")  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
+        sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U1_0，而是 U1_dz
 
         # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
-        YZget("G")[:, get("sheets_num")] = fget("G")[:, get("th_X")]
-        XZget("G")[:, get("sheets_num")] = fget("G")[get("th_Y"), :]
-        YZget("U")[:, get("sheets_num")] = fget("U")[:, get("th_X")]
-        XZget("U")[:, get("sheets_num")] = fget("U")[get("th_Y"), :]
+        YZget("G")[:, Get("sheets_num")] = fget("G")[:, Get("th_X")]
+        XZget("G")[:, Get("sheets_num")] = fget("G")[Get("th_Y"), :]
+        YZget("U")[:, Get("sheets_num")] = fget("U")[:, Get("th_X")]
+        XZget("U")[:, Get("sheets_num")] = fget("U")[Get("th_Y"), :]
 
         U_SSI_plot(U1_name, folder_address,
-                   sget("G"), fkey("G"), get("method"),
+                   sget("G"), fkey("G"), Get("method"),
                    sget("U"), fkey("U"),
                    YZget("G"), XZget("G"),
                    YZget("U"), XZget("U"),
@@ -325,8 +343,8 @@ def fU_SSI_plot(U1_name, folder_address,
                    getf("G"), gete("G"),
                    get1("U"), get2("U"),
                    getf("U"), gete("U"),
-                   get("th_X"), get("th_Y"),
-                   get("sheet_th_sec1"), get("sheet_th_sec2"),
+                   Get("th_X"), Get("th_Y"),
+                   Get("sheet_th_sec1"), Get("sheet_th_sec2"),
                    th_f, th_e,
                    img_name_extension,
                    # %%
@@ -341,7 +359,7 @@ def fU_SSI_plot(U1_name, folder_address,
                    # %%
                    is_colorbar_on, is_energy, is_show_structure_face,
                    # %%
-                   get("X"), get("Y"), # 这个也可 顺便 设成 global 的，懒得搞
+                   Get("X"), Get("Y"), # 这个也可 顺便 设成 global 的，懒得搞
                    z_1, z_2,
                    z_f, z_e,
-                   get("zj"), get("z_stored"), z, )
+                   Get("zj"), Get("z_stored"), z, )

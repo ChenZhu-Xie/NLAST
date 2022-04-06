@@ -7,20 +7,16 @@ Created on Sun Dec 26 22:09:04 2021
 
 # %%
 
-import os
-import numpy as np
 import math
-from scipy.io import savemat
-from fun_os import img_squared_bordered_Read, U_Read, U_dir, U_energy_print, U_plot, U_save
-from fun_img_Resize import image_Add_black_border
+import numpy as np
+from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
-from fun_plot import plot_2d
-from fun_pump import pump_LG
-from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
+from fun_pump import pump_pic_or_U
+from fun_linear import init_AST, init_SHG
+from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_statistics import U_Drop_n_sigma
+from fun_global_var import init_GLV_DICT, end_SSI, dset, fget, fGHU_plot_save
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 
@@ -88,85 +84,56 @@ def NLA(U1_name="",
 
     # %%
 
-    location = os.path.dirname(os.path.abspath(__file__))  # 其实不需要，默认就是在 相对路径下 读，只需要 文件名 即可
+    if_image_Add_black_border(U1_name, img_full_name,
+                              __name__ == "__main__", is_print, **kwargs, )
 
-    if (type(U1_name) != str) or U1_name == "":
+    ray = init_GLV_DICT(U1_name, "2", "", "NLA", **kwargs)
 
-        if __name__ == "__main__":
-            border_percentage = kwargs["border_percentage"] if len(kwargs) != 0 else 0.1
+    #%%
 
-            image_Add_black_border(img_full_name,  # 预处理 导入图片 为方形，并加边框
-                                   border_percentage,
-                                   is_print, )
-
-        # %%
-        # 导入 方形，以及 加边框 的 图片
-
-        img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = img_squared_bordered_Read(
-            img_full_name,
-            U1_0_NonZero_size, dpi,
-            is_phase_only)
-
-        # %%
-        # 预处理 输入场
-
-        n1, k1 = Cal_n(size_PerPixel,
-                       is_air_pump,
-                       lam1, T, p="e")
-
-        U1_0, g1_shift = pump_LG(img_full_name,
-                                 I1_x, I1_y, size_PerPixel,
-                                 U1_0, w0, k1, z_pump,
-                                 is_LG, is_Gauss, is_OAM,
-                                 l, p,
-                                 theta_x, theta_y,
-                                 is_random_phase,
-                                 is_H_l, is_H_theta, is_H_random_phase,
-                                 is_save, is_save_txt, dpi,
-                                 cmap_2d, ticks_num, is_contourf,
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font,
-                                 is_colorbar_on, is_energy,
-                                 is_print, )
-
-    else:
-
-        # %%
-        # 导入 方形 的 图片，以及 U
-
-        img_name, img_name_extension, img_squared, size_PerPixel, size_fig, I1_x, I1_y, U1_0 = U_Read(U1_name,
-                                                                                                      img_full_name,
-                                                                                                      U1_0_NonZero_size,
-                                                                                                      dpi,
-                                                                                                      is_save_txt, )
-
+    img_name, img_name_extension, img_squared, \
+    size_PerPixel, size_fig, Ix, Iy, \
+    U1_0, g1_shift = pump_pic_or_U(U1_name,
+                                   img_full_name,
+                                   is_phase_only,
+                                   # %%
+                                   z_pump,
+                                   is_LG, is_Gauss, is_OAM,
+                                   l, p,
+                                   theta_x, theta_y,
+                                   # %%
+                                   is_random_phase,
+                                   is_H_l, is_H_theta, is_H_random_phase,
+                                   # %%
+                                   U1_0_NonZero_size, w0,
+                                   # %%
+                                   lam1, is_air_pump, T,
+                                   # %%
+                                   is_save, is_save_txt, dpi,
+                                   cmap_2d,
+                                   # %%
+                                   ticks_num, is_contourf,
+                                   is_title_on, is_axes_on, is_mm,
+                                   # %%
+                                   fontsize, font,
+                                   # %%
+                                   is_colorbar_on, is_energy,
+                                   # %%
+                                   is_print,
+                                   # %%
+                                   ray=ray, **kwargs, )
     # %%
 
-    n1, k1 = Cal_n(size_PerPixel,
-                   is_air,
-                   lam1, T, p="e")
+    n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
+                                   lam1, is_air, T, )
 
-    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(I1_x, I1_y, k1)
-
-    # %%
-    # 非线性 角谱理论 - 无近似 begin
-
-    I2_x, I2_y = U1_0.shape[0], U1_0.shape[1]
-
-    # %%
-
-    lam2 = lam1 / 2
-
-    n2, k2 = Cal_n(size_PerPixel,
-                   is_air,
-                   lam2, T, p="e")
-
-    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(I2_x, I2_y, k2)
+    lam2, n2, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+                                         lam1, is_air, T, )
 
     # %%
     # 提供描边信息，并覆盖值
 
-    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
+    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z, k2_z, Tz, mz,
                                                                   z0, size_PerPixel, z0,
                                                                   is_print, is_contours, n_TzQ, Gz_max_Enhance,
                                                                   match_mode, )
@@ -174,73 +141,61 @@ def NLA(U1_name="",
     # %%
     # 引入 倒格矢，对 k2 的 方向 进行调整，其实就是对 k2 的 k2x, k2y, k2z 网格的 中心频率 从 (0, 0, k2z) 移到 (Gx, Gy, k2z + Gz)
 
-    dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
-                            is_print=0)
-
-    Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
-                            Tx, Ty, Tz, size_PerPixel,
-                            is_print)
+    dk, lc, Tz, \
+    Gx, Gy, Gz = args_SHG(k1, k2, size_PerPixel,
+                          mx, my, mz,
+                          Tx, Ty, Tz,
+                          is_print=0, )
 
     # %%
     # const
 
-    deff = C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
-    const = (k2 / size_PerPixel / n2) ** 2 * deff
+    const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
 
     # %%
 
-    z2_0 = z0
-    i2_z0 = z2_0 / size_PerPixel
+    iz = z0 / size_PerPixel
 
     if is_fft == 0:
 
-        integrate_z0_shift = np.zeros((I2_x, I2_y), dtype=np.complex128())
+        integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
 
-        g1_shift_rotate_180 = Rotate_180(g1_shift)
+        g1_rotate_180 = Rotate_180(g1_shift)
 
-
-        # g1_shift_rotate_180_shift = g1_shift_rotate_180
-        # # 往下（行） 循环平移 I2_x 像素
-        # g1_shift_rotate_180_shift = np.roll(g1_shift_rotate_180_shift, I2_x, axis=0)
-        # # 往右（列） 循环平移 I2_y 像素
-        # g1_shift_rotate_180_shift = np.roll(g1_shift_rotate_180_shift, I2_y, axis=1)
-
-        def Cal_integrate_z0_shift(for_th, fors_num, *arg, ):
-            for n2_y in range(I2_y):
-                dk_z_Q_shift = Cal_dk_z_Q_shift_SHG(k1,
-                                                    k1_z_shift, k2_z_shift,
-                                                    mesh_k1_x_k1_y_shift, mesh_k2_x_k2_y_shift,
-                                                    for_th, n2_y,
-                                                    Gx, Gy, Gz, )
+        def fun1(for_th, fors_num, *arg, ):
+            for n2_y in range(Iy):
+                dk_zQ = Cal_dk_zQ_SHG(k1,
+                                    k1_z, k2_z,
+                                    k1_xy, k2_xy,
+                                    for_th, n2_y,
+                                    Gx, Gy, Gz, )
 
                 roll_x, roll_y = Cal_roll_xy(Gx, Gy,
-                                             I2_x, I2_y,
+                                             Ix, Iy,
                                              for_th, n2_y, )
 
-                g1_shift_dk_x_dk_y = Roll_xy(g1_shift_rotate_180,
+                g1_shift_dk_x_dk_y = Roll_xy(g1_rotate_180,
                                              roll_x, roll_y,
                                              is_linear_convolution, )
 
-                integrate_z0_shift[for_th, n2_y] = np.sum(
-                    g1_shift * g1_shift_dk_x_dk_y * Eikz(dk_z_Q_shift * i2_z0) * i2_z0 * size_PerPixel \
-                    * (2 / (dk_z_Q_shift / k2_z_shift[for_th, n2_y] + 2)))
+                integrate_z0[for_th, n2_y] = np.sum(
+                    g1_shift * g1_shift_dk_x_dk_y * Eikz(dk_zQ * iz) * iz * size_PerPixel \
+                    * (2 / (dk_zQ / k2_z[for_th, n2_y] + 2)))
 
-
-        my_thread(10, I2_x,
-                  Cal_integrate_z0_shift, noop, noop,
+        my_thread(10, Ix,
+                  fun1, noop, noop,
                   is_ordered=1, is_print=is_print, )
+        
+        g2_z = const * integrate_z0 / k2_z * size_PerPixel
 
-        # integrate_z0_shift = integrate_z0_shift * (2 * math.pi / I2_x / size_PerPixel) * (2 * math.pi / I2_y / size_PerPixel)
-        g2_z0_shift = const * integrate_z0_shift / k2_z_shift * size_PerPixel
-
-        G2_z0_shift = g2_z0_shift * np.power(math.e, k2_z_shift * i2_z0 * 1j)
+        dset("G", g2_z * np.power(math.e, k2_z * iz * 1j))
 
     else:
 
         if fft_mode == 0:
             # %% generate structure
 
-            n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
+            n1, k1, k1_z, lam2, n2, k2, k2_z, \
             dk, lc, Tz, Gx, Gy, Gz, \
             size_PerPixel, U1_0_structure, g1_shift_structure, \
             structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
@@ -283,203 +238,41 @@ def NLA(U1_name="",
                                              # %%
                                              is_print, )
 
-            G2_z0_shift = G2_z_modulation_NLAST(k1, k2, Gz,
-                                                modulation_squared, U1_0, i2_z0, const, )
+            dset("G", G2_z_modulation_NLAST(k1, k2, Gz,
+                                                modulation_squared, U1_0, iz, const, ))
 
         elif fft_mode == 1:
 
-            G2_z0_shift = G2_z_NLAST(k1, k2, Gx, Gy, Gz, 
-                                     U1_0, i2_z0, const, 
-                                     is_linear_convolution, )
+            dset("G", G2_z_NLAST(k1, k2, Gx, Gy, Gz,
+                                     U1_0, iz, const,
+                                     is_linear_convolution, ))
 
         elif fft_mode == 2:
 
-            G2_z0_shift = G2_z_NLAST_false(k1, k2, Gx, Gy, Gz, 
-                                           U1_0, i2_z0, const, 
-                                           is_linear_convolution, )
-
-    G2_z0_shift_amp = np.abs(G2_z0_shift)
-    # print(np.max(G2_z0_shift_amp))
-    G2_z0_shift_phase = np.angle(G2_z0_shift)
-    if is_save == 1:
-        if not os.path.isdir("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_shift"):
-            os.makedirs("5. G2_" + str(float('%.2g' % z0)) + "mm" + "_shift")
+            dset("G", G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
+                                           U1_0, iz, const,
+                                           is_linear_convolution, ))
 
     # %%
-    # 绘图：G2_z0_shift_amp
 
-    G2_z0_shift_amp_address = location + "\\" + "5. G2_" + str(
-        float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "5.1. NLA - " + "G2_" + str(
-        float('%.2g' % z0)) + "mm" + "_shift_amp" + img_name_extension
+    end_SSI(g1_shift, is_energy, n_sigma=3, )
 
-    plot_2d([], 1, size_PerPixel,
-            G2_z0_shift_amp, G2_z0_shift_amp_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp",
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            1, is_colorbar_on, is_energy, vmax, vmin)
+    fGHU_plot_save(U1_name, 0,  # 默认 全自动 is_auto = 1
+                   img_name_extension,
+                   # %%
+                   [], 1, size_PerPixel,
+                   is_save, is_save_txt, dpi, size_fig,
+                   # %%
+                   "b", cmap_2d,
+                   ticks_num, is_contourf,
+                   is_title_on, is_axes_on, is_mm,
+                   fontsize, font,
+                   # %%
+                   is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                   # %%                          何况 一般默认 is_self_colorbar = 1...
+                   z0, )
 
-    # %%
-    # 绘图：G2_z0_shift_phase
-
-    G2_z0_shift_phase_address = location + "\\" + "5. G2_" + str(
-        float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "5.2. NLA - " + "G2_" + str(
-        float('%.2g' % z0)) + "mm" + "_shift_phase" + img_name_extension
-
-    plot_2d([], 1, size_PerPixel,
-            G2_z0_shift_phase, G2_z0_shift_phase_address, "G2_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase",
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            1, is_colorbar_on, 0, vmax, vmin)
-
-    # %%
-    # 储存 G2_z0_shift 到 txt 文件
-
-    if is_save == 1:
-        G2_z0_shift_full_name = "5. NLA - G2_" + str(float('%.2g' % z0)) + "mm" + "_shift" + (
-                is_save_txt and ".txt" or ".mat")
-        G2_z0_shift_txt_address = location + "\\" + "5. G2_" + str(
-            float('%.2g' % z0)) + "mm" + "_shift" + "\\" + G2_z0_shift_full_name
-        np.savetxt(G2_z0_shift_txt_address, G2_z0_shift) if is_save_txt else savemat(G2_z0_shift_txt_address,
-                                                                                     {"G": G2_z0_shift})
-
-    # %%
-    # % H2_z0
-
-    H2_z0_shift = G2_z0_shift / np.max(np.abs(G2_z0_shift)) / (g1_shift / np.max(np.abs(g1_shift)))
-    # 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。
-    H2_z0_shift = U_Drop_n_sigma(H2_z0_shift, 3, is_energy)
-
-    if is_save == 1:
-        if not os.path.isdir("4. H2_" + str(float('%.2g' % z0)) + "mm" + "_shift"):
-            os.makedirs("4. H2_" + str(float('%.2g' % z0)) + "mm" + "_shift")
-
-    # %%
-    # % H2_z0_shift_amp
-
-    H2_z0_shift_amp_address = location + "\\" + "4. H2_" + str(
-        float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.1. NLA - " + "H2_" + str(
-        float('%.2g' % z0)) + "mm" + "_shift_amp" + img_name_extension
-
-    plot_2d([], 1, size_PerPixel,
-            np.abs(H2_z0_shift), H2_z0_shift_amp_address, "H2_" + str(float('%.2g' % z0)) + "mm" + "_shift_amp",
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            1, is_colorbar_on, is_energy, vmax, vmin)
-
-    # %%
-    # 绘图：H2_z0_shift_phase
-
-    H2_z0_shift_phase_address = location + "\\" + "4. H2_" + str(
-        float('%.2g' % z0)) + "mm" + "_shift" + "\\" + "4.2. NLA - " + "H2_" + str(
-        float('%.2g' % z0)) + "mm" + "_shift_phase" + img_name_extension
-
-    plot_2d([], 1, size_PerPixel,
-            np.angle(H2_z0_shift), H2_z0_shift_phase_address, "H2_" + str(float('%.2g' % z0)) + "mm" + "_shift_phase",
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            1, is_colorbar_on, 0, vmax, vmin)
-
-    # %%
-    # 储存 H2_z0_shift 到 txt 文件
-
-    if is_save == 1:
-        H2_z0_shift_full_name = "4. NLA - H2_" + str(float('%.2g' % z0)) + "mm" + "_shift" + (
-                is_save_txt and ".txt" or ".mat")
-        H2_z0_shift_txt_address = location + "\\" + "4. H2_" + str(
-            float('%.2g' % z0)) + "mm" + "_shift" + "\\" + H2_z0_shift_full_name
-        np.savetxt(H2_z0_shift_txt_address, H2_z0_shift) if is_save_txt else savemat(H2_z0_shift_txt_address,
-                                                                                     {"H": H2_z0_shift})
-
-    # %%
-    # G2_z0 = G2_z0(k1_x, k1_y) → IFFT2 → U2(x0, y0, z0) = U2_z0
-
-    G2_z0 = np.fft.ifftshift(G2_z0_shift)
-    U2_z0 = np.fft.ifft2(G2_z0)
-    # 2 维 坐标空间 中的 复标量场，是 i2_x0, i2_y0 的函数
-    # U2_z0 = U2_z0 * scale_down_factor # 归一化
-    U2_z0_amp = np.abs(U2_z0)
-    # print(np.max(U2_z0_amp))
-    U2_z0_phase = np.angle(U2_z0)
-
-    print("NLA - U2_{}mm.total_energy = {}".format(z0, np.sum(U2_z0_amp ** 2)))
-
-    if is_save == 1:
-        if not os.path.isdir("6. U2_" + str(float('%.2g' % z0)) + "mm"):
-            os.makedirs("6. U2_" + str(float('%.2g' % z0)) + "mm")
-
-    # %%
-    # 绘图：U2_z0_amp
-
-    U2_z0_amp_address = location + "\\" + "6. U2_" + str(
-        float('%.2g' % z0)) + "mm" + "\\" + "6.1. NLA - " + "U2_" + str(
-        float('%.2g' % z0)) + "mm" + "_amp" + img_name_extension
-
-    plot_2d([], 1, size_PerPixel,
-            U2_z0_amp, U2_z0_amp_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_amp",
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            1, is_colorbar_on, is_energy, vmax, vmin)
-
-    # %%
-    # 绘图：U2_z0_phase
-
-    U2_z0_phase_address = location + "\\" + "6. U2_" + str(
-        float('%.2g' % z0)) + "mm" + "\\" + "6.2. NLA - " + "U2_" + str(
-        float('%.2g' % z0)) + "mm" + "_phase" + img_name_extension
-
-    plot_2d([], 1, size_PerPixel,
-            U2_z0_phase, U2_z0_phase_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_phase",
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            1, is_colorbar_on, 0, vmax, vmin)
-
-    # %%
-    # 储存 U2_z0 到 txt 文件
-
-    U2_z0_full_name = "6. NLA - U2_" + str(float('%.2g' % z0)) + "mm" + (is_save_txt and ".txt" or ".mat")
-    # print(U2_z0_full_name)
-    if is_save == 1:
-        U2_z0_txt_address = location + "\\" + "6. U2_" + str(float('%.2g' % z0)) + "mm" + "\\" + U2_z0_full_name
-        np.savetxt(U2_z0_txt_address, U2_z0) if is_save_txt else savemat(U2_z0_txt_address, {"U": U2_z0})
-
-        # %%
-        # 再次绘图：U2_z0_amp
-
-        U2_z0_amp_address = location + "\\" + "6.1. NLA - " + "U2_" + str(
-            float('%.2g' % z0)) + "mm" + "_amp" + img_name_extension
-
-        plot_2d([], 1, size_PerPixel,
-                U2_z0_amp, U2_z0_amp_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_amp",
-                is_save, dpi, size_fig,
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
-                fontsize, font,
-                1, is_colorbar_on, is_energy, vmax, vmin)
-
-        # 再次绘图：U2_z0_phase
-
-        U2_z0_phase_address = location + "\\" + "6.2. NLA - " + "U2_" + str(
-            float('%.2g' % z0)) + "mm" + "_phase" + img_name_extension
-
-        plot_2d([], 1, size_PerPixel,
-                U2_z0_phase, U2_z0_phase_address, "U2_" + str(float('%.2g' % z0)) + "mm" + "_phase",
-                is_save, dpi, size_fig,
-                cmap_2d, ticks_num, is_contourf, is_title_on, is_axes_on, is_mm, 0,
-                fontsize, font,
-                1, is_colorbar_on, 0, vmax, vmin)
-
-    # %%
-    # 储存 U2_z0 到 txt 文件
-
-    # if is_save == 1:
-    np.savetxt(U2_z0_full_name, U2_z0) if is_save_txt else savemat(U2_z0_full_name, {"U": U2_z0})
-
-    return U2_z0, G2_z0_shift
+    return fget("U"), fget("G")
 
 if __name__ == '__main__':
 

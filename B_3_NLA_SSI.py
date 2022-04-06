@@ -13,7 +13,7 @@ from scipy.io import loadmat
 from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
-from fun_SSI import slice_SSI
+from fun_SSI import Slice_SSI
 from fun_linear import init_AST, init_SHG, fft2, ifft2
 from fun_nonlinear import args_SHG, Info_find_contours_SHG, G2_z_modulation_NLAST
 from fun_thread import my_thread
@@ -37,9 +37,9 @@ def NLA_SSI(U1_name="",
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
             U1_0_NonZero_size=1, w0=0.3,
-            L0_Crystal=5, z0_front_expect=0.5, deff_structure_length_expect=2,
+            L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
             deff_structure_sheet_expect=1.8, sheets_stored_num=10,
-            z0_sec1_expect=1, z0_sec2_expect=1,
+            z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
             # %%
             is_bulk=1, is_no_backgroud=0,
@@ -142,9 +142,9 @@ def NLA_SSI(U1_name="",
     sheet_th_endface, sheets_num_endface, Iz_endface, z0_end, \
     sheet_th_sec1, sheets_num_sec1, iz_1, z0_1, \
     sheet_th_sec2, sheets_num_sec2, iz_2, z0_2 \
-        = slice_SSI(L0_Crystal, deff_structure_sheet_expect,
-                     z0_front_expect, deff_structure_length_expect,
-                     z0_sec1_expect, z0_sec2_expect,
+        = Slice_SSI(L0_Crystal, deff_structure_sheet_expect,
+                     z0_structure_frontface_expect, deff_structure_length_expect,
+                     z0_section_1_expect, z0_section_2_expect,
                      Tz, mz, size_PerPixel,
                      is_print)
 
@@ -154,7 +154,7 @@ def NLA_SSI(U1_name="",
     const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
 
     # %%
-    # G1_z0_shift
+    # G2_z0_shift
 
     folder_address = U_dir("", "0.n1_modulation_squared", 0,
                            is_bulk, )

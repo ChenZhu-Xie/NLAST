@@ -53,10 +53,11 @@ def Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
 
     # print(type(Tz) != np.float64)
     # print(type(Tz) != float) # float = np.float ≠ np.float64
-    if (type(Tz) != float and type(Tz) != np.float64 and type(
-            Tz) != int) or Tz <= 0:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
+    
+    if (type(Tz) != float and type(Tz) != np.float64 
+        and type(Tz) != int) or Tz <= 0:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
         Tz = 2 * lc  # Unit: μm
-
+        
     return dk, lc, Tz
 
 
@@ -91,7 +92,7 @@ def args_SHG(k1, k2, size_PerPixel,
 
 # %%
 
-def Cal_dk_z_Q_shift_SHG(k1,
+def Cal_dk_zQ_SHG(k1,
                          k1_z_shift, k2_z_shift,
                          mesh_k1_x_k1_y_shift, mesh_k2_x_k2_y_shift,
                          n2_x, n2_y,
@@ -107,9 +108,9 @@ def Cal_dk_z_Q_shift_SHG(k1,
     k1_z_shift_dk_x_dk_y = (k1 ** 2 - dk_x_shift ** 2 - dk_y_shift ** 2 + 0j) ** 0.5
 
     dk_z_shift = k1_z_shift + k1_z_shift_dk_x_dk_y - k2_z_shift[n2_x, n2_y]
-    dk_z_Q_shift = dk_z_shift + Gz
+    dk_zQ_shift = dk_z_shift + Gz
 
-    return dk_z_Q_shift
+    return dk_zQ_shift
 
 
 # %%
@@ -399,7 +400,8 @@ def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
         # print("相干长度 = {} μm".format(lc))
         # print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
         # print("畴宽_max = 相干长度 = {} μm <= 畴宽 = {} μm ".format(lc, Tz/2))
-        if (type(Tz) != float and type(Tz) != int) or Tz <= 0:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
+        if (type(Tz) != float and type(Tz) != np.float64 
+            and type(Tz) != int) or Tz <= 0:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
             Tz = 2 * lc  # Unit: um
 
         Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000)  # Tz / 1000 即以 mm 为单位
@@ -484,10 +486,10 @@ def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
 
     if is_contours == 1:
         z0_recommend = z0_min * n_TzQ
-        Tz_recommend = Tz_min
+        Tz_recommend = Tz_min if Tz_min != 0 else Tz
     elif is_contours == 2:
         z0_recommend = z0_exp * n_TzQ
-        Tz_recommend = Tz_exp
+        Tz_recommend = Tz_exp if Tz_exp != 0 else Tz
     else:
         z0_recommend = z0
         Tz_recommend = Tz

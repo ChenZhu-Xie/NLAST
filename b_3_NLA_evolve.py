@@ -17,7 +17,7 @@ from fun_array_Transform import Rotate_180, Roll_xy
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_pump import pump_LG
 from fun_linear import Cal_n, Cal_kz
-from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_z_Q_shift_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_modulation_3D_NLAST, \
+from fun_nonlinear import Eikz, C_m, Cal_lc_SHG, Cal_GxGyGz, Cal_dk_zQ_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_modulation_3D_NLAST, \
     G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
@@ -283,7 +283,6 @@ G2_z_shift_energy[0] = np.sum(np.abs(G2_z_shift)**2)
 U2_z_energy[0] = np.sum(np.abs(U2_z)**2)
 
 if is_stored == 1:
-    # sheet_stored_th = np.zeros( (sheets_stored_num + 1), dtype=np.int64() ) # 这个其实 就是 0123...
     sheet_th_stored = np.zeros( int(sheets_stored_num + 1), dtype=np.int64() )
     iz_stored = np.zeros( int(sheets_stored_num + 1), dtype=np.float64() )
     z_stored = np.zeros( int(sheets_stored_num + 1), dtype=np.float64() )
