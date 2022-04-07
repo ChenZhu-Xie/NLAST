@@ -13,77 +13,86 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST, init_SHG
-from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
+from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, G2_z_modulation_NLAST, \
+    G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG, G2_z_modulation_3D_NLAST
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import Set, Get, init_GLV_DICT, init_SSI, end_SSI, dset, dget, fget, fGHU_plot_save
+from fun_global_var import Set, Get, init_GLV_DICT, init_EVV, Fun3, end_SSI, \
+    dset, dget, fget, fGHU_plot_save, fU_EVV_plot
+
 np.seterr(divide='ignore', invalid='ignore')
+
+
 # %%
 
-def NLA(U1_name="",
-        img_full_name="Grating.png",
-        is_phase_only=0,
-        # %%
-        z_pump=0,
-        is_LG=0, is_Gauss=0, is_OAM=0,
-        l=0, p=0,
-        theta_x=0, theta_y=0,
-        #%%
-        is_random_phase=0,
-        is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-        # %%
-        # 生成横向结构
-        U1_name_Structure = '',
-        structure_size_Enlarge = 0.1,
-        is_phase_only_Structure = 0,
-        # %%
-        w0_Structure = 0, z_pump_Structure = 0,
-        is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0, 
-        l_Structure = 0, p_Structure = 0, 
-        theta_x_Structure = 0, theta_y_Structure = 0,
-        # %%
-        is_random_phase_Structure = 0, 
-        is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
-        # %%
-        U1_0_NonZero_size=1, w0=0.3,
-        z0=1, sheets_stored_num=10,
-        # %%
-        lam1=0.8, is_air_pump=0, is_air=0, T=25,
-        deff=30, is_fft = 1, fft_mode = 0, 
-        is_linear_convolution = 0,
-        #%%
-        Tx=10, Ty=10, Tz="2*lc",
-        mx=0, my=0, mz=0,
-        # %%
-        # 生成横向结构
-        Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
-        Depth = 2, structure_xy_mode = 'x',
-        #%%
-        is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
-        is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
-        is_stored = 1, is_energy_evolution_on = 1,
-        # %%
-        is_save=0, is_save_txt=0, dpi=100,
-        # %%
-        cmap_2d='viridis',
-        # %%
-        sample=2, ticks_num=6, is_contourf=0,
-        is_title_on=1, is_axes_on=1, is_mm=1,
-        # %%
-        fontsize=9,
-        font={'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        is_colorbar_on=1, is_energy=0,
-        # %%
-        is_print=1, is_contours=1, n_TzQ=1, 
-        Gz_max_Enhance=1, match_mode=1,
-        # %%
-        **kwargs, ):
-
+def NLA_EVV(U1_name="",
+            img_full_name="Grating.png",
+            is_phase_only=0,
+            # %%
+            z_pump=0,
+            is_LG=0, is_Gauss=0, is_OAM=0,
+            l=0, p=0,
+            theta_x=0, theta_y=0,
+            # %%
+            is_random_phase=0,
+            is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+            # %%
+            # 生成横向结构
+            U1_name_Structure='',
+            structure_size_Enlarge=0.1,
+            is_phase_only_Structure=0,
+            # %%
+            w0_Structure=0, z_pump_Structure=0,
+            is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
+            l_Structure=0, p_Structure=0,
+            theta_x_Structure=0, theta_y_Structure=0,
+            # %%
+            is_random_phase_Structure=0,
+            is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+            # %%
+            U1_0_NonZero_size=1, w0=0.3,
+            z0=1, sheets_stored_num=10,
+            # %%
+            lam1=0.8, is_air_pump=0, is_air=0, T=25,
+            deff=30, is_fft=1, fft_mode=0,
+            is_sum_Gm=0, mG=0,
+            is_linear_convolution=0,
+            # %%
+            Tx=10, Ty=10, Tz="2*lc",
+            mx=0, my=0, mz=0,
+            # %%
+            # 生成横向结构
+            Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+            Depth=2, structure_xy_mode='x',
+            # %%
+            is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+            is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
+            is_stored=1, is_energy_evolution_on=1,
+            # %%
+            is_save=0, is_save_txt=0, dpi=100,
+            # %%
+            color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+            elev=10, azim=-65, alpha=2,
+            # %%
+            sample=2, ticks_num=6, is_contourf=0,
+            is_title_on=1, is_axes_on=1, is_mm=1,
+            # %%
+            fontsize=9,
+            font={'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+            # %%
+            is_colorbar_on=1, is_energy=0, is_plot_3d_XYz = 0,
+            # %%
+            plot_group = "UGa", is_animated = 1,
+            loop = 0, duration = 0.033, fps = 5,
+            # %%
+            is_print=1, is_contours=1, n_TzQ=1,
+            Gz_max_Enhance=1, match_mode=1,
+            # %%
+            **kwargs, ):
     # %%
 
     if_image_Add_black_border(U1_name, img_full_name,
@@ -91,7 +100,7 @@ def NLA(U1_name="",
 
     ray = init_GLV_DICT(U1_name, "2", "EVV", "NLA", **kwargs)
 
-    #%%
+    # %%
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
@@ -202,19 +211,26 @@ def NLA(U1_name="",
 
     # %%
 
+    folder_address = ""
+
     iz = z0 / size_PerPixel
     zj = np.linspace(0, z0, sheets_stored_num + 1)
     izj = zj / size_PerPixel
+    Set("zj", zj)
+    Set("izj", izj)
 
-    init_SSI(g1_shift, U1_0,
+    init_EVV(g1_shift, U1_0,
              is_energy_evolution_on, is_stored,
              sheets_stored_num, sheets_stored_num,
-             0, 0, iz, size_PerPixel, )
-
-    def Fun1(for_th2, fors_num2, *arg, **kwargs, ):
+             iz, size_PerPixel, )
+    
+    def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
             np.zeros((Ix, Iy), dtype=np.complex128()))
+        # 加上 Fun3 中的 sset 其实共 储存了 2 次 这些 G2_zm 层（m = for_th2），有点浪费
+        # 但这里的又是必须存在的，因为之后得用它来在 fun2 里累加。。
+        # 所以最多也是之后的 Fun3 中的 sset 可以不必存在
 
         if for_th2 != 0:
             if is_fft == 0:
@@ -223,13 +239,13 @@ def NLA(U1_name="",
 
                 g1_rotate_180 = Rotate_180(g1_shift)
 
-                def fun1(for_th, fors_num, *arg, **kwargs, ):
+                def fun1(for_th, fors_num, *args, **kwargs, ):
                     for n2_y in range(Iy):
                         dk_zQ = Cal_dk_zQ_SHG(k1,
-                                            k1_z, k2_z,
-                                            k1_xy, k2_xy,
-                                            for_th, n2_y,
-                                            Gx, Gy, Gz, )
+                                              k1_z, k2_z,
+                                              k1_xy, k2_xy,
+                                              for_th, n2_y,
+                                              Gx, Gy, Gz, )
 
                         roll_x, roll_y = Cal_roll_xy(Gx, Gy,
                                                      Ix, Iy,
@@ -260,9 +276,9 @@ def NLA(U1_name="",
                     if is_sum_Gm == 0:
                         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                             G2_z_modulation_NLAST(k1, k2, Gz,
-                                                    modulation_squared, U1_0, izj[for_th2], const, ))
+                                                  modulation_squared, U1_0, izj[for_th2], const, ))
                     elif is_sum_Gm == 1:
-                        def fun1(for_th, fors_num, *arg, **kwargs, ):
+                        def fun1(for_th, fors_num, *args, **kwargs, ):
                             m_z = for_th - mG
                             Gz_m = 2 * math.pi * m_z * size_PerPixel / (Tz / 1000)
                             # print(m_z, C_m(m_z), "\n")
@@ -270,11 +286,11 @@ def NLA(U1_name="",
                             # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
                             Const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
                             G2_z0_Gm = G2_z_modulation_NLAST(k1, k2, Gz_m,
-                                                                   modulation_squared, U1_0, izj[for_th2],
-                                                                   Const, ) if m_z != 0 else 0
+                                                             modulation_squared, U1_0, izj[for_th2],
+                                                             Const, ) if m_z != 0 else 0
                             return G2_z0_Gm
 
-                        def fun2(for_th, fors_num, G2_z0_Gm, *arg, **kwargs, ):
+                        def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
                             # print("forth = {}".format(for_th))
 
                             Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
@@ -301,7 +317,7 @@ def NLA(U1_name="",
                                        U1_0, izj[for_th2], const,
                                        is_linear_convolution, ))
                     else:
-                        def fun1(for_th, fors_num, *arg, **kwargs, ):
+                        def fun1(for_th, fors_num, *args, **kwargs, ):
                             m_x = for_th - mG
                             Gx_m = 2 * math.pi * m_x * size_PerPixel / (Tx / 1000)
                             # print(m_x, C_m(m_x), "\n")
@@ -309,11 +325,11 @@ def NLA(U1_name="",
                             # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
                             Const = (k2 / size_PerPixel / n2) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
                             G2_z0_Gm = G2_z_NLAST(k1, k2, Gx_m, Gy, Gz,
-                                                        U1_0, izj[for_th2], Const,
-                                                        is_linear_convolution, ) if m_x != 0 else 0
+                                                  U1_0, izj[for_th2], Const,
+                                                  is_linear_convolution, ) if m_x != 0 else 0
                             return G2_z0_Gm
 
-                        def fun2(for_th, fors_num, G2_z0_Gm, *arg, **kwargs, ):
+                        def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
 
                             Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                                 Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G2_z0_Gm)
@@ -335,9 +351,9 @@ def NLA(U1_name="",
 
     def Fun2(for_th2, fors_num, G2_zm, *args, **kwargs, ):
 
-        dset("G", G2_zm)
+        dset("G", G2_zm)  # 主要是为了 end_SSI 中的 dget("G") 而存在的，否则 直接 返回 G2_zm 了
 
-        return dget("G") # 好像不需要 return ?
+        return dget("G")
 
     my_thread(10, sheets_stored_num + 1,
               Fun1, Fun2, Fun3,
@@ -347,13 +363,13 @@ def NLA(U1_name="",
 
     end_SSI(g1_shift, is_energy, n_sigma=3, )
 
-    fGHU_plot_save(U1_name, 0,  # 默认 全自动 is_auto = 1
+    fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    img_name_extension,
                    # %%
-                   [], 1, size_PerPixel,
+                   zj, sample, size_PerPixel,
                    is_save, is_save_txt, dpi, size_fig,
                    # %%
-                   "b", cmap_2d,
+                   color_1d, cmap_2d,
                    ticks_num, is_contourf,
                    is_title_on, is_axes_on, is_mm,
                    fontsize, font,
@@ -362,68 +378,98 @@ def NLA(U1_name="",
                    # %%                          何况 一般默认 is_self_colorbar = 1...
                    z0, )
 
+    # %%
+
+    fU_EVV_plot(U1_name, folder_address,
+                img_name_extension,
+                # %%
+                sample, size_PerPixel,
+                is_save, dpi, size_fig,
+                elev, azim, alpha,
+                # %%
+                cmap_2d, cmap_3d,
+                ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm,
+                fontsize, font,
+                # %%
+                is_colorbar_on, is_energy,
+                # %%
+                plot_group, is_animated,
+                loop, duration, fps,
+                # %%
+                is_plot_3d_XYz,
+                # %%
+                z0, )
+
     return fget("U"), fget("G")
 
-if __name__ == '__main__':
 
-    NLA(U1_name="",
-        img_full_name="Grating.png",
-        is_phase_only=0,
-        # %%
-        z_pump=0,
-        is_LG=0, is_Gauss=0, is_OAM=0,
-        l=0, p=0,
-        theta_x=0, theta_y=0,
-        # %%
-        is_random_phase=0,
-        is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-        # %%
-        # 生成横向结构
-        U1_name_Structure='',
-        structure_size_Enlarge=0.1,
-        is_phase_only_Structure=0,
-        # %%
-        w0_Structure=0, z_pump_Structure=0,
-        is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
-        l_Structure=0, p_Structure=0,
-        theta_x_Structure=0, theta_y_Structure=0,
-        # %%
-        is_random_phase_Structure=0,
-        is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
-        # %%
-        U1_0_NonZero_size=1, w0=0.3,
-        z0=1,
-        # %%
-        lam1=0.8, is_air_pump=0, is_air=0, T=25,
-        deff=30, is_fft=1, fft_mode=0,
-        is_linear_convolution=0,
-        # %%
-        Tx=10, Ty=10, Tz="2*lc",
-        mx=0, my=0, mz=0,
-        # %%
-        # 生成横向结构
-        Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-        Depth=2, structure_xy_mode='x',
-        is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
-        is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
-        # %%
-        is_save=0, is_save_txt=0, dpi=100,
-        # %%
-        cmap_2d='viridis',
-        # %%
-        ticks_num=6, is_contourf=0,
-        is_title_on=1, is_axes_on=1, is_mm=1,
-        # %%
-        fontsize=9,
-        font={'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        is_colorbar_on=1, is_energy=0,
-        # %%
-        is_print=1, is_contours=1, n_TzQ=1,
-        Gz_max_Enhance=1, match_mode=1,
-        # %%
-        border_percentage=0.1, )
+if __name__ == '__main__':
+    NLA_EVV(U1_name="",
+            img_full_name="Grating.png",
+            is_phase_only=0,
+            # %%
+            z_pump=0,
+            is_LG=0, is_Gauss=0, is_OAM=0,
+            l=0, p=0,
+            theta_x=0, theta_y=0,
+            # %%
+            is_random_phase=0,
+            is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+            # %%
+            # 生成横向结构
+            U1_name_Structure='',
+            structure_size_Enlarge=0.1,
+            is_phase_only_Structure=0,
+            # %%
+            w0_Structure=0, z_pump_Structure=0,
+            is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
+            l_Structure=0, p_Structure=0,
+            theta_x_Structure=0, theta_y_Structure=0,
+            # %%
+            is_random_phase_Structure=0,
+            is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+            # %%
+            U1_0_NonZero_size=1, w0=0.3,
+            z0=1, sheets_stored_num=10,
+            # %%
+            lam1=0.8, is_air_pump=0, is_air=0, T=25,
+            deff=30, is_fft=1, fft_mode=0,
+            is_sum_Gm=1, mG=3,
+            is_linear_convolution=0,
+            # %%
+            Tx=10, Ty=10, Tz="2*lc",
+            mx=0, my=0, mz=0,
+            # %%
+            # 生成横向结构
+            Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+            Depth=2, structure_xy_mode='x',
+            # %%
+            is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+            is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
+            is_stored=1, is_energy_evolution_on=1,
+            # %%
+            is_save=0, is_save_txt=0, dpi=100,
+            # %%
+            color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+            elev=10, azim=-65, alpha=2,
+            # %%
+            sample=2, ticks_num=6, is_contourf=0,
+            is_title_on=1, is_axes_on=1, is_mm=1,
+            # %%
+            fontsize=9,
+            font={'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+            # %%
+            is_colorbar_on=1, is_energy=0, is_plot_3d_XYz = 0,
+            #%%
+            plot_group = "UGa", is_animated = 1,
+            loop = 0, duration = 0.033, fps = 5,
+            # %%
+            is_print=1, is_contours=1, n_TzQ=1,
+            Gz_max_Enhance=1, match_mode=1,
+            # %%
+            border_percentage=0.1, )

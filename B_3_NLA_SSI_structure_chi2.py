@@ -87,6 +87,12 @@ def NLA_SSI_chi2(U1_name="",
                  # %%
                  is_colorbar_on=1, is_energy=0,
                  # %%
+                 plot_group="UGa", is_animated=1,
+                 loop=0, duration=0.033, fps=5,
+                 # %%
+                 is_plot_3d_XYz=0, is_plot_selective=0,
+                 is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+                 # %%
                  is_print=1, is_contours=1, n_TzQ=1,
                  Gz_max_Enhance=1, match_mode=1,
                  # %%
@@ -254,7 +260,7 @@ def NLA_SSI_chi2(U1_name="",
 
         if is_NLAST == 1:
             dG2_zdz = G2_z_modulation_NLAST(k1, k2, 0,
-                         modulation_squared_z, U1_z, dizj[for_th], const, )
+                                            modulation_squared_z, U1_z, dizj[for_th], const, )
         else:
             Q2_z = fft2(modulation_squared_z * U1_z ** 2)
             dG2_zdz = const * Q2_z * H2_z(dizj[for_th])
@@ -273,7 +279,7 @@ def NLA_SSI_chi2(U1_name="",
 
     # %%
 
-    end_SSI(g1_shift, is_energy, n_sigma = 3, )
+    end_SSI(g1_shift, is_energy, n_sigma=3, )
 
     fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    img_name_extension,
@@ -307,10 +313,17 @@ def NLA_SSI_chi2(U1_name="",
                 # %%
                 is_colorbar_on, is_energy, is_show_structure_face,
                 # %%
+                plot_group, is_animated,
+                loop, duration, fps,
+                # %%
+                is_plot_3d_XYz, is_plot_selective,
+                is_plot_YZ_XZ, is_plot_3d_XYZ,
+                # %%
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
     return fget("U"), fget("G")
+
 
 if __name__ == '__main__':
     NLA_SSI_chi2(U1_name="",
@@ -351,7 +364,7 @@ if __name__ == '__main__':
                  # %%
                  Tx=10, Ty=10, Tz="2*lc",
                  mx=0, my=0, mz=0,
-                 is_stripe=0, is_NLAST=0, # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+                 is_stripe=0, is_NLAST=0,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
                  # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
                  # %%
                  # 生成横向结构
@@ -377,8 +390,13 @@ if __name__ == '__main__':
                  # %%
                  is_colorbar_on=1, is_energy=0,
                  # %%
+                 plot_group="UGa", is_animated=1,
+                 loop=0, duration=0.033, fps=5,
+                 # %%
+                 is_plot_3d_XYz=0, is_plot_selective=0,
+                 is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+                 # %%
                  is_print=1, is_contours=66, n_TzQ=1,
                  Gz_max_Enhance=1, match_mode=1,
                  # %%
                  border_percentage=0.1, )
-

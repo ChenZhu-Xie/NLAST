@@ -69,6 +69,12 @@ def NLA_SSI(U1_name="",
             # %%
             is_colorbar_on=1, is_energy=0,
             # %%
+            plot_group="UGa", is_animated=1,
+            loop=0, duration=0.033, fps=5,
+            # %%
+            is_plot_3d_XYz=0, is_plot_selective=0,
+            is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+            # %%
             is_print=1, is_contours=1, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
@@ -118,7 +124,7 @@ def NLA_SSI(U1_name="",
                                    lam1, is_air, T, )
 
     lam2, n2, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
-                                    lam1, is_air, T, )
+                                         lam1, is_air, T, )
 
     L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z, k2_z, Tz, mz,
                                                                           L0_Crystal, size_PerPixel,
@@ -128,9 +134,9 @@ def NLA_SSI(U1_name="",
 
     dk, lc, Tz, \
     Gx, Gy, Gz = args_SHG(k1, k2, size_PerPixel,
-                         mx, my, mz,
-                         Tx, Ty, Tz,
-                         is_print=0, )
+                          mx, my, mz,
+                          Tx, Ty, Tz,
+                          is_print=0, )
 
     # %%
 
@@ -143,10 +149,10 @@ def NLA_SSI(U1_name="",
     sheet_th_sec1, sheets_num_sec1, iz_1, z0_1, \
     sheet_th_sec2, sheets_num_sec2, iz_2, z0_2 \
         = Slice_SSI(L0_Crystal, deff_structure_sheet_expect,
-                     z0_structure_frontface_expect, deff_structure_length_expect,
-                     z0_section_1_expect, z0_section_2_expect,
-                     Tz, mz, size_PerPixel,
-                     is_print)
+                    z0_structure_frontface_expect, deff_structure_length_expect,
+                    z0_section_1_expect, z0_section_2_expect,
+                    Tz, mz, size_PerPixel,
+                    is_print)
 
     # %%
     # const
@@ -210,7 +216,7 @@ def NLA_SSI(U1_name="",
 
     # %%
 
-    end_SSI(g1_shift, is_energy, n_sigma = 3, )
+    end_SSI(g1_shift, is_energy, n_sigma=3, )
 
     fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    img_name_extension,
@@ -244,10 +250,17 @@ def NLA_SSI(U1_name="",
                 # %%
                 is_colorbar_on, is_energy, is_show_structure_face,
                 # %%
+                plot_group, is_animated,
+                loop, duration, fps,
+                # %%
+                is_plot_3d_XYz, is_plot_selective,
+                is_plot_YZ_XZ, is_plot_3d_XYZ,
+                # %%
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
     return fget("U"), fget("G")
+
 
 if __name__ == '__main__':
     NLA_SSI(U1_name="",
@@ -294,6 +307,12 @@ if __name__ == '__main__':
                   },
             # %%
             is_colorbar_on=1, is_energy=0,
+            # %%
+            plot_group="UGa", is_animated=1,
+            loop=0, duration=0.033, fps=5,
+            # %%
+            is_plot_3d_XYz=0, is_plot_selective=0,
+            is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
             # %%
             is_print=1, is_contours=1, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,

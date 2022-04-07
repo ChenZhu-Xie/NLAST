@@ -13,7 +13,6 @@ import math
 from scipy.io import loadmat, savemat
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_gif_video import imgs2gif_imgio, imgs2gif_PIL, imgs2gif_art
-from fun_thread import noop, my_thread
 
 # %%
 # 获取 桌面路径（C 盘 原生）
@@ -67,12 +66,12 @@ def find_ray_sequence(U1_name):
     return ray
 
 
-def set_ray(U1_name, set_ray, **kwargs):
+def set_ray(U1_name, ray_current, **kwargs):
     if "U" not in kwargs:
         ray_sequence = find_ray_sequence(U1_name)  # 从 U1_name 中找到 ray_sequence
-        ray = ray_sequence[0] + set_ray if len(ray_sequence) != 0 else set_ray
+        ray = ray_sequence[0] + ray_current if len(ray_sequence) != 0 else ray_current
     else:
-        ray = kwargs['ray'] + set_ray if "ray" in kwargs else set_ray  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
+        ray = kwargs['ray'] + ray_current if "ray" in kwargs else ray_current  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
 
     return ray
 
@@ -915,7 +914,7 @@ def U_phases_z_plot(U1_name, folder_address, is_auto,
         imgs_address_list.append(U_phase_plot_address)
         titles_list.append(U_phase_title)  # 每张图片都用单独list的形式加入到图片序列中
 
-    if is_save == 1: # 只有 储存后，才能根据 储存的图片 生成 gif
+    if is_save == 1:  # 只有 储存后，才能根据 储存的图片 生成 gif
 
         """ plot2d 无法多线程，因为会挤占 同一个 fig 这个 全局的画布资源？ 注释了 plt.show() 也没用，应该不是它的锅。
         不过其实可以在 U_amp_plot 里面搞多线程，因为 获取 address 和 title 不是全局的 """
@@ -1131,18 +1130,11 @@ def U_phase_plot_3d_XYZ(U1_name, folder_address, is_auto,
     return U_phase_plot_address
 
 
-def U_SSI_plot(U1_name, folder_address,
+# %%
+
+def U_EVV_plot(U1_name, folder_address,
                G_stored, G_name, method,
                U_stored, U_name,
-               G_YZ, G_XZ,
-               U_YZ, U_XZ,
-               G_1, G_2,
-               G_f, G_e,
-               U_1, U_2,
-               U_f, U_e,
-               th_X, th_Y,
-               th_1, th_2,
-               th_f, th_e,
                img_name_extension,
                # %%
                sample, size_PerPixel,
@@ -1154,25 +1146,14 @@ def U_SSI_plot(U1_name, folder_address,
                is_title_on, is_axes_on, is_mm,
                fontsize, font,
                # %%
-               is_colorbar_on, is_energy, is_show_structure_face,
+               is_colorbar_on, is_energy,
                # %%
-               X, Y,
-               z_1, z_2,
-               z_f, z_e,
+               plot_group, is_animated,
+               loop, duration, fps,
+               # %%
+               is_plot_3d_XYz,
+               # %%
                zj, z_stored, z, ):
-    is_plot_3d_XYz = 0
-    is_plot_selective = 0
-    is_plot_YZ_XZ = 1
-    is_plot_3d_XYZ = 0
-    plot_group = "UGa"
-
-    is_animated = 1
-    loop = 0
-    duration = 0.033  # 单位为 s
-    fps = 5
-
-    # %%
-
     if is_save == 1:
         folder_address = U_dir(U1_name, G_name + "_sheets", 1,
                                0, z, )
@@ -1273,6 +1254,70 @@ def U_SSI_plot(U1_name, folder_address,
                                                # %%
                                                zj, z_stored, )
 
+
+# %%
+
+def U_SSI_plot(U1_name, folder_address,
+               G_stored, G_name, method,
+               U_stored, U_name,
+               G_YZ, G_XZ,
+               U_YZ, U_XZ,
+               G_1, G_2,
+               G_f, G_e,
+               U_1, U_2,
+               U_f, U_e,
+               th_X, th_Y,
+               th_1, th_2,
+               th_f, th_e,
+               img_name_extension,
+               # %%
+               sample, size_PerPixel,
+               is_save, dpi, size_fig,
+               elev, azim, alpha,
+               # %%
+               cmap_2d, cmap_3d,
+               ticks_num, is_contourf,
+               is_title_on, is_axes_on, is_mm,
+               fontsize, font,
+               # %%
+               is_colorbar_on, is_energy, is_show_structure_face,
+               # %%
+               plot_group, is_animated,
+               loop, duration, fps,
+               # %%
+               is_plot_3d_XYz, is_plot_selective,
+               is_plot_YZ_XZ, is_plot_3d_XYZ,
+               # %%
+               X, Y,
+               z_1, z_2,
+               z_f, z_e,
+               zj, z_stored, z, ):
+
+    # %%
+
+    U_EVV_plot(U1_name, folder_address,
+               G_stored, G_name, method,
+               U_stored, U_name,
+               img_name_extension,
+               # %%
+               sample, size_PerPixel,
+               is_save, dpi, size_fig,
+               elev, azim, alpha,
+               # %%
+               cmap_2d, cmap_3d,
+               ticks_num, is_contourf,
+               is_title_on, is_axes_on, is_mm,
+               fontsize, font,
+               # %%
+               is_colorbar_on, is_energy,
+               # %%
+               plot_group, is_animated,
+               loop, duration, fps,
+               # %%
+               is_plot_3d_XYz,
+               # %%
+               zj, z_stored, z, )
+
     # %%
 
     if is_plot_selective == 1:
@@ -1366,7 +1411,7 @@ def U_SSI_plot(U1_name, folder_address,
             # %%
             # 绘制 G1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_amp（现在 可以 任选位置 了）
 
-            if ("G" in plot_group and "a" in plot_group) :
+            if ("G" in plot_group and "a" in plot_group):
                 U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
                                                        G_name + "_XYZ", method,
                                                        G_YZ, G_XZ,
@@ -1394,7 +1439,7 @@ def U_SSI_plot(U1_name, folder_address,
             # %%
             # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
 
-            if ("G" in plot_group and "p" in plot_group) :
+            if ("G" in plot_group and "p" in plot_group):
                 U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
                                                            G_name + "_XYZ", method,
                                                            G_YZ, G_XZ,
@@ -1450,7 +1495,7 @@ def U_SSI_plot(U1_name, folder_address,
             # %%
             # 绘制 U1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_amp
 
-            if ("U" in plot_group and "a" in plot_group) :
+            if ("U" in plot_group and "a" in plot_group):
                 U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
                                                        U_name + "_XYZ", method,
                                                        U_YZ, U_XZ,
@@ -1478,7 +1523,7 @@ def U_SSI_plot(U1_name, folder_address,
             # %%
             # 绘制 U1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_phase
 
-            if ("U" in plot_group and "p" in plot_group) :
+            if ("U" in plot_group and "p" in plot_group):
                 U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
                                                            U_name + "_XYZ", method,
                                                            U_YZ, U_XZ,
@@ -1578,7 +1623,7 @@ def Info_img(img_full_name):
     return img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address
 
 
-#%%
+# %%
 
 def img_squared_Read(img_full_name, U_NonZero_size):
     img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address = Info_img(
@@ -1589,6 +1634,7 @@ def img_squared_Read(img_full_name, U_NonZero_size):
     return img_name, img_name_extension, img_address, \
            img_squared_address, img_squared_bordered_address, \
            img_squared, size_PerPixel
+
 
 # %%
 # 导入 方形，以及 加边框 的 图片
@@ -1612,7 +1658,8 @@ def img_squared_bordered_Read(img_full_name,
 
     return img_name, img_name_extension, img_squared, size_PerPixel, size_fig, Ix, Iy, U
 
-#%%
+
+# %%
 
 def U_read_only(U_name, is_save_txt):
     desktop = get_desktop()
@@ -1621,6 +1668,7 @@ def U_read_only(U_name, is_save_txt):
     U = np.loadtxt(U_address, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U_full_name)['U']  # 加载 复振幅场
 
     return U
+
 
 # %%
 # 导入 方形 图片，以及 U

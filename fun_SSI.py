@@ -7,7 +7,7 @@ Created on Fri Feb 25 20:23:31 2022
 
 import numpy as np
 from fun_algorithm import find_nearest
-from fun_global_var import set, get
+from fun_global_var import Set
 
 # %%
 # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
@@ -245,12 +245,12 @@ def Slice_SSI(L0_Crystal, deff_structure_sheet_expect,
 
     #%%
 
-    set("izj", izj)
-    set("zj", zj)
-    set("sheet_th_frontface", sheet_th_frontface)
-    set("sheet_th_endface", sheet_th_endface)
-    set("sheet_th_sec1", sheet_th_section_1)
-    set("sheet_th_sec2", sheet_th_section_2)
+    Set("izj", izj)
+    Set("zj", zj)
+    Set("sheet_th_frontface", sheet_th_frontface)
+    Set("sheet_th_endface", sheet_th_endface)
+    Set("sheet_th_sec1", sheet_th_section_1)
+    Set("sheet_th_sec2", sheet_th_section_2)
 
     return diz, deff_structure_sheet, \
            sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \
@@ -562,12 +562,12 @@ def slice_SSI(L0_Crystal, size_PerPixel,
 
     #%%
 
-    set("izj", izj)
-    set("zj", zj)
-    set("sheet_th_frontface", sheet_th_frontface)
-    set("sheet_th_endface", sheet_th_endface)
-    set("sheet_th_sec1", sheet_th_section_1)
-    set("sheet_th_sec2", sheet_th_section_2)
+    Set("izj", izj)
+    Set("zj", zj)
+    Set("sheet_th_frontface", sheet_th_frontface)
+    Set("sheet_th_endface", sheet_th_endface)
+    Set("sheet_th_sec1", sheet_th_section_1)
+    Set("sheet_th_sec2", sheet_th_section_2)
 
     return diz, deff_structure_sheet, \
            sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \

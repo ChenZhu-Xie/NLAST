@@ -162,7 +162,7 @@ def NLA(U1_name="",
 
         g1_rotate_180 = Rotate_180(g1_shift)
 
-        def fun1(for_th, fors_num, *arg, ):
+        def fun1(for_th, fors_num, *args, ):
             for n2_y in range(Iy):
                 dk_zQ = Cal_dk_zQ_SHG(k1,
                                     k1_z, k2_z,

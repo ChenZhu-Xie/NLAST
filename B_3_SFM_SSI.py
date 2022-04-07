@@ -70,6 +70,12 @@ def SFM_SSI(U1_name="",
             # %%
             is_colorbar_on=1, is_energy=0,
             # %%
+            plot_group="UGa", is_animated=1,
+            loop=0, duration=0.033, fps=5,
+            # %%
+            is_plot_3d_XYz=0, is_plot_selective=0,
+            is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+            # %%
             is_print=1, is_contours=1, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
@@ -183,7 +189,7 @@ def SFM_SSI(U1_name="",
             return np.power(math.e, k2 * diz * 1j) / (k2 / size_PerPixel) * Eikz(
                     dk * diz) * diz * size_PerPixel * (2 / (dk / k2 + 2))
 
-    def fun1(for_th, fors_num, *arg, **kwargs, ):
+    def fun1(for_th, fors_num, *args, **kwargs, ):
         iz = izj[for_th]
 
         H1_z = np.power(math.e, k1_z * iz * 1j)
@@ -238,7 +244,7 @@ def SFM_SSI(U1_name="",
 
             return dU2_zdz
 
-    def fun2(for_th, fors_num, dG2_zdz, *arg, **kwargs, ):
+    def fun2(for_th, fors_num, dG2_zdz, *args, **kwargs, ):
 
         if cal_mode[0] == 1:  # 如果以 G 算
 
@@ -306,6 +312,12 @@ def SFM_SSI(U1_name="",
                 # %%
                 is_colorbar_on, is_energy, is_show_structure_face,
                 # %%
+                plot_group, is_animated,
+                loop, duration, fps,
+                # %%
+                is_plot_3d_XYz, is_plot_selective,
+                is_plot_YZ_XZ, is_plot_3d_XYZ,
+                # %%
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
@@ -357,6 +369,12 @@ if __name__ == '__main__':
                   },
             # %%
             is_colorbar_on=1, is_energy=0,
+            # %%
+            plot_group="UGa", is_animated=1,
+            loop=0, duration=0.033, fps=5,
+            # %%
+            is_plot_3d_XYz=0, is_plot_selective=0,
+            is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
             # %%
             is_print=1, is_contours=1, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
