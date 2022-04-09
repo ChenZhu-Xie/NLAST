@@ -10,7 +10,6 @@ import cv2
 import math
 import numpy as np
 import scipy.stats
-from scipy.io import loadmat
 from fun_os import img_squared_bordered_Read, U_Read, U_read_only, U_dir, U_energy_print, U_plot, U_save
 from fun_img_Resize import img_squared_Resize
 from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase
@@ -240,7 +239,6 @@ def pump(file_full_name="Grating.png",
          # %%
          **kwargs, ):
     # %%
-
     # file_name = os.path.splitext(file_full_name)[0]
     img_name_extension = os.path.splitext(file_full_name)[1]
     size_fig = Ix / dpi
@@ -365,16 +363,16 @@ def pump(file_full_name="Grating.png",
     # %%
     # 绘图：g_0_amp
 
-    ray = kwargs['ray'] if "ray" in kwargs else "1"
+    ray = kwargs['ray'] + "0" if "ray" in kwargs else "0"
+    # ray = kwargs['ray'] + "p" if "ray" in kwargs else "p"
+    # ray = kwargs['ray'] + "_p" if "ray" in kwargs else "_p"
+    method = "PUMP"
 
-    folder_address = ''
-
-    if is_save == 1:
-        folder_address = U_dir("", "3. G" + ray, 0,
-                               0, z, )
+    folder_address = U_dir("", "3. G" + ray, 0,
+                           is_save, z, )
 
     U_amp_plot_address, U_phase_plot_address = U_plot("", folder_address, 1,
-                                                      G_z0_shift, "G" + ray, "AST",
+                                                      G_z0_shift, "G" + ray, method,
                                                       img_name_extension,
                                                       # %%
                                                       1, size_PerPixel,
@@ -386,22 +384,20 @@ def pump(file_full_name="Grating.png",
                                                       # %%
                                                       z, )
 
-    if is_save == 1:
-        U_address = U_save("", folder_address, 1,
-                           G_z0_shift, "G" + ray, "AST",
-                           is_save_txt, z, )
+    U_save("", folder_address, 1,
+           G_z0_shift, "G" + ray, method,
+           is_save, is_save_txt, z, )
 
     # %%
 
-    if is_save == 1:
-        folder_address = U_dir("", "2. U" + ray, 0,
-                               0, z, )
+    folder_address = U_dir("", "2. U" + ray, 0,
+                           is_save, z, )
 
     U_energy_print("", is_print, 1,
-                   U_z0, "U" + ray, "AST", )
+                   U_z0, "U" + ray, method, )
 
     U_amp_plot_address, U_phase_plot_address = U_plot("", folder_address, 1,
-                                                      U_z0, "U" + ray, "AST",
+                                                      U_z0, "U" + ray, method,
                                                       img_name_extension,
                                                       # %%
                                                       1, size_PerPixel,
@@ -413,10 +409,9 @@ def pump(file_full_name="Grating.png",
                                                       # %%
                                                       z, )
 
-    if is_save == 1:
-        U_address = U_save("", folder_address, 1,
-                           U_z0, "U" + ray, "AST",
-                           is_save_txt, z, )
+    U_save("", folder_address, 1,
+           U_z0, "U" + ray, method,
+           is_save, is_save_txt, z, )
 
     return U_z0, G_z0_shift
 

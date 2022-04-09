@@ -9,6 +9,7 @@ Created on Sun Dec 26 22:09:04 2021
 
 import math
 import numpy as np
+from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
@@ -184,7 +185,8 @@ def NLA_EVV(U1_name="",
                                          # %%
                                          is_continuous, is_target_far_field,
                                          is_transverse_xy, is_reverse_xy,
-                                         is_positive_xy, is_no_backgroud,
+                                         is_positive_xy,
+                                         0, is_no_backgroud,
                                          # %%
                                          lam1, is_air_pump, is_air, T,
                                          Tx, Ty, Tz,
@@ -210,8 +212,6 @@ def NLA_EVV(U1_name="",
     const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
 
     # %%
-
-    folder_address = ""
 
     iz = z0 / size_PerPixel
     zj = np.linspace(0, z0, sheets_stored_num + 1)
@@ -380,7 +380,7 @@ def NLA_EVV(U1_name="",
 
     # %%
 
-    fU_EVV_plot(U1_name, folder_address,
+    fU_EVV_plot(U1_name,
                 img_name_extension,
                 # %%
                 sample, size_PerPixel,
@@ -435,11 +435,11 @@ if __name__ == '__main__':
             # %%
             lam1=0.8, is_air_pump=0, is_air=0, T=25,
             deff=30, is_fft=1, fft_mode=0,
-            is_sum_Gm=1, mG=3,
+            is_sum_Gm=0, mG=0,
             is_linear_convolution=0,
             # %%
-            Tx=10, Ty=10, Tz="2*lc",
-            mx=0, my=0, mz=0,
+            Tx=10, Ty=10, Tz=3,
+            mx=0, my=0, mz=1,
             # %%
             # 生成横向结构
             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
@@ -469,7 +469,7 @@ if __name__ == '__main__':
             plot_group = "UGa", is_animated = 1,
             loop = 0, duration = 0.033, fps = 5,
             # %%
-            is_print=1, is_contours=1, n_TzQ=1,
+            is_print=1, is_contours=66, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
             border_percentage=0.1, )

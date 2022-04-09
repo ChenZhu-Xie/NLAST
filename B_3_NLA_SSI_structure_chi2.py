@@ -161,7 +161,8 @@ def NLA_SSI_chi2(U1_name="",
                                      # %%
                                      is_continuous, is_target_far_field,
                                      is_transverse_xy, is_reverse_xy,
-                                     is_positive_xy, is_no_backgroud,
+                                     is_positive_xy,
+                                     is_bulk, is_no_backgroud,
                                      # %%
                                      lam1, is_air_pump, is_air, T,
                                      Tx, Ty, Tz,
@@ -210,9 +211,6 @@ def NLA_SSI_chi2(U1_name="",
 
     # %%
     # G2_z0_shift
-
-    folder_address = U_dir("", "0.n1_modulation_squared", 0,
-                           is_bulk, )
 
     init_SSI(g1_shift, U1_0,
              is_energy_evolution_on, is_stored,
@@ -298,7 +296,7 @@ def NLA_SSI_chi2(U1_name="",
 
     # %%
 
-    fU_SSI_plot(U1_name, folder_address,
+    fU_SSI_plot(U1_name,
                 sheets_num_frontface, sheets_num_endface,
                 img_name_extension,
                 # %%
@@ -352,28 +350,29 @@ if __name__ == '__main__':
                  is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                  # %%
                  U1_0_NonZero_size=1, w0=0.3,
-                 L0_Crystal=2, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
+                 L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
                  sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
                  X=0, Y=0,
                  # %%
-                 is_bulk=1, is_no_backgroud=0,
+                 is_bulk=0, is_no_backgroud=0,
                  is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
                  # %%
                  lam1=0.8, is_air_pump=0, is_air=0, T=25,
                  deff=30,
                  # %%
-                 Tx=10, Ty=10, Tz="2*lc",
-                 mx=0, my=0, mz=0,
+                 Tx=10, Ty=10, Tz=2.66,
+                 mx=0, my=0, mz=1,
                  is_stripe=0, is_NLAST=0,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
                  # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
                  # %%
                  # 生成横向结构
                  Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
                  Depth=2, structure_xy_mode='x',
+                 #%%
                  is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                  is_reverse_xy=0, is_positive_xy=1,
                  # %%
-                 is_save=0, is_save_txt=0, dpi=100,
+                 is_save=1, is_save_txt=0, dpi=100,
                  # %%
                  color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
                  elev=10, azim=-65, alpha=2,

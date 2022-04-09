@@ -9,12 +9,11 @@ Created on Mon Nov  1 14:38:57 2021
 
 import numpy as np
 np.seterr(divide='ignore',invalid='ignore')
-from fun_img_Resize import image_Add_black_border
+from fun_img_Resize import if_image_Add_black_border
 from A_2_structure_n1_Generate_3D import structure_n1_3D
-from B_2_nLA_SSI import nLA_SSI
+from B_2_nla_SSI import nla_SSI
 
-def a_to_B_2_nLA_SSI(U1_name_Structure = "", 
-                     border_percentage = 0.3, 
+def A_to_B_2_nla_SSI(U1_name_Structure = "",
                      is_phase_only_Structure = 0, 
                      #%%
                      z_pump_Structure = 0, 
@@ -55,7 +54,8 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                      lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, 
                      deff = 30, 
                      Tx = 19.769, Ty = 20, Tz = 18.139, 
-                     mx = -1, my = 0, mz = 1, 
+                     mx = -1, my = 0, mz = 1,
+                     is_stripe=0,
                      #%%
                      is_save = 0, is_save_txt = 0, dpi = 100, 
                      #%%
@@ -73,15 +73,22 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                              }, 
                      #%%
                      is_colorbar_on = 1, is_energy = 1,
+                     # %%
+                     plot_group="UGa", is_animated=1,
+                     loop=0, duration=0.033, fps=5,
+                     # %%
+                     is_plot_3d_XYz=0, is_plot_selective=0,
+                     is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
                      #%%
-                     is_print = 1, ):
+                     is_print = 1,
+                     # %%
+                     **kwargs, ):
     
     #%%
-    # a_Image_Add_Black_border
-    
-    image_Add_black_border(img_full_name, 
-                           border_percentage, 
-                           is_print, )
+    # Image_Add_Black_border
+
+    if_image_Add_black_border(U1_name, img_full_name,
+                              __name__ == "__main__", is_print, **kwargs, )
     
     #%%
     # A_3_Structure_Generate_NLC
@@ -109,7 +116,8 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
                   #%%
                   lam1, is_air_pump, is_air, T, 
                   Tx, Ty, Tz, 
-                  mx, my, mz, 
+                  mx, my, mz,
+                  is_stripe,
                   #%%
                   is_save, is_save_txt, dpi, 
                   #%%
@@ -127,7 +135,7 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
     #%%
     # B_3_NLA_SSI
     
-    nLA_SSI(U1_name, 
+    nla_SSI(U1_name,
             img_full_name, 
             is_phase_only, 
             #%%
@@ -164,11 +172,16 @@ def a_to_B_2_nLA_SSI(U1_name_Structure = "",
             fontsize, font, 
             #%%
             is_colorbar_on, is_energy,
+            # %%
+            plot_group, is_animated,
+            loop, duration, fps,
+            # %%
+            is_plot_3d_XYz, is_plot_selective,
+            is_plot_YZ_XZ, is_plot_3d_XYZ,
             #%%
             is_print, )
 
-a_to_B_2_nLA_SSI(U1_name_Structure = "", 
-                 border_percentage = 0.3, 
+A_to_B_2_nla_SSI(U1_name_Structure = "",
                  is_phase_only_Structure = 0, 
                  #%%
                  z_pump_Structure = 0, 
@@ -208,7 +221,8 @@ a_to_B_2_nLA_SSI(U1_name_Structure = "",
                  lam1 = 1.5, is_air_pump = 0, is_air = 0, T = 25, 
                  deff = 30, 
                  Tx = 19.769, Ty = 20, Tz = 188, 
-                 mx = 1, my = 1, mz = 1, 
+                 mx = 1, my = 1, mz = 1,
+                 is_stripe=0,
                  #%%
                  is_save = 1, is_save_txt = 0, dpi = 100, 
                  #%%
@@ -226,5 +240,13 @@ a_to_B_2_nLA_SSI(U1_name_Structure = "",
                          }, 
                  #%%
                  is_colorbar_on = 1, is_energy = 1,
+                 # %%
+                 plot_group="UGa", is_animated=1,
+                 loop=0, duration=0.033, fps=5,
+                 # %%
+                 is_plot_3d_XYz=0, is_plot_selective=0,
+                 is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
                  #%%
-                 is_print = 1, )
+                 is_print = 1,
+                 # %%
+                 border_percentage=0.1, )

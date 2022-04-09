@@ -161,7 +161,8 @@ def SFM_SSI_chi2(U1_name="",
                                      # %%
                                      is_continuous, is_target_far_field,
                                      is_transverse_xy, is_reverse_xy,
-                                     is_positive_xy, is_no_backgroud,
+                                     is_positive_xy,
+                                     is_bulk, is_no_backgroud,
                                      # %%
                                      lam1, is_air_pump, is_air, T,
                                      Tx, Ty, Tz,
@@ -210,9 +211,6 @@ def SFM_SSI_chi2(U1_name="",
 
     # %%
     # G2_z0_shift
-
-    folder_address = U_dir("", "0.n1_modulation_squared", 0,
-                           is_bulk, )
 
     init_SSI(g1_shift, U1_0,
              is_energy_evolution_on, is_stored,
@@ -360,7 +358,7 @@ def SFM_SSI_chi2(U1_name="",
 
     # %%
 
-    fU_SSI_plot(U1_name, folder_address,
+    fU_SSI_plot(U1_name,
                 sheets_num_frontface, sheets_num_endface,
                 img_name_extension,
                 # %%
@@ -434,7 +432,7 @@ if __name__ == '__main__':
                  is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                  is_reverse_xy=0, is_positive_xy=1,
                  # %%
-                 is_save=0, is_save_txt=0, dpi=100,
+                 is_save=1, is_save_txt=0, dpi=100,
                  # %%
                  color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
                  elev=10, azim=-65, alpha=2,

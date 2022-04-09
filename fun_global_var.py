@@ -13,18 +13,27 @@ from fun_os import set_ray, GHU_plot_save, U_SSI_plot, U_EVV_plot
 from fun_linear import fft2, ifft2
 from fun_statistics import U_Drop_n_sigma
 
+#%%
+
+global GLV_init_times
+GLV_init_times = 0
+
+def init_GLV():
+    global GLV_init_times
+    if GLV_init_times == 0: # 只在第一次初始化的时候，才初始化
+        global GLOBALS_DICT
+        GLOBALS_DICT = {}
+    GLV_init_times += 1
 
 def init_GLV_DICT(U1_name, ray, way, method, **kwargs):
-    global GLOBALS_DICT
-    GLOBALS_DICT = {}
-
+    init_GLV()
     ray = set_ray(U1_name, ray, **kwargs)
     Set("ray", ray)
     Set("way", way)
     Set("method", method)
-
     return ray
 
+#%%
 
 def Set(key, value):  # 第一次设置值的时候用 set，以后可直接用 Get(key) = ~
     try:  # 为了不与 set 集合 重名
@@ -57,8 +66,8 @@ def init_tset(key, value):  # set_format_key_value：每次都 初始化一个 �
 # %%
 
 def fkey(key):  # get_format_key
-    return key + Get("ray") + "_z_" + Get("way")
-
+    return key + Get("ray") + ("_z_" if Get("way") != "" else "_z") + Get("way")
+# 不然会 多出 一条杠 _
 
 def fset(key, value):  # set_format_key_value
     return Set(fkey(key), value)
@@ -216,8 +225,12 @@ def init_SSI(g1_shift, U1_0,
 
     # %%
 
-    dset("G", g1_shift)  # 似乎 仅为了 B_2_nLA_SSI 而存在，或者 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
-    dset("U", U1_0)  # 似乎 仅为了 B_2_nLA_SSI 而存在，或者 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
+    if Get("method") == "nLA":
+        dset("G", g1_shift)  # 仅为了 B_2_nLA_SSI 而存在
+        dset("U", U1_0)  # 仅为了 B_2_nLA_SSI 而存在
+    else:
+        dset("G", np.zeros((Ix, Iy), dtype=np.float64()))  # 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
+        dset("U", np.zeros((Ix, Iy), dtype=np.float64())) # 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
 
     if is_energy_evolution_on == 1:
         eset("G", np.zeros((sheets_num + 1), dtype=np.float64()))
@@ -270,8 +283,12 @@ def init_EVV(g1_shift, U1_0,
 
     # %%
 
-    dset("G", g1_shift)  # 似乎 仅为了 B_2_nLA_SSI 而存在，或者 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
-    dset("U", U1_0)  # 似乎 仅为了 B_2_nLA_SSI 而存在，或者 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
+    if Get("method") == "nLA":
+        dset("G", g1_shift)  # 仅为了 B_2_nLA_SSI 而存在
+        dset("U", U1_0)  # 仅为了 B_2_nLA_SSI 而存在
+    else:
+        dset("G", np.zeros((Ix, Iy), dtype=np.float64()))  # 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
+        dset("U", np.zeros((Ix, Iy), dtype=np.float64()))  # 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
 
     if is_energy_evolution_on == 1:
         eset("G", np.zeros((sheets_num + 1), dtype=np.float64()))
@@ -307,7 +324,9 @@ def fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
 
     if Get("is_energy_evolution_on") == 1:
         eget("G")[for_th + 1] = np.sum(np.abs(G_zdz) ** 2)
+        # print(eget("G")[for_th + 1])
         eget("U")[for_th + 1] = np.sum(np.abs(U_zdz) ** 2)
+        # print(eget("U")[for_th + 1])
 
     if Get("is_stored") == 1:
 
@@ -428,7 +447,7 @@ def fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto 
 
 # %%
 
-def fU_SSI_plot(U1_name, folder_address,
+def fU_SSI_plot(U1_name,
                 th_f, th_e,
                 img_name_extension,
                 # %%
@@ -461,7 +480,7 @@ def fU_SSI_plot(U1_name, folder_address,
         YZget("U")[:, Get("sheets_num")] = fget("U")[:, Get("th_X")]
         XZget("U")[:, Get("sheets_num")] = fget("U")[Get("th_Y"), :]
 
-        U_SSI_plot(U1_name, folder_address,
+        U_SSI_plot(U1_name,
                    sget("G"), fkey("G"), Get("method"),
                    sget("U"), fkey("U"),
                    YZget("G"), XZget("G"),
@@ -498,7 +517,7 @@ def fU_SSI_plot(U1_name, folder_address,
                    Get("zj"), Get("z_stored"), z, )
 
 
-def fU_EVV_plot(U1_name, folder_address,
+def fU_EVV_plot(U1_name,
                 img_name_extension,
                 # %%
                 sample, size_PerPixel,
@@ -522,7 +541,7 @@ def fU_EVV_plot(U1_name, folder_address,
         sget("G")[:, :, Get("sheets_stored_num")] = fget("G")  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
         sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U1_0，而是 U1_dz
 
-        U_EVV_plot(U1_name, folder_address,
+        U_EVV_plot(U1_name,
                    sget("G"), fkey("G"), Get("method"),
                    sget("U"), fkey("U"),
                    img_name_extension,

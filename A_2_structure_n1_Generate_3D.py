@@ -14,6 +14,7 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_SSI import slice_structure_SSI
 from fun_thread import noop, my_thread
 from fun_CGH import structure_n1_Generate_2D
+from fun_global_var import init_GLV
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -72,6 +73,8 @@ def structure_n1_3D(U1_name="",
     if_image_Add_black_border(U1_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
+    init_GLV()
+
     # %%
 
     n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
@@ -95,6 +98,7 @@ def structure_n1_3D(U1_name="",
                                    # %%
                                    is_continuous, is_target_far_field, is_transverse_xy,
                                    is_reverse_xy, is_positive_xy,
+                                   0,
                                    # %%
                                    lam1, is_air_pump, is_air, T,
                                    Tx, Ty, Tz,
@@ -126,14 +130,11 @@ def structure_n1_3D(U1_name="",
                                Tz, mz, size_PerPixel,
                                is_print)
 
+    folder_address = U_dir("", "0.n1_modulation_squared", 0,
+                           is_save, )
+
     # %%
     # 逐层 绘制 并 输出 structure
-
-    folder_address = ''
-
-    if is_save == 1:
-        folder_address = U_dir("", "0.n1_modulation_squared", 0,
-                               0, )
 
     def fun1(for_th, fors_num, *arg, ):
         iz = for_th * diz

@@ -31,7 +31,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
                   'color': 'black',  # 'black','gray','darkred'
                   },
             # %%
-            is_energy=1, vmax=1, vmin=0):
+            is_energy=0, vmax=1, vmin=0):
 
     # %%
 

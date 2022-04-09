@@ -24,7 +24,7 @@ np.seterr(divide='ignore', invalid='ignore')
 
 # %%
 
-def SFM_SSI(U1_name="",
+def Sfm_SSI(U1_name="",
             img_full_name="Grating.png",
             is_phase_only=0,
             # %%
@@ -85,7 +85,7 @@ def SFM_SSI(U1_name="",
     if_image_Add_black_border(U1_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    ray = init_GLV_DICT(U1_name, "2", "SSI", "SFM", **kwargs)
+    ray = init_GLV_DICT(U1_name, "2", "SSI", "Sfm", **kwargs)
 
     # %%
 
@@ -163,8 +163,8 @@ def SFM_SSI(U1_name="",
     # %%
     # G2_z0_shift
 
-    folder_address = U_dir("", "0.n1_modulation_squared", 0,
-                           is_bulk, )
+    folder_address = U_dir("", "0.χ2_modulation_squared", 0,
+                           is_save - 0.5 * is_bulk, )
 
     init_SSI(g1_shift, U1_0,
              is_energy_evolution_on, is_stored,
@@ -297,7 +297,7 @@ def SFM_SSI(U1_name="",
 
     # %%
 
-    fU_SSI_plot(U1_name, folder_address,
+    fU_SSI_plot(U1_name,
                 sheets_num_frontface, sheets_num_endface,
                 img_name_extension,
                 # %%
@@ -325,7 +325,7 @@ def SFM_SSI(U1_name="",
 
 
 if __name__ == '__main__':
-    SFM_SSI(U1_name="",
+    Sfm_SSI(U1_name="",
             img_full_name="Grating.png",
             is_phase_only=0,
             # %%

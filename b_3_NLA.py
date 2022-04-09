@@ -9,6 +9,7 @@ Created on Sun Dec 26 22:09:04 2021
 
 import math
 import numpy as np
+from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
@@ -218,7 +219,8 @@ def NLA(U1_name="",
                                              # %%
                                              is_continuous, is_target_far_field,
                                              is_transverse_xy, is_reverse_xy,
-                                             is_positive_xy, is_no_backgroud,
+                                             is_positive_xy,
+                                             0, is_no_backgroud,
                                              # %%
                                              lam1, is_air_pump, is_air, T,
                                              Tx, Ty, Tz,
@@ -308,8 +310,8 @@ if __name__ == '__main__':
         deff=30, is_fft=1, fft_mode=0,
         is_linear_convolution=0,
         # %%
-        Tx=10, Ty=10, Tz="2*lc",
-        mx=0, my=0, mz=0,
+        Tx=10, Ty=10, Tz=3,
+        mx=0, my=0, mz=1,
         # %%
         # 生成横向结构
         Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
@@ -333,7 +335,7 @@ if __name__ == '__main__':
         # %%
         is_colorbar_on=1, is_energy=0,
         # %%
-        is_print=1, is_contours=1, n_TzQ=1,
+        is_print=1, is_contours=66, n_TzQ=1,
         Gz_max_Enhance=1, match_mode=1,
         # %%
         border_percentage=0.1, )
