@@ -21,7 +21,7 @@ np.seterr(divide='ignore', invalid='ignore')
 
 # %%
 
-def structure_chi2_3D(U1_name="",
+def structure_chi2_3D(U_name="",
                       img_full_name="Grating.png",
                       is_phase_only=0,
                       # %%
@@ -33,7 +33,7 @@ def structure_chi2_3D(U1_name="",
                       is_random_phase=0,
                       is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                       # %%
-                      U1_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                      U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
                       deff_structure_length_expect=2, deff_structure_sheet_expect=1.8,
                       # %%
                       Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
@@ -71,7 +71,7 @@ def structure_chi2_3D(U1_name="",
     # %%
     # 预处理 导入图片 为方形，并加边框
 
-    if_image_Add_black_border(U1_name, img_full_name,
+    if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
     init_GLV()
@@ -80,9 +80,9 @@ def structure_chi2_3D(U1_name="",
 
     n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
     dk, lc, Tz, Gx, Gy, Gz, \
-    size_PerPixel, U1_0, g1_shift, \
+    size_PerPixel, U_0, g_shift, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
-        = structure_chi2_Generate_2D(U1_name,
+        = structure_chi2_Generate_2D(U_name,
                                      img_full_name,
                                      is_phase_only,
                                      # %%
@@ -96,7 +96,7 @@ def structure_chi2_3D(U1_name="",
                                      is_H_theta,
                                      is_H_random_phase,
                                      # %%
-                                     U1_0_NonZero_size, w0,
+                                     U_0_NonZero_size, w0,
                                      structure_size_Enlarge,
                                      Duty_Cycle_x, Duty_Cycle_y,
                                      structure_xy_mode, Depth,
@@ -133,9 +133,9 @@ def structure_chi2_3D(U1_name="",
     # 并不打算改这一点，因为否则的话，需要向这个函数传入一个参数，而这个参数却是之后要引用的函数 NLA_SSI 才能给出的，违反了 因果律
 
     if len(args) != 0:
-        g1_shift = args[0]
+        g_shift = args[0]
 
-    z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
+    z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z_shift, k2_z_shift, Tz, mz,
                                                                             deff_structure_length_expect, size_PerPixel,
                                                                             deff_structure_length_expect,
                                                                             0, is_contours, n_TzQ, Gz_max_Enhance,
@@ -152,8 +152,9 @@ def structure_chi2_3D(U1_name="",
                             Tz, mz, size_PerPixel,
                             is_print)
 
-    folder_address = U_dir("", "0.χ2_modulation_squared", 0,
-                           is_save, )
+    method = "MOD"
+    folder_name = method + " - " + "χ2_modulation_squared"
+    folder_address = U_dir(folder_name, is_save, )
 
     # %%
     # 逐层 绘制 并 输出 structure
@@ -201,7 +202,7 @@ def structure_chi2_3D(U1_name="",
               is_ordered=1, is_print=is_print, )
 
 if __name__ == '__main__':
-    structure_chi2_3D(U1_name="",
+    structure_chi2_3D(U_name="",
                       img_full_name="Grating.png",
                       is_phase_only=0,
                       # %%
@@ -213,7 +214,7 @@ if __name__ == '__main__':
                       is_random_phase=0,
                       is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                       # %%
-                      U1_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                      U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
                       deff_structure_length_expect=2, deff_structure_sheet_expect=1.8,
                       # %%
                       Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,

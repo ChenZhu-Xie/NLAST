@@ -17,14 +17,14 @@ from fun_SSI import Slice_SSI
 from fun_linear import init_AST, init_SHG, fft2, ifft2
 from fun_nonlinear import args_SHG
 from fun_thread import my_thread
-from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
+from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, dset, dget, fun3, fget, fGHU_plot_save, fU_SSI_plot
 
 np.seterr(divide='ignore', invalid='ignore')
 
 
 # %%
 
-def nLA_ssi(U_name="",
+def nla_SSI(U_name="",
             img_full_name="Grating.png",
             is_phase_only=0,
             # %%
@@ -83,7 +83,7 @@ def nLA_ssi(U_name="",
                               __name__ == "__main__", is_print, **kwargs, )
 
     # kwargs['ray'] = init_GLV_DICT(U_name, "~", "SSI", "nla", **kwargs)
-    init_GLV_DICT(U_name, "l", "nLA", "ssi", **kwargs)
+    init_GLV_DICT(U_name, "L", "nla", "SSI", **kwargs)
 
     # %%
 
@@ -155,9 +155,7 @@ def nLA_ssi(U_name="",
     # %%
     # G2_z0_shift
 
-    method = "MOD"
-    folder_name = method + " - " + "n1_modulation_squared"
-    folder_address = U_dir(folder_name, is_save - 0.5 * is_bulk, )
+    folder_address = U_dir("0.n1_modulation_squared", is_save - 0.5 * is_bulk, )
 
     init_SSI(g_shift, U_0,
              is_energy_evolution_on, is_stored,
@@ -244,10 +242,10 @@ def nLA_ssi(U_name="",
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
-    return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
+    return fget("U"), fget("G")
 
 if __name__ == '__main__':
-    nLA_ssi(U_name="",
+    nla_SSI(U_name="",
             img_full_name="lena.png",
             is_phase_only=0,
             # %%

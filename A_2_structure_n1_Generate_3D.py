@@ -21,7 +21,7 @@ np.seterr(divide='ignore', invalid='ignore')
 
 # %%
 
-def structure_n1_3D(U1_name="",
+def structure_n1_3D(U_name="",
                     img_full_name="Grating.png",
                     is_phase_only=0,
                     # %%
@@ -33,7 +33,7 @@ def structure_n1_3D(U1_name="",
                     is_random_phase=0,
                     is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                     # %%
-                    U1_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                    U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
                     deff_structure_length_expect=2, deff_structure_sheet_expect=1.8,
                     # %%
                     Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
@@ -70,7 +70,7 @@ def structure_n1_3D(U1_name="",
     # %%
     # 预处理 导入图片 为方形，并加边框
 
-    if_image_Add_black_border(U1_name, img_full_name,
+    if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
     init_GLV()
@@ -79,9 +79,9 @@ def structure_n1_3D(U1_name="",
 
     n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
     dk, lc, Tz, Gx, Gy, Gz, \
-    size_PerPixel, U1_0, g1_shift, \
+    size_PerPixel, U_0, g_shift, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
-        = structure_n1_Generate_2D(U1_name,
+        = structure_n1_Generate_2D(U_name,
                                    img_full_name,
                                    is_phase_only,
                                    # %%
@@ -93,7 +93,7 @@ def structure_n1_3D(U1_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U1_0_NonZero_size, w0, structure_size_Enlarge,
+                                   U_0_NonZero_size, w0, structure_size_Enlarge,
                                    Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
                                    # %%
                                    is_continuous, is_target_far_field, is_transverse_xy,
@@ -130,8 +130,9 @@ def structure_n1_3D(U1_name="",
                                Tz, mz, size_PerPixel,
                                is_print)
 
-    folder_address = U_dir("", "0.n1_modulation_squared", 0,
-                           is_save, )
+    method = "MOD"
+    folder_name = method + " - " + "n1_modulation_squared"
+    folder_address = U_dir(folder_name, is_save, )
 
     # %%
     # 逐层 绘制 并 输出 structure
@@ -180,7 +181,7 @@ def structure_n1_3D(U1_name="",
 
 
 if __name__ == '__main__':
-    structure_n1_3D(U1_name="",
+    structure_n1_3D(U_name="",
                     img_full_name="Grating.png",
                     is_phase_only=0,
                     # %%
@@ -192,7 +193,7 @@ if __name__ == '__main__':
                     is_random_phase=0,
                     is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                     # %%
-                    U1_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                    U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
                     deff_structure_length_expect=2, deff_structure_sheet_expect=1.8,
                     # %%
                     Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,

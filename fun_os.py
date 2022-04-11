@@ -14,7 +14,6 @@ from scipy.io import loadmat, savemat
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_gif_video import imgs2gif_imgio, imgs2gif_PIL, imgs2gif_art
 
-
 # %%
 # 获取 桌面路径（C 盘 原生）
 
@@ -41,12 +40,12 @@ def get_cd():
 # 查找
 
 # 查找 text 中的 数字部分
-def find_nums(text):
+def find_nums(text): # 这个没用了，也就是 ray
     return re.findall('(\d+)', text)
 
 
 # 查找 text 中的 非数字部分
-def find_NOT_nums(text):
+def find_NOT_nums(text): # 这个没用了，也就是 ugHGU
     return re.findall('(\D+)', text)
 
 
@@ -57,151 +56,193 @@ def find_part_has_s_in_text(text, s, separator):
             return part
 
 # 查找 ray_sequence
-def find_ray_sequence(U1_name):
-    if ' - ' in U1_name:
-        part_2 = U1_name.split(' - ')[1]  # 取 由 AST - U1_ ... 分割的 第二部分：U1_ ...
+def split_parts(U_name):
+    if ' - ' in U_name:
+        Part_1 = U_name.split(' - ')[0] # 取出 seq + method + way 的 method_and_way
+        method_and_way = Part_1.split(" ")[1] if " " in Part_1 else Part_1 # 去掉 seq，只保留 method + way
+        Part_2 = U_name.split(' - ')[1]  # 取 由 AST - U0_ ... 分割的 第二部分：U0_ ...
     else:
-        part_2 = U1_name  # 应该不存在 没有 method 而有 sequence 的可能（只有 文件夹 才有这 可能）
-    part_1 = part_2.split('_')[0]  # 再取 part_2 中的 第一部分 U1
-    ray = find_nums(part_1)  # U1 中找到 1
+        method_and_way = ""
+        Part_2 = U_name  # 应该不存在 没有 method 而有 sequence 的可能（只有 文件夹 才有这 可能）
+    if '_' in Part_2:
+        part_1 = Part_2.split('_')[0] # 取 part_2 中的 第一部分 U1
+    elif ' ' in Part_2:
+        part_1 = Part_2.split(" ")[1]
+    else:
+        part_1 = Part_2
+    ray_seq = part_1[1:] if len(part_1[1:]) > 0 else "" # 取出 U0_name 第一部分 第一个字符之后的东西
+    ugHGU = part_1[0] if len(part_1) > 0 else ""
+    U_name_no_seq = method_and_way + (' - ' if method_and_way != "" else "") + Part_2
+
+    # print(U_name)
+    # print(U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq)
+
+    from fun_global_var import Set
+    Set("method_and_way", method_and_way)
+
+    return U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq
+
+# 查找 ray （ 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray ）
+def set_ray(U0_name, ray_new, **kwargs): # U0_name 只在这有用，用于获取 其 ray，获取一次后就不需 U0_name 了
+    if "ray" not in kwargs: # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
+        U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U0_name)  # 从 U0_name 中找到 ray_sequence
+        ray = ray_seq[0] + ray_new if len(ray_seq) != 0 else ray_new
+    else:
+        ray = kwargs['ray'] + ray_new if "ray" in kwargs else ray_new  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
+
     return ray
 
-# 查找 ray
-def set_ray(U1_name, ray_current, **kwargs):
-    if "U" not in kwargs:
-        ray_sequence = find_ray_sequence(U1_name)  # 从 U1_name 中找到 ray_sequence
-        ray = ray_sequence[0] + ray_current if len(ray_sequence) != 0 else ray_current
-    else:
-        ray = kwargs['ray'] + ray_current if "ray" in kwargs else ray_current  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
-
-    return ray
-
-# 查找 part_1_num
-def get_part_1_num(U1_name, U_name, ):
-    ray_sequence = find_ray_sequence(U1_name)  # 从 U1_name 中找到 ray_sequence
-    # 如果 U1_name 被 _ 分割出的 第一部分 不是空的 且 含有数字，则将其 数字部分 取出，暂作为 part_1 的 数字部分（传染性）
-    part_1_num = ray_sequence[0] if len(ray_sequence) != 0 else ""
-
-    U_name_part_1_nums = find_nums(U_name.split('_')[0])
-    # 如果 U_name 第一部分 含有数字，则 在 part_1 后面 追加 U_name 第一部分 原本的 数字部分
-    part_1_num += U_name_part_1_nums[0] if len(U_name_part_1_nums) != 0 else ""
-    return part_1_num
+# # 查找 ray（已废弃）
+# def get_ray(U0_name, U_name, ): # 这个没用了，已经被 split_parts 和 set_ray 替代了
+#     method_and_way, ugHGU, ray_seq = split_parts(U0_name)  # 从 U0_name 中找到 ray_sequence
+#     # 如果 U0_name 被 _ 分割出的 第一部分 不是空的 且 含有数字，则将其 数字部分 取出，暂作为 part_1 的 数字部分（传染性）
+#     ray = ray_seq[0] if len(ray_seq) != 0 else ""
+#
+#     # U_name_rays = find_nums(U_name.split('_')[0])
+#     U_name_rays = U_name.split('_')[0][1:] # 取出 U_name 第一部分 第一个字符之后的东西
+#     # 如果 U_name 第一部分 含有数字，则 在 part_1 后面 追加 U_name 第一部分 原本的 数字部分
+#     ray += U_name_rays[0] if len(U_name_rays) != 0 else ""
+#     return ray
 
 #%%
 # 替换
 
-def replace_p_part_1_num(title, part_1_NOT_num, part_1_num): # part_1_NOT_num 起到了 标识符的作用，防止误 replace 了 其他字符串
-    return title.replace(part_1_NOT_num + part_1_num, part_1_NOT_num + part_1_num.replace("0", "p"))
+def replace_p_ray(title, ugHGU, ray): # ugHGU 起到了 标识符的作用，防止误 replace 了 其他字符串
+    return title.replace(ugHGU + ray, ugHGU + ray.replace("0", "p"))
 
-def subscript_part_1_num(title, part_1_NOT_num, part_1_num): # part_1_NOT_num 起到了 标识符的作用，防止误 replace 了 其他字符串
-    # return title.replace(part_1_NOT_num + part_1_num, part_1_NOT_num + "$_{" + part_1_num.replace("0", "p") + "}$")
-    return title.replace(part_1_NOT_num + part_1_num, part_1_NOT_num + "$_{" + part_1_num + "}$")
+def subscript_ray(title, ugHGU, ray): # ugHGU 起到了 标识符的作用，防止误 replace 了 其他字符串
+    # return title.replace(ugHGU + ray, ugHGU + "$_{" + ray.replace("0", "p") + "}$")
+    return title.replace(ugHGU + ray, ugHGU + "$_{" + ray + "}$")
 
-# %%
+def subscript_way(title, method_and_way): # method 起到了 标识符的作用，防止误 replace 了 其他字符串
+    if '_' in method_and_way:
+        method = method_and_way.split("_")[0]
+        way = method_and_way.split("_")[1]
+        return title.replace(method + "_" + way, method + "$_{" + way + "}$")
+    else:
+        return title
+
+def add___between_ugHGU_and_ray(Uz_name, ugHGU, ray):
+    return Uz_name.replace(ugHGU + ray, ugHGU + "_" + ray)
+
+
+    # %%
 # 生成 part_1 （被 分隔符 分隔的 第一个） 字符串
-def gan_part_1(U1_name, U_name, is_add_sequence,
-               *args, ):  # args 是 method、"_phase" 或 '_amp'
+def gan_seq(U_name, is_add_sequence, # 就 2 功能，加序号，减 method_and_way
+            **kwargs, ):  # kwargs 是 “suffix”
 
-    part_1_NOT_num = find_NOT_nums(U_name.split('_')[0])[0]
-    # print(part_1_NOT_num)
+    # ugHGU = find_NOT_nums(U_name.split('_')[0])[0]
+    # ugHGU = U_name.split('_')[0][0] if len(U_name.split('_')[0]) != 0 else ""
+    U_name_no_seq, method_and_way, Part_2, ugHGU, ray = split_parts(U_name)
+    # print(ugHGU)
 
-    if is_add_sequence == 1:
-        if part_1_NOT_num == 'g':
-            part_1_sequence = "3."
-        elif part_1_NOT_num == 'H':
-            part_1_sequence = "4."
-        elif part_1_NOT_num == 'G':
-            part_1_sequence = "5."
-        elif part_1_NOT_num == 'U':
-            part_1_sequence = "6."
+    seq = ''
+    # 模为 1 即有 seq
+    # >= 0 即有 method_and_way
+    if abs(is_add_sequence) == 1:
+        if ugHGU == 'g':
+            seq = "3."
+        elif ugHGU == 'H':
+            seq = "4."
+        elif ugHGU == 'G':
+            seq = "3." if method_and_way == "PUMP" else "5."
+        elif ugHGU == 'U':
+            seq = "2." if method_and_way == "PUMP" else "6."
+        elif ugHGU == "χ" or ugHGU == "n":
+            seq = "0."
 
-        if len(args) == 2:  # 如果 还传入了 后缀 "_phase" 或 '_amp'
-            suffix = args[1]
-            if suffix == '_amp' or suffix == '_energy':
-                part_1_sequence += '1.'
-            elif suffix == '_phase':
-                part_1_sequence += '2.'
-            # suffix == '_' + suffix # 识别完后，给 suffix 前面 加上 下划线
-        else:  # 如果 啥也没传，则 后缀 啥也不加
-            suffix = ''
+        if "suffix" in kwargs:  # 如果 还传入了 后缀 "_phase" 或 '_amp'
+            suffix = kwargs["suffix"]
+            if suffix == '_amp' or suffix == '_amp_error' or suffix == '_energy' :
+                seq += '1.'
+            elif suffix == '_phase' or suffix == '_phase_error':
+                seq += '2.'
 
-        part_1_sequence += ' '  # 数字序号后 都得加个空格
-    else:
-        part_1_sequence = ''
+        if seq != "":
+            seq += ' '  # 数字序号后 都得加个空格
 
-    # args[0] + ' - ' 要放在 上面几步 之后，且 放在 上面 is_add_sequence 之外，因为 哪怕不加序号，也可能加 method，比如在 U_print 的 时候
-    if len(args) >= 1:  # 如果 传入了 method（第一个 总是 method，因为 有后缀 "phase" or "amp" 则必然 先有 method，不可能 只有 phase or amp 而没有 method）
-        part_1_sequence += args[0] + ' - '
-
-    part_1_num = get_part_1_num(U1_name, U_name, )
-
-    part_1 = part_1_sequence + part_1_NOT_num + part_1_num
-
-    return part_1, part_1_NOT_num, part_1_num
+    return seq
 
 
-def gan_part_1z(U1_name, U_name, is_add_sequence,
-                is_auto, *args, ):  # args 是 z、method
+def gan_Uz_name(U_name, is_add_sequence, **kwargs, ):  # args 是 z 或 () 和 suffix
 
-    if is_auto == 0:
-        part_1_NOT_num = find_NOT_nums(U_name.split('_')[0])[0]
-        part_1_num = get_part_1_num(U1_name, U_name, )
-        if len(args) >= 2:  # 如果 传入了 method（第一个 总是 method，因为 有后缀 "phase" or "amp" 则必然 先有 method，不可能 只有 phase or amp 而没有 method）
-            U_new_name = args[1] + ' - ' + U_name
-        else:
-            U_new_name = U_name
-    else:
-        # %%
-        # 生成 part_1
-        # 如果传了 2 个及以上 参数进来，那么将 多传进来的 len(args) - 1 个参数全传入 gan_part_1
-        # 剩下一个是 z 或 ()，它必然 传了进来（至少传了 1 个进来的 就是它）
-        if len(args) >= 2:
-            part_1, part_1_NOT_num, part_1_num = gan_part_1(U1_name, U_name, is_add_sequence,
-                                                            *args[
-                                                             1:], )  # 先对 tuple 排除第一个元素地 切片，切片后还是个 tuple。 # 然后解包，再传入 函数
-        else:
-            part_1, part_1_NOT_num, part_1_num = gan_part_1(U1_name, U_name,
-                                                            is_add_sequence, )  # 否则 没传 method 进来，也就不传 method 进去
-        # %%
-        # 查找 含 z 的 字符串 part_z 
-        part_z = find_part_has_s_in_text(U_name, 'z', '_')
+    U_name_no_seq, method_and_way, Part_2, ugHGU, ray = split_parts(U_name)
+    seq = gan_seq(U_name, is_add_sequence, **kwargs, ) # is_add_sequence 模为 1 即有 seq
+    U_new_name = seq + U_name_no_seq
+    # %%
+    # 查找 含 z 的 字符串 part_z
+    part_z = find_part_has_s_in_text(Part_2, 'z', '_')
+    if (U_name.find('z') != -1 or U_name.find('Z') != -1) and 'z' in kwargs:
+        # 如果 找到 z 或 Z，且 传了 额外的 参数 进来，这个参数 解包后的 第一个参数 不是 空 tuple ()
+        z = kwargs['z']
+        U_new_name = U_new_name.replace(part_z, str(float('%.2g' % z)) + "mm")
+        # 把 原来含 z 的 part_z 替换为 str(float('%.2g' % z)) + "mm"
 
-        U_new_name = U_name.replace(U_name.split('_')[0], part_1)  # 至少把 U_name 第一部分 替换成 part_1，作为 U_new_name
-        if (U_name.find('z') != -1 or U_name.find('Z') != -1) and len(args) != 0 and args[0] != ():
-            # 如果 找到 z 或 Z，且 传了 额外的 参数 进来，这个参数 解包后的 第一个参数 不是 空 tuple ()
-            z = args[0]
-            U_new_name = U_new_name.replace(part_z, str(float('%.2g' % z)) + "mm")
-            # 把 原来含 z 的 part_z 替换为 str(float('%.2g' % z)) + "mm"
-    return U_new_name, part_1_NOT_num, part_1_num
+    if is_add_sequence < 0:  # is_add_sequence >= 0 即有 method_and_way = method + way
+        U_new_name = U_new_name.replace(method_and_way + " - ", "")
 
+    return U_new_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray
+
+
+def gan_Uz_plot_address(folder_address, img_name_extension,
+                        U_name, suffix, **kwargs):
+    Uz_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 1, suffix=suffix,
+                                                                            **kwargs, )  # 要加 序列号 # 有 method 和 suffix
+    Uz_name += suffix if suffix != "_energy" else ""
+    Uz_name = add___between_ugHGU_and_ray(Uz_name, ugHGU, ray)
+    Uz_full_name = Uz_name + img_name_extension
+    Uz_plot_address = folder_address + "\\" + Uz_full_name
+
+    return Uz_full_name, Uz_plot_address
+
+
+def gan_Uz_title(U_name, suffix, **kwargs):
+    Uz_title, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, suffix=suffix,
+                                                                             **kwargs, )  # 不加 序列号 # 有 method 和 suffix
+    Uz_title += suffix if suffix != "_energy" else ""
+    Uz_title = subscript_ray(Uz_title, ugHGU, ray)
+    Uz_title = subscript_way(Uz_title, method_and_way)
+    return Uz_title
+
+def gan_Uz_save_address(U_name, folder_address, is_save_txt,
+                        **kwargs):
+    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 1,
+                                                                                 **kwargs, )  # 要加 序列号 # 要有 method （诸如 'AST'）
+    U_full_name = add___between_ugHGU_and_ray(U_full_name, ugHGU, ray)
+    file_name = U_full_name + (is_save_txt and ".txt" or ".mat")
+    U_address = folder_address + "\\" + file_name
+    return U_address, ugHGU
+
+def gan_Uz_dir_address(U_name, **kwargs, ):
+    folder_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, -1,
+                                                                                 **kwargs, )  # 要加 序列号 # 没有 method （诸如 'AST'）
+    folder_name = add___between_ugHGU_and_ray(folder_name, ugHGU, ray)
+    desktop = get_desktop()
+    folder_address = desktop + "\\" + folder_name
+    return folder_address
 
 # %%
 
-def U_energy_print(U1_name, is_print, is_auto,
-                   U, U_name, method,
-                   *args, ):  # args 是 z 或 ()
+def U_energy_print(U, U_name, is_print,
+                   **kwargs, ):  # kwargs 是 z
 
-    U_full_name, part_1_NOT_num, part_1_num = gan_part_1z(U1_name, U_name, 0,  # 不加 序列号
-                                                          is_auto, args, method, )  # 要有 method （诸如 'AST'）
-    # 这里 还不能是 *arg，这样会 抹除 信息：传了 2 个及以下参数的时候，传的是哪 2 个参数？ z、method、suffix 中的 任意 2 个，都有可能。
+    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
 
     is_print and print(U_full_name + ".total_energy = {}".format(np.sum(np.abs(U) ** 2)))
 
+def U_rsd_print(U, U_name, is_print,
+                **kwargs, ):  # kwargs 是 z
+
+    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
+
+    is_print and is_print-1 and print(U_full_name + ".rsd = {}".format(np.std(np.abs(U)) / np.mean(np.abs(U)))) # is_print 是 1 和 0 都不行，得是 2 等才行...
 
 # %%
 
-def U_dir(U1_name, U_name, is_auto,
-          is_save, *args, ):  # args 是 z 或 ()
+def U_dir(U_name, is_save,
+          **kwargs, ):  # kwargs 是 z
 
-    folder_name, part_1_NOT_num, part_1_num = gan_part_1z(U1_name, U_name, 1,  # 要加 序列号
-                                                          is_auto, args, )  # 没有 method （诸如 'AST'）
-
-    # folder_name = replace_p_part_1_num(folder_name, part_1_NOT_num, part_1_num) # 这个对 dir 没用...
-    # 主要是 0 换到 p，会破坏 part_1_num　的 规则：num 部分又含有 非数字了，这就很尴尬，读的时候还得 把 p 译回 0，懒得搞
-    print(part_1_num)
-    # %%
-    desktop = get_desktop()
-    folder_address = desktop + "\\" + folder_name
+    folder_address = gan_Uz_dir_address(U_name, **kwargs, )
 
     if is_save == 1:
         if not os.path.isdir(folder_address):
@@ -209,66 +250,81 @@ def U_dir(U1_name, U_name, is_auto,
 
     return folder_address
 
-
 # %%
 
-def U_amp_plot_address_and_title(U1_name, U_name, is_auto,
-                                 method, folder_address, img_name_extension,
-                                 *args, ):
+def U_amp_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                 **kwargs, ): # kwargs 是 z
     # %%
     # 绘制 U_amp
     suffix = '_amp'
     # %%
     # 生成 要储存的 图片名 和 地址
-    U_amp_name, part_1_NOT_num, part_1_num = gan_part_1z(U1_name, U_name, 1,  # 要加 序列号
-                                                         is_auto, args, method, suffix, )  # 有 method 和 suffix
-    U_amp_name += suffix  # 增加 后缀 "_amp" 或 "_phase"
-    # %%
-    # 生成 地址
-    U_amp_full_name = U_amp_name + img_name_extension
-    # U_amp_full_name = replace_p_part_1_num(U_amp_full_name, part_1_NOT_num, part_1_num)
-    U_amp_plot_address = folder_address + "\\" + U_amp_full_name
+    U_amp_full_name, U_amp_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
+                                                            U_name, suffix, **kwargs)
     # %%
     # 生成 图片中的 title
-    U_amp_title, part_1_NOT_num, part_1_num = gan_part_1z(U1_name, U_name, 0,  # 不加 序列号
-                                                          is_auto, args, method, suffix, )  # 有 method 和 suffix
-    U_amp_title = subscript_part_1_num(U_amp_title, part_1_NOT_num, part_1_num)
-    U_amp_title += suffix  # 增加 后缀 "_amp" 或 "_phase"
+    U_amp_title = gan_Uz_title(U_name, suffix, **kwargs)  # 增加 后缀 "_amp" 或 "_phase"
 
 
     return U_amp_plot_address, U_amp_title
 
 
-def U_phase_plot_address_and_title(U1_name, U_name, is_auto,
-                                   method, folder_address, img_name_extension,
-                                   *args, ):
+#%%
+
+def U_amp_error_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                 **kwargs, ): # kwargs 是 z
+    # %%
+    # 绘制 U_amp
+    suffix = '_amp_error'
+    # %%
+    # 生成 要储存的 图片名 和 地址
+    U_amp_error_full_name, U_amp_error_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
+                                                            U_name, suffix, **kwargs)
+    # %%
+    # 生成 图片中的 title
+    U_amp_error_title = gan_Uz_title(U_name, suffix, **kwargs)  # 增加 后缀 "_amp" 或 "_phase"
+
+
+    return U_amp_error_plot_address, U_amp_error_title
+
+#%%
+
+def U_phase_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                   **kwargs, ):
     # %%
     # 绘制 U_phase
     suffix = '_phase'
     # %%
     # 生成 要储存的 图片名 和 地址
-    U_phase_name, part_1_NOT_num, part_1_num = gan_part_1z(U1_name, U_name, 1,  # 要加 序列号
-                                                           is_auto, args, method, suffix, )  # 有 method 和 suffix
-    U_phase_name += suffix  # 增加 后缀 "_amp" 或 "_phase"
-    # %%
-    # 生成 地址
-    U_phase_full_name = U_phase_name + img_name_extension
-    # U_phase_full_name = replace_p_part_1_num(U_phase_full_name, part_1_NOT_num, part_1_num)
-    U_phase_plot_address = folder_address + "\\" + U_phase_full_name
+    U_phase_full_name, U_phase_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
+                                                            U_name, suffix, **kwargs)
     # %%
     # 生成 图片中的 title
-    U_phase_title, part_1_NOT_num, part_1_num = gan_part_1z(U1_name, U_name, 0,  # 不加 序列号
-                                                            is_auto, args, method, suffix, )  # 有 method 和 suffix
-    U_phase_title = subscript_part_1_num(U_phase_title, part_1_NOT_num, part_1_num)
-    U_phase_title += suffix  # 增加 后缀 "_amp" 或 "_phase"
+    U_phase_title = gan_Uz_title(U_name, suffix, **kwargs)  # 增加 后缀 "_amp" 或 "_phase"
 
     return U_phase_plot_address, U_phase_title
 
+#%%
+
+def U_phase_error_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                   **kwargs, ):
+    # %%
+    # 绘制 U_phase
+    suffix = '_phase_error'
+    # %%
+    # 生成 要储存的 图片名 和 地址
+    U_phase_error_full_name, U_phase_error_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
+                                                            U_name, suffix, **kwargs)
+    # %%
+    # 生成 图片中的 title
+    U_phase_error_title = gan_Uz_title(U_name, suffix, **kwargs)  # 增加 后缀 "_amp" 或 "_phase"
+
+    return U_phase_error_plot_address, U_phase_error_title
 
 # %%
 
-def U_amp_plot(U1_name, folder_address, is_auto,
-               U, U_name, method,
+def U_amp_plot(folder_address,
+               U, U_name,
                img_name_extension,
                # %%
                zj, sample, size_PerPixel,
@@ -281,11 +337,10 @@ def U_amp_plot(U1_name, folder_address, is_auto,
                is_self_colorbar, is_colorbar_on,
                is_energy, vmax, vmin,
                # %%
-               *args, ):  # args 是 z 或 ()
+               **kwargs, ):  # args 是 z 或 ()
 
-    U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U1_name, U_name, is_auto,
-                                                                   method, folder_address, img_name_extension,
-                                                                   *args, )
+    U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                                                   **kwargs, )
     # %%
 
     plot_2d(zj, sample, size_PerPixel,
@@ -299,11 +354,43 @@ def U_amp_plot(U1_name, folder_address, is_auto,
 
     return U_amp_plot_address, U_amp_title
 
+#%%
+
+def U_amp_error_plot(folder_address,
+               U, U_name,
+               img_name_extension,
+               # %%
+               zj, sample, size_PerPixel,
+               is_save, dpi, size_fig,
+               # %%
+               cmap_2d, ticks_num, is_contourf,
+               is_title_on, is_axes_on, is_mm, is_propagation,
+               fontsize, font,
+               # %%
+               is_self_colorbar, is_colorbar_on,
+               is_energy, vmax, vmin,
+               # %%
+               **kwargs, ):  # args 是 z 或 ()
+
+    U_amp_error_plot_address, U_amp_error_title = U_amp_error_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                                                   **kwargs, )
+    # %%
+
+    plot_2d(zj, sample, size_PerPixel,
+            np.abs(U), U_amp_error_plot_address, U_amp_error_title,
+            is_save, dpi, size_fig,
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, is_propagation,
+            fontsize, font,
+            is_self_colorbar, is_colorbar_on,
+            is_energy, vmax, vmin, )
+
+    return U_amp_error_plot_address, U_amp_error_title
 
 # %%
 
-def U_phase_plot(U1_name, folder_address, is_auto,
-                 U, U_name, method,
+def U_phase_plot(folder_address,
+                 U, U_name,
                  img_name_extension,
                  # %%
                  zj, sample, size_PerPixel,
@@ -316,11 +403,10 @@ def U_phase_plot(U1_name, folder_address, is_auto,
                  is_self_colorbar, is_colorbar_on,
                  vmax, vmin,
                  # %%
-                 *args, ):  # args 是 z 或 ()
+                 **kwargs, ):  # args 是 z 或 ()
 
-    U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U1_name, U_name, is_auto,
-                                                                         method, folder_address, img_name_extension,
-                                                                         *args, )
+    U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                                                         **kwargs, )
     # %%
 
     plot_2d(zj, sample, size_PerPixel,
@@ -334,11 +420,43 @@ def U_phase_plot(U1_name, folder_address, is_auto,
 
     return U_phase_plot_address, U_phase_title
 
+#%%
+
+def U_phase_error_plot(folder_address,
+                 U, U_name,
+                 img_name_extension,
+                 # %%
+                 zj, sample, size_PerPixel,
+                 is_save, dpi, size_fig,
+                 # %%
+                 cmap_2d, ticks_num, is_contourf,
+                 is_title_on, is_axes_on, is_mm, is_propagation,
+                 fontsize, font,
+                 # %%
+                 is_self_colorbar, is_colorbar_on,
+                 vmax, vmin,
+                 # %%
+                 **kwargs, ):  # args 是 z 或 ()
+
+    U_phase_error_plot_address, U_phase_error_title = U_phase_error_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                                                         **kwargs, )
+    # %%
+
+    plot_2d(zj, sample, size_PerPixel,
+            np.angle(U), U_phase_error_plot_address, U_phase_error_title,
+            is_save, dpi, size_fig,
+            cmap_2d, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm, is_propagation,
+            fontsize, font,
+            is_self_colorbar, is_colorbar_on,
+            0, vmax, vmin, )  # 相位 不能有 is_energy = 1
+
+    return U_phase_error_plot_address, U_phase_error_title
 
 # %%
 
-def U_plot(U1_name, folder_address, is_auto,
-           U, U_name, method,
+def U_plot(folder_address,
+           U, U_name,
            img_name_extension,
            # %%
            sample, size_PerPixel,
@@ -350,10 +468,10 @@ def U_plot(U1_name, folder_address, is_auto,
            # %%
            is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
            # %%                          何况 一般默认 is_self_colorbar = 1...
-           *args, ):  # args 是 z 或 ()
+           **kwargs, ):  # args 是 z 或 ()
 
-    U_amp_plot_address = U_amp_plot(U1_name, folder_address, is_auto,
-                                    U, U_name, method,
+    U_amp_plot_address = U_amp_plot(folder_address,
+                                    U, U_name,
                                     img_name_extension,
                                     # %%
                                     [], sample, size_PerPixel,
@@ -366,10 +484,10 @@ def U_plot(U1_name, folder_address, is_auto,
                                     1, is_colorbar_on,
                                     is_energy, 1, 0,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                     # %% 何况 一般默认 is_self_colorbar = 1...
-                                    *args, )
+                                    **kwargs, )
 
-    U_phase_plot_address = U_phase_plot(U1_name, folder_address, is_auto,
-                                        U, U_name, method,
+    U_phase_plot_address = U_phase_plot(folder_address,
+                                        U, U_name,
                                         img_name_extension,
                                         # %%
                                         [], sample, size_PerPixel,
@@ -382,15 +500,69 @@ def U_plot(U1_name, folder_address, is_auto,
                                         1, is_colorbar_on,
                                         1, 0,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                         # %% 何况 一般默认 is_self_colorbar = 1...
-                                        *args, )
+                                        **kwargs, )
 
     return U_amp_plot_address, U_phase_plot_address
 
+#%%
+
+def U_error_plot(folder_address,
+           U, U_0,
+           img_name_extension,
+           # %%
+           sample, size_PerPixel,
+           is_save, dpi, size_fig,
+           # %%
+           cmap_2d, ticks_num, is_contourf,
+           is_title_on, is_axes_on, is_mm,
+           fontsize, font,
+           # %%
+           is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+           # %%                          何况 一般默认 is_self_colorbar = 1...
+           **kwargs, ):  # args 是 z 或 ()
+
+    from fun_global_var import fkey
+
+    U_amp_error = np.abs(U) - np.abs(U_0)
+    U_phase_error = np.abs(U) - np.angle(U_0)
+
+    U_amp_error_plot_address = U_amp_error_plot(folder_address,
+                                    U_amp_error, fkey("U"),
+                                    img_name_extension,
+                                    # %%
+                                    [], sample, size_PerPixel,
+                                    is_save, dpi, size_fig,
+                                    # %%
+                                    cmap_2d, ticks_num, is_contourf,
+                                    is_title_on, is_axes_on, is_mm, 0,
+                                    fontsize, font,
+                                    # %%
+                                    1, is_colorbar_on,
+                                    is_energy, 1, 0,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                    # %% 何况 一般默认 is_self_colorbar = 1...
+                                    **kwargs, )
+
+    U_phase_error_plot_address = U_phase_error_plot(folder_address,
+                                        U_phase_error, fkey("U"),
+                                        img_name_extension,
+                                        # %%
+                                        [], sample, size_PerPixel,
+                                        is_save, dpi, size_fig,
+                                        # %%
+                                        cmap_2d, ticks_num, is_contourf,
+                                        is_title_on, is_axes_on, is_mm, 0,
+                                        fontsize, font,
+                                        # %%
+                                        1, is_colorbar_on,
+                                        1, 0,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                        # %% 何况 一般默认 is_self_colorbar = 1...
+                                        **kwargs, )
+
+    return U_amp_error_plot_address, U_phase_error_plot_address
 
 # %%
 
-def U_plot_save(U1_name, is_print, is_auto,
-                U, U_name, method,
+def U_plot_save(U, U_name, is_print,
                 img_name_extension,
                 # %%
                 size_PerPixel,
@@ -402,20 +574,20 @@ def U_plot_save(U1_name, is_print, is_auto,
                 # %%
                 is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                 # %%                          何况 一般默认 is_self_colorbar = 1...
-                *args, ):  # *args = z 或 ()
+                **kwargs, ):  # **kwargs = z
 
-    U_energy_print(U1_name, is_print, is_auto,
-                   U, U_name, method,
-                   *args, )
+    U_energy_print(U, U_name, is_print,
+                   **kwargs, )
+    U_rsd_print(U, U_name, is_print,
+                **kwargs, )
 
-    folder_address = U_dir(U1_name, U_name, is_auto,
-                           is_save, *args, )
+    folder_address = U_dir(U_name, is_save, **kwargs, )
 
     # %%
     # 绘图：U
 
-    U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, is_auto,
-                                                      U, U_name, method,
+    U_amp_plot_address, U_phase_plot_address = U_plot(folder_address,
+                                                      U, U_name,
                                                       img_name_extension,
                                                       # %%
                                                       1, size_PerPixel,
@@ -425,21 +597,83 @@ def U_plot_save(U1_name, is_print, is_auto,
                                                       fontsize, font,
                                                       is_colorbar_on, is_energy,
                                                       # %%
-                                                      *args, )
+                                                      **kwargs, )
 
     # %%
     # 储存 U 到 txt 文件
 
-    U_save(U1_name, folder_address, is_auto,
-           U, U_name, method,
-           is_save, is_save_txt, *args, )
+    U_save(U, U_name, folder_address,
+           is_save, is_save_txt, **kwargs, )
 
     return folder_address
     # return folder_address, U_address, U_amp_plot_address, U_phase_plot_address
 
+#%%
 
-def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
-                  G, G_name, method,
+def U_error_plot_save(U, U_0, is_print,
+                      img_name_extension,
+                      # %%
+                      size_PerPixel,
+                      is_save, is_save_txt, dpi, size_fig,
+                      # %%
+                      cmap_2d, ticks_num, is_contourf,
+                      is_title_on, is_axes_on, is_mm,
+                      fontsize, font,
+                      # %%
+                      is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                      # %%                          何况 一般默认 is_self_colorbar = 1...
+                      **kwargs, ):  # **kwargs = z
+
+    from fun_global_var import fkey
+
+    U_error = U - U_0
+    U_error_name = fkey("U") + "_error"
+
+    folder_address = U_dir(U_error_name, is_save, **kwargs, )
+
+    #%%
+    U_amp_error = np.abs(U) - np.abs(U_0)
+    U_amp_error_name = fkey("U") + "_amp_error"
+    U_energy_print(U_amp_error, U_amp_error_name, is_print,
+                   **kwargs, )
+    U_rsd_print(U_amp_error, U_amp_error_name, is_print,
+                **kwargs, )
+
+    U_phase_error = np.abs(U) - np.angle(U_0)
+    U_phase_error_name = fkey("U") + "_phase_error"
+    U_energy_print(U_phase_error, U_phase_error_name, is_print,
+                   **kwargs, )
+    U_rsd_print(U_phase_error, U_phase_error_name, is_print,
+                **kwargs, )
+
+    # %%
+    # 绘图：U
+
+    U_amp_error_plot_address, U_phase_error_plot_address = U_error_plot(folder_address,
+                                                      U, U_0,
+                                                      img_name_extension,
+                                                      # %%
+                                                      1, size_PerPixel,
+                                                      is_save, dpi, size_fig,
+                                                      cmap_2d, ticks_num, is_contourf,
+                                                      is_title_on, is_axes_on, is_mm,
+                                                      fontsize, font,
+                                                      is_colorbar_on, is_energy,
+                                                      # %%
+                                                      **kwargs, )
+
+    # %%
+    # 储存 U 到 txt 文件
+
+    U_save(U_amp_error, U_amp_error_name, folder_address,
+           is_save, is_save_txt, **kwargs, )
+    U_save(U_phase_error, U_phase_error_name, folder_address,
+           is_save, is_save_txt, **kwargs, )
+
+    return folder_address
+
+
+def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto_seq_and_z = 1
                   G_energy,
                   H, H_name,
                   U, U_name,
@@ -458,8 +692,7 @@ def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto =
                   # %%                          何况 一般默认 is_self_colorbar = 1...
                   z, ):  # 默认必须给 z
 
-    folder_address = U_plot_save(U1_name, 0, 1,
-                                 G, G_name, method,
+    folder_address = U_plot_save(G, G_name, 0,
                                  img_name_extension,
                                  # %%
                                  size_PerPixel,
@@ -471,11 +704,11 @@ def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto =
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z, )
+                                 z=z, )
 
     if is_energy_evolution_on == 1:
-        U_energy_plot_address = U_energy_plot(U1_name, folder_address, 1,
-                                              G_energy, G_name + "_energy", method,
+        U_energy_plot_address = U_energy_plot(folder_address,
+                                              G_energy, G_name + "_energy",
                                               img_name_extension,
                                               # %%
                                               zj, sample, size_PerPixel,
@@ -484,10 +717,9 @@ def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto =
                                               is_title_on, is_axes_on, is_mm,
                                               fontsize, font,
                                               # %%
-                                              z, )
+                                              z=z, )
 
-    folder_address = U_plot_save(U1_name, 0, 1,
-                                 H, H_name, method,
+    folder_address = U_plot_save(H, H_name, 0,
                                  img_name_extension,
                                  # %%
                                  size_PerPixel,
@@ -499,10 +731,9 @@ def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto =
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z, )
+                                 z=z, )
 
-    folder_address = U_plot_save(U1_name, 1, 1,
-                                 U, U_name, method,
+    folder_address = U_plot_save(U, U_name, 1,
                                  img_name_extension,
                                  # %%
                                  size_PerPixel,
@@ -514,11 +745,11 @@ def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto =
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z, )
+                                 z=z, )
 
     if is_energy_evolution_on == 1:
-        U_energy_plot_address = U_energy_plot(U1_name, folder_address, 1,
-                                              U_energy, U_name + "_energy", method,
+        U_energy_plot_address = U_energy_plot(folder_address,
+                                              U_energy, U_name + "_energy",
                                               img_name_extension,
                                               # %%
                                               zj, sample, size_PerPixel,
@@ -527,13 +758,13 @@ def GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto =
                                               is_title_on, is_axes_on, is_mm,
                                               fontsize, font,
                                               # %%
-                                              z, )
+                                              z=z, )
 
 
 # %%
 
-def U_slices_plot(U1_name, folder_address, is_auto,
-                  U_XZ, U_XZ_name, method,
+def U_slices_plot(folder_address,
+                  U_XZ, U_XZ_name,
                   U_YZ, U_YZ_name,
                   img_name_extension,
                   # %%
@@ -551,8 +782,8 @@ def U_slices_plot(U1_name, folder_address, is_auto,
     U_YZ_XZ_amp_max = np.max([np.max(np.abs(U_YZ)), np.max(np.abs(U_XZ))])
     U_YZ_XZ_amp_min = np.min([np.min(np.abs(U_YZ)), np.min(np.abs(U_XZ))])
 
-    U_amp_plot(U1_name, folder_address, is_auto,
-               U_YZ, U_YZ_name, method,
+    U_amp_plot(folder_address,
+               U_YZ, U_YZ_name,
                img_name_extension,
                # %%
                zj, sample, size_PerPixel,
@@ -565,10 +796,10 @@ def U_slices_plot(U1_name, folder_address, is_auto,
                0, is_colorbar_on,
                is_energy, U_YZ_XZ_amp_max, U_YZ_XZ_amp_min,
                # %%
-               X, )
+               z=X, )
 
-    U_amp_plot(U1_name, folder_address, is_auto,
-               U_XZ, U_XZ_name, method,
+    U_amp_plot(folder_address,
+               U_XZ, U_XZ_name,
                img_name_extension,
                # %%
                zj, sample, size_PerPixel,
@@ -581,13 +812,13 @@ def U_slices_plot(U1_name, folder_address, is_auto,
                0, is_colorbar_on,
                is_energy, U_YZ_XZ_amp_max, U_YZ_XZ_amp_min,
                # %%
-               Y, )
+               z=Y, )
 
     U_YZ_XZ_phase_max = np.max([np.max(np.angle(U_YZ)), np.max(np.angle(U_XZ))])
     U_YZ_XZ_phase_min = np.min([np.min(np.angle(U_YZ)), np.min(np.angle(U_XZ))])
 
-    U_phase_plot(U1_name, folder_address, is_auto,
-                 U_YZ, U_YZ_name, method,
+    U_phase_plot(folder_address,
+                 U_YZ, U_YZ_name,
                  img_name_extension,
                  # %%
                  zj, sample, size_PerPixel,
@@ -600,10 +831,10 @@ def U_slices_plot(U1_name, folder_address, is_auto,
                  0, is_colorbar_on,
                  U_YZ_XZ_phase_max, U_YZ_XZ_phase_min,
                  # %%
-                 X, )
+                 z=X, )
 
-    U_phase_plot(U1_name, folder_address, is_auto,
-                 U_XZ, U_XZ_name, method,
+    U_phase_plot(folder_address,
+                 U_XZ, U_XZ_name,
                  img_name_extension,
                  # %%
                  zj, sample, size_PerPixel,
@@ -616,15 +847,15 @@ def U_slices_plot(U1_name, folder_address, is_auto,
                  0, is_colorbar_on,
                  U_YZ_XZ_phase_max, U_YZ_XZ_phase_min,
                  # %%
-                 Y, )
+                 z=Y, )
 
     return U_YZ_XZ_amp_max, U_YZ_XZ_amp_min, U_YZ_XZ_phase_max, U_YZ_XZ_phase_min
 
 
 # %%
 
-def U_selects_plot(U1_name, folder_address, is_auto,
-                   U_1, U_1_name, method,
+def U_selects_plot(folder_address,
+                   U_1, U_1_name,
                    U_2, U_2_name,
                    U_f, U_f_name,
                    U_e, U_e_name,
@@ -654,8 +885,8 @@ def U_selects_plot(U1_name, folder_address, is_auto,
         U_amps_min = np.min(
             [np.min(np.abs(U_1)), np.min(np.abs(U_2))])
 
-    U_amp_plot(U1_name, folder_address, is_auto,
-               U_1, U_1_name, method,
+    U_amp_plot(folder_address,
+               U_1, U_1_name,
                img_name_extension,
                # %%
                [], sample, size_PerPixel,
@@ -668,10 +899,10 @@ def U_selects_plot(U1_name, folder_address, is_auto,
                0, is_colorbar_on,
                is_energy, U_amps_max, U_amps_min,
                # %%
-               z_1, )
+               z=z_1, )
 
-    U_amp_plot(U1_name, folder_address, is_auto,
-               U_2, U_2_name, method,
+    U_amp_plot(folder_address,
+               U_2, U_2_name,
                img_name_extension,
                # %%
                [], sample, size_PerPixel,
@@ -684,10 +915,10 @@ def U_selects_plot(U1_name, folder_address, is_auto,
                0, is_colorbar_on,
                is_energy, U_amps_max, U_amps_min,
                # %%
-               z_2, )
+               z=z_2, )
     if is_show_structure_face == 1:
-        U_amp_plot(U1_name, folder_address, is_auto,
-                   U_f, U_f_name, method,
+        U_amp_plot(folder_address,
+                   U_f, U_f_name,
                    img_name_extension,
                    # %%
                    [], sample, size_PerPixel,
@@ -700,10 +931,10 @@ def U_selects_plot(U1_name, folder_address, is_auto,
                    0, is_colorbar_on,
                    is_energy, U_amps_max, U_amps_min,
                    # %%
-                   z_f, )
+                   z=z_f, )
 
-        U_amp_plot(U1_name, folder_address, is_auto,
-                   U_e, U_e_name, method,
+        U_amp_plot(folder_address,
+                   U_e, U_e_name,
                    img_name_extension,
                    # %%
                    [], sample, size_PerPixel,
@@ -716,7 +947,7 @@ def U_selects_plot(U1_name, folder_address, is_auto,
                    0, is_colorbar_on,
                    is_energy, U_amps_max, U_amps_min,
                    # %%
-                   z_e, )
+                   z=z_e, )
 
     if is_show_structure_face == 1:
         U_phases_max = np.max(
@@ -731,8 +962,8 @@ def U_selects_plot(U1_name, folder_address, is_auto,
         U_phases_min = np.min(
             [np.min(np.angle(U_1)), np.min(np.angle(U_2))])
 
-    U_phase_plot(U1_name, folder_address, is_auto,
-                 U_1, U_1_name, method,
+    U_phase_plot(folder_address,
+                 U_1, U_1_name,
                  img_name_extension,
                  # %%
                  [], sample, size_PerPixel,
@@ -745,10 +976,10 @@ def U_selects_plot(U1_name, folder_address, is_auto,
                  0, is_colorbar_on,
                  U_phases_max, U_phases_min,
                  # %%
-                 z_1, )
+                 z=z_1, )
 
-    U_phase_plot(U1_name, folder_address, is_auto,
-                 U_2, U_2_name, method,
+    U_phase_plot(folder_address,
+                 U_2, U_2_name,
                  img_name_extension,
                  # %%
                  [], sample, size_PerPixel,
@@ -761,11 +992,11 @@ def U_selects_plot(U1_name, folder_address, is_auto,
                  0, is_colorbar_on,
                  U_phases_max, U_phases_min,
                  # %%
-                 z_2, )
+                 z=z_2, )
 
     if is_show_structure_face == 1:
-        U_phase_plot(U1_name, folder_address, is_auto,
-                     U_f, U_f_name, method,
+        U_phase_plot(folder_address,
+                     U_f, U_f_name,
                      img_name_extension,
                      # %%
                      [], sample, size_PerPixel,
@@ -778,10 +1009,10 @@ def U_selects_plot(U1_name, folder_address, is_auto,
                      0, is_colorbar_on,
                      U_phases_max, U_phases_min,
                      # %%
-                     z_f, )
+                     z=z_f, )
 
-        U_phase_plot(U1_name, folder_address, is_auto,
-                     U_e, U_e_name, method,
+        U_phase_plot(folder_address,
+                     U_e, U_e_name,
                      img_name_extension,
                      # %%
                      [], sample, size_PerPixel,
@@ -794,15 +1025,15 @@ def U_selects_plot(U1_name, folder_address, is_auto,
                      0, is_colorbar_on,
                      U_phases_max, U_phases_min,
                      # %%
-                     z_e, )
+                     z=z_e, )
 
     return U_amps_max, U_amps_min, U_phases_max, U_phases_min
 
 
 # %%
 
-def U_amps_z_plot(U1_name, folder_address, is_auto,
-                  U, U_name, method,
+def U_amps_z_plot(folder_address,
+                  U, U_name,
                   img_name_extension,
                   # %%
                   sample, size_PerPixel,
@@ -824,9 +1055,9 @@ def U_amps_z_plot(U1_name, folder_address, is_auto,
     imgs_address_list = []
     titles_list = []
     for sheet_stored_th in range(U.shape[2]):
-        U_amp_plot_address, U_amp_title = U_amp_plot(U1_name, folder_address, is_auto,
+        U_amp_plot_address, U_amp_title = U_amp_plot(folder_address,
                                                      # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                                                     U[:, :, sheet_stored_th], U_name, method,
+                                                     U[:, :, sheet_stored_th], U_name,
                                                      img_name_extension,
                                                      # %%
                                                      [], sample, size_PerPixel,
@@ -840,7 +1071,7 @@ def U_amps_z_plot(U1_name, folder_address, is_auto,
                                                      is_energy, U_amp_max, U_amp_min,
                                                      # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                                                      # %%
-                                                     z_stored[sheet_stored_th], )
+                                                     z=z_stored[sheet_stored_th], )
         imgs_address_list.append(U_amp_plot_address)
         titles_list.append(U_amp_title)  # 每张图片都用单独list的形式加入到图片序列中
 
@@ -849,7 +1080,7 @@ def U_amps_z_plot(U1_name, folder_address, is_auto,
         """ plot2d 无法多线程，因为会挤占 同一个 fig 这个 全局的画布资源？ 注释了 plt.show() 也没用，应该不是它的锅。
         不过其实可以在 U_amp_plot 里面搞多线程，因为 获取 address 和 title 不是全局的 """
         # def fun1(for_th, fors_num, *arg, ):
-        #     U_amp_plot_address, U_amp_title = U_amp_plot(U1_name, folder_address, is_auto,
+        #     U_amp_plot_address, U_amp_title = U_amp_plot(U0_name, folder_address, is_auto_seq_and_z,
         #                                                  # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
         #                                                  U[:, :, for_th], U_name, method,
         #                                                  img_name_extension,
@@ -894,8 +1125,8 @@ def U_amps_z_plot(U1_name, folder_address, is_auto,
 
 # %%
 
-def U_phases_z_plot(U1_name, folder_address, is_auto,
-                    U, U_name, method,
+def U_phases_z_plot(folder_address,
+                    U, U_name,
                     img_name_extension,
                     # %%
                     sample, size_PerPixel,
@@ -917,8 +1148,8 @@ def U_phases_z_plot(U1_name, folder_address, is_auto,
     imgs_address_list = []
     titles_list = []
     for sheet_stored_th in range(U.shape[2]):
-        U_phase_plot_address, U_phase_title = U_phase_plot(U1_name, folder_address, is_auto,
-                                                           U[:, :, sheet_stored_th], U_name, method,
+        U_phase_plot_address, U_phase_title = U_phase_plot(folder_address,
+                                                           U[:, :, sheet_stored_th], U_name,
                                                            img_name_extension,
                                                            # %%
                                                            [], sample, size_PerPixel,
@@ -931,7 +1162,7 @@ def U_phases_z_plot(U1_name, folder_address, is_auto,
                                                            0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
                                                            U_phase_max, U_phase_min,
                                                            # %%
-                                                           z_stored[sheet_stored_th], )
+                                                           z=z_stored[sheet_stored_th], )
         imgs_address_list.append(U_phase_plot_address)
         titles_list.append(U_phase_title)  # 每张图片都用单独list的形式加入到图片序列中
 
@@ -940,7 +1171,7 @@ def U_phases_z_plot(U1_name, folder_address, is_auto,
         """ plot2d 无法多线程，因为会挤占 同一个 fig 这个 全局的画布资源？ 注释了 plt.show() 也没用，应该不是它的锅。
         不过其实可以在 U_amp_plot 里面搞多线程，因为 获取 address 和 title 不是全局的 """
         # def fun1(for_th, fors_num, *arg, ):
-        #     U_phase_plot_address, U_phase_title = U_phase_plot(U1_name, folder_address, is_auto,
+        #     U_phase_plot_address, U_phase_title = U_phase_plot(U0_name, folder_address, is_auto_seq_and_z,
         #                                                        U[:, :, for_th], U_name, method,
         #                                                        img_name_extension,
         #                                                        # %%
@@ -983,8 +1214,8 @@ def U_phases_z_plot(U1_name, folder_address, is_auto,
 
 # %%
 
-def U_amp_plot_3d_XYz(U1_name, folder_address, is_auto,
-                      U, U_name, method,
+def U_amp_plot_3d_XYz(folder_address,
+                      U, U_name,
                       img_name_extension,
                       # %%
                       sample, size_PerPixel,
@@ -999,9 +1230,8 @@ def U_amp_plot_3d_XYz(U1_name, folder_address, is_auto,
                       # %%
                       zj, z_stored, ):  # args 是 z 或 ()，但 z 可从 z_stored 中 提取，所以这里 省略了 *args，外面不用传 z 进来
 
-    U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U1_name, U_name, is_auto,
-                                                                   method, folder_address, img_name_extension,
-                                                                   z_stored[-1], )
+    U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                                                   z=z_stored[-1], )
 
     U_amp_max = np.max(np.abs(U))  # is_self_colorbar = 1 并设置这个，没有意义，不如直接设置 1 0？ 试试就知道，并不是。
     U_amp_min = np.min(np.abs(U))  # is_self_colorbar = 1 并设置这个，没有意义，不如直接设置 1 0？ 试试就知道，并不是。
@@ -1021,8 +1251,8 @@ def U_amp_plot_3d_XYz(U1_name, folder_address, is_auto,
 
 # %%
 
-def U_phase_plot_3d_XYz(U1_name, folder_address, is_auto,
-                        U, U_name, method,
+def U_phase_plot_3d_XYz(folder_address,
+                        U, U_name,
                         img_name_extension,
                         # %%
                         sample, size_PerPixel,
@@ -1037,9 +1267,8 @@ def U_phase_plot_3d_XYz(U1_name, folder_address, is_auto,
                         # %%
                         zj, z_stored, ):  # args 是 z 或 ()，但 z 可从 z_stored 中 提取，所以这里 省略了 *args，外面不用传 z 进来
 
-    U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U1_name, U_name, is_auto,
-                                                                         method, folder_address, img_name_extension,
-                                                                         z_stored[-1], )
+    U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                                                         z=z_stored[-1], )
 
     U_phase_max = np.max(np.angle(U))  # is_self_colorbar = 1 并设置这个，没有意义，不如直接设置 1 0？ 试试就知道，并不是。
     U_phase_min = np.min(np.angle(U))  # is_self_colorbar = 1 并设置这个，没有意义，不如直接设置 1 0？ 试试就知道，并不是。
@@ -1059,8 +1288,8 @@ def U_phase_plot_3d_XYz(U1_name, folder_address, is_auto,
 
 # %%
 
-def U_amp_plot_3d_XYZ(U1_name, folder_address, is_auto,
-                      U_name, method,
+def U_amp_plot_3d_XYZ(folder_address,
+                      U_name,
                       U_YZ, U_XZ,
                       U_1, U_2,
                       U_f, U_e,
@@ -1080,11 +1309,10 @@ def U_amp_plot_3d_XYZ(U1_name, folder_address, is_auto,
                       is_colorbar_on, is_energy, is_show_structure_face,
                       vmax, vmin,
                       # %%
-                      zj, *args, ):  # args 是 z 或 ()
+                      zj, **kwargs, ):  # args 是 z 或 ()
 
-    U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U1_name, U_name, is_auto,
-                                                                   method, folder_address, img_name_extension,
-                                                                   *args, )
+    U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                                                   **kwargs, )
 
     plot_3d_XYZ(zj, sample, size_PerPixel,
                 np.abs(U_YZ), np.abs(U_XZ),
@@ -1106,8 +1334,8 @@ def U_amp_plot_3d_XYZ(U1_name, folder_address, is_auto,
 
 # %%
 
-def U_phase_plot_3d_XYZ(U1_name, folder_address, is_auto,
-                        U_name, method,
+def U_phase_plot_3d_XYZ(folder_address,
+                        U_name,
                         U_YZ, U_XZ,
                         U_1, U_2,
                         U_f, U_e,
@@ -1127,11 +1355,10 @@ def U_phase_plot_3d_XYZ(U1_name, folder_address, is_auto,
                         is_colorbar_on, is_show_structure_face,
                         vmax, vmin,
                         # %%
-                        zj, *args, ):  # args 是 z 或 ()，但 z 可从 z_stored 中 提取，所以这里 省略了 *args，外面不用传 z 进来
+                        zj, **kwargs, ):  # args 是 z 或 ()
 
-    U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U1_name, U_name, is_auto,
-                                                                         method, folder_address, img_name_extension,
-                                                                         *args, )
+    U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U_name, folder_address, img_name_extension,
+                                                                         **kwargs, )
 
     plot_3d_XYZ(zj, sample, size_PerPixel,
                 np.angle(U_YZ), np.angle(U_XZ),
@@ -1153,8 +1380,7 @@ def U_phase_plot_3d_XYZ(U1_name, folder_address, is_auto,
 
 # %%
 
-def U_EVV_plot(U1_name,
-               G_stored, G_name, method,
+def U_EVV_plot(G_stored, G_name,
                U_stored, U_name,
                img_name_extension,
                # %%
@@ -1175,14 +1401,13 @@ def U_EVV_plot(U1_name,
                is_plot_3d_XYz,
                # %%
                zj, z_stored, z, ):
-    folder_address = U_dir(U1_name, G_name + "_sheets", 1,
-                           is_save, z, )
+    folder_address = U_dir(G_name + "_sheets", is_save, z=z, )
 
     # -------------------------
 
     if ("G" in plot_group and "a" in plot_group):
-        gif_address = U_amps_z_plot(U1_name, folder_address, 1,
-                                    G_stored, G_name, method,
+        gif_address = U_amps_z_plot(folder_address,
+                                    G_stored, G_name,
                                     img_name_extension,
                                     # %%
                                     sample, size_PerPixel,
@@ -1198,8 +1423,8 @@ def U_EVV_plot(U1_name,
                                     duration, fps, loop, )
 
     if ("G" in plot_group and "p" in plot_group):
-        gif_address = U_phases_z_plot(U1_name, folder_address, 1,
-                                      G_stored, G_name, method,
+        gif_address = U_phases_z_plot(folder_address,
+                                      G_stored, G_name,
                                       img_name_extension,
                                       # %%
                                       sample, size_PerPixel,
@@ -1216,12 +1441,11 @@ def U_EVV_plot(U1_name,
 
     # -------------------------
 
-    folder_address = U_dir(U1_name, U_name + "_sheets", 1,
-                           is_save, z, )
+    folder_address = U_dir(U_name + "_sheets", is_save, z=z, )
 
     if ("U" in plot_group and "a" in plot_group):
-        gif_address = U_amps_z_plot(U1_name, folder_address, 1,
-                                    U_stored, U_name, method,
+        gif_address = U_amps_z_plot(folder_address,
+                                    U_stored, U_name,
                                     img_name_extension,
                                     # %%
                                     sample, size_PerPixel,
@@ -1237,8 +1461,8 @@ def U_EVV_plot(U1_name,
                                     duration, fps, loop, )
 
     if ("U" in plot_group and "p" in plot_group):
-        gif_address = U_phases_z_plot(U1_name, folder_address, 1,
-                                      U_stored, U_name, method,
+        gif_address = U_phases_z_plot(folder_address,
+                                      U_stored, U_name,
                                       img_name_extension,
                                       # %%
                                       sample, size_PerPixel,
@@ -1254,11 +1478,11 @@ def U_EVV_plot(U1_name,
                                       duration, fps, loop, )
 
     # %%
-    # 这 sheets_stored_num 层 也可以 画成 3D，就是太丑了，所以只 整个 U1_amp 示意一下即可
+    # 这 sheets_stored_num 层 也可以 画成 3D，就是太丑了，所以只 整个 U0_amp 示意一下即可
 
     if ("U" in plot_group and "a" in plot_group) and is_plot_3d_XYz == 1:
-        U_amp_plot_address = U_amp_plot_3d_XYz(U1_name, folder_address, 1,
-                                               U_stored, U_name + "_sheets", method,
+        U_amp_plot_address = U_amp_plot_3d_XYz(folder_address,
+                                               U_stored, U_name + "_sheets",
                                                img_name_extension,
                                                # %%
                                                sample, size_PerPixel,
@@ -1276,8 +1500,7 @@ def U_EVV_plot(U1_name,
 
 # %%
 
-def U_SSI_plot(U1_name,
-               G_stored, G_name, method,
+def U_SSI_plot(G_stored, G_name,
                U_stored, U_name,
                G_YZ, G_XZ,
                U_YZ, U_XZ,
@@ -1313,8 +1536,7 @@ def U_SSI_plot(U1_name,
                zj, z_stored, z, ):
     # %%
 
-    U_EVV_plot(U1_name,
-               G_stored, G_name, method,
+    U_EVV_plot(G_stored, G_name,
                U_stored, U_name,
                img_name_extension,
                # %%
@@ -1341,15 +1563,14 @@ def U_SSI_plot(U1_name,
     if is_plot_selective == 1:
 
         if "G" in plot_group:
-            folder_address = U_dir(U1_name, G_name + "_sheets_selective", 1,
-                                   is_save, z, )
+            folder_address = U_dir(G_name + "_sheets_selective", is_save, z=z, )
 
             # ------------------------- 储存 G1_section_1_shift_amp、G1_section_1_shift_amp、G1_structure_frontface_shift_amp、G1_structure_endface_shift_amp
             # ------------------------- 储存 G1_section_1_shift_phase、G1_section_1_shift_phase、G1_structure_frontface_shift_phase、G1_structure_endface_shift_phase
 
             G_amps_max, G_amps_min, G_phases_max, G_phases_min = \
-                U_selects_plot(U1_name, folder_address, 1,
-                               G_1, G_name + "_sec1", method,
+                U_selects_plot(folder_address,
+                               G_1, G_name + "_sec1",
                                G_2, G_name + "_sec2",
                                G_f, G_name + "_front",
                                G_e, G_name + "_end",
@@ -1369,15 +1590,14 @@ def U_SSI_plot(U1_name,
         # %%
 
         if "U" in plot_group:
-            folder_address = U_dir(U1_name, U_name + "_sheets_selective", 1,
-                                   is_save, z, )
+            folder_address = U_dir(U_name + "_sheets_selective", is_save, z=z, )
 
-            # ------------------------- 储存 U1_section_1_amp、U1_section_1_amp、U1_structure_frontface_amp、U1_structure_endface_amp
-            # ------------------------- 储存 U1_section_1_phase、U1_section_1_phase、U1_structure_frontface_phase、U1_structure_endface_phase
+            # ------------------------- 储存 U0_section_1_amp、U0_section_1_amp、U0_structure_frontface_amp、U0_structure_endface_amp
+            # ------------------------- 储存 U0_section_1_phase、U0_section_1_phase、U0_structure_frontface_phase、U0_structure_endface_phase
 
             U_amps_max, U_amps_min, U_phases_max, U_phases_min = \
-                U_selects_plot(U1_name, folder_address, 1,
-                               U_1, U_name + "_sec1", method,
+                U_selects_plot(folder_address,
+                               U_1, U_name + "_sec1",
                                U_2, U_name + "_sec2",
                                U_f, U_name + "_front",
                                U_e, U_name + "_end",
@@ -1398,16 +1618,15 @@ def U_SSI_plot(U1_name,
 
     if is_plot_YZ_XZ == 1:
 
-        folder_address = U_dir(U1_name, G_name + "_YZ_XZ", 1,
-                               is_save, z, )
+        folder_address = U_dir(G_name + "_YZ_XZ", is_save, z=z, )
 
         # ========================= G1_shift_YZ_stored_amp、G1_shift_XZ_stored_amp
         # ------------------------- G1_shift_YZ_stored_phase、G1_shift_XZ_stored_phase
 
         if "G" in plot_group:
             G_YZ_XZ_amp_max, G_YZ_XZ_amp_min, G_YZ_XZ_phase_max, G_YZ_XZ_phase_min = \
-                U_slices_plot(U1_name, folder_address, 1,
-                              G_YZ, G_name + "_YZ", method,
+                U_slices_plot(folder_address,
+                              G_YZ, G_name + "_YZ",
                               G_XZ, G_name + "_XZ",
                               img_name_extension,
                               # %%
@@ -1427,8 +1646,8 @@ def U_SSI_plot(U1_name,
             # 绘制 G1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_amp（现在 可以 任选位置 了）
 
             if ("G" in plot_group and "a" in plot_group):
-                U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
-                                                       G_name + "_XYZ", method,
+                U_amp_plot_address = U_amp_plot_3d_XYZ(folder_address,
+                                                       G_name + "_XYZ",
                                                        G_YZ, G_XZ,
                                                        G_1, G_2,
                                                        G_f, G_e,
@@ -1449,14 +1668,14 @@ def U_SSI_plot(U1_name,
                                                        np.max([G_YZ_XZ_amp_max, G_amps_max]),
                                                        np.min([G_YZ_XZ_amp_min, G_amps_min]),
                                                        # %%
-                                                       zj, z, )
+                                                       zj, z=z, )
 
             # %%
             # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
 
             if ("G" in plot_group and "p" in plot_group):
-                U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
-                                                           G_name + "_XYZ", method,
+                U_phase_plot_address = U_phase_plot_3d_XYZ(folder_address,
+                                                           G_name + "_XYZ",
                                                            G_YZ, G_XZ,
                                                            G_1, G_2,
                                                            G_f, G_e,
@@ -1477,20 +1696,19 @@ def U_SSI_plot(U1_name,
                                                            np.max([G_YZ_XZ_phase_max, G_phases_max]),
                                                            np.min([G_YZ_XZ_phase_min, G_phases_min]),
                                                            # %%
-                                                           zj, z, )
+                                                           zj, z=z, )
 
         # %%
 
-        folder_address = U_dir(U1_name, U_name + "_YZ_XZ", 1,
-                               is_save, z, )
+        folder_address = U_dir(U_name + "_YZ_XZ", is_save, z=z, )
 
-        # ========================= U1_YZ_stored_amp、U1_XZ_stored_amp
-        # ------------------------- U1_YZ_stored_phase、U1_XZ_stored_phase
+        # ========================= U0_YZ_stored_amp、U0_XZ_stored_amp
+        # ------------------------- U0_YZ_stored_phase、U0_XZ_stored_phase
 
         if "U" in plot_group:
             U_YZ_XZ_amp_max, U_YZ_XZ_amp_min, U_YZ_XZ_phase_max, U_YZ_XZ_phase_min = \
-                U_slices_plot(U1_name, folder_address, 1,
-                              U_YZ, U_name + "_YZ", method,
+                U_slices_plot(folder_address,
+                              U_YZ, U_name + "_YZ",
                               U_XZ, U_name + "_XZ",
                               img_name_extension,
                               # %%
@@ -1507,11 +1725,11 @@ def U_SSI_plot(U1_name,
 
         if is_plot_3d_XYZ == 1:
             # %%
-            # 绘制 U1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_amp
+            # 绘制 U0_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 U0_amp
 
             if ("U" in plot_group and "a" in plot_group):
-                U_amp_plot_address = U_amp_plot_3d_XYZ(U1_name, folder_address, 1,
-                                                       U_name + "_XYZ", method,
+                U_amp_plot_address = U_amp_plot_3d_XYZ(folder_address,
+                                                       U_name + "_XYZ",
                                                        U_YZ, U_XZ,
                                                        U_1, U_2,
                                                        U_f, U_e,
@@ -1532,14 +1750,14 @@ def U_SSI_plot(U1_name,
                                                        np.max([U_YZ_XZ_amp_max, U_amps_max]),
                                                        np.min([U_YZ_XZ_amp_min, U_amps_min]),
                                                        # %%
-                                                       zj, z, )
+                                                       zj, z=z, )
 
             # %%
-            # 绘制 U1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U1_phase
+            # 绘制 U0_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U0_phase
 
             if ("U" in plot_group and "p" in plot_group):
-                U_phase_plot_address = U_phase_plot_3d_XYZ(U1_name, folder_address, 1,
-                                                           U_name + "_XYZ", method,
+                U_phase_plot_address = U_phase_plot_3d_XYZ(folder_address,
+                                                           U_name + "_XYZ",
                                                            U_YZ, U_XZ,
                                                            U_1, U_2,
                                                            U_f, U_e,
@@ -1560,30 +1778,24 @@ def U_SSI_plot(U1_name,
                                                            np.max([U_YZ_XZ_phase_max, U_phases_max]),
                                                            np.min([U_YZ_XZ_phase_min, U_phases_min]),
                                                            # %%
-                                                           zj, z, )
-
+                                                           zj, z=z, )
 
 # %%
 
-def U_save(U1_name, folder_address, is_auto,
-           U, U_name, method,
-           is_save, is_save_txt, *args, ):
-    U_full_name, part_1_NOT_num, part_1_num = gan_part_1z(U1_name, U_name, 1,  # 要加 序列号
-                                                          is_auto, args, method, )  # 要有 method （诸如 'AST'）
-
-    file_name = U_full_name + (is_save_txt and ".txt" or ".mat")
-    # file_name = replace_p_part_1_num(file_name, part_1_NOT_num, part_1_num)
-    U_address = folder_address + "\\" + file_name
+def U_save(U, U_name, folder_address,
+           is_save, is_save_txt, **kwargs, ):
+    U_address, ugHGU = gan_Uz_save_address(U_name, folder_address, is_save_txt,
+                                            **kwargs)
     if is_save == 1:
-        np.savetxt(U_address, U) if is_save_txt else savemat(U_address, {part_1_NOT_num: U})
+        np.savetxt(U_address, U) if is_save_txt else savemat(U_address, {ugHGU: U})
 
     return U_address
 
 
 # %%
 
-def U_energy_plot(U1_name, folder_address, is_auto,
-                  U, U_name, method,
+def U_energy_plot(folder_address,
+                  U, U_name,
                   img_name_extension,
                   # %%
                   zj, sample, size_PerPixel,
@@ -1591,25 +1803,17 @@ def U_energy_plot(U1_name, folder_address, is_auto,
                   color_1d, ticks_num, is_title_on, is_axes_on, is_mm,
                   fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                   # %%
-                  *args, ):
+                  **kwargs, ):
     # %%
     # 绘制 U_amp
     suffix = '_energy'
     # %%
     # 生成 要储存的 图片名 和 地址
-    U_energy_name, part_1_NOT_num, part_1_num = gan_part_1z(U1_name, U_name, 1,  # 要加 序列号
-                                                            is_auto, args, method, suffix, )  # 有 method 和 suffix
-    # U_energy_name += suffix  # 增加 后缀 "_energy" （才怪，suffix 只 help 辅助 加 5.1 这种序号，原 U_name 里已有 _energy 了）
-    # %%
-    # 生成 地址
-    U_energy_full_name = U_energy_name + img_name_extension
-    U_energy_plot_address = folder_address + "\\" + U_energy_full_name
+    U_energy_full_name, U_energy_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
+                                                                U_name, suffix, **kwargs)
     # %%
     # 生成 图片中的 title
-    U_energy_title, part_1_NOT_num, part_1_num = gan_part_1z(U1_name, U_name, 0,  # 不加 序列号
-                                                             is_auto, args, method, suffix, )  # 有 method 和 suffix
-    # U_energy_title += suffix  # 增加 后缀 "_evolution" （才怪，suffix 只 help 辅助 加 5.1 这种序号，原 U_name 里已有 _energy 了）
-    U_energy_title = subscript_part_1_num(U_energy_title, part_1_NOT_num, part_1_num)
+    U_energy_title = gan_Uz_title(U_name, suffix, **kwargs) # 增加 后缀 "_evolution" （才怪，suffix 只 help 辅助 加 5.1 这种序号，原 U_name 里已有 _energy 了）
     # %%
     U_energy_max = np.max(U)  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar）
     U_energy_min = np.min(U)  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar）
@@ -1634,8 +1838,8 @@ def Info_img(img_full_name):
     desktop = get_desktop()
 
     img_address = cdir + "\\" + img_full_name  # 默认 在 相对路径下 读，只需要 文件名 即可：读于内
-    img_squared_address = desktop + "\\" + "1." + img_name + "_squared" + img_name_extension  # 除 原始文件 以外，生成的文件 均放在桌面：写出于外
-    img_squared_bordered_address = desktop + "\\" + "2." + img_name + "_squared" + "_bordered" + img_name_extension
+    img_squared_address = desktop + "\\" + "1. " + img_name + "_squared" + img_name_extension  # 除 原始文件 以外，生成的文件 均放在桌面：写出于外
+    img_squared_bordered_address = desktop + "\\" + "2. " + img_name + "_squared" + "_bordered" + img_name_extension
 
     return img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address
 

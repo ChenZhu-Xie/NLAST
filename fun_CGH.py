@@ -113,7 +113,7 @@ def structure_Generate_2D_CGH(U, mode,
                               is_continuous,
                               # %%
                               is_target_far_field, is_transverse_xy, is_reverse_xy, ):
-    if is_target_far_field == 0:  # 如果 想要的 U1_0 是近场（晶体后端面）分布
+    if is_target_far_field == 0:  # 如果 想要的 U_0 是近场（晶体后端面）分布
 
         g = np.fft.fft2(U)
         g_shift = np.fft.fftshift(g)
@@ -135,7 +135,7 @@ def structure_Generate_2D_CGH(U, mode,
                             is_Gauss, l,
                             is_continuous, )[::-1]  # 上下翻转
 
-    else:  # 如果 想要的 U1_0 是远场分布
+    else:  # 如果 想要的 U_0 是远场分布
         if is_transverse_xy == 1:
             structure = CGH(U, mode,
                             Duty_Cycle_x, Duty_Cycle_y,
@@ -176,7 +176,7 @@ def structure_Generate_2D_radial_G(Ix, Iy,
     return structure
 
 
-def structure_chi2_Generate_2D(U1_name="",
+def structure_chi2_Generate_2D(U_structure_name="",
                                img_full_name="Grating.png",
                                is_phase_only=0,
                                # %%
@@ -188,7 +188,7 @@ def structure_chi2_Generate_2D(U1_name="",
                                is_random_phase=0,
                                is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                                # %%
-                               U1_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                               U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
                                Duty_Cycle_x=0.5, Duty_Cycle_y=0.5,
                                structure_xy_mode='x', Depth=2,
                                # %%
@@ -219,13 +219,11 @@ def structure_chi2_Generate_2D(U1_name="",
                                is_print=1,
                                # %%
                                **kwargs, ):
-    method = "MOD"
-
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
     Ix_structure, Iy_structure, deff_structure_size, \
     border_width, img_squared_resize_full_name, img_squared_resize, \
-    U1_0_structure, g1_shift_structure = pump_pic_or_U_structure(U1_name,
+    U_0_structure, g_shift_structure = pump_pic_or_U_structure(U_structure_name,
                                                                  img_full_name,
                                                                  is_phase_only,
                                                                  # %%
@@ -237,7 +235,7 @@ def structure_chi2_Generate_2D(U1_name="",
                                                                  is_random_phase,
                                                                  is_H_l, is_H_theta, is_H_random_phase,
                                                                  # %%
-                                                                 U1_0_NonZero_size, w0, structure_size_Enlarge,
+                                                                 U_0_NonZero_size, w0, structure_size_Enlarge,
                                                                  # %%
                                                                  lam1, is_air_pump, T,
                                                                  # %%
@@ -280,7 +278,7 @@ def structure_chi2_Generate_2D(U1_name="",
                                                        is_positive_xy, is_continuous, is_reverse_xy, )
         else:
 
-            structure = structure_Generate_2D_CGH(U1_0_structure, structure_xy_mode,
+            structure = structure_Generate_2D_CGH(U_0_structure, structure_xy_mode,
                                                   Duty_Cycle_x, Duty_Cycle_y,
                                                   is_positive_xy,
                                                   # %%
@@ -294,8 +292,9 @@ def structure_chi2_Generate_2D(U1_name="",
 
     #%%
 
-    folder_address = U_dir("", "0.χ2_modulation_squared", 0,
-                           is_save - 0.5 * is_bulk, )
+    method = "MOD"
+    folder_name = method + " - " + "χ2_modulation_squared"
+    folder_address = U_dir(folder_name, is_save - 0.5 * is_bulk, )
 
     #%%
 
@@ -303,9 +302,10 @@ def structure_chi2_Generate_2D(U1_name="",
     vmax_modulation, vmin_modulation = 1 - is_no_backgroud, -1 - is_no_backgroud
 
     # name = "χ2_structure"
-    # title = method + " - " + name.replace("χ2", "$\chi_2$")
-    # address = folder_address + "\\" + name + img_name_extension
-    # plot_2d([], 1, size_PerPixel,  
+    # full_name = method + " - " + name
+    # title = full_name.replace("χ2", "$\chi_2$")
+    # address = folder_address + "\\" + full_name + img_name_extension
+    # plot_2d([], 1, size_PerPixel,
     #         structure, address, title,
     #         is_save - 0.5 * is_bulk, dpi, size_fig,
     #         cmap_2d, ticks_num, is_contourf,
@@ -318,8 +318,9 @@ def structure_chi2_Generate_2D(U1_name="",
                                 constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
 
     name = "χ2_modulation_squared"
-    title = method + " - " + name.replace("χ2", "$\chi_2$")
-    address = folder_address + "\\" + name + img_name_extension
+    full_name = method + " - " + name
+    title = full_name.replace("χ2", "$\chi_2$")
+    address = folder_address + "\\" + full_name + img_name_extension
     plot_2d([], 1, size_PerPixel,
             modulation_squared, address, title,
             is_save - 0.5 * is_bulk, dpi, size_fig,
@@ -336,8 +337,9 @@ def structure_chi2_Generate_2D(U1_name="",
         structure_opposite = structure
 
     # name = "χ2_structure_opposite"
-    # title = method + " - " + name.replace("χ2", "$\chi_2$")
-    # address = folder_address + "\\" + name + img_name_extension
+    # full_name = method + " - " + name
+    # title = full_name.replace("χ2", "$\chi_2$")
+    # address = folder_address + "\\" + full_name + img_name_extension
     # plot_2d([], 1, size_PerPixel,  
     #         structure_opposite, address, title,
     #         is_save - 0.5 * is_bulk, dpi, size_fig,
@@ -352,8 +354,9 @@ def structure_chi2_Generate_2D(U1_name="",
                                          constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
 
     name = "χ2_modulation_opposite_squared"
-    title = method + " - " + name.replace("χ2", "$\chi_2$")
-    address = folder_address + "\\" + name + img_name_extension
+    full_name = method + " - " + name
+    title = full_name.replace("χ2", "$\chi_2$")
+    address = folder_address + "\\" + full_name + img_name_extension
     plot_2d([], 1, size_PerPixel,
             modulation_opposite_squared, address, title,
             is_save - 0.5 * is_bulk, dpi, size_fig,
@@ -364,11 +367,11 @@ def structure_chi2_Generate_2D(U1_name="",
 
     return n1, k1, k1_z, lam2, n2, k2, k2_z, \
            dk, lc, Tz, Gx, Gy, Gz, \
-           size_PerPixel, U1_0_structure, g1_shift_structure, \
+           size_PerPixel, U_0_structure, g_shift_structure, \
            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
 
 
-def structure_n1_Generate_2D(U1_name="",
+def structure_n1_Generate_2D(U_structure_name="",
                              img_full_name="Grating.png",
                              is_phase_only=0,
                              # %%
@@ -380,7 +383,7 @@ def structure_n1_Generate_2D(U1_name="",
                              is_random_phase=0,
                              is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                              # %%
-                             U1_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                             U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
                              Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, structure_xy_mode='x', Depth=2,
                              # %%
                              is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
@@ -410,13 +413,12 @@ def structure_n1_Generate_2D(U1_name="",
                              is_print=1,
                              # %%
                              **kwargs, ):
-    method = "MOD"
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
     Ix_structure, Iy_structure, deff_structure_size, \
     border_width, img_squared_resize_full_name, img_squared_resize, \
-    U1_0_structure, g1_shift_structure = pump_pic_or_U_structure(U1_name,
+    U_0_structure, g_shift_structure = pump_pic_or_U_structure(U_structure_name,
                                                                  img_full_name,
                                                                  is_phase_only,
                                                                  # %%
@@ -428,7 +430,7 @@ def structure_n1_Generate_2D(U1_name="",
                                                                  is_random_phase,
                                                                  is_H_l, is_H_theta, is_H_random_phase,
                                                                  # %%
-                                                                 U1_0_NonZero_size, w0, structure_size_Enlarge,
+                                                                 U_0_NonZero_size, w0, structure_size_Enlarge,
                                                                  # %%
                                                                  lam1, is_air_pump, T,
                                                                  # %%
@@ -471,7 +473,7 @@ def structure_n1_Generate_2D(U1_name="",
                                                        is_positive_xy, is_continuous, is_reverse_xy, )
         else:
 
-            structure = structure_Generate_2D_CGH(U1_0_structure, structure_xy_mode,
+            structure = structure_Generate_2D_CGH(U_0_structure, structure_xy_mode,
                                                   Duty_Cycle_x, Duty_Cycle_y,
                                                   is_positive_xy,
                                                   # %%
@@ -485,8 +487,9 @@ def structure_n1_Generate_2D(U1_name="",
 
     #%%
 
-    folder_address = U_dir("", "0.n1_modulation_squared", 0,
-                           is_save - 0.5 * is_bulk, )
+    method = "MOD"
+    folder_name = method + " - " + "n1_modulation_squared"
+    folder_address = U_dir(folder_name, is_save - 0.5 * is_bulk, )
 
     #%%
 
@@ -559,5 +562,5 @@ def structure_n1_Generate_2D(U1_name="",
 
     return n1, k1, k1_z, lam2, n2, k2, k2_z, \
            dk, lc, Tz, Gx, Gy, Gz, \
-           size_PerPixel, U1_0_structure, g1_shift_structure, \
+           size_PerPixel, U_0_structure, g_shift_structure, \
            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared

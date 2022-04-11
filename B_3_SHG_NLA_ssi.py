@@ -17,14 +17,14 @@ from fun_SSI import Slice_SSI
 from fun_linear import init_AST, init_SHG, fft2, ifft2
 from fun_nonlinear import args_SHG, Info_find_contours_SHG, G2_z_modulation_NLAST
 from fun_thread import my_thread
-from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, dset, dget, fun3, fget, fGHU_plot_save, fU_SSI_plot
+from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
 
 np.seterr(divide='ignore', invalid='ignore')
 
 
 # %%
 
-def Nla_SSI(U1_name="",
+def SHG_NLA_ssi(U_name="",
             img_full_name="Grating.png",
             is_phase_only=0,
             # %%
@@ -36,7 +36,7 @@ def Nla_SSI(U1_name="",
             is_random_phase=0,
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
-            U1_0_NonZero_size=1, w0=0.3,
+            U_0_NonZero_size=1, w0=0.3,
             L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
             deff_structure_sheet_expect=1.8, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
@@ -81,16 +81,17 @@ def Nla_SSI(U1_name="",
             **kwargs, ):
     # %%
 
-    if_image_Add_black_border(U1_name, img_full_name,
+    if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    ray = init_GLV_DICT(U1_name, "2", "SSI", "Nla", **kwargs)
+    # kwargs['ray'] = init_GLV_DICT(U_name, "^", "SSI", "Nla", **kwargs)
+    init_GLV_DICT(U_name, "h", "NLA", "ssi", **kwargs)
 
     # %%
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
-    U1_0, g1_shift = pump_pic_or_U(U1_name,
+    U_0, g_shift = pump_pic_or_U(U_name,
                                    img_full_name,
                                    is_phase_only,
                                    # %%
@@ -102,7 +103,7 @@ def Nla_SSI(U1_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U1_0_NonZero_size, w0,
+                                   U_0_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -118,7 +119,7 @@ def Nla_SSI(U1_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   ray=ray, **kwargs, )
+                                   **kwargs, )
 
     n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                    lam1, is_air, T, )
@@ -126,7 +127,7 @@ def Nla_SSI(U1_name="",
     lam2, n2, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
                                          lam1, is_air, T, )
 
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z, k2_z, Tz, mz,
+    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, Tz, mz,
                                                                           L0_Crystal, size_PerPixel,
                                                                           deff_structure_length_expect,
                                                                           is_print, is_contours, n_TzQ, Gz_max_Enhance,
@@ -162,10 +163,11 @@ def Nla_SSI(U1_name="",
     # %%
     # G2_z0_shift
 
-    folder_address = U_dir("", "0.χ2_modulation_squared", 0,
-                           is_save - 0.5 * is_bulk, )
+    method = "MOD"
+    folder_name = method + " - " + "χ2_modulation_squared"
+    folder_address = U_dir(folder_name, is_save - 0.5 * is_bulk, )
 
-    init_SSI(g1_shift, U1_0,
+    init_SSI(g_shift, U_0,
              is_energy_evolution_on, is_stored,
              sheets_num, sheets_stored_num,
              X, Y, Iz, size_PerPixel, )
@@ -182,8 +184,8 @@ def Nla_SSI(U1_name="",
         iz = izj[for_th]
 
         H1_z = np.power(math.e, k1_z * iz * 1j)
-        G1_z = g1_shift * H1_z
-        U1_z = ifft2(G1_z)
+        G1_z = g_shift * H1_z
+        U_z = ifft2(G1_z)
 
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
@@ -196,10 +198,10 @@ def Nla_SSI(U1_name="",
             modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
 
         if is_NLAST == 1:
-            dG2_zdz = G2_z_modulation_NLAST(k1, k2, 0, modulation_squared_z, U1_z, dizj[for_th], const, )
+            dG2_zdz = G2_z_modulation_NLAST(k1, k2, 0, modulation_squared_z, U_z, dizj[for_th], const, )
 
         else:
-            Q2_z = fft2(modulation_squared_z * U1_z ** 2)
+            Q2_z = fft2(modulation_squared_z * U_z ** 2)
             dG2_zdz = const * Q2_z * H2_z(dizj[for_th])
 
         return dG2_zdz
@@ -216,9 +218,9 @@ def Nla_SSI(U1_name="",
 
     # %%
 
-    end_SSI(g1_shift, is_energy, n_sigma=3, )
+    end_SSI(g_shift, is_energy, n_sigma=3, )
 
-    fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
+    fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    img_name_extension,
                    # %%
                    zj, sample, size_PerPixel,
@@ -235,8 +237,7 @@ def Nla_SSI(U1_name="",
 
     # %%
 
-    fU_SSI_plot(U1_name,
-                sheets_num_frontface, sheets_num_endface,
+    fU_SSI_plot(sheets_num_frontface, sheets_num_endface,
                 img_name_extension,
                 # %%
                 sample, size_PerPixel,
@@ -259,11 +260,11 @@ def Nla_SSI(U1_name="",
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
-    return fget("U"), fget("G")
+    return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
 if __name__ == '__main__':
-    Nla_SSI(U1_name="",
+    SHG_NLA_ssi(U_name="",
             img_full_name="Grating.png",
             is_phase_only=0,
             # %%
@@ -275,7 +276,7 @@ if __name__ == '__main__':
             is_random_phase=0,
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
-            U1_0_NonZero_size=1, w0=0.3,
+            U_0_NonZero_size=1, w0=0.3,
             L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
             deff_structure_sheet_expect=1.8, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
@@ -317,4 +318,4 @@ if __name__ == '__main__':
             is_print=1, is_contours=1, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
-            border_percentage=0.1, )
+            border_percentage=0.1, ray="2", )

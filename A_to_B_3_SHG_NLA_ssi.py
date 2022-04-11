@@ -14,11 +14,11 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_global_var import init_GLV_DICT
 from A_3_structure_chi2_Generate_3D import structure_chi2_3D
-from B_3_Nla_SSI import Nla_SSI
-from B_3_Sfm_SSI import Sfm_SSI
+from B_3_SHG_NLA_ssi import SHG_NLA_ssi
+from B_3_SHG_SSF_ssi import SHG_SSF_ssi
 
 
-def A_to_B_3_Nla_SSI(U1_name_Structure="",
+def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                      is_phase_only_Structure=0,
                      # %%
                      z_pump_Structure=0,
@@ -28,7 +28,7 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
                      is_random_phase_Structure=0,
                      is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                      # %%
-                     U1_name="",
+                     U_name="",
                      img_full_name="l=1.png",
                      is_phase_only=0,
                      # %%
@@ -40,7 +40,7 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
                      is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                      # %%---------------------------------------------------------------------
                      # %%
-                     U1_0_NonZero_size=0.5, w0=0.1, w0_Structure=5, structure_size_Enlarge=0.1,
+                     U_0_NonZero_size=0.5, w0=0.1, w0_Structure=5, structure_size_Enlarge=0.1,
                      L0_Crystal=2, z0_structure_frontface_expect=0.5, deff_structure_length_expect=1,
                      deff_structure_sheet_expect=1.8, sheets_stored_num=10,
                      z0_section_1_expect=1, z0_section_2_expect=1,
@@ -93,15 +93,15 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
     # %%
     # Image_Add_Black_border
 
-    if_image_Add_black_border(U1_name, img_full_name,
+    if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
     # %%
-    # 为了生成 U1_0 和 g1_shift
+    # 为了生成 U_0 和 g_shift
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
-    U1_0, g1_shift = pump_pic_or_U(U1_name,
+    U_0, g_shift = pump_pic_or_U(U_name,
                                    img_full_name,
                                    is_phase_only,
                                    # %%
@@ -113,7 +113,7 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U1_0_NonZero_size, w0,
+                                   U_0_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -129,7 +129,7 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
                                    # %%
                                    is_print,
                                    # %%
-                                   ray="1", **kwargs, )
+                                   **kwargs, )
 
     # %%
 
@@ -145,7 +145,7 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
 
     # %%
 
-    structure_chi2_3D(U1_name_Structure,
+    structure_chi2_3D(U_name_Structure,
                       img_full_name,
                       is_phase_only_Structure,
                       # %%
@@ -157,7 +157,7 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
                       is_random_phase_Structure,
                       is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                       # %%
-                      U1_0_NonZero_size, w0_Structure, structure_size_Enlarge,
+                      U_0_NonZero_size, w0_Structure, structure_size_Enlarge,
                       deff_structure_length_expect, deff_structure_sheet_expect,
                       #%%
                       Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
@@ -185,12 +185,12 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
                       is_print, is_contours, n_TzQ,
                       Gz_max_Enhance, match_mode,
                       # %%
-                      g1_shift, )
+                      g_shift, )
 
     # %%
     # B_3_NLA_SSI
 
-    Args = [U1_name,
+    Args = [U_name,
            img_full_name,
            is_phase_only,
            # %%
@@ -202,7 +202,7 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
            is_random_phase,
            is_H_l, is_H_theta, is_H_random_phase,
            # %%
-           U1_0_NonZero_size, w0,
+           U_0_NonZero_size, w0,
            L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
            deff_structure_sheet_expect, sheets_stored_num,
            z0_section_1_expect, z0_section_2_expect,
@@ -239,82 +239,82 @@ def A_to_B_3_Nla_SSI(U1_name_Structure="",
            Gz_max_Enhance, match_mode, ]
 
     if is_NLA == 1:
-        Nla_SSI(*Args)
+        SHG_NLA_ssi(*Args)
     else:
-        Sfm_SSI(*Args)
+        SHG_SSF_ssi(*Args)
 
-
-A_to_B_3_Nla_SSI(U1_name_Structure="",
-                 is_phase_only_Structure=0,
-                 # %%
-                 z_pump_Structure=0,
-                 is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
-                 l_Structure=1, p_Structure=0,
-                 theta_x_Structure=0, theta_y_Structure=0,
-                 # %%
-                 is_random_phase_Structure=0,
-                 is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
-                 # %%
-                 U1_name="",
-                 img_full_name="lena.png",
-                 is_phase_only=0,
-                 # %%
-                 z_pump=0,
-                 is_LG=0, is_Gauss=1, is_OAM=0,
-                 l=0, p=0,
-                 theta_x=0, theta_y=0,
-                 # %%
-                 is_random_phase=0,
-                 is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                 # %%---------------------------------------------------------------------
-                 # %%
-                 U1_0_NonZero_size=0.9, w0=0.1, w0_Structure=0, structure_size_Enlarge=0.1,
-                 L0_Crystal=2.25, z0_structure_frontface_expect=0, deff_structure_length_expect=0.5,
-                 deff_structure_sheet_expect=1, sheets_stored_num=10,
-                 z0_section_1_expect=0, z0_section_2_expect=0,
-                 X=0, Y=0,
-                 # %%
-                 Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.3,
-                 structure_xy_mode='x', Depth=2,
-                 # %%
-                 is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
-                 is_reverse_xy=0, is_positive_xy=1,
-                 # %%
-                 is_bulk=0, is_no_backgroud=0,
-                 is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
-                 # %%
-                 lam1=1.064, is_air_pump=0, is_air=0, T=25,
-                 deff=30,
-                 Tx=10, Ty=20, Tz=7.004,
-                 mx=1, my=0, mz=0,
-                 is_stripe=0, is_NLAST=0,
-                 # %%
-                 is_save=1, is_save_txt=0, dpi=100,
-                 # %%
-                 color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
-                 elev=10, azim=-65, alpha=2,
-                 # %%
-                 sample=2, ticks_num=6, is_contourf=0,
-                 is_title_on=1, is_axes_on=1, is_mm=1,
-                 # %%
-                 fontsize=9,
-                 font={'family': 'serif',
-                       'style': 'normal',  # 'normal', 'italic', 'oblique'
-                       'weight': 'normal',
-                       'color': 'black',  # 'black','gray','darkred'
-                       },
-                 # %%
-                 is_colorbar_on=1, is_energy=0,
-                 # %%
-                 plot_group="UGa", is_animated=1,
-                 loop=0, duration=0.033, fps=5,
-                 # %%
-                 is_plot_3d_XYz=0, is_plot_selective=0,
-                 is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
-                 # %%
-                 is_print=1, is_contours=66, n_TzQ=1,
-                 Gz_max_Enhance=1, match_mode=0,
-                 # %%
-                 is_NLA=0,
-                 # %%
-                 border_percentage=0.1, )
+if __name__ == '__main__':
+    A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
+                     is_phase_only_Structure=0,
+                     # %%
+                     z_pump_Structure=0,
+                     is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
+                     l_Structure=1, p_Structure=0,
+                     theta_x_Structure=0, theta_y_Structure=0,
+                     # %%
+                     is_random_phase_Structure=0,
+                     is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+                     # %%
+                     U_name="",
+                     img_full_name="lena.png",
+                     is_phase_only=0,
+                     # %%
+                     z_pump=0,
+                     is_LG=0, is_Gauss=1, is_OAM=0,
+                     l=0, p=0,
+                     theta_x=0, theta_y=0,
+                     # %%
+                     is_random_phase=0,
+                     is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+                     # %%---------------------------------------------------------------------
+                     # %%
+                     U_0_NonZero_size=0.9, w0=0.1, w0_Structure=0, structure_size_Enlarge=0.1,
+                     L0_Crystal=2.25, z0_structure_frontface_expect=0, deff_structure_length_expect=0.5,
+                     deff_structure_sheet_expect=1, sheets_stored_num=10,
+                     z0_section_1_expect=0, z0_section_2_expect=0,
+                     X=0, Y=0,
+                     # %%
+                     Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.3,
+                     structure_xy_mode='x', Depth=2,
+                     # %%
+                     is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+                     is_reverse_xy=0, is_positive_xy=1,
+                     # %%
+                     is_bulk=0, is_no_backgroud=0,
+                     is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
+                     # %%
+                     lam1=1.064, is_air_pump=0, is_air=0, T=25,
+                     deff=30,
+                     Tx=10, Ty=20, Tz=7.004,
+                     mx=1, my=0, mz=0,
+                     is_stripe=0, is_NLAST=0,
+                     # %%
+                     is_save=1, is_save_txt=0, dpi=100,
+                     # %%
+                     color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+                     elev=10, azim=-65, alpha=2,
+                     # %%
+                     sample=2, ticks_num=6, is_contourf=0,
+                     is_title_on=1, is_axes_on=1, is_mm=1,
+                     # %%
+                     fontsize=9,
+                     font={'family': 'serif',
+                           'style': 'normal',  # 'normal', 'italic', 'oblique'
+                           'weight': 'normal',
+                           'color': 'black',  # 'black','gray','darkred'
+                           },
+                     # %%
+                     is_colorbar_on=1, is_energy=0,
+                     # %%
+                     plot_group="UGa", is_animated=1,
+                     loop=0, duration=0.033, fps=5,
+                     # %%
+                     is_plot_3d_XYz=0, is_plot_selective=0,
+                     is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+                     # %%
+                     is_print=1, is_contours=66, n_TzQ=1,
+                     Gz_max_Enhance=1, match_mode=0,
+                     # %%
+                     is_NLA=0,
+                     # %%
+                     border_percentage=0.1, )

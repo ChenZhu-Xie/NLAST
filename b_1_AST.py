@@ -10,7 +10,7 @@ Created on Sun Dec 26 22:09:04 2021
 import math
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
-from fun_global_var import init_GLV_DICT, end_AST, get, fget, fGHU_plot_save
+from fun_global_var import init_GLV_DICT, end_AST, Get, fget, fkey, fGHU_plot_save
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST
 
@@ -19,7 +19,7 @@ np.seterr(divide='ignore', invalid='ignore')
 
 # %%
 
-def AST(U1_name="",
+def AST(U_name="",
         img_full_name="Grating.png",
         is_phase_only=0,
         # %%
@@ -31,7 +31,7 @@ def AST(U1_name="",
         is_random_phase=0,
         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
         # %%
-        U1_0_NonZero_size=1, w0=0.3,
+        U_0_NonZero_size=1, w0=0.3,
         z0=1,
         # %%
         lam1=0.8, is_air_pump=0, is_air=0, T=25,
@@ -57,14 +57,15 @@ def AST(U1_name="",
         **kwargs, ):
     # %%
 
-    if_image_Add_black_border(U1_name, img_full_name,
+    if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    ray = init_GLV_DICT(U1_name, "1", "", "AST", **kwargs)
+    # kwargs['ray'] = init_GLV_DICT(U_name, "~", "", "AST", **kwargs)
+    init_GLV_DICT(U_name, "l", "AST", "", **kwargs)
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
-    U1_0, g1_shift = pump_pic_or_U(U1_name,
+    U_0, g_shift = pump_pic_or_U(U_name,
                                    img_full_name,
                                    is_phase_only,
                                    # %%
@@ -76,7 +77,7 @@ def AST(U1_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U1_0_NonZero_size, w0,
+                                   U_0_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -92,11 +93,11 @@ def AST(U1_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   ray=ray, **kwargs, )
+                                   **kwargs, )
 
     # %%
 
-    if get("ray")[0] != "1":  # 第一个字符 如果不是 1
+    if "h" in Get("ray"):  # 如果 ray 中含有 倍频 标识符
         lam1 = lam1 / 2
 
     n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
@@ -105,9 +106,9 @@ def AST(U1_name="",
     # %%
 
     end_AST(z0, size_PerPixel,
-            g1_shift, k1_z, )
+            g_shift, k1_z, )
 
-    fGHU_plot_save(U1_name, 0,  # 默认 全自动 is_auto = 1
+    fGHU_plot_save(0,  # 默认 全自动 is_auto = 1
                    img_name_extension,
                    # %%
                    [], 1, size_PerPixel,
@@ -122,11 +123,11 @@ def AST(U1_name="",
                    # %%                          何况 一般默认 is_self_colorbar = 1...
                    z0, )
 
-    return fget("U"), fget("G")
+    return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
 if __name__ == '__main__':
-    AST(U1_name="",
+    AST(U_name="",
         img_full_name="Grating.png",
         is_phase_only=0,
         # %%
@@ -138,7 +139,7 @@ if __name__ == '__main__':
         is_random_phase=0,
         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
         # %%
-        U1_0_NonZero_size=1, w0=0.1,
+        U_0_NonZero_size=1, w0=0.1,
         z0=1,
         # %%
         lam1=0.8, is_air_pump=0, is_air=0, T=25,
@@ -161,4 +162,4 @@ if __name__ == '__main__':
         # %%
         is_print=1,
         # %%
-        border_percentage=0.1, )
+        border_percentage=0.1, ray="1", )

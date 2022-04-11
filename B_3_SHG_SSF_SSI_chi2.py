@@ -9,7 +9,6 @@ Created on Sun Dec 26 22:09:04 2021
 
 import numpy as np
 import math
-from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_SSI
@@ -17,14 +16,14 @@ from fun_linear import fft2, ifft2
 from fun_nonlinear import Eikz, Info_find_contours_SHG
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, dset, dget, fun3, fget, fGHU_plot_save, fU_SSI_plot
+from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Set, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
 
 np.seterr(divide='ignore', invalid='ignore')
 
 
 # %%
 
-def SFM_SSI_chi2(U1_name="",
+def SHG_SSF_SSI(U_name="",
                  img_full_name="Grating.png",
                  is_phase_only=0,
                  # %%
@@ -37,7 +36,7 @@ def SFM_SSI_chi2(U1_name="",
                  is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                  # %%
                  # 生成横向结构
-                 U1_name_Structure='',
+                 U_name_Structure='',
                  structure_size_Enlarge=0.1,
                  is_phase_only_Structure=0,
                  # %%
@@ -49,7 +48,7 @@ def SFM_SSI_chi2(U1_name="",
                  is_random_phase_Structure=0,
                  is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                  # %%
-                 U1_0_NonZero_size=1, w0=0.3,
+                 U_0_NonZero_size=1, w0=0.3,
                  L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
                  sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
                  X=0, Y=0,
@@ -99,16 +98,17 @@ def SFM_SSI_chi2(U1_name="",
                  **kwargs, ):
     # %%
 
-    if_image_Add_black_border(U1_name, img_full_name,
+    if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    ray = init_GLV_DICT(U1_name, "2", "SSI", "SFM", **kwargs)
+    # kwargs['ray'] = init_GLV_DICT(U_name, "^", "SSI", "SFM", **kwargs)
+    init_GLV_DICT(U_name, "h", "SSF", "SSI", **kwargs)
 
     # %%
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
-    U1_0, g1_shift = pump_pic_or_U(U1_name,
+    U_0, g_shift = pump_pic_or_U(U_name,
                                    img_full_name,
                                    is_phase_only,
                                    # %%
@@ -120,7 +120,7 @@ def SFM_SSI_chi2(U1_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U1_0_NonZero_size, w0,
+                                   U_0_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -136,13 +136,13 @@ def SFM_SSI_chi2(U1_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   ray=ray, **kwargs, )
+                                   **kwargs, )
 
     n1, k1, k1_z, lam2, n2, k2, k2_z, \
     dk, lc, Tz, Gx, Gy, Gz, \
-    size_PerPixel, U1_0_structure, g1_shift_structure, \
+    size_PerPixel, U_0_structure, g_shift_structure, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
-        = structure_chi2_Generate_2D(U1_name_Structure,
+        = structure_chi2_Generate_2D(U_name_Structure,
                                      img_full_name,
                                      is_phase_only_Structure,
                                      # %%
@@ -154,7 +154,7 @@ def SFM_SSI_chi2(U1_name="",
                                      is_random_phase_Structure,
                                      is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                                      # %%
-                                     U1_0_NonZero_size, w0_Structure,
+                                     U_0_NonZero_size, w0_Structure,
                                      structure_size_Enlarge,
                                      Duty_Cycle_x, Duty_Cycle_y,
                                      structure_xy_mode, Depth,
@@ -180,9 +180,11 @@ def SFM_SSI_chi2(U1_name="",
                                      # %%
                                      is_colorbar_on, is_energy,
                                      # %%
-                                     is_print, )
+                                     is_print,
+                                     # %%
+                                     **kwargs, )
 
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z, k2_z, Tz, mz,
+    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, Tz, mz,
                                                                           L0_Crystal, size_PerPixel,
                                                                           deff_structure_length_expect,
                                                                           is_print, is_contours, n_TzQ, Gz_max_Enhance,
@@ -212,7 +214,7 @@ def SFM_SSI_chi2(U1_name="",
     # %%
     # G2_z0_shift
 
-    init_SSI(g1_shift, U1_0,
+    init_SSI(g_shift, U_0,
              is_energy_evolution_on, is_stored,
              sheets_num, sheets_stored_num,
              X, Y, Iz, size_PerPixel, )
@@ -240,8 +242,8 @@ def SFM_SSI_chi2(U1_name="",
         iz = izj[for_th]
 
         H1_z = np.power(math.e, k1_z * iz * 1j)
-        G1_z = g1_shift * H1_z
-        U1_z = ifft2(G1_z)
+        G1_z = g_shift * H1_z
+        U_z = ifft2(G1_z)
 
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
@@ -272,12 +274,12 @@ def SFM_SSI_chi2(U1_name="",
             if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
                 if cal_mode[1] == 1:  # 若 源项 也衍射
                     Q2_z = fft2(
-                        modulation_squared_z * U1_z ** 2 * H2_z(dizj[for_th])
+                        modulation_squared_z * U_z ** 2 * H2_z(dizj[for_th])
                         / np.power(math.e, k2_z * diz * 1j))
                 else:
-                    Q2_z = fft2(modulation_squared_z * U1_z ** 2 * H2_z(dizj[for_th]))
+                    Q2_z = fft2(modulation_squared_z * U_z ** 2 * H2_z(dizj[for_th]))
             else:
-                Q2_z = fft2(modulation_squared_z * U1_z ** 2)
+                Q2_z = fft2(modulation_squared_z * U_z ** 2)
 
             if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
                 dG2_zdz = const * Q2_z
@@ -292,7 +294,7 @@ def SFM_SSI_chi2(U1_name="",
 
         else:
 
-            S2_z = modulation_squared_z * U1_z ** 2
+            S2_z = modulation_squared_z * U_z ** 2
 
             if cal_mode[1] == 1:  # 若 源项 也衍射
                 if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
@@ -338,10 +340,10 @@ def SFM_SSI_chi2(U1_name="",
 
     # %%
 
-    end_SSI(g1_shift, is_energy, n_sigma=3,
+    end_SSI(g_shift, is_energy, n_sigma=3,
             is_U=is_U, )
 
-    fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
+    fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    img_name_extension,
                    # %%
                    zj, sample, size_PerPixel,
@@ -358,8 +360,7 @@ def SFM_SSI_chi2(U1_name="",
 
     # %%
 
-    fU_SSI_plot(U1_name,
-                sheets_num_frontface, sheets_num_endface,
+    fU_SSI_plot(sheets_num_frontface, sheets_num_endface,
                 img_name_extension,
                 # %%
                 sample, size_PerPixel,
@@ -382,11 +383,11 @@ def SFM_SSI_chi2(U1_name="",
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
-    return fget("U"), fget("G")
+    return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
 if __name__ == '__main__':
-    SFM_SSI_chi2(U1_name="",
+    SHG_SSF_SSI(U_name="",
                  img_full_name="Grating.png",
                  is_phase_only=0,
                  # %%
@@ -399,7 +400,7 @@ if __name__ == '__main__':
                  is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                  # %%
                  # 生成横向结构
-                 U1_name_Structure='',
+                 U_name_Structure='',
                  structure_size_Enlarge=0.1,
                  is_phase_only_Structure=0,
                  # %%
@@ -411,7 +412,7 @@ if __name__ == '__main__':
                  is_random_phase_Structure=0,
                  is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                  # %%
-                 U1_0_NonZero_size=1, w0=0.3,
+                 U_0_NonZero_size=1, w0=0.3,
                  L0_Crystal=5, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
                  sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
                  X=0, Y=0,
@@ -458,4 +459,4 @@ if __name__ == '__main__':
                  is_print=1, is_contours=1, n_TzQ=1,
                  Gz_max_Enhance=1, match_mode=1,
                  # %%
-                 border_percentage=0.1, )
+                 border_percentage=0.1, ray="2", )

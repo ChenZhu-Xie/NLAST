@@ -9,7 +9,6 @@ Created on Sun Dec 26 22:09:04 2021
 
 import math
 import numpy as np
-from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
@@ -19,14 +18,14 @@ from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, G2_z_
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import Set, Get, init_GLV_DICT, init_EVV, Fun3, end_SSI, \
-    dset, dget, fget, fGHU_plot_save, fU_EVV_plot
+    dset, dget, fget, fkey, fGHU_plot_save, fU_EVV_plot
 
 np.seterr(divide='ignore', invalid='ignore')
 
 
 # %%
 
-def NLA_EVV(U1_name="",
+def SHG_NLA_EVV(U_name="",
             img_full_name="Grating.png",
             is_phase_only=0,
             # %%
@@ -39,7 +38,7 @@ def NLA_EVV(U1_name="",
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
             # 生成横向结构
-            U1_name_Structure='',
+            U_name_Structure='',
             structure_size_Enlarge=0.1,
             is_phase_only_Structure=0,
             # %%
@@ -51,7 +50,7 @@ def NLA_EVV(U1_name="",
             is_random_phase_Structure=0,
             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
             # %%
-            U1_0_NonZero_size=1, w0=0.3,
+            U_0_NonZero_size=1, w0=0.3,
             z0=1, sheets_stored_num=10,
             # %%
             lam1=0.8, is_air_pump=0, is_air=0, T=25,
@@ -96,16 +95,17 @@ def NLA_EVV(U1_name="",
             **kwargs, ):
     # %%
 
-    if_image_Add_black_border(U1_name, img_full_name,
+    if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    ray = init_GLV_DICT(U1_name, "2", "EVV", "NLA", **kwargs)
+    # kwargs['ray'] = init_GLV_DICT(U_name, "^", "EVV", "NLA", **kwargs)
+    init_GLV_DICT(U_name, "h", "NLA", "EVV", **kwargs)
 
     # %%
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
-    U1_0, g1_shift = pump_pic_or_U(U1_name,
+    U_0, g_shift = pump_pic_or_U(U_name,
                                    img_full_name,
                                    is_phase_only,
                                    # %%
@@ -117,7 +117,7 @@ def NLA_EVV(U1_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U1_0_NonZero_size, w0,
+                                   U_0_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -133,7 +133,7 @@ def NLA_EVV(U1_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   ray=ray, **kwargs, )
+                                   **kwargs, )
     # %%
 
     n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
@@ -145,7 +145,7 @@ def NLA_EVV(U1_name="",
     # %%
     # 提供描边信息，并覆盖值
 
-    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g1_shift, k1_z, k2_z, Tz, mz,
+    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, Tz, mz,
                                                                   z0, size_PerPixel, z0,
                                                                   is_print, is_contours, n_TzQ, Gz_max_Enhance,
                                                                   match_mode, )
@@ -164,9 +164,9 @@ def NLA_EVV(U1_name="",
 
         n1, k1, k1_z, lam2, n2, k2, k2_z, \
         dk, lc, Tz, Gx, Gy, Gz, \
-        size_PerPixel, U1_0_structure, g1_shift_structure, \
+        size_PerPixel, U_0_structure, g_shift_structure, \
         structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
-            = structure_chi2_Generate_2D(U1_name_Structure,
+            = structure_chi2_Generate_2D(U_name_Structure,
                                          img_full_name,
                                          is_phase_only_Structure,
                                          # %%
@@ -178,7 +178,7 @@ def NLA_EVV(U1_name="",
                                          is_random_phase_Structure,
                                          is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                                          # %%
-                                         U1_0_NonZero_size, w0_Structure,
+                                         U_0_NonZero_size, w0_Structure,
                                          structure_size_Enlarge,
                                          Duty_Cycle_x, Duty_Cycle_y,
                                          structure_xy_mode, Depth,
@@ -204,7 +204,9 @@ def NLA_EVV(U1_name="",
                                          # %%
                                          is_colorbar_on, is_energy,
                                          # %%
-                                         is_print, )
+                                         is_print,
+                                         # %%
+                                         **kwargs, )
 
     # %%
     # const
@@ -219,7 +221,7 @@ def NLA_EVV(U1_name="",
     Set("zj", zj)
     Set("izj", izj)
 
-    init_EVV(g1_shift, U1_0,
+    init_EVV(g_shift, U_0,
              is_energy_evolution_on, is_stored,
              sheets_stored_num, sheets_stored_num,
              iz, size_PerPixel, )
@@ -237,7 +239,7 @@ def NLA_EVV(U1_name="",
 
                 integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
 
-                g1_rotate_180 = Rotate_180(g1_shift)
+                g_rotate_180 = Rotate_180(g_shift)
 
                 def fun1(for_th, fors_num, *args, **kwargs, ):
                     for n2_y in range(Iy):
@@ -251,12 +253,12 @@ def NLA_EVV(U1_name="",
                                                      Ix, Iy,
                                                      for_th, n2_y, )
 
-                        g1_shift_dk_x_dk_y = Roll_xy(g1_rotate_180,
+                        g_shift_dk_x_dk_y = Roll_xy(g_rotate_180,
                                                      roll_x, roll_y,
                                                      is_linear_convolution, )
 
                         integrate_z0[for_th, n2_y] = np.sum(
-                            g1_shift * g1_shift_dk_x_dk_y * Eikz(dk_zQ * izj[for_th2]) * izj[for_th2] * size_PerPixel \
+                            g_shift * g_shift_dk_x_dk_y * Eikz(dk_zQ * izj[for_th2]) * izj[for_th2] * size_PerPixel \
                             * (2 / (dk_zQ / k2_z[for_th, n2_y] + 2)))
 
                 my_thread(10, Ix,
@@ -276,7 +278,7 @@ def NLA_EVV(U1_name="",
                     if is_sum_Gm == 0:
                         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                             G2_z_modulation_NLAST(k1, k2, Gz,
-                                                  modulation_squared, U1_0, izj[for_th2], const, ))
+                                                  modulation_squared, U_0, izj[for_th2], const, ))
                     elif is_sum_Gm == 1:
                         def fun1(for_th, fors_num, *args, **kwargs, ):
                             m_z = for_th - mG
@@ -286,7 +288,7 @@ def NLA_EVV(U1_name="",
                             # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
                             Const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
                             G2_z0_Gm = G2_z_modulation_NLAST(k1, k2, Gz_m,
-                                                             modulation_squared, U1_0, izj[for_th2],
+                                                             modulation_squared, U_0, izj[for_th2],
                                                              Const, ) if m_z != 0 else 0
                             return G2_z0_Gm
 
@@ -306,7 +308,7 @@ def NLA_EVV(U1_name="",
 
                         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                             G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
-                                                     modulation_squared, U1_0,
+                                                     modulation_squared, U_0,
                                                      izj[for_th2], Const, ))
 
                 elif fft_mode == 1:
@@ -314,7 +316,7 @@ def NLA_EVV(U1_name="",
                     if is_sum_Gm == 0:
                         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                             G2_z_NLAST(k1, k2, Gx, Gy, Gz,
-                                       U1_0, izj[for_th2], const,
+                                       U_0, izj[for_th2], const,
                                        is_linear_convolution, ))
                     else:
                         def fun1(for_th, fors_num, *args, **kwargs, ):
@@ -325,7 +327,7 @@ def NLA_EVV(U1_name="",
                             # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
                             Const = (k2 / size_PerPixel / n2) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
                             G2_z0_Gm = G2_z_NLAST(k1, k2, Gx_m, Gy, Gz,
-                                                  U1_0, izj[for_th2], Const,
+                                                  U_0, izj[for_th2], Const,
                                                   is_linear_convolution, ) if m_x != 0 else 0
                             return G2_z0_Gm
 
@@ -344,7 +346,7 @@ def NLA_EVV(U1_name="",
 
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                         G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
-                                         U1_0, izj[for_th2], const,
+                                         U_0, izj[for_th2], const,
                                          is_linear_convolution, ))
 
         return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
@@ -361,9 +363,9 @@ def NLA_EVV(U1_name="",
 
     # %%
 
-    end_SSI(g1_shift, is_energy, n_sigma=3, )
+    end_SSI(g_shift, is_energy, n_sigma=3, )
 
-    fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
+    fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    img_name_extension,
                    # %%
                    zj, sample, size_PerPixel,
@@ -380,8 +382,7 @@ def NLA_EVV(U1_name="",
 
     # %%
 
-    fU_EVV_plot(U1_name,
-                img_name_extension,
+    fU_EVV_plot(img_name_extension,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -401,11 +402,11 @@ def NLA_EVV(U1_name="",
                 # %%
                 z0, )
 
-    return fget("U"), fget("G")
+    return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
 if __name__ == '__main__':
-    NLA_EVV(U1_name="",
+    SHG_NLA_EVV(U_name="",
             img_full_name="Grating.png",
             is_phase_only=0,
             # %%
@@ -418,7 +419,7 @@ if __name__ == '__main__':
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
             # 生成横向结构
-            U1_name_Structure='',
+            U_name_Structure='',
             structure_size_Enlarge=0.1,
             is_phase_only_Structure=0,
             # %%
@@ -430,7 +431,7 @@ if __name__ == '__main__':
             is_random_phase_Structure=0,
             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
             # %%
-            U1_0_NonZero_size=1, w0=0.3,
+            U_0_NonZero_size=1, w0=0.3,
             z0=1, sheets_stored_num=10,
             # %%
             lam1=0.8, is_air_pump=0, is_air=0, T=25,
@@ -472,4 +473,4 @@ if __name__ == '__main__':
             is_print=1, is_contours=66, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
-            border_percentage=0.1, )
+            border_percentage=0.1, ray="2", )

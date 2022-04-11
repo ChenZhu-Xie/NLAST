@@ -148,8 +148,7 @@ if is_save == 1:
 # 储存 g1_shift 到 txt 文件
 
 if is_save == 1:
-    U_address = U_save(U1_name, folder_address, 1, 
-                       g1_shift, "g1_shift", "AST", 
+    U_address = U_save(g1_shift, "g1_shift", folder_address,
                        is_save_txt, )
 
 # %%
@@ -183,9 +182,8 @@ if is_save == 1:
 # 储存 H1_z0_shift 到 txt 文件
 
 if is_save == 1:
-    U_address = U_save(U1_name, folder_address, 1, 
-                       H1_z0_shift, "H1_z0_shift", "AST", 
-                       is_save_txt, z0, )
+    U_address = U_save(H1_z0_shift, "H1_z0_shift", folder_address,
+                       is_save_txt, z=z0, )
 
 # %%
 
@@ -213,9 +211,8 @@ U_amp_plot_address, U_phase_plot_address = U_plot(U1_name, folder_address, 1,
 # 储存 G1_z0_shift 到 txt 文件
 
 if is_save == 1:
-    U_address = U_save(U1_name, folder_address, 1, 
-                       G1_z0_shift, "G1_z0_shift", "AST", 
-                       is_save_txt, z0, )
+    U_address = U_save(G1_z0_shift, "G1_z0_shift", folder_address,
+                       is_save_txt, z=z0, )
 
 # %%
 # G1_z0 = G1_z0(k1_x, k1_y) → IFFT2 → U1(x0, y0, z0) = U1_z0 ，毕竟 标量场 整体，是个 数组，就不写成 U1_x0_y0_z0 了

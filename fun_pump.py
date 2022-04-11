@@ -10,6 +10,7 @@ import cv2
 import math
 import numpy as np
 import scipy.stats
+import inspect
 from fun_os import img_squared_bordered_Read, U_Read, U_read_only, U_dir, U_energy_print, U_plot, U_save
 from fun_img_Resize import img_squared_Resize
 from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase
@@ -363,16 +364,23 @@ def pump(file_full_name="Grating.png",
     # %%
     # 绘图：g_0_amp
 
-    ray = kwargs['ray'] + "0" if "ray" in kwargs else "0"
-    # ray = kwargs['ray'] + "p" if "ray" in kwargs else "p"
+    # ray = kwargs['ray'] + "0" if "ray" in kwargs else "0"
+    if inspect.stack()[1][3] == "pump_pic_or_U": # 如果 调用该 pump 的 函数，名为 这个
+        ray = kwargs['ray'] + "p" if "ray" in kwargs else "p"
+    elif inspect.stack()[1][3] == "pump_pic_or_U_structure":
+        ray = kwargs['ray_structure'] + "p" if "ray_structure" in kwargs else "p"
+    else:
+        ray = "p"
     # ray = kwargs['ray'] + "_p" if "ray" in kwargs else "_p"
     method = "PUMP"
 
-    folder_address = U_dir("", "3. G" + ray, 0,
-                           is_save, z, )
+    name = "G" + ray
+    title = method + " - " + name
+    folder_address = U_dir(title, is_save, z=z, )
 
-    U_amp_plot_address, U_phase_plot_address = U_plot("", folder_address, 1,
-                                                      G_z0_shift, "G" + ray, method,
+
+    U_amp_plot_address, U_phase_plot_address = U_plot(folder_address,
+                                                      G_z0_shift, title,
                                                       img_name_extension,
                                                       # %%
                                                       1, size_PerPixel,
@@ -382,22 +390,21 @@ def pump(file_full_name="Grating.png",
                                                       fontsize, font,
                                                       is_colorbar_on, is_energy,
                                                       # %%
-                                                      z, )
+                                                      z=z, )
 
-    U_save("", folder_address, 1,
-           G_z0_shift, "G" + ray, method,
-           is_save, is_save_txt, z, )
+    U_save(G_z0_shift, title, folder_address,
+           is_save, is_save_txt, z=z, )
 
     # %%
 
-    folder_address = U_dir("", "2. U" + ray, 0,
-                           is_save, z, )
+    name = "U" + ray
+    title = method + " - " + name
+    folder_address = U_dir(title, is_save, z=z, )
 
-    U_energy_print("", is_print, 1,
-                   U_z0, "U" + ray, method, )
+    U_energy_print(U_z0, title, is_print, )
 
-    U_amp_plot_address, U_phase_plot_address = U_plot("", folder_address, 1,
-                                                      U_z0, "U" + ray, method,
+    U_amp_plot_address, U_phase_plot_address = U_plot(folder_address,
+                                                      U_z0, title,
                                                       img_name_extension,
                                                       # %%
                                                       1, size_PerPixel,
@@ -407,11 +414,10 @@ def pump(file_full_name="Grating.png",
                                                       fontsize, font,
                                                       is_colorbar_on, is_energy,
                                                       # %%
-                                                      z, )
+                                                      z=z, )
 
-    U_save("", folder_address, 1,
-           U_z0, "U" + ray, method,
-           is_save, is_save_txt, z, )
+    U_save(U_z0, title, folder_address,
+           is_save, is_save_txt, z=z, )
 
     return U_z0, G_z0_shift
 
@@ -505,7 +511,7 @@ def pump_pic_or_U(U_name="",
            U, g_shift
 
 
-def pump_pic_or_U_structure(U_name="",
+def pump_pic_or_U_structure(U_structure_name="",
                             img_full_name="Grating.png",
                             is_phase_only=0,
                             # %%
@@ -565,12 +571,12 @@ def pump_pic_or_U_structure(U_name="",
                            Ix_structure, Iy_structure, Ix,
                            is_print, )
 
-    if (type(U_name) != str) or U_name == "":
+    if (type(U_structure_name) != str) or U_structure_name == "":
         # %%
         # U = U(x, y, 0) = img_squared_resize
 
-        if "U" in kwargs:
-            U = kwargs["U"]
+        if "U_structure" in kwargs:
+            U = kwargs["U_structure"]
         else:
             if is_phase_only == 1:
                 U_structure = np.power(math.e,
@@ -607,9 +613,9 @@ def pump_pic_or_U_structure(U_name="",
         # %%
         # 导入 方形，以及 加边框 的 图片
 
-        U = U_read_only(U_name, is_save_txt)
+        U = U_read_only(U_structure_name, is_save_txt)
 
-    if ((type(U_name) == str) and U_name != "") or "U" in kwargs:
+    if ((type(U_structure_name) == str) and U_structure_name != "") or "U_structure" in kwargs:
         U_structure = cv2.resize(np.real(U), (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA) + \
                       cv2.resize(np.imag(U), (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA) * 1j
         # U 必须 resize 为 Ix_structure, Iy_structure 大小；

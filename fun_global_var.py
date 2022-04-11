@@ -25,13 +25,13 @@ def init_GLV():
         GLOBALS_DICT = {}
     GLV_init_times += 1
 
-def init_GLV_DICT(U1_name, ray, way, method, **kwargs):
+def init_GLV_DICT(U_name, ray_new, method, way, **kwargs): # kwargs 里面已经有个 ray 的键了
     init_GLV()
-    ray = set_ray(U1_name, ray, **kwargs)
-    Set("ray", ray)
-    Set("way", way)
+    ray_set = set_ray(U_name, ray_new, **kwargs)
+    Set("ray", ray_set)
     Set("method", method)
-    return ray
+    Set("way", way) #  method 肯定有，但 way 不一定有
+    return ray_set
 
 #%%
 
@@ -66,7 +66,7 @@ def init_tset(key, value):  # set_format_key_value：每次都 初始化一个 �
 # %%
 
 def fkey(key):  # get_format_key
-    return key + Get("ray") + ("_z_" if Get("way") != "" else "_z") + Get("way")
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_z"
 # 不然会 多出 一条杠 _
 
 def fset(key, value):  # set_format_key_value
@@ -80,7 +80,7 @@ def fget(key):  # get_format_key_value
 # %%
 
 def ekey(key):  # get_format_key
-    return key + Get("ray") + "_z_energy"
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_z_energy"
 
 
 def eset(key, value):  # set_format_key_value
@@ -94,7 +94,7 @@ def eget(key):  # get_format_key_value
 # %%
 
 def dkey(key):  # get_format_key
-    return key + Get("ray") + "_zdz"
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_zdz"
 
 
 def dset(key, value):  # set_format_key_value
@@ -108,7 +108,7 @@ def dget(key):  # get_format_key_value
 # %%
 
 def skey(key):  # get_format_key
-    return key + Get("ray") + "_z_stored"
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_z_stored"
 
 
 def sset(key, value):  # set_format_key_value
@@ -122,7 +122,7 @@ def sget(key):  # get_format_key_value
 # %%
 
 def YZkey(key):  # get_format_key
-    return key + Get("ray") + "_YZ"
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_YZ"
 
 
 def YZset(key, value):  # set_format_key_value
@@ -136,7 +136,7 @@ def YZget(key):  # get_format_key_value
 # %%
 
 def XZkey(key):  # get_format_key
-    return key + Get("ray") + "_XZ"
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_XZ"
 
 
 def XZset(key, value):  # set_format_key_value
@@ -150,7 +150,7 @@ def XZget(key):  # get_format_key_value
 # %%
 
 def key1(key):  # get_format_key
-    return key + Get("ray") + "_sec1"
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_sec1"
 
 
 def set1(key, value):  # set_format_key_value
@@ -164,7 +164,7 @@ def get1(key):  # get_format_key_value
 # %%
 
 def key2(key):  # get_format_key
-    return key + Get("ray") + "_sec2"
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_sec2"
 
 
 def set2(key, value):  # set_format_key_value
@@ -178,7 +178,7 @@ def get2(key):  # get_format_key_value
 # %%
 
 def keyf(key):  # get_format_key
-    return key + Get("ray") + "_front"
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_front"
 
 
 def setf(key, value):  # set_format_key_value
@@ -192,7 +192,7 @@ def getf(key):  # get_format_key_value
 # %%
 
 def keye(key):  # get_format_key
-    return key + Get("ray") + "_end"
+    return Get("method") + ("_" + Get("way") if Get("way") != "" else "") + " - " + key + Get("ray") + "_end"
 
 
 def sete(key, value):  # set_format_key_value
@@ -205,11 +205,11 @@ def gete(key):  # get_format_key_value
 
 # %%
 
-def init_SSI(g1_shift, U1_0,
+def init_SSI(g_shift, U_0,
              is_energy_evolution_on, is_stored,
              sheets_num, sheets_stored_num,
              X, Y, Iz, size_PerPixel, ):
-    Ix, Iy = U1_0.shape
+    Ix, Iy = U_0.shape
     # Set("Ix", Ix)
     # Set("Iy", Iy)
 
@@ -226,8 +226,8 @@ def init_SSI(g1_shift, U1_0,
     # %%
 
     if Get("method") == "nLA":
-        dset("G", g1_shift)  # 仅为了 B_2_nLA_SSI 而存在
-        dset("U", U1_0)  # 仅为了 B_2_nLA_SSI 而存在
+        dset("G", g_shift)  # 仅为了 B_2_nLA_SSI 而存在
+        dset("U", U_0)  # 仅为了 B_2_nLA_SSI 而存在
     else:
         dset("G", np.zeros((Ix, Iy), dtype=np.float64()))  # 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
         dset("U", np.zeros((Ix, Iy), dtype=np.float64())) # 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
@@ -270,11 +270,11 @@ def init_SSI(g1_shift, U1_0,
         set2("U", np.zeros((Ix, Iy), dtype=np.complex128()))
 
 
-def init_EVV(g1_shift, U1_0,
+def init_EVV(g_shift, U_0,
              is_energy_evolution_on, is_stored,
              sheets_num, sheets_stored_num,
              Iz, size_PerPixel, ):
-    Ix, Iy = U1_0.shape
+    Ix, Iy = U_0.shape
 
     Set("is_energy_evolution_on", is_energy_evolution_on)
     Set("is_stored", is_stored)
@@ -284,8 +284,8 @@ def init_EVV(g1_shift, U1_0,
     # %%
 
     if Get("method") == "nLA":
-        dset("G", g1_shift)  # 仅为了 B_2_nLA_SSI 而存在
-        dset("U", U1_0)  # 仅为了 B_2_nLA_SSI 而存在
+        dset("G", g_shift)  # 仅为了 B_2_nLA_SSI 而存在
+        dset("U", U_0)  # 仅为了 B_2_nLA_SSI 而存在
     else:
         dset("G", np.zeros((Ix, Iy), dtype=np.float64()))  # 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
         dset("U", np.zeros((Ix, Iy), dtype=np.float64()))  # 初始化 正确的 矩阵维度 Ix, Iy 和 类型 np.complex128()
@@ -348,7 +348,7 @@ def fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
             sget("G")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = G_zdz
             # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
             sget("U")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = U_zdz
-            # 储存的 第一层，实际上不是 U1_0，而是 U1_dz
+            # 储存的 第一层，实际上不是 U_0，而是 U_dz
 
         if for_th == Get(
                 "sheet_th_frontface"):  # 如果 for_th 是 sheet_th_frontface，则把结构 前端面 场分布 储存起来，对应的是 zj[sheets_num_frontface]
@@ -386,23 +386,33 @@ def Fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
 # %%
 
 def end_AST(z0, size_PerPixel,
-            g1_shift, k1_z, ):
+            g_shift, k1_z, ):
     iz = z0 / size_PerPixel
     fset("H", np.power(math.e, k1_z * iz * 1j))
-    fset("G", g1_shift * fget("H"))
+    fset("G", g_shift * fget("H"))
     fset("U", ifft2(fget("G")))
-
 
 # %%
 
-def end_SSI(g1_shift, is_energy, n_sigma=3, **kwargs, ):
+def end_STD(U1_z, g_shift,
+            is_energy, n_sigma=3, ): # standard
+    fset("U", U1_z)
+    fset("G", fft2(fget("U")))
+    fset("H", fget("G") / np.max(np.abs(fget("G"))) / (g_shift / np.max(np.abs(g_shift))))
+    if n_sigma > 0:
+        # 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。
+        fset("H", U_Drop_n_sigma(fget("H"), n_sigma, is_energy))
+
+# %%
+
+def end_SSI(g_shift, is_energy, n_sigma=3, **kwargs, ):
     if "is_U" in kwargs and kwargs["is_U"] == 1:
         fset("U", dget("U"))
         fset("G", fft2(fget("U")))
     else:
         fset("G", dget("G"))
         fset("U", ifft2(fget("G")))
-    fset("H", fget("G") / np.max(np.abs(fget("G"))) / (g1_shift / np.max(np.abs(g1_shift))))
+    fset("H", fget("G") / np.max(np.abs(fget("G"))) / (g_shift / np.max(np.abs(g_shift))))
     if n_sigma > 0:
         # 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。
         fset("H", U_Drop_n_sigma(fget("H"), n_sigma, is_energy))
@@ -410,7 +420,7 @@ def end_SSI(g1_shift, is_energy, n_sigma=3, **kwargs, ):
 
 # %%
 
-def fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
+def fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    img_name_extension,
                    # %%
                    zj, sample, size_PerPixel,
@@ -424,8 +434,7 @@ def fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto 
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
                    z, ):
-    GHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto = 1
-                  fget("G"), fkey("G"), Get("method"),  # 这边 要省事 免代入 的话，得确保 提前 传入 ray,way,method 三个参数
+    GHU_plot_save(fget("G"), fkey("G"), is_energy_evolution_on,  # 这边 要省事 免代入 的话，得确保 提前 传入 ray,way,method 三个参数
                   eget("G"),
                   fget("H"), fkey("H"),  # 以及 传入 GHU 这三个 小东西
                   fget("U"), fkey("U"),
@@ -447,8 +456,7 @@ def fGHU_plot_save(U1_name, is_energy_evolution_on,  # 默认 全自动 is_auto 
 
 # %%
 
-def fU_SSI_plot(U1_name,
-                th_f, th_e,
+def fU_SSI_plot(th_f, th_e,
                 img_name_extension,
                 # %%
                 sample, size_PerPixel,
@@ -472,7 +480,7 @@ def fU_SSI_plot(U1_name,
                 z_f, z_e, z, ):
     if Get("is_stored") == 1:
         sget("G")[:, :, Get("sheets_stored_num")] = fget("G")  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
-        sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U1_0，而是 U1_dz
+        sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U_0，而是 U_dz
 
         # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
         YZget("G")[:, Get("sheets_num")] = fget("G")[:, Get("th_X")]
@@ -480,8 +488,7 @@ def fU_SSI_plot(U1_name,
         YZget("U")[:, Get("sheets_num")] = fget("U")[:, Get("th_X")]
         XZget("U")[:, Get("sheets_num")] = fget("U")[Get("th_Y"), :]
 
-        U_SSI_plot(U1_name,
-                   sget("G"), fkey("G"), Get("method"),
+        U_SSI_plot(sget("G"), fkey("G"),
                    sget("U"), fkey("U"),
                    YZget("G"), XZget("G"),
                    YZget("U"), XZget("U"),
@@ -517,8 +524,7 @@ def fU_SSI_plot(U1_name,
                    Get("zj"), Get("z_stored"), z, )
 
 
-def fU_EVV_plot(U1_name,
-                img_name_extension,
+def fU_EVV_plot(img_name_extension,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -539,10 +545,9 @@ def fU_EVV_plot(U1_name,
                 z, ):
     if Get("is_stored") == 1:
         sget("G")[:, :, Get("sheets_stored_num")] = fget("G")  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
-        sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U1_0，而是 U1_dz
+        sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U_0，而是 U_dz
 
-        U_EVV_plot(U1_name,
-                   sget("G"), fkey("G"), Get("method"),
+        U_EVV_plot(sget("G"), fkey("G"),
                    sget("U"), fkey("U"),
                    img_name_extension,
                    # %%
