@@ -8,10 +8,10 @@ Created on Mon Nov  1 14:38:57 2021
 #%%
 
 import numpy as np
-np.seterr(divide='ignore',invalid='ignore')
 from fun_img_Resize import if_image_Add_black_border
 from A_2_structure_n1_Generate_3D import structure_n1_3D
 from B_2_nLA_ssi import nLA_ssi
+np.seterr(divide='ignore',invalid='ignore')
 
 def A_to_B_2_nLA_ssi(U_name_Structure = "",
                      is_phase_only_Structure = 0, 

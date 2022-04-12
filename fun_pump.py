@@ -213,7 +213,7 @@ def propagation_profile_U(Ix=0, Iy=0, size_PerPixel=0.77,
 def pump(file_full_name="Grating.png",
          # %%
          Ix=0, Iy=0, size_PerPixel=0.77,
-         U=0, w0=0, k=0, z=0,
+         Up=0, w0=0, k=0, z=0,
          # %%
          is_LG=0, is_Gauss=1, is_OAM=1,
          l=1, p=0,
@@ -249,14 +249,14 @@ def pump(file_full_name="Grating.png",
     if is_LG == 1:
         # 将 实空间 输入场 变为 束腰 z = 0 处的 LG 光束
 
-        U = LG_without_Gauss_profile(Ix, Iy, size_PerPixel,
+        Up = LG_without_Gauss_profile(Ix, Iy, size_PerPixel,
                                      w0,
                                      l, p,
                                      theta_x, theta_y, )
     elif is_LG == 2:
         # 将 实空间 输入场 变为 束腰 z = 0 处的 HG 光束
 
-        U = HG_without_Gauss_profile(Ix, Iy, size_PerPixel,
+        Up = HG_without_Gauss_profile(Ix, Iy, size_PerPixel,
                                      w0,
                                      l, p,
                                      theta_x, theta_y, )
@@ -267,15 +267,15 @@ def pump(file_full_name="Grating.png",
     if is_Gauss == 1 and is_LG == 0:
         # 将 实空间 输入场 变为 束腰 z = 0 处的 高斯光束
 
-        U = Gauss(Ix, Iy, size_PerPixel,
+        Up = Gauss(Ix, Iy, size_PerPixel,
                   w0,
                   theta_x, theta_y, )
 
     else:
         # 对 实空间 输入场 引入 高斯限制
 
-        U = Gauss_profile(Ix, Iy, size_PerPixel,
-                          U, w0,
+        Up = Gauss_profile(Ix, Iy, size_PerPixel,
+                          Up, w0,
                           theta_x, theta_y, )
 
     # %%
@@ -285,7 +285,7 @@ def pump(file_full_name="Grating.png",
         # 高斯则 乘以 额外螺旋相位，非高斯 才直接 更改原场：高斯 已经 更改原场 了
         # 将输入场 在实空间 改为 纯相位 的 OAM
 
-        U = OAM(Ix, Iy,
+        Up = OAM(Ix, Iy,
                 l,
                 theta_x, theta_y, )
 
@@ -295,16 +295,16 @@ def pump(file_full_name="Grating.png",
         if is_H_l == 1:
             # 对 频谱空间 引入额外螺旋相位
 
-            U, G_z0_shift = OAM_profile_G(Ix, Iy,
-                                          U,
+            Up, G_z0_shift = OAM_profile_G(Ix, Iy,
+                                          Up,
                                           l,
                                           theta_x, theta_y, )
 
         else:
             # 对 实空间 引入额外螺旋相位
 
-            U = OAM_profile(Ix, Iy,
-                            U,
+            Up = OAM_profile(Ix, Iy,
+                            Up,
                             l,
                             theta_x, theta_y, )
 
@@ -314,18 +314,18 @@ def pump(file_full_name="Grating.png",
     if is_H_theta == 1:
         # 对 频谱空间 引入额外倾斜相位
 
-        U, G_z0_shift = incline_profile_G(Ix, Iy,
-                                          U, k,
+        Up, G_z0_shift = incline_profile_G(Ix, Iy,
+                                          Up, k,
                                           theta_x, theta_y, )
 
     else:
         # 对 实空间 引入额外倾斜相位
 
-        U = incline_profile(Ix, Iy,
-                            U, k,
+        Up = incline_profile(Ix, Iy,
+                            Up, k,
                             theta_x, theta_y)
 
-    # U = U**2
+    # Up = Up**2
     # %%
     # 对输入场 引入 传播相位
 
@@ -337,12 +337,12 @@ def pump(file_full_name="Grating.png",
         # 或者 先后进行多次 不同的 能量守恒 操作 也行
 
         U_z0, G_z0_shift = propagation_profile_U(Ix, Iy, size_PerPixel,
-                                                 U, k, z, )
+                                                 Up, k, z, )
 
     else:
 
         U_z0, G_z0_shift = propagation_profile_G(Ix, Iy, size_PerPixel,
-                                                 U, k, z, )
+                                                 Up, k, z, )
 
     # %%
     # 对输入场 引入 随机相位

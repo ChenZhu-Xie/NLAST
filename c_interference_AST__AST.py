@@ -29,8 +29,8 @@ def interference_AST__AST(img_full_name="Grating.png",
                           is_random_phase=0,
                           is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                           # %%
-                          U_0_NonZero_size=1, w0=0.3,
-                          z0=1, z0_delay_expect=5,
+                          U_NonZero_size=1, w0=0.3,
+                          z=1, dz_expect=5,
                           # %%
                           lam1=0.8, is_air_pump=0, is_air=0, T=25,
                           # %%
@@ -60,36 +60,40 @@ def interference_AST__AST(img_full_name="Grating.png",
 
     # %%
 
-    U_z0, G_z0, ray, method_and_way, U_key = \
-        AST('',
-                       img_full_name,
-                       is_phase_only,
-                       # %%
-                       z_pump,
-                       is_LG, is_Gauss, is_OAM,
-                       l, p,
-                       theta_x, theta_y,
-                       # %%
-                       is_random_phase,
-                       is_H_l, is_H_theta, is_H_random_phase,
-                       # %%
-                       U_0_NonZero_size, w0,
-                       z0,
-                       # %%
-                       lam1, is_air_pump, is_air, T,
-                       # %%
-                       is_save, is_save_txt, dpi,
-                       # %%
-                       cmap_2d,
-                       # %%
-                       ticks_num, is_contourf,
-                       is_title_on, is_axes_on, is_mm,
-                       # %%
-                       fontsize, font,
-                       # %%
-                       is_colorbar_on, is_energy,
-                       # %%
-                       is_print, )
+    def args_AST(z_AST):
+        return ["",
+                img_full_name,
+                is_phase_only,
+                # %%
+                z_pump,
+                is_LG, is_Gauss, is_OAM,
+                l, p,
+                theta_x, theta_y,
+                # %%
+                is_random_phase,
+                is_H_l, is_H_theta, is_H_random_phase,
+                # %%
+                U_NonZero_size, w0,
+                z_AST,
+                # %%
+                lam1, is_air_pump, is_air, T,
+                # %%
+                is_save, is_save_txt, dpi,
+                # %%
+                cmap_2d,
+                # %%
+                ticks_num, is_contourf,
+                is_title_on, is_axes_on,
+                is_mm,
+                # %%
+                fontsize, font,
+                # %%
+                is_colorbar_on, is_energy,
+                # %%
+                is_print, ]
+
+    U_z, G_z, ray_z, method_and_way_z, U_key_z = \
+        AST(*args_AST(z), )
 
     # %%
     # 获取 size_PerPixel，方便 后续计算 n1, k1，以及 为了生成 U1_0 和 g1_shift
@@ -108,7 +112,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                                  is_random_phase,
                                  is_H_l, is_H_theta, is_H_random_phase,
                                  # %%
-                                 U_0_NonZero_size, w0,
+                                 U_NonZero_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
                                  # %%
@@ -133,53 +137,26 @@ def interference_AST__AST(img_full_name="Grating.png",
 
     # %%
 
-    z0_delay_min = math.pi / (k1 / size_PerPixel)
-    is_print and print("z0_delay_min = {} mm".format(z0_delay_min))
+    dz_min = math.pi / (k1 / size_PerPixel)
+    is_print and print("dz_min = {} mm".format(dz_min))
 
-    delay_min_nums = z0_delay_expect // z0_delay_min
+    delay_min_nums = dz_expect // dz_min
     delay_min_nums_odd = delay_min_nums + np.mod(delay_min_nums + 1, 2)
-    z0_delay = z0_delay_min * delay_min_nums_odd
-    is_print and print("z0_delay = {} mm".format(z0_delay))
+    dz = dz_min * delay_min_nums_odd
+    is_print and print("dz = {} mm".format(dz))
 
-    z1 = z0 + z0_delay
+    Z = z + dz
 
     # %%
 
-    U_z1, G_z1, ray, method_and_way, U_key = AST('',
-                       img_full_name,
-                       is_phase_only,
-                       # %%
-                       z_pump,
-                       is_LG, is_Gauss, is_OAM,
-                       l, p,
-                       theta_x, theta_y,
-                       # %%
-                       is_random_phase,
-                       is_H_l, is_H_theta, is_H_random_phase,
-                       # %%
-                       U_0_NonZero_size, w0,
-                       z1,
-                       # %%
-                       lam1, is_air_pump, is_air, T,
-                       # %%
-                       is_save, is_save_txt, dpi,
-                       # %%
-                       cmap_2d,
-                       # %%
-                       ticks_num, is_contourf,
-                       is_title_on, is_axes_on, is_mm,
-                       # %%
-                       fontsize, font,
-                       # %%
-                       is_colorbar_on, is_energy,
-                       # %%
-                       is_print, )
+    U_Z, G_Z, ray_Z, method_and_way_Z, U_key_Z = \
+        AST(*args_AST(Z), )
 
     # %%
 
     init_GLV_DICT("", "a", "ADD", "", **kwargs)
 
-    end_STD(U_z0 + U_z1, G_z0,
+    end_STD(U_z + U_Z, G_z,
             is_energy, n_sigma=3, )
 
     fGHU_plot_save(0,  # 默认 全自动 is_auto = 1
@@ -195,7 +172,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z0, )
+                   z, )
 
     # %%
 
@@ -212,7 +189,7 @@ if __name__ == '__main__':
                           is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                           # %%
                           U1_0_NonZero_size=1, w0=0,  # 传递函数 是 等倾干涉图...
-                          z0=0, z0_delay_expect=0,  # z0 越大，描边能量不变，但会越糊；z0_delay_expect 越大，描边 能量越高，但也越糊
+                          z=0, dz_expect=0,  # z 越大，描边能量不变，但会越糊；dz_expect 越大，描边 能量越高，但也越糊
                           # %%
                           lam1=1, is_air_pump=0, is_air=0, T=25,
                           # %%
