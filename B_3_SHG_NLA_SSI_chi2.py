@@ -16,7 +16,7 @@ from fun_linear import fft2, ifft2
 from fun_nonlinear import Info_find_contours_SHG, G2_z_modulation_NLAST
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Set, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
+from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Set, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
 
 np.seterr(divide='ignore', invalid='ignore')
 
