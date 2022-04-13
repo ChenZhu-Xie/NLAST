@@ -10,17 +10,17 @@ import numpy as np
 
 #%%
 
-def mesh_shift(Ix, Iy, *arg):
+def mesh_shift(Ix, Iy, *args):
     
     nx, ny = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
     mesh_nx_ny = np.dstack((nx, ny))
     mesh_nx_ny_shift = mesh_nx_ny - (Ix // 2, Iy // 2)
     
     # print(len(arg))
-    if len(arg) >= 2: # 确保 额外 传入了 theta_x, theta_y 两个参数
+    if len(args) >= 2: # 确保 额外 传入了 theta_x, theta_y 两个参数
     
-        theta_x = arg[0]
-        theta_y = arg[1]
+        theta_x = args[0]
+        theta_y = args[1]
         
         # print(mesh_nx_ny_shift[:, :, 0])
         # print(type(mesh_nx_ny_shift[0,0,0]))

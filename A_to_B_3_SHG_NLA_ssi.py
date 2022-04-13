@@ -12,7 +12,7 @@ import numpy as np
 np.seterr(divide='ignore', invalid='ignore')
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
-from fun_global_var import init_GLV_DICT
+from fun_global_var import init_GLV
 from A_3_structure_chi2_Generate_3D import structure_chi2_3D
 from B_3_SHG_NLA_ssi import SHG_NLA_ssi
 from B_3_SHG_SSF_ssi import SHG_SSF_ssi
@@ -95,6 +95,8 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
 
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
+    
+    init_GLV()
 
     # %%
     # 为了生成 U_0 和 g_shift

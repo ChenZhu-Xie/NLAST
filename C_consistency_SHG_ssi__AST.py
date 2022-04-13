@@ -10,11 +10,11 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
-from b_1_AST import AST
 from fun_compare import U_compare
 from fun_global_var import init_GLV_DICT, fset, fget, fkey
 from B_3_SHG_NLA_ssi import SHG_NLA_ssi
 from B_3_SHG_SSF_ssi import SHG_SSF_ssi
+from b_1_AST import AST
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -106,52 +106,52 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
 
     def args_ssi(z_ssi):
         return ["",
-                    img_full_name,
-                    is_phase_only,
-                    # %%
-                    z_pump,
-                    is_LG, is_Gauss, is_OAM,
-                    l, p,
-                    theta_x, theta_y,
-                    # %%
-                    is_random_phase,
-                    is_H_l, is_H_theta, is_H_random_phase,
-                    # %%
-                    U_NonZero_size, w0,
-                    z_ssi, 0, 10,
-                    deff_structure_sheet_expect, 10,
-                    0, 0, 0, 0,
-                    # %%
-                    1, 0,
-                    0, 0, is_energy_evolution_on,
-                    # %%
-                    lam1, is_air_pump, is_air, T,
-                    deff,
-                    # %%
-                    Tx, Ty, Tz,
-                    mx, my, mz,
-                    is_NLAST,
-                    # %%
-                    is_save, is_save_txt, dpi,
-                    # %%
-                    color_1d, cmap_2d, 'rainbow',
-                    10, -65, 2,
-                    # %%
-                    sample, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm,
-                    # %%
-                    fontsize, font,
-                    # %%
-                    is_colorbar_on, is_energy,
-                    # %%
-                    "UGa", 1,
-                    0, 0.033, 5,
-                    # %%
-                    0, 0,
-                    1, 0,
-                    # %%
-                    is_print, is_contours, n_TzQ,
-                    Gz_max_Enhance, match_mode, ]
+                img_full_name,
+                is_phase_only,
+                # %%
+                z_pump,
+                is_LG, is_Gauss, is_OAM,
+                l, p,
+                theta_x, theta_y,
+                # %%
+                is_random_phase,
+                is_H_l, is_H_theta, is_H_random_phase,
+                # %%
+                U_NonZero_size, w0,
+                z_ssi, 0, 10,
+                deff_structure_sheet_expect, 10,
+                0, 0, 0, 0,
+                # %%
+                1, 0,
+                0, 0, is_energy_evolution_on,
+                # %%
+                lam1, is_air_pump, is_air, T,
+                deff,
+                # %%
+                Tx, Ty, Tz,
+                mx, my, mz,
+                is_NLAST,
+                # %%
+                is_save, is_save_txt, dpi,
+                # %%
+                color_1d, cmap_2d, 'rainbow',
+                10, -65, 2,
+                # %%
+                sample, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm,
+                # %%
+                fontsize, font,
+                # %%
+                is_colorbar_on, is_energy,
+                # %%
+                "UGa", 1,
+                0, 0.033, 5,
+                # %%
+                0, 0,
+                1, 0,
+                # %%
+                is_print, is_contours, n_TzQ,
+                Gz_max_Enhance, match_mode, ]
 
     U1_z1, G1_z1, ray1_z1, method_and_way1_z1, U_key1_z1 = \
         AST(*args_AST(z1), )
@@ -230,48 +230,48 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
 
 if __name__ == '__main__':
     consistency_SHG_ssi__AST(img_full_name = "Grating.png",
-                                is_phase_only = 0,
-                                #%%
-                                z_pump = 0,
-                                is_LG = 0, is_Gauss = 0, is_OAM = 0,
-                                l = 0, p = 0,
-                                theta_x = 0, theta_y = 0,
-                                #%%
-                                is_random_phase = 0,
-                                is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
-                                #%%
-                                U_NonZero_size = 1, w0 = 0.3,
-                                z1 = 1, z2 = 2, deff_structure_sheet_expect = 1.8,
-                                is_energy_evolution_on = 1,
-                                #%%
-                                lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,
-                                deff = 30,
-                                #%%
-                                Tx = 10, Ty = 10, Tz = "2*lc",
-                                mx = 0, my = 0, mz = 0,
-                                is_NLAST = 1,
-                                #%%
-                                is_save = 0, is_save_txt = 0, dpi = 100,
-                                #%%
-                                color_1d = 'b', cmap_2d = 'viridis',
-                                #%%
-                                sample = 2, ticks_num = 6, is_contourf = 0,
-                                is_title_on = 1, is_axes_on = 1, is_mm = 1,
-                                #%%
-                                fontsize = 9,
-                                font = {'family': 'serif',
-                                        'style': 'normal', # 'normal', 'italic', 'oblique'
-                                        'weight': 'normal',
-                                        'color': 'black', # 'black','gray','darkred'
-                                        },
-                                #%%
-                                is_colorbar_on = 1, is_energy = 1,
-                                #%%
-                                is_print = 1, is_contours = 66, n_TzQ = 1,
-                                Gz_max_Enhance = 1, match_mode = 1,
-                                #%%
-                                is_NLA = 0,
-                                # %%
-                                border_percentage=0.1, )
+                            is_phase_only = 0,
+                            #%%
+                            z_pump = 0,
+                            is_LG = 0, is_Gauss = 0, is_OAM = 0,
+                            l = 0, p = 0,
+                            theta_x = 0, theta_y = 0,
+                            #%%
+                            is_random_phase = 0,
+                            is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
+                            #%%
+                            U_NonZero_size = 1, w0 = 0.3,
+                            z1 = 1, z2 = 2, deff_structure_sheet_expect = 1.8,
+                            is_energy_evolution_on = 1,
+                            #%%
+                            lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,
+                            deff = 30,
+                            #%%
+                            Tx = 10, Ty = 10, Tz = "2*lc",
+                            mx = 0, my = 0, mz = 0,
+                            is_NLAST = 1,
+                            #%%
+                            is_save = 0, is_save_txt = 0, dpi = 100,
+                            #%%
+                            color_1d = 'b', cmap_2d = 'viridis',
+                            #%%
+                            sample = 2, ticks_num = 6, is_contourf = 0,
+                            is_title_on = 1, is_axes_on = 1, is_mm = 1,
+                            #%%
+                            fontsize = 9,
+                            font = {'family': 'serif',
+                                    'style': 'normal', # 'normal', 'italic', 'oblique'
+                                    'weight': 'normal',
+                                    'color': 'black', # 'black','gray','darkred'
+                                    },
+                            #%%
+                            is_colorbar_on = 1, is_energy = 1,
+                            #%%
+                            is_print = 1, is_contours = 66, n_TzQ = 1,
+                            Gz_max_Enhance = 1, match_mode = 1,
+                            #%%
+                            is_NLA = 0,
+                            # %%
+                            border_percentage=0.1, )
 
 # 注意 colorbar 上的数量级
