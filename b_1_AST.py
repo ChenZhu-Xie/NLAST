@@ -7,13 +7,11 @@ Created on Sun Dec 26 22:09:04 2021
 
 # %%
 
-import math
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_global_var import init_GLV_DICT, end_AST, Get, fget, fkey, fGHU_plot_save
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST
-
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -31,7 +29,7 @@ def AST(U_name="",
         is_random_phase=0,
         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
         # %%
-        U_0_NonZero_size=1, w0=0.3,
+        U_NonZero_size=1, w0=0.3,
         z0=1,
         # %%
         lam1=0.8, is_air_pump=0, is_air=0, T=25,
@@ -77,7 +75,7 @@ def AST(U_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U_0_NonZero_size, w0,
+                                   U_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -139,7 +137,7 @@ if __name__ == '__main__':
         is_random_phase=0,
         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
         # %%
-        U_0_NonZero_size=1, w0=0.1,
+        U_NonZero_size=1, w0=0.1,
         z0=1,
         # %%
         lam1=0.8, is_air_pump=0, is_air=0, T=25,

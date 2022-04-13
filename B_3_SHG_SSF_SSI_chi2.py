@@ -16,8 +16,7 @@ from fun_linear import fft2, ifft2
 from fun_nonlinear import Eikz, Info_find_contours_SHG
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Set, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
-
+from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -48,7 +47,7 @@ def SHG_SSF_SSI(U_name="",
                  is_random_phase_Structure=0,
                  is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                  # %%
-                 U_0_NonZero_size=1, w0=0.3,
+                 U_NonZero_size=1, w0=0.3,
                  L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
                  sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
                  X=0, Y=0,
@@ -120,7 +119,7 @@ def SHG_SSF_SSI(U_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U_0_NonZero_size, w0,
+                                   U_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -154,7 +153,7 @@ def SHG_SSF_SSI(U_name="",
                                      is_random_phase_Structure,
                                      is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                                      # %%
-                                     U_0_NonZero_size, w0_Structure,
+                                     U_NonZero_size, w0_Structure,
                                      structure_size_Enlarge,
                                      Duty_Cycle_x, Duty_Cycle_y,
                                      structure_xy_mode, Depth,
@@ -412,7 +411,7 @@ if __name__ == '__main__':
                  is_random_phase_Structure=0,
                  is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                  # %%
-                 U_0_NonZero_size=1, w0=0.3,
+                 U_NonZero_size=1, w0=0.3,
                  L0_Crystal=5, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
                  sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
                  X=0, Y=0,

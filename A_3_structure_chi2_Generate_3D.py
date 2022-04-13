@@ -33,8 +33,8 @@ def structure_chi2_3D(U_name="",
                       is_random_phase=0,
                       is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                       # %%
-                      U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
-                      deff_structure_length_expect=2, deff_structure_sheet_expect=1.8,
+                      U_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                      deff_structure_length_expect=2,
                       # %%
                       Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
                       structure_xy_mode='x', Depth=2,
@@ -96,7 +96,7 @@ def structure_chi2_3D(U_name="",
                                      is_H_theta,
                                      is_H_random_phase,
                                      # %%
-                                     U_0_NonZero_size, w0,
+                                     U_NonZero_size, w0,
                                      structure_size_Enlarge,
                                      Duty_Cycle_x, Duty_Cycle_y,
                                      structure_xy_mode, Depth,
@@ -148,8 +148,8 @@ def structure_chi2_3D(U_name="",
 
     diz, deff_structure_sheet, sheets_num, \
     Iz, deff_structure_length, Tz_unit = \
-        slice_structure_SSI(deff_structure_sheet_expect, deff_structure_length_expect,
-                            Tz, mz, size_PerPixel,
+        slice_structure_SSI(Duty_Cycle_z, deff_structure_length_expect,
+                            Tz, size_PerPixel,
                             is_print)
 
     method = "MOD"
@@ -214,8 +214,8 @@ if __name__ == '__main__':
                       is_random_phase=0,
                       is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                       # %%
-                      U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
-                      deff_structure_length_expect=2, deff_structure_sheet_expect=1.8,
+                      U_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                      deff_structure_length_expect=2,
                       # %%
                       Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
                       structure_xy_mode='x', Depth=2,

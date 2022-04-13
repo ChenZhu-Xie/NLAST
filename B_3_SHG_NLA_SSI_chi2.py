@@ -16,8 +16,7 @@ from fun_linear import fft2, ifft2
 from fun_nonlinear import Info_find_contours_SHG, G2_z_modulation_NLAST
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Set, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
-
+from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -48,7 +47,7 @@ def SHG_NLA_SSI(U_name="",
                 is_random_phase_Structure=0,
                 is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                 # %%
-                U_0_NonZero_size=1, w0=0.3,
+                U_NonZero_size=1, w0=0.3,
                 L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
                 sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
                 X=0, Y=0,
@@ -120,7 +119,7 @@ def SHG_NLA_SSI(U_name="",
                                  is_random_phase,
                                  is_H_l, is_H_theta, is_H_random_phase,
                                  # %%
-                                 U_0_NonZero_size, w0,
+                                 U_NonZero_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
                                  # %%
@@ -154,7 +153,7 @@ def SHG_NLA_SSI(U_name="",
                                      is_random_phase_Structure,
                                      is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                                      # %%
-                                     U_0_NonZero_size, w0_Structure,
+                                     U_NonZero_size, w0_Structure,
                                      structure_size_Enlarge,
                                      Duty_Cycle_x, Duty_Cycle_y,
                                      structure_xy_mode, Depth,
@@ -264,7 +263,7 @@ def SHG_NLA_SSI(U_name="",
         else:
             Q2_z = fft2(modulation_squared_z * U_z ** 2)
             dG2_zdz = const * Q2_z * H2_z(dizj[for_th])
-
+        # print(dizj*size_PerPixel)
         return dG2_zdz
 
     def fun2(for_th, fors_num, dG2_zdz, *args, **kwargs, ):
@@ -326,12 +325,12 @@ def SHG_NLA_SSI(U_name="",
 
 if __name__ == '__main__':
     SHG_NLA_SSI(U_name="",
-                img_full_name="Grating.png",
+                img_full_name="lena1.png",
                 is_phase_only=0,
                 # %%
                 z_pump=0,
-                is_LG=0, is_Gauss=0, is_OAM=0,
-                l=0, p=0,
+                is_LG=1, is_Gauss=1, is_OAM=1,
+                l=10, p=3,
                 theta_x=0, theta_y=0,
                 # %%
                 is_random_phase=0,
@@ -350,20 +349,20 @@ if __name__ == '__main__':
                 is_random_phase_Structure=0,
                 is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                 # %%
-                U_0_NonZero_size=1, w0=0.3,
-                L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
+                U_NonZero_size=1, w0=0.05,
+                L0_Crystal=4, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
                 sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
                 X=0, Y=0,
                 # %%
                 is_bulk=0, is_no_backgroud=0,
-                is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
+                is_stored=1, is_show_structure_face=1, is_energy_evolution_on=1,
                 # %%
-                lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                lam1=1, is_air_pump=0, is_air=0, T=25,
                 deff=30,
                 # %%
-                Tx=10, Ty=10, Tz=2.66,
+                Tx=10, Ty=10, Tz=5,
                 mx=0, my=0, mz=1,
-                is_stripe=0, is_NLAST=0,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+                is_stripe=0, is_NLAST=1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
                 # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
                 # %%
                 # 生成横向结构
@@ -373,7 +372,7 @@ if __name__ == '__main__':
                 is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                 is_reverse_xy=0, is_positive_xy=1,
                 # %%
-                is_save=1, is_save_txt=0, dpi=100,
+                is_save=0, is_save_txt=0, dpi=100,
                 # %%
                 color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
                 elev=10, azim=-65, alpha=2,

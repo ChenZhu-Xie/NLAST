@@ -13,10 +13,11 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST, init_SHG
-from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, G2_z_modulation_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
+from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, \
+    G2_z_modulation_NLAST, G2_z_modulation_3D_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import init_GLV_DICT, end_SSI, Get, dset, fget, fkey, fGHU_plot_save
+from fun_global_var import init_GLV_DICT, end_SSI, Get, dset, dget, fget, fkey, fGHU_plot_save
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 
@@ -45,11 +46,12 @@ def SHG_NLA(U_name="",
         is_random_phase_Structure = 0, 
         is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
         # %%
-        U_0_NonZero_size=1, w0=0.3,
+        U_NonZero_size=1, w0=0.3,
         z0=1,
         # %%
         lam1=0.8, is_air_pump=0, is_air=0, T=25,
-        deff=30, is_fft = 1, fft_mode = 0, 
+        deff=30, is_fft = 1, fft_mode = 0,
+        is_sum_Gm=0, mG=0,
         is_linear_convolution = 0,
         #%%
         Tx=10, Ty=10, Tz="2*lc",
@@ -106,7 +108,7 @@ def SHG_NLA(U_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U_0_NonZero_size, w0,
+                                   U_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -149,16 +151,12 @@ def SHG_NLA(U_name="",
                           is_print=0, )
 
     # %%
-    # const
-
-    const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
-
-    # %%
 
     iz = z0 / size_PerPixel
 
     if is_fft == 0:
 
+        const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
         integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
 
         g_rotate_180 = Rotate_180(g_shift)
@@ -193,6 +191,9 @@ def SHG_NLA(U_name="",
 
     else:
 
+        Const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+        dset("G", np.zeros((Ix, Iy), dtype=np.complex128()))
+
         if fft_mode == 0:
             # %% generate structure
 
@@ -212,7 +213,7 @@ def SHG_NLA(U_name="",
                                              is_random_phase_Structure,
                                              is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                                              # %%
-                                             U_0_NonZero_size, w0_Structure,
+                                             U_NonZero_size, w0_Structure,
                                              structure_size_Enlarge,
                                              Duty_Cycle_x, Duty_Cycle_y,
                                              structure_xy_mode, Depth,
@@ -242,19 +243,69 @@ def SHG_NLA(U_name="",
                                              # %%
                                              **kwargs, )
 
-            dset("G", G2_z_modulation_NLAST(k1, k2, Gz,
-                                                modulation_squared, U_0, iz, const, ))
+            if is_sum_Gm == 0:
+                dset("G", G2_z_modulation_NLAST(k1, k2, Gz,
+                                                modulation_squared, U_0, iz, Const, ))
+            elif is_sum_Gm == 1:
+                def fun1(for_th, fors_num, *args, **kwargs, ):
+                    m_z = for_th - mG
+                    Gz_m = 2 * math.pi * m_z * size_PerPixel / (Tz / 1000)
+                    # print(m_z, C_m(m_z), "\n")
+
+                    # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
+                    Const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
+                    G2_z0_Gm = G2_z_modulation_NLAST(k1, k2, Gz_m,
+                                                     modulation_squared, U_0, iz,
+                                                     Const, ) if m_z != 0 else 0
+                    return G2_z0_Gm
+
+                def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
+
+                    dset("G", dget("G") + G2_z0_Gm )
+
+                    return dget("G")
+
+                my_thread(10, 2 * mG + 1,
+                          fun1, fun2, noop,
+                          is_ordered=1, is_print=is_print, )
+            else:
+                Tz_unit = (Tz / 1000) / size_PerPixel
+
+                dset("G", G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
+                                                modulation_squared, U_0, iz, Const, ))
 
         elif fft_mode == 1:
-
-            dset("G", G2_z_NLAST(k1, k2, Gx, Gy, Gz,
-                                     U_0, iz, const,
+            if is_sum_Gm == 0:
+                dset("G", G2_z_NLAST(k1, k2, Gx, Gy, Gz,
+                                     U_0, iz, Const,
                                      is_linear_convolution, ))
+            else:
+                def fun1(for_th, fors_num, *args, **kwargs, ):
+                    m_x = for_th - mG
+                    Gx_m = 2 * math.pi * m_x * size_PerPixel / (Tx / 1000)
+                    # print(m_x, C_m(m_x), "\n")
+
+                    # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
+                    Const = (k2 / size_PerPixel / n2) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
+                    G2_z0_Gm = G2_z_NLAST(k1, k2, Gx_m, Gy, Gz,
+                                          U_0, iz, Const,
+                                          is_linear_convolution, ) if m_x != 0 else 0
+                    return G2_z0_Gm
+
+                def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
+
+                    dset("G", dget("G") + G2_z0_Gm)
+
+                    return dget("G")
+
+                my_thread(10, 2 * mG + 1,
+                          fun1, fun2, noop,
+                          is_ordered=1, is_print=is_print, )
 
         elif fft_mode == 2:
 
             dset("G", G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
-                                           U_0, iz, const,
+                                           U_0, iz, Const,
                                            is_linear_convolution, ))
 
     # %%
@@ -285,8 +336,8 @@ if __name__ == '__main__':
         is_phase_only=0,
         # %%
         z_pump=0,
-        is_LG=0, is_Gauss=0, is_OAM=0,
-        l=0, p=0,
+        is_LG=1, is_Gauss=1, is_OAM=1,
+        l=1, p=3,
         theta_x=0, theta_y=0,
         # %%
         is_random_phase=0,
@@ -305,11 +356,12 @@ if __name__ == '__main__':
         is_random_phase_Structure=0,
         is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
         # %%
-        U_0_NonZero_size=1, w0=0.3,
-        z0=1,
+        U_NonZero_size=1, w0=0.1,
+        z0=2,
         # %%
         lam1=0.8, is_air_pump=0, is_air=0, T=25,
         deff=30, is_fft=1, fft_mode=0,
+        is_sum_Gm=0, mG=0,
         is_linear_convolution=0,
         # %%
         Tx=10, Ty=10, Tz=3,

@@ -19,7 +19,6 @@ from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import Set, Get, init_GLV_DICT, init_EVV, Fun3, end_SSI, \
     dset, dget, fget, fkey, fGHU_plot_save, fU_EVV_plot
-
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -50,7 +49,7 @@ def SHG_NLA_EVV(U_name="",
             is_random_phase_Structure=0,
             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
             # %%
-            U_0_NonZero_size=1, w0=0.3,
+            U_NonZero_size=1, w0=0.3,
             z0=1, sheets_stored_num=10,
             # %%
             lam1=0.8, is_air_pump=0, is_air=0, T=25,
@@ -117,7 +116,7 @@ def SHG_NLA_EVV(U_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U_0_NonZero_size, w0,
+                                   U_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -178,7 +177,7 @@ def SHG_NLA_EVV(U_name="",
                                          is_random_phase_Structure,
                                          is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                                          # %%
-                                         U_0_NonZero_size, w0_Structure,
+                                         U_NonZero_size, w0_Structure,
                                          structure_size_Enlarge,
                                          Duty_Cycle_x, Duty_Cycle_y,
                                          structure_xy_mode, Depth,
@@ -209,11 +208,6 @@ def SHG_NLA_EVV(U_name="",
                                          **kwargs, )
 
     # %%
-    # const
-
-    const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
-
-    # %%
 
     iz = z0 / size_PerPixel
     zj = np.linspace(0, z0, sheets_stored_num + 1)
@@ -237,6 +231,7 @@ def SHG_NLA_EVV(U_name="",
         if for_th2 != 0:
             if is_fft == 0:
 
+                const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
                 integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
 
                 g_rotate_180 = Rotate_180(g_shift)
@@ -272,13 +267,14 @@ def SHG_NLA_EVV(U_name="",
 
             else:
 
+                Const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+
                 if fft_mode == 0:
 
-                    Const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
                     if is_sum_Gm == 0:
                         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                             G2_z_modulation_NLAST(k1, k2, Gz,
-                                                  modulation_squared, U_0, izj[for_th2], const, ))
+                                                  modulation_squared, U_0, izj[for_th2], Const, ))
                     elif is_sum_Gm == 1:
                         def fun1(for_th, fors_num, *args, **kwargs, ):
                             m_z = for_th - mG
@@ -316,7 +312,7 @@ def SHG_NLA_EVV(U_name="",
                     if is_sum_Gm == 0:
                         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                             G2_z_NLAST(k1, k2, Gx, Gy, Gz,
-                                       U_0, izj[for_th2], const,
+                                       U_0, izj[for_th2], Const,
                                        is_linear_convolution, ))
                     else:
                         def fun1(for_th, fors_num, *args, **kwargs, ):
@@ -346,7 +342,7 @@ def SHG_NLA_EVV(U_name="",
 
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                         G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
-                                         U_0, izj[for_th2], const,
+                                         U_0, izj[for_th2], Const,
                                          is_linear_convolution, ))
 
         return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
@@ -407,12 +403,12 @@ def SHG_NLA_EVV(U_name="",
 
 if __name__ == '__main__':
     SHG_NLA_EVV(U_name="",
-            img_full_name="Grating.png",
+            img_full_name="lena1.png",
             is_phase_only=0,
             # %%
             z_pump=0,
-            is_LG=0, is_Gauss=0, is_OAM=0,
-            l=0, p=0,
+            is_LG=1, is_Gauss=1, is_OAM=1,
+            l=10, p=3,
             theta_x=0, theta_y=0,
             # %%
             is_random_phase=0,
@@ -431,16 +427,16 @@ if __name__ == '__main__':
             is_random_phase_Structure=0,
             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
             # %%
-            U_0_NonZero_size=1, w0=0.3,
-            z0=1, sheets_stored_num=10,
+            U_NonZero_size=1, w0=0.1,
+            z0=3, sheets_stored_num=10,
             # %%
             lam1=0.8, is_air_pump=0, is_air=0, T=25,
             deff=30, is_fft=1, fft_mode=0,
             is_sum_Gm=0, mG=0,
             is_linear_convolution=0,
             # %%
-            Tx=10, Ty=10, Tz=3,
-            mx=0, my=0, mz=1,
+            Tx=10, Ty=10, Tz=0,
+            mx=0, my=0, mz=0,
             # %%
             # 生成横向结构
             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,

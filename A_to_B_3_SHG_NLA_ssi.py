@@ -8,15 +8,15 @@ Created on Mon Nov  1 14:38:57 2021
 # %%
 
 import numpy as np
-
-np.seterr(divide='ignore', invalid='ignore')
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_global_var import init_GLV
 from A_3_structure_chi2_Generate_3D import structure_chi2_3D
 from B_3_SHG_NLA_ssi import SHG_NLA_ssi
 from B_3_SHG_SSF_ssi import SHG_SSF_ssi
+np.seterr(divide='ignore', invalid='ignore')
 
+#%%
 
 def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                      is_phase_only_Structure=0,
@@ -25,6 +25,7 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                      is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
                      l_Structure=0, p_Structure=0,
                      theta_x_Structure=0, theta_y_Structure=0,
+                     #%%
                      is_random_phase_Structure=0,
                      is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                      # %%
@@ -36,13 +37,14 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                      is_LG=0, is_Gauss=1, is_OAM=1,
                      l=1, p=0,
                      theta_x=1, theta_y=0,
+                     #%%
                      is_random_phase=0,
                      is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                      # %%---------------------------------------------------------------------
                      # %%
-                     U_0_NonZero_size=0.5, w0=0.1, w0_Structure=5, structure_size_Enlarge=0.1,
+                     U_NonZero_size=0.5, w0=0.1, w0_Structure=5, structure_size_Enlarge=0.1,
                      L0_Crystal=2, z0_structure_frontface_expect=0.5, deff_structure_length_expect=1,
-                     deff_structure_sheet_expect=1.8, sheets_stored_num=10,
+                     sheets_stored_num=10,
                      z0_section_1_expect=1, z0_section_2_expect=1,
                      X=0, Y=0,
                      # %%
@@ -115,7 +117,7 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U_0_NonZero_size, w0,
+                                   U_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -159,8 +161,8 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                       is_random_phase_Structure,
                       is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                       # %%
-                      U_0_NonZero_size, w0_Structure, structure_size_Enlarge,
-                      deff_structure_length_expect, deff_structure_sheet_expect,
+                      U_NonZero_size, w0_Structure, structure_size_Enlarge,
+                      deff_structure_length_expect,
                       #%%
                       Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
                       structure_xy_mode, Depth,
@@ -192,7 +194,8 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
     # %%
     # B_3_NLA_SSI
 
-    Args = [U_name,
+    args_SHG_ssi = \
+        [U_name,
            img_full_name,
            is_phase_only,
            # %%
@@ -204,9 +207,9 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
            is_random_phase,
            is_H_l, is_H_theta, is_H_random_phase,
            # %%
-           U_0_NonZero_size, w0,
+           U_NonZero_size, w0,
            L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
-           deff_structure_sheet_expect, sheets_stored_num,
+           Duty_Cycle_z, sheets_stored_num,
            z0_section_1_expect, z0_section_2_expect,
            X, Y,
            # %%
@@ -241,9 +244,11 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
            Gz_max_Enhance, match_mode, ]
 
     if is_NLA == 1:
-        SHG_NLA_ssi(*Args)
+        U, G, ray, method_and_way, U_key = SHG_NLA_ssi(*args_SHG_ssi)
     else:
-        SHG_SSF_ssi(*Args)
+        U, G, ray, method_and_way, U_key = SHG_SSF_ssi(*args_SHG_ssi)
+
+    return U, G, ray, method_and_way, U_key
 
 if __name__ == '__main__':
     A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
@@ -270,9 +275,9 @@ if __name__ == '__main__':
                      is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                      # %%---------------------------------------------------------------------
                      # %%
-                     U_0_NonZero_size=0.9, w0=0.1, w0_Structure=0, structure_size_Enlarge=0.1,
+                     U_NonZero_size=0.9, w0=0.1, w0_Structure=0, structure_size_Enlarge=0.1,
                      L0_Crystal=2.25, z0_structure_frontface_expect=0, deff_structure_length_expect=0.5,
-                     deff_structure_sheet_expect=1, sheets_stored_num=10,
+                     sheets_stored_num=10,
                      z0_section_1_expect=0, z0_section_2_expect=0,
                      X=0, Y=0,
                      # %%

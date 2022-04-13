@@ -7,12 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 #%%
 
-import math
-import numpy as np
-from fun_global_var import init_GLV_DICT, end_STD, fGHU_plot_save
 from fun_img_Resize import if_image_Add_black_border
-from fun_pump import pump_pic_or_U
-from fun_linear import init_AST
 from b_1_AST import AST
 
 def refraction_AST__AST(img_full_name = "Grating.png",

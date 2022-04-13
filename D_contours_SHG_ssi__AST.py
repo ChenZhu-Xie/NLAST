@@ -10,11 +10,10 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
-from b_1_AST import AST
 from fun_global_var import init_GLV_DICT, fset, fget, fkey
+from b_1_AST import AST
 from B_3_SHG_NLA_ssi import SHG_NLA_ssi
 from B_3_SHG_SSF_ssi import SHG_SSF_ssi
-
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -30,7 +29,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                             is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
                             #%%
                             U_NonZero_size = 1, w0 = 0.3,
-                            z_AST = 1, z_ssi = 5, deff_structure_sheet_expect = 1.8,
+                            z_AST = 1, z_ssi = 5,
                             is_energy_evolution_on = 1,
                             #%%
                             lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,
@@ -118,7 +117,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                 # %%
                 U_NonZero_size, w0,
                 z_ssi, 0, 10,
-                deff_structure_sheet_expect, 10,
+                10,
                 0, 0, 0, 0,
                 # %%
                 1, 0,
@@ -216,7 +215,7 @@ if __name__ == '__main__':
                                 is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
                                 #%%
                                 U_NonZero_size = 1, w0 = 0.3,
-                                z_AST = 1, z_ssi = 2, deff_structure_sheet_expect = 1.8,
+                                z_AST = 1, z_ssi = 2,
                                 is_energy_evolution_on = 1,
                                 #%%
                                 lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,

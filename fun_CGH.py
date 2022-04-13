@@ -97,6 +97,7 @@ def structure_Generate_2D_CGH(U, mode,
                               is_continuous,
                               # %%
                               is_target_far_field, is_transverse_xy, is_reverse_xy, ):
+    # print(U)
     def args_CGH(U, ):
         return [U, mode,
                 Duty_Cycle_x, Duty_Cycle_y,
@@ -120,7 +121,7 @@ def structure_Generate_2D_CGH(U, mode,
 
     if is_reverse_xy == 1:
         structure = 1 - structure
-
+    # print(structure)
     return structure
 
 

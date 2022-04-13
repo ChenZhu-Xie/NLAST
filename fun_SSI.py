@@ -6,33 +6,19 @@ Created on Fri Feb 25 20:23:31 2022
 """
 
 import numpy as np
-from fun_algorithm import find_nearest
+from fun_algorithm import find_nearest, gcd_of_float
 from fun_global_var import Set
 
 # %%
 # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
-def Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel,
-            Tz, mz,
+def Cal_diz(Duty_Cycle_z, size_PerPixel, Tz,
             is_print=1, ):
-    Tz_percentage = 0.1
-    length_percentage = 0.01
+    zoomout_times = 5
     # %%
-    if mz != 0:  # 如过你想 让结构 提供 z 向倒格矢
-        if deff_structure_sheet_expect > Tz_percentage * Tz or deff_structure_sheet_expect <= 0 or (
-                type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != np.float64 and type(
-            deff_structure_sheet_expect) != int):  # 则 deff_structure_sheet_expect 不能超过 0.1 * Tz（以保持 良好的 占空比）
-            deff_structure_sheet_expect = Tz_percentage * Tz  # Unit: μm
-    else:
-        if deff_structure_sheet_expect > length_percentage * deff_structure_length_expect * 1000 or deff_structure_sheet_expect <= 0 or (
-                type(deff_structure_sheet_expect) != float and type(deff_structure_sheet_expect) != np.float64 and type(
-            deff_structure_sheet_expect) != int):  # 则 deff_structure_sheet_expect 不能超过 0.01 * deff_structure_length_expect（以保持 良好的 精度）
-            deff_structure_sheet_expect = length_percentage * deff_structure_length_expect * 1000  # Unit: μm
-
-    diz = deff_structure_sheet_expect / 1000 / size_PerPixel  # Unit: mm
-    # diz = int( deff_structure_sheet_expect / 1000 / size_PerPixel )
-    deff_structure_sheet = diz * size_PerPixel * 1000  # Unit: μm 调制区域切片厚度 的 实际纵向尺寸
-    is_print and print("deff_structure_sheet = {} μm".format(deff_structure_sheet))
+    deff_structure_sheet = Tz * gcd_of_float(Duty_Cycle_z) / zoomout_times # 保证 deff_structure_sheet 始终能被 Tz 和 Tz * Duty_Cycle_z 整除
+    is_print and print("deff_structure_sheet = {} μm".format(deff_structure_sheet)) # Unit: μm 调制区域切片厚度 的 实际纵向尺寸
+    diz = deff_structure_sheet / 1000 / size_PerPixel  # Unit: mm
 
     return diz, deff_structure_sheet
 
@@ -136,15 +122,14 @@ def Cal_IxIy(I1_x, I1_y,
 
 # %%
 
-def slice_structure_SSI(deff_structure_sheet_expect, deff_structure_length_expect,
-               Tz, mz, size_PerPixel,
-               is_print):
+def slice_structure_SSI(Duty_Cycle_z, deff_structure_length_expect,
+                        Tz, size_PerPixel,
+                        is_print):
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
-    diz, deff_structure_sheet = Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel,
-                                        Tz, mz,
-                                        is_print)
+    diz, deff_structure_sheet = Cal_diz(Duty_Cycle_z, size_PerPixel, Tz,
+                                        is_print, )
 
     # %%
     # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
@@ -163,17 +148,16 @@ def slice_structure_SSI(deff_structure_sheet_expect, deff_structure_length_expec
 # %%
 # 等间距切片
 
-def Slice_SSI(L0_Crystal, deff_structure_sheet_expect,
+def slice_ssi(L0_Crystal, Duty_Cycle_z,
                z0_structure_frontface_expect, deff_structure_length_expect,
                z0_section_1_expect, z0_section_2_expect,
-               Tz, mz, size_PerPixel,
+               Tz, size_PerPixel,
                is_print):
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
-    diz, deff_structure_sheet = Cal_diz(deff_structure_sheet_expect, deff_structure_length_expect, size_PerPixel,
-                                        Tz, mz,
-                                        is_print)
+    diz, deff_structure_sheet = Cal_diz(Duty_Cycle_z, size_PerPixel, Tz,
+                                        is_print, )
 
     # %%
     # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
@@ -223,6 +207,7 @@ def Slice_SSI(L0_Crystal, deff_structure_sheet_expect,
 
     izj = zj / size_PerPixel  # 为循环 里使用
     dizj = izj[1:] - izj[:-1]  # 为循环 里使用
+    # print(dizj*size_PerPixel)
 
     # print(np.mod(Iz,diz))
     # print(Iz - Iz//diz * diz)
@@ -443,6 +428,7 @@ def cal_zj_izj_dizj_mj(zj_structure, mj_structure, z0_structure_frontface, z0_st
 
     izj = zj / size_PerPixel  # 为循环 里使用
     dizj = izj[1:] - izj[:-1]  # 为循环 里使用
+    # print(dizj * size_PerPixel)
 
     # mj = np.append('0', mj_structure) if z0_structure_frontface > 0 else mj_structure
     # if z0_structure_endface < L0_Crystal: mj = np.append(mj, '0')

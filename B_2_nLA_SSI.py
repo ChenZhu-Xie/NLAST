@@ -13,12 +13,11 @@ from scipy.io import loadmat
 from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
-from fun_SSI import Slice_SSI
+from fun_SSI import slice_ssi
 from fun_linear import init_AST, init_SHG, fft2, ifft2
 from fun_nonlinear import args_SHG
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
-
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -36,9 +35,9 @@ def nLA_ssi(U_name="",
             is_random_phase=0,
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
-            U_0_NonZero_size=1, w0=0.3,
+            U_NonZero_size=1, w0=0.3,
             L0_Crystal=1, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
-            deff_structure_sheet_expect=1.8, sheets_stored_num=10,
+            Duty_Cycle_z=0.5, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
             # %%
@@ -101,7 +100,7 @@ def nLA_ssi(U_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U_0_NonZero_size, w0,
+                                   U_NonZero_size, w0,
                                    # %%
                                    lam1, is_air_pump, T,
                                    # %%
@@ -141,10 +140,10 @@ def nLA_ssi(U_name="",
     sheet_th_endface, sheets_num_endface, Iz_endface, z0_end, \
     sheet_th_sec1, sheets_num_sec1, iz_1, z0_1, \
     sheet_th_sec2, sheets_num_sec2, iz_2, z0_2 \
-        = Slice_SSI(L0_Crystal, deff_structure_sheet_expect,
+        = slice_ssi(L0_Crystal, Duty_Cycle_z,
                      z0_structure_frontface_expect, deff_structure_length_expect,
                      z0_section_1_expect, z0_section_2_expect,
-                     Tz, mz, size_PerPixel,
+                     Tz, size_PerPixel,
                      is_print)
 
     # %%
@@ -259,9 +258,9 @@ if __name__ == '__main__':
             is_random_phase=0,
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
-            U_0_NonZero_size=1, w0=0.3,
+            U_NonZero_size=1, w0=0.3,
             L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
-            deff_structure_sheet_expect=1.8, sheets_stored_num=10,
+            Duty_Cycle_z=0.5, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
             # %%

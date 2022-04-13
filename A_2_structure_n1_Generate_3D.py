@@ -15,7 +15,6 @@ from fun_SSI import slice_structure_SSI
 from fun_thread import noop, my_thread
 from fun_CGH import structure_n1_Generate_2D
 from fun_global_var import init_GLV
-
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -33,8 +32,8 @@ def structure_n1_3D(U_name="",
                     is_random_phase=0,
                     is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                     # %%
-                    U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
-                    deff_structure_length_expect=2, deff_structure_sheet_expect=1.8,
+                    U_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                    deff_structure_length_expect=2,
                     # %%
                     Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
                     structure_xy_mode='x', Depth=1,
@@ -93,7 +92,7 @@ def structure_n1_3D(U_name="",
                                    is_random_phase,
                                    is_H_l, is_H_theta, is_H_random_phase,
                                    # %%
-                                   U_0_NonZero_size, w0, structure_size_Enlarge,
+                                   U_NonZero_size, w0, structure_size_Enlarge,
                                    Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
                                    # %%
                                    is_continuous, is_target_far_field, is_transverse_xy,
@@ -126,9 +125,9 @@ def structure_n1_3D(U_name="",
 
     diz, deff_structure_sheet, sheets_num, \
     Iz, deff_structure_length, Tz_unit = \
-        slice_structure_SSI(deff_structure_sheet_expect, deff_structure_length_expect,
-                               Tz, mz, size_PerPixel,
-                               is_print)
+        slice_structure_SSI(Duty_Cycle_z, deff_structure_length_expect,
+                            Tz, size_PerPixel,
+                            is_print)
 
     method = "MOD"
     folder_name = method + " - " + "n1_modulation_squared"
@@ -145,7 +144,7 @@ def structure_n1_3D(U_name="",
             if is_stripe == 0:
                 if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
                     m = modulation_squared
-
+                    # print(for_th)
                 else:  # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
                     m = modulation_opposite_squared
             else:
@@ -193,10 +192,10 @@ if __name__ == '__main__':
                     is_random_phase=0,
                     is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                     # %%
-                    U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
-                    deff_structure_length_expect=2, deff_structure_sheet_expect=1.8,
+                    U_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                    deff_structure_length_expect=2,
                     # %%
-                    Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+                    Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.2,
                     structure_xy_mode='x', Depth=1,
                     # %%
                     is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
@@ -205,7 +204,7 @@ if __name__ == '__main__':
                     lam1=0.8, is_air_pump=0, is_air=0, T=25,
                     # %%
                     Tx=10, Ty=10, Tz="2*lc",
-                    mx=0, my=0, mz=0,
+                    mx=0, my=0, mz=1,
                     is_stripe=0,
                     # %%
                     is_save=0, is_save_txt=0, dpi=100,

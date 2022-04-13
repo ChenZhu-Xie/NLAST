@@ -10,10 +10,9 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
-from b_1_AST import AST
 from fun_global_var import init_GLV_DICT, Get, Set, fset, fget, fkey
+from b_1_AST import AST
 from b_3_SHG_NLA import SHG_NLA
-
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -29,7 +28,7 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                             # %%
                             # 生成横向结构
-                            U1_name_Structure='',
+                            U_name_Structure='',
                             structure_size_Enlarge=0.1,
                             is_phase_only_Structure=0,
                             # %%
@@ -46,6 +45,7 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                             # %%
                             lam1=0.8, is_air_pump=0, is_air=0, T=25,
                             deff=30, is_fft=1, fft_mode=0,
+                            is_sum_Gm=0, mG=0,
                             is_linear_convolution=0,
                             # %%
                             Tx=10, Ty=10, Tz="2*lc",
@@ -133,7 +133,7 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                     is_H_l, is_H_theta, is_H_random_phase,
                     # %%
                     # 生成横向结构
-                    U1_name_Structure,
+                    U_name_Structure,
                     structure_size_Enlarge,
                     is_phase_only_Structure,
                     # %%
@@ -150,6 +150,7 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                     # %%
                     lam1, is_air_pump, is_air, T,
                     deff, is_fft, fft_mode,
+                    is_sum_Gm, mG,
                     is_linear_convolution,
                     # %%
                     Tx, Ty, Tz,
@@ -238,7 +239,7 @@ if __name__ == '__main__':
                             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                             # %%
                             # 生成横向结构
-                            U1_name_Structure='',
+                            U_name_Structure='',
                             structure_size_Enlarge=0.1,
                             is_phase_only_Structure=0,
                             # %%
@@ -255,6 +256,7 @@ if __name__ == '__main__':
                             # %%
                             lam1=0.8, is_air_pump=0, is_air=0, T=25,
                             deff=30, is_fft=1, fft_mode=0,
+                            is_sum_Gm=0, mG=0,
                             is_linear_convolution=0,
                             # %%
                             Tx=10, Ty=10, Tz="2*lc",

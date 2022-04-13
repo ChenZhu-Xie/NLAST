@@ -13,12 +13,12 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_compare import U_compare
 from fun_global_var import init_GLV_DICT, fset, fget, fkey
 from b_1_AST import AST
-from B_3_SHG_NLA_ssi import SHG_NLA_ssi
-from B_3_SHG_SSF_ssi import SHG_SSF_ssi
+from B_3_SHG_NLA_SSI_chi2 import SHG_NLA_SSI
+from B_3_SHG_SSF_SSI_chi2 import SHG_SSF_SSI
 np.seterr(divide='ignore', invalid='ignore')
 
 
-def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
+def consistency_SHG_SSI__AST(img_full_name = "Grating.png",
                             is_phase_only = 0,
                             #%%
                             z_pump = 0,
@@ -103,7 +103,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                 # %%
                 is_print, ]
 
-    def args_ssi(z_ssi):
+    def args_SSI(z_SSI):
         return ["",
                 img_full_name,
                 is_phase_only,
@@ -116,8 +116,17 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                 is_random_phase,
                 is_H_l, is_H_theta, is_H_random_phase,
                 # %%
+                # 生成横向结构
+                '', 0.1, 0,
+                0, 0,
+                0, 1, 0,
+                0, 0,
+                0, 0,
+                #%%
+                0, 0, 0, 0,
+                # %%
                 U_NonZero_size, w0,
-                z_ssi, 0, 10,
+                z_SSI, 0, 10,
                 10,
                 0, 0, 0, 0,
                 # %%
@@ -129,7 +138,13 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                 # %%
                 Tx, Ty, Tz,
                 mx, my, mz,
-                is_NLAST,
+                0, is_NLAST,
+                # %%
+                # 生成横向结构
+                0.5, 0.5, 0.5,
+                2, 'x',
+                0, 1, 0,
+                0, 1,
                 # %%
                 is_save, is_save_txt, dpi,
                 # %%
@@ -152,19 +167,21 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                 is_print, is_contours, n_TzQ,
                 Gz_max_Enhance, match_mode, ]
 
+
+
     U1_z1, G1_z1, ray1_z1, method_and_way1_z1, U_key1_z1 = \
         AST(*args_AST(z1), )
 
     U2_z2, G2_z2, ray2_z2, method_and_way2_z2, U_key2_z2 = \
-            SHG_NLA_ssi(*args_ssi(z2), U = U1_z1, ray = ray1_z1 ) if is_NLA == 1 else \
-                SHG_SSF_ssi(*args_ssi(z2), U = U1_z1, ray = ray1_z1 )
+            SHG_NLA_SSI(*args_SSI(z2), U = U1_z1, ray = ray1_z1 ) if is_NLA == 1 else \
+                SHG_SSF_SSI(*args_SSI(z2), U = U1_z1, ray = ray1_z1 )
 
     # %%
     # 先倍频 z1 后衍射 z2
 
     U2_z1, G2_z1, ray2_z1, method_and_way2_z1, U_key2_z1 = \
-        SHG_NLA_ssi(*args_ssi(z1), ) if is_NLA == 1 else \
-            SHG_SSF_ssi(*args_ssi(z1), )
+        SHG_NLA_SSI(*args_SSI(z1), ) if is_NLA == 1 else \
+            SHG_SSF_SSI(*args_SSI(z1), )
 
     U1_z2, G1_z2, ray1_z2, method_and_way1_z2, U_key1_z2 = \
         AST(*args_AST(z2), U=U2_z1, ray=ray2_z1)
@@ -175,8 +192,8 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
     Z = z1 + z2
 
     U2_Z, G2_Z, ray2_Z, method_and_way2_Z, U_key2_Z = \
-        SHG_NLA_ssi(*args_ssi(Z), ) if is_NLA == 1 else \
-            SHG_SSF_ssi(*args_ssi(Z), )
+        SHG_NLA_SSI(*args_SSI(Z), ) if is_NLA == 1 else \
+            SHG_SSF_SSI(*args_SSI(Z), )
 
     # %%
     # 加和 U1_NLA 与 U2_AST = U2_Z_Superposition
@@ -188,7 +205,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                                   is_phase_only)
 
     U2_Z_ADD = U1_z2 + U2_z2
-    init_GLV_DICT("", "a", "ADD", "ssi", **kwargs)
+    init_GLV_DICT("", "a", "ADD", "SSI", **kwargs)
     fset("U", U2_Z_ADD)
 
     folder_address = U_plot_save(fget("U"), fkey("U"), 1,
@@ -228,7 +245,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
     # %%
 
 if __name__ == '__main__':
-    consistency_SHG_ssi__AST(img_full_name = "Grating.png",
+    consistency_SHG_SSI__AST(img_full_name = "Grating.png",
                             is_phase_only = 0,
                             #%%
                             z_pump = 0,
@@ -269,7 +286,7 @@ if __name__ == '__main__':
                             is_print = 1, is_contours = 66, n_TzQ = 1,
                             Gz_max_Enhance = 1, match_mode = 1,
                             #%%
-                            is_NLA = 0,
+                            is_NLA = 1,
                             # %%
                             border_percentage=0.1, )
 
