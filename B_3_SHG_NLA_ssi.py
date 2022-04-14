@@ -37,7 +37,7 @@ def SHG_NLA_ssi(U_name="",
             # %%
             U_NonZero_size=1, w0=0.3,
             L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
-            Duty_Cycle_z=0.5, sheets_stored_num=10,
+            Duty_Cycle_z=0.5, zoomout_times=5, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
             # %%
@@ -151,8 +151,8 @@ def SHG_NLA_ssi(U_name="",
         = slice_ssi(L0_Crystal, Duty_Cycle_z,
                     z0_structure_frontface_expect, deff_structure_length_expect,
                     z0_section_1_expect, z0_section_2_expect,
-                    Tz, size_PerPixel,
-                    is_print)
+                    Tz, zoomout_times, size_PerPixel,
+                    is_print, )
 
     # %%
     # const
@@ -188,10 +188,11 @@ def SHG_NLA_ssi(U_name="",
 
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                modulation_squared_full_name = str(for_th - sheets_num_frontface) + ".mat"
+                modulation_squared_full_name = str(for_th - sheets_num_frontface) + (is_save_txt and ".txt" or ".mat")
                 modulation_squared_address = folder_address + "\\" + modulation_squared_full_name
                 modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
             else:
+                # print("???????????????")
                 modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
         else:
             modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
@@ -276,8 +277,8 @@ if __name__ == '__main__':
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
             U_NonZero_size=1, w0=0.3,
-            L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
-            Duty_Cycle_z=0.5, sheets_stored_num=10,
+            L0_Crystal=2, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
+            Duty_Cycle_z=0.5, zoomout_times=5, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
             # %%
@@ -314,7 +315,7 @@ if __name__ == '__main__':
             is_plot_3d_XYz=0, is_plot_selective=0,
             is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
             # %%
-            is_print=1, is_contours=1, n_TzQ=1,
+            is_print=1, is_contours=66, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
             border_percentage=0.1, ray="2", )

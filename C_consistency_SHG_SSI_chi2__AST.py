@@ -59,7 +59,7 @@ def consistency_SHG_SSI__AST(img_full_name = "Grating.png",
                             is_print = 1, is_contours = 1, n_TzQ = 1,
                             Gz_max_Enhance = 1, match_mode = 1,
                             #%%
-                            is_NLA = 1,
+                            is_NLA = 1, is_relative=1,
                             # %%
                             **kwargs, ):
     # %%
@@ -225,7 +225,7 @@ def consistency_SHG_SSI__AST(img_full_name = "Grating.png",
     # %%
     # 对比 U2_Z_Superposition 与 U2_Z 的 （绝对）误差
 
-    U_compare(fget("U"), U2_Z, Z,
+    U_compare(fget("U"), U2_Z, U_key2_Z, Z,
               # %%
               img_name_extension, size_PerPixel, size_fig,
               # %%
@@ -240,7 +240,7 @@ def consistency_SHG_SSI__AST(img_full_name = "Grating.png",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_print, )
+              is_relative, is_print, )
 
     # %%
 
@@ -286,7 +286,7 @@ if __name__ == '__main__':
                             is_print = 1, is_contours = 66, n_TzQ = 1,
                             Gz_max_Enhance = 1, match_mode = 1,
                             #%%
-                            is_NLA = 1,
+                            is_NLA = 1, is_relative=1,
                             # %%
                             border_percentage=0.1, )
 

@@ -91,7 +91,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                          is_print=1, is_contours=1, n_TzQ=1,
                          Gz_max_Enhance=1, match_mode=1,
                          # %%
-                         is_NLA=1,
+                         is_NLA=1, is_relative=1,
                          # %%
                          **kwargs, ):
     # %%
@@ -242,7 +242,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
     # %%
     # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
 
-    U_compare(U2_NLA, U2_SSI, L0_Crystal,
+    U_compare(U2_NLA, U2_SSI, U_key2_SSI, L0_Crystal,
               # %%
               img_name_extension, size_PerPixel, size_fig,
               # %%
@@ -257,7 +257,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_print, )
+              is_relative, is_print, )
 
     # %%
 
@@ -307,7 +307,7 @@ if __name__ == '__main__':
                          is_linear_convolution=0,
                          #%%
                          Tx=19.769, Ty=20, Tz=12.139,
-                         mx=0, my=0, mz=1,
+                         mx=1, my=0, mz=0,
                          is_stripe=0, is_NLAST=1,
                          # %%
                          is_save=1, is_save_txt=0, dpi=100,
@@ -336,7 +336,7 @@ if __name__ == '__main__':
                          is_print=1, is_contours=66, n_TzQ=1,
                          Gz_max_Enhance=1, match_mode=1,
                          # %%
-                         is_NLA=1,
+                         is_NLA=1, is_relative=1,
                          # %%
                          border_percentage=0.1, )
 

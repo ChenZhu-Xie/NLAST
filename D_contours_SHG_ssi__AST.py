@@ -30,6 +30,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                             #%%
                             U_NonZero_size = 1, w0 = 0.3,
                             z_AST = 1, z_ssi = 5,
+                            Duty_Cycle_z=0.5, zoomout_times=5,
                             is_energy_evolution_on = 1,
                             #%%
                             lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,
@@ -117,7 +118,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                 # %%
                 U_NonZero_size, w0,
                 z_ssi, 0, 10,
-                10,
+                Duty_Cycle_z, zoomout_times, 10,
                 0, 0, 0, 0,
                 # %%
                 1, 0,
@@ -215,7 +216,8 @@ if __name__ == '__main__':
                                 is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
                                 #%%
                                 U_NonZero_size = 1, w0 = 0.3,
-                                z_AST = 1, z_ssi = 2,
+                                z_AST = 1, z_ssi =2,
+                                Duty_Cycle_z=0.5, zoomout_times=5,
                                 is_energy_evolution_on = 1,
                                 #%%
                                 lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,

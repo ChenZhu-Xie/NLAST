@@ -329,8 +329,8 @@ if __name__ == '__main__':
                 is_phase_only=0,
                 # %%
                 z_pump=0,
-                is_LG=1, is_Gauss=1, is_OAM=1,
-                l=10, p=3,
+                is_LG=1, is_Gauss=1, is_OAM=0,
+                l=0, p=0,
                 theta_x=0, theta_y=0,
                 # %%
                 is_random_phase=0,
@@ -342,15 +342,15 @@ if __name__ == '__main__':
                 is_phase_only_Structure=0,
                 # %%
                 w0_Structure=0, z_pump_Structure=0,
-                is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
-                l_Structure=0, p_Structure=0,
+                is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
+                l_Structure=1, p_Structure=0,
                 theta_x_Structure=0, theta_y_Structure=0,
                 # %%
                 is_random_phase_Structure=0,
                 is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                 # %%
-                U_NonZero_size=1, w0=0.05,
-                L0_Crystal=4, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
+                U_NonZero_size=0.9, w0=0.1,
+                L0_Crystal=2, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
                 sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
                 X=0, Y=0,
                 # %%
@@ -360,8 +360,8 @@ if __name__ == '__main__':
                 lam1=1, is_air_pump=0, is_air=0, T=25,
                 deff=30,
                 # %%
-                Tx=10, Ty=10, Tz=5,
-                mx=0, my=0, mz=1,
+                Tx=10, Ty=10, Tz=10.319,
+                mx=1, my=0, mz=0,
                 is_stripe=0, is_NLAST=1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
                 # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
                 # %%

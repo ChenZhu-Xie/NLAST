@@ -5,12 +5,13 @@ Created on Tue Oct 26 14:41:11 2021
 @author: Xcz
 """
 
-from fun_os import U_plot_save, U_error_plot_save
+import numpy as np
+from fun_os import U_plot_save, U_error_plot_save, U_plot, U_energy_print
 from fun_global_var import fkey
 
 #%%
 
-def U_compare(U, U_0, z,
+def U_compare(U, U_0, U_0_title, z,
               #%%
               img_name_extension, size_PerPixel, size_fig, 
               # %%
@@ -30,10 +31,52 @@ def U_compare(U, U_0, z,
               #%%
               is_colorbar_on = 1, is_energy = 1,
               #%%
-              is_print = 2 ):
-    
+              is_relative = 1, is_print = 2, ):
+
+    is_print and print("=·=·=·=·=·=·=·=·=·= 对比 start =·=·=·=·=·=·=·=·=·=")
+
+    if is_relative == 1: # 归一化
+        U = U/np.max(np.abs(U))
+        U_0 = U_0 / np.max(np.abs(U_0))
+
     #%%
+    # 画一下 两个待比较的 对象，并 print 一下 能量情况
+
+    U_energy_print(U_0, U_0_title, is_print,
+                   z=z, )
+
+    U_plot("",
+           U_0, U_0_title,
+           img_name_extension,
+           # %%
+           1, size_PerPixel, # 自己 colorbar
+           0, dpi, size_fig, # 不 save
+           cmap_2d, ticks_num, is_contourf,
+           is_title_on, is_axes_on, is_mm,
+           fontsize, font,
+           is_colorbar_on, is_energy,
+           # %%
+           z=z, )
+
+    U_energy_print(U, fkey("U"), is_print,
+                   z=z, )
+
+    U_plot("",
+           U, fkey("U"),
+           img_name_extension,
+           # %%
+           1, size_PerPixel, # 自己 colorbar
+           0, dpi, size_fig, # 不 save
+           cmap_2d, ticks_num, is_contourf,
+           is_title_on, is_axes_on, is_mm,
+           fontsize, font,
+           is_colorbar_on, is_energy,
+           # %%
+           z=z, )
+
+    # %%
     # 对比 U 与 U_0 的 绝对误差 1
+
     U_error = U - U_0
     U_error_name = fkey("U") + "_error"
     folder_address = U_plot_save(U_error, U_error_name, is_print,
@@ -65,6 +108,8 @@ def U_compare(U, U_0, z,
                                       is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                       # %%                          何况 一般默认 is_self_colorbar = 1...
                                       z=z, )
+
+    is_print and print("=·=·=·=·=·=·=·=·=·= 对比 end =·=·=·=·=·=·=·=·=·=")
     
     # #%%
     # # 对比 U 与 U_0 的 绝对误差 的 相对误差

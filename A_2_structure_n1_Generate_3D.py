@@ -10,6 +10,7 @@ Created on Sun Dec 26 22:09:04 2021
 import numpy as np
 from scipy.io import savemat
 from fun_os import U_dir
+from fun_algorithm import gcd_of_float
 from fun_img_Resize import if_image_Add_black_border
 from fun_SSI import slice_structure_SSI
 from fun_thread import noop, my_thread
@@ -36,7 +37,7 @@ def structure_n1_3D(U_name="",
                     deff_structure_length_expect=2,
                     # %%
                     Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                    structure_xy_mode='x', Depth=1,
+                    structure_xy_mode='x', Depth=1, zoomout_times=5,
                     # %%
                     is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
                     is_reverse_xy=0, is_positive_xy=1,
@@ -126,7 +127,7 @@ def structure_n1_3D(U_name="",
     diz, deff_structure_sheet, sheets_num, \
     Iz, deff_structure_length, Tz_unit = \
         slice_structure_SSI(Duty_Cycle_z, deff_structure_length_expect,
-                            Tz, size_PerPixel,
+                            Tz, zoomout_times, size_PerPixel,
                             is_print)
 
     method = "MOD"
@@ -138,11 +139,13 @@ def structure_n1_3D(U_name="",
 
     def fun1(for_th, fors_num, *arg, ):
         iz = for_th * diz
+        step_nums_left, step_nums_right, step_nums_total = gcd_of_float(Duty_Cycle_z)[1]
 
         if mz != 0:  # 如果 要用 Tz，则如下 分层；
 
             if is_stripe == 0:
-                if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
+                # if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
+                if np.mod(for_th, step_nums_total * zoomout_times) < step_nums_left * zoomout_times:
                     m = modulation_squared
                     # print(for_th)
                 else:  # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
@@ -196,7 +199,7 @@ if __name__ == '__main__':
                     deff_structure_length_expect=2,
                     # %%
                     Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.2,
-                    structure_xy_mode='x', Depth=1,
+                    structure_xy_mode='x', Depth=1, zoomout_times=5,
                     # %%
                     is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
                     is_reverse_xy=0, is_positive_xy=1,

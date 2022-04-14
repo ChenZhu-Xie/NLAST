@@ -10,7 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
-from fun_global_var import init_GLV_DICT, Get, Set, fset, fget, fkey
+from fun_global_var import init_GLV_DICT, fset, fget, fkey
 from b_1_AST import AST
 from b_3_SHG_NLA import SHG_NLA
 np.seterr(divide='ignore', invalid='ignore')

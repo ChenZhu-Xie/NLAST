@@ -391,7 +391,7 @@ def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
 
     if is_contours != 0:
 
-        is_print and print("===== 描边 start =====")
+        is_print and print("=·=·=·=·=·=·=·=·=·= 描边 start =·=·=·=·=·=·=·=·=·=")
 
         dk = 2 * np.max(np.abs(k1_z_shift)) - np.max(np.abs(k2_z_shift))
         # print(k2_z_shift[0,0])
@@ -438,7 +438,7 @@ def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
         # %%
 
         if is_contours != 2:
-            is_print and print("===== 描边 1：若无额外要求 =====")  # 波长定，Tz 定 (lcQ 定)，z0 不定
+            is_print and print("=·=·=·=·=·=·=·=·=·= 描边 1：若无额外要求 =·=·=·=·=·=·=·=·=·=")  # 波长定，Tz 定 (lcQ 定)，z0 不定
 
             is_print and print("z0_exp = {} mm".format(z0_min * n_TzQ))
             is_print and print("Tz_exp = {} μm".format(Tz_min))
@@ -446,7 +446,7 @@ def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
         # %%
 
         if is_contours != 1:
-            is_print and print("===== 描边 2：若希望 mod( 现 z0, TzQ_exp ) = 0 =====")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
+            is_print and print("=·=·=·=·=·=·=·=·=·= 描边 2：若希望 mod( 现 z0, TzQ_exp ) = 0 =·=·=·=·=·=·=·=·=·=")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
 
             is_print and print("lcQ_min = {} mm".format(lcQ_min))
             TzQ_exp = z0 / (z0 // TzQ_min)  # 满足 Tz_min <= · <= Tz_max = 原 Tz， 且 能使 z0 整除 TzQ 中，最小（最接近 TzQ_min）的 TzQ
@@ -504,7 +504,7 @@ def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
             deff_structure_length_expect = z0_recommend
             is_print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
 
-        is_print and print("===== 描边 end =====")
+        is_print and print("=·=·=·=·=·=·=·=·=·= 描边 end =·=·=·=·=·=·=·=·=·=")
 
     return z0_recommend, Tz_recommend, deff_structure_length_expect
 
@@ -541,7 +541,7 @@ def Info_find_contours(dk, Tz, mz,
 
         # %%
 
-        print("===== 描边必需 1 =====")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
+        print("=·=·=·=·=·=·=·=·=·= 描边必需 1 =·=·=·=·=·=·=·=·=·=")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
 
         lcQ_min = (wc ** 2 + z0 ** 2) ** 0.5 - z0
         print("相干长度_Q_min = {} mm".format(lcQ_min))
@@ -575,7 +575,7 @@ def Info_find_contours(dk, Tz, mz,
 
         # %%
 
-        print("===== 描边必需 2 =====")  # 波长定，Tz 定 (lcQ 定)，z0 不定
+        print("=·=·=·=·=·=·=·=·=·= 描边必需 2 =·=·=·=·=·=·=·=·=·=")  # 波长定，Tz 定 (lcQ 定)，z0 不定
 
         z0_min = (wc ** 2 - lcQ ** 2) / (2 * lcQ)  # 以使 (wc**2 + z0**2)**0.5 - z0 = lcQ_exp <= lcQ
         # 这个玩意其实还得保证 >= TzQ_min，以先使 TzQ_exp 不遇分母 为零的错误，以 正确预测 lcQ_exp，以及后续的 Tz_exp
@@ -584,4 +584,4 @@ def Info_find_contours(dk, Tz, mz,
         print("z0_exp = {} mm".format(z0_exp))
         print("z0     = {} mm # ==> 2.接着调 z0 = z0_exp".format(z0))
 
-        print("===== 描边 end =====")
+        print("=·=·=·=·=·=·=·=·=·= 描边 end =·=·=·=·=·=·=·=·=·=")

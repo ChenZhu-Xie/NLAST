@@ -30,6 +30,11 @@ def gcd_of_float(f): # float
     molecule = the_effective_nums(f)
     denominator = 10 ** num_of_decimal_places(f)
     gcd = math.gcd(molecule, denominator)
-    return gcd / denominator
+
+    step = gcd / denominator
+    step_nums_molecule = molecule // gcd
+    step_nums_denominator = denominator // gcd
+    step_nums_right = step_nums_denominator - step_nums_molecule
+    return step, (step_nums_molecule, step_nums_right, step_nums_denominator)
 
 #%%

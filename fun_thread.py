@@ -7,6 +7,7 @@ Created on Tue Oct 26 14:41:11 2021
 
 import threading
 import time
+import inspect
 from fun_built_in import var_or_tuple_to_list
 
 #%%
@@ -130,9 +131,9 @@ def my_thread(threads_num, fors_num,
     p.start()
     p.join()  # 添加join使 p 线程执行完
 
-    if thread_name == "thread_0":
-        is_print and print("----- consume time: {} s -----".format(time.time() - tick_start))
-
+    # if thread_name == "thread_0":  # 如果 调用该 my_thread 的 函数，其名字 不含 Fun
+    if "Fun" not in inspect.stack()[1][3]:
+        is_print and print("----- {} --> consume time: {} s -----".format(inspect.stack()[1][3], time.time() - tick_start))
 
 #%%
 # 多线程 v1.0

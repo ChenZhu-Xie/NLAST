@@ -49,7 +49,7 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
                      X=0, Y=0,
                      # %%
                      Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                     structure_xy_mode='x', Depth=2,
+                     structure_xy_mode='x', Depth=2, zoomout_times=5,
                      # %%
                      is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                      is_reverse_xy=0, is_positive_xy=1,
@@ -90,7 +90,7 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
                      is_print=1, is_contours=1, n_TzQ=1,
                      Gz_max_Enhance=1, match_mode=1,
                      # %%
-                     is_NLA=1,
+                     is_NLA=1, is_relative=1,
                      # %%
                      **kwargs, ):
     # %%
@@ -132,7 +132,7 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
                                 X, Y,
                                 # %%
                                 Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
-                                structure_xy_mode, Depth,
+                                structure_xy_mode, Depth, zoomout_times,
                                 # %%
                                 is_continuous, is_target_far_field, is_transverse_xy,
                                 is_reverse_xy, is_positive_xy,
@@ -252,7 +252,7 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
     # %%
     # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
 
-    U_compare(U2_SSI, U2_ssi, L0_Crystal,
+    U_compare(U2_SSI, U2_ssi, U_key2_ssi, L0_Crystal,
               # %%
               img_name_extension, size_PerPixel, size_fig,
               # %%
@@ -267,7 +267,7 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_print, )
+              is_relative, is_print, )
 
     # %%
 
@@ -276,8 +276,8 @@ if __name__ == '__main__':
                          is_phase_only_Structure=0,
                          # %%
                          z_pump_Structure=0,
-                         is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
-                         l_Structure=0, p_Structure=0,
+                         is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
+                         l_Structure=1, p_Structure=0,
                          theta_x_Structure=0, theta_y_Structure=0,
                          # %%
                          is_random_phase_Structure=0,
@@ -296,7 +296,7 @@ if __name__ == '__main__':
                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                          # %%---------------------------------------------------------------------
                          # %%
-                         U_NonZero_size=0.9, w0=0.1, w0_Structure=0, structure_size_Enlarge=0.1,
+                         U_NonZero_size=0.9, w0=0, w0_Structure=0, structure_size_Enlarge=0.1,
                          L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=0.5,
                          #%%
                          sheets_stored_num=10,
@@ -304,7 +304,7 @@ if __name__ == '__main__':
                          X=0, Y=0,
                          # %%
                          Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                         structure_xy_mode='x', Depth=2,
+                         structure_xy_mode='x', Depth=2, zoomout_times=5,
                          # %%
                          is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                          is_reverse_xy=0, is_positive_xy=1,
@@ -315,8 +315,8 @@ if __name__ == '__main__':
                          lam1=1, is_air_pump=0, is_air=0, T=25,
                          deff=30,
                          #%%
-                         Tx=19.769, Ty=20, Tz=12.139,
-                         mx=0, my=0, mz=1,
+                         Tx=13.769, Ty=20, Tz=11.356,
+                         mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
                          is_save=1, is_save_txt=0, dpi=100,
@@ -345,7 +345,7 @@ if __name__ == '__main__':
                          is_print=1, is_contours=66, n_TzQ=1,
                          Gz_max_Enhance=1, match_mode=1,
                          # %%
-                         is_NLA=1,
+                         is_NLA=1, is_relative=1,
                          # %%
                          border_percentage=0.1, )
 

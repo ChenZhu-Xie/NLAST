@@ -37,7 +37,7 @@ def nLA_ssi(U_name="",
             # %%
             U_NonZero_size=1, w0=0.3,
             L0_Crystal=1, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
-            Duty_Cycle_z=0.5, sheets_stored_num=10,
+            Duty_Cycle_z=0.5, zoomout_times=5, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
             # %%
@@ -143,8 +143,8 @@ def nLA_ssi(U_name="",
         = slice_ssi(L0_Crystal, Duty_Cycle_z,
                      z0_structure_frontface_expect, deff_structure_length_expect,
                      z0_section_1_expect, z0_section_2_expect,
-                     Tz, size_PerPixel,
-                     is_print)
+                     Tz, zoomout_times, size_PerPixel,
+                     is_print, )
 
     # %%
     # const
@@ -175,7 +175,7 @@ def nLA_ssi(U_name="",
 
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                modulation_squared_full_name = str(for_th - sheets_num_frontface) + ".mat"
+                modulation_squared_full_name = str(for_th - sheets_num_frontface) + (is_save_txt and ".txt" or ".mat")
                 modulation_squared_address = folder_address + "\\" + modulation_squared_full_name
                 modulation_squared_z = loadmat(modulation_squared_address)['n1_modulation_squared']
             else:
@@ -260,7 +260,7 @@ if __name__ == '__main__':
             # %%
             U_NonZero_size=1, w0=0.3,
             L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
-            Duty_Cycle_z=0.5, sheets_stored_num=10,
+            Duty_Cycle_z=0.5, zoomout_times=5, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
             # %%

@@ -31,6 +31,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                             #%%
                             U_NonZero_size = 1, w0 = 0.3,
                             z1 = 1, z2 = 5,
+                            Duty_Cycle_z=0.5, zoomout_times=5,
                             is_energy_evolution_on = 1,
                             #%%
                             lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,
@@ -59,7 +60,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                             is_print = 1, is_contours = 1, n_TzQ = 1,
                             Gz_max_Enhance = 1, match_mode = 1,
                             #%%
-                            is_NLA = 1,
+                            is_NLA = 1, is_relative=1,
                             # %%
                             **kwargs, ):
     # %%
@@ -118,7 +119,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                 # %%
                 U_NonZero_size, w0,
                 z_ssi, 0, 10,
-                10,
+                Duty_Cycle_z, zoomout_times, 10,
                 0, 0, 0, 0,
                 # %%
                 1, 0,
@@ -208,7 +209,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
     # %%
     # 对比 U2_Z_Superposition 与 U2_Z 的 （绝对）误差
 
-    U_compare(fget("U"), U2_Z, Z,
+    U_compare(fget("U"), U2_Z, U_key2_Z, Z,
               # %%
               img_name_extension, size_PerPixel, size_fig,
               # %%
@@ -223,7 +224,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_print, )
+              is_relative, is_print, )
 
     # %%
 
@@ -241,6 +242,7 @@ if __name__ == '__main__':
                             #%%
                             U_NonZero_size = 1, w0 = 0.3,
                             z1 = 1, z2 = 2,
+                            Duty_Cycle_z=0.5, zoomout_times=5,
                             is_energy_evolution_on = 1,
                             #%%
                             lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,
@@ -269,7 +271,7 @@ if __name__ == '__main__':
                             is_print = 1, is_contours = 66, n_TzQ = 1,
                             Gz_max_Enhance = 1, match_mode = 1,
                             #%%
-                            is_NLA = 0,
+                            is_NLA = 0, is_relative=1,
                             # %%
                             border_percentage=0.1, )
 

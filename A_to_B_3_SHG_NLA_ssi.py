@@ -49,7 +49,7 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                      X=0, Y=0,
                      # %%
                      Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                     structure_xy_mode='x', Depth=2,
+                     structure_xy_mode='x', Depth=2, zoomout_times=5,
                      # %%
                      is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                      is_reverse_xy=0, is_positive_xy=1,
@@ -137,18 +137,6 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
 
     # %%
 
-    if is_contours != 0:
-
-        is_print and print("===== 描边 start =====")
-
-        if deff_structure_length_expect <= L0_Crystal:
-            deff_structure_length_expect = L0_Crystal
-            is_print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
-
-        is_print and print("===== 描边 end =====")
-
-    # %%
-
     structure_chi2_3D(U_name_Structure,
                       img_full_name,
                       is_phase_only_Structure,
@@ -165,7 +153,7 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                       deff_structure_length_expect,
                       #%%
                       Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
-                      structure_xy_mode, Depth,
+                      structure_xy_mode, Depth, zoomout_times,
                       # %%
                       is_continuous, is_target_far_field, is_transverse_xy,
                       is_reverse_xy, is_positive_xy, is_no_backgroud,
@@ -189,7 +177,7 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                       is_print, is_contours, n_TzQ,
                       Gz_max_Enhance, match_mode,
                       # %%
-                      g_shift, )
+                      g_shift=g_shift, L0_Crystal=L0_Crystal, )
 
     # %%
     # B_3_NLA_SSI
@@ -209,7 +197,7 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
            # %%
            U_NonZero_size, w0,
            L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
-           Duty_Cycle_z, sheets_stored_num,
+           Duty_Cycle_z, zoomout_times, sheets_stored_num,
            z0_section_1_expect, z0_section_2_expect,
            X, Y,
            # %%
@@ -263,7 +251,7 @@ if __name__ == '__main__':
                      is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                      # %%
                      U_name="",
-                     img_full_name="lena.png",
+                     img_full_name="lena1.png",
                      is_phase_only=0,
                      # %%
                      z_pump=0,
@@ -281,20 +269,20 @@ if __name__ == '__main__':
                      z0_section_1_expect=0, z0_section_2_expect=0,
                      X=0, Y=0,
                      # %%
-                     Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.3,
-                     structure_xy_mode='x', Depth=2,
+                     Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+                     structure_xy_mode='x', Depth=2, zoomout_times=5,
                      # %%
                      is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                      is_reverse_xy=0, is_positive_xy=1,
                      # %%
                      is_bulk=0, is_no_backgroud=0,
-                     is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
+                     is_stored=1, is_show_structure_face=0, is_energy_evolution_on=1,
                      # %%
                      lam1=1.064, is_air_pump=0, is_air=0, T=25,
                      deff=30,
-                     Tx=10, Ty=20, Tz=7.004,
+                     Tx=10, Ty=20, Tz=12.319,
                      mx=1, my=0, mz=0,
-                     is_stripe=0, is_NLAST=0,
+                     is_stripe=0, is_NLAST=1,
                      # %%
                      is_save=1, is_save_txt=0, dpi=100,
                      # %%
@@ -322,6 +310,6 @@ if __name__ == '__main__':
                      is_print=1, is_contours=66, n_TzQ=1,
                      Gz_max_Enhance=1, match_mode=0,
                      # %%
-                     is_NLA=0,
+                     is_NLA=1,
                      # %%
                      border_percentage=0.1, )

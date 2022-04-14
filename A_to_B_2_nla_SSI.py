@@ -31,7 +31,8 @@ def A_to_B_2_nLA_ssi(U_name_Structure = "",
                      z_pump = 0, 
                      is_LG = 0, is_Gauss = 1, is_OAM = 1, 
                      l = 1, p = 0, 
-                     theta_x = 1, theta_y = 0, 
+                     theta_x = 1, theta_y = 0,
+                     #%%
                      is_random_phase = 0, 
                      is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0, 
                      #%%---------------------------------------------------------------------
@@ -43,7 +44,7 @@ def A_to_B_2_nLA_ssi(U_name_Structure = "",
                      X = 0, Y = 0, 
                      #%%
                      Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, 
-                     structure_xy_mode = 'x', Depth = 1, 
+                     structure_xy_mode = 'x', Depth = 1, zoomout_times=5,
                      #%%
                      is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
                      is_reverse_xy = 0, is_positive_xy = 1, 
@@ -109,7 +110,7 @@ def A_to_B_2_nLA_ssi(U_name_Structure = "",
                   deff_structure_length_expect,
                   #%%
                   Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z, 
-                  structure_xy_mode, Depth, 
+                  structure_xy_mode, Depth, zoomout_times,
                   #%%
                   is_continuous, is_target_far_field, is_transverse_xy, 
                   is_reverse_xy, is_positive_xy, 
@@ -150,7 +151,7 @@ def A_to_B_2_nLA_ssi(U_name_Structure = "",
                 #%%
                 U_NonZero_size, w0,
                 L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
-                Duty_Cycle_z, sheets_stored_num,
+                Duty_Cycle_z,  zoomout_times, sheets_stored_num,
                 z0_section_1_expect, z0_section_2_expect,
                 X, Y,
                 #%%
@@ -215,7 +216,7 @@ if __name__ == '__main__':
                      X = 0, Y = 0,
                      #%%
                      Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
-                     structure_xy_mode = 'x*y', Depth = 1,
+                     structure_xy_mode = 'x*y', Depth = 1, zoomout_times=5,
                      #%%
                      is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1,
                      #%%
