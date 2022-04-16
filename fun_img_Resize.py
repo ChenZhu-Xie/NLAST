@@ -88,7 +88,7 @@ def image_Add_black_border(img_full_name="Grating.png",
         if img.shape[0] < img.shape[1]:  # 如果 图片很宽，就上下加 黑色_不透明_边框
             image_Border(img_address, img_squared_address, loc='t', width=(img.shape[1] - img.shape[0]) // 2,
                          color=(0, 0, 0, 255))
-            if (img.shape[1] - img.shape[0]) % 2 ==a 1:  # 如果 宽高差 是 奇数，则 下边框 多加一个 像素
+            if (img.shape[1] - img.shape[0]) % 2 == 1:  # 如果 宽高差 是 奇数，则 下边框 多加一个 像素
                 image_Border(img_squared_address, img_squared_address, loc='b',
                              width=(img.shape[1] - img.shape[0]) // 2 + 1, color=(0, 0, 0, 255))
             else:
