@@ -10,6 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read
 from fun_img_Resize import if_image_Add_black_border
+from fun_linear import fft2
 from fun_compare import U_compare
 from b_3_SHG_NLA import SHG_NLA
 from A_to_B_3_SHG_NLA_ssi import A_to_B_3_SHG_NLA_ssi
@@ -234,6 +235,26 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
         img_squared_bordered_Read(img_full_name,
                                   U_NonZero_size, dpi,
                                   is_phase_only)
+
+    # %%
+    # 对比 G2_NLA 与 G2_ssi 的 （绝对）误差
+
+    U_compare(fft2(U2_NLA), fft2(U2_ssi), U_key2_ssi.replace("U", "G"), L0_Crystal,
+              # %%
+              img_name_extension, size_PerPixel, size_fig,
+              # %%
+              is_save, is_save_txt, dpi,
+              # %%
+              cmap_2d,
+              # %%
+              ticks_num, is_contourf,
+              is_title_on, is_axes_on, is_mm,
+              # %%
+              fontsize, font,
+              # %%S
+              is_colorbar_on, is_energy,
+              # %%
+              is_relative, is_print, )
 
     # %%
     # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差

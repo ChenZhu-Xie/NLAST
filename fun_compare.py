@@ -6,7 +6,7 @@ Created on Tue Oct 26 14:41:11 2021
 """
 
 import numpy as np
-from fun_os import U_plot_save, U_error_plot_save, U_plot, U_energy_print
+from fun_os import split_parts, U_plot_save, U_error_plot_save, U_plot, U_energy_print
 from fun_global_var import fkey
 
 #%%
@@ -32,8 +32,9 @@ def U_compare(U, U_0, U_0_title, z,
               is_colorbar_on = 1, is_energy = 1,
               #%%
               is_relative = 1, is_print = 2, ):
+    U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_0_title)
 
-    is_print and print("=·=·=·=·=·=·=·=·=·= 对比 start =·=·=·=·=·=·=·=·=·=")
+    is_print and print("=·=·=·=·=·=·=·=·=·= " + ugHGU + " 对比 start =·=·=·=·=·=·=·=·=·=")
 
     if is_relative == 1: # 归一化
         U = U/np.max(np.abs(U))
@@ -58,11 +59,11 @@ def U_compare(U, U_0, U_0_title, z,
            # %%
            z=z, )
 
-    U_energy_print(U, fkey("U"), is_print,
+    U_energy_print(U, fkey(ugHGU), is_print,
                    z=z, )
 
     U_plot("",
-           U, fkey("U"),
+           U, fkey(ugHGU),
            img_name_extension,
            # %%
            1, size_PerPixel, # 自己 colorbar
@@ -78,7 +79,7 @@ def U_compare(U, U_0, U_0_title, z,
     # 对比 U 与 U_0 的 绝对误差 1
 
     U_error = U - U_0
-    U_error_name = fkey("U") + "_error"
+    U_error_name = fkey(ugHGU) + "_error"
     folder_address = U_plot_save(U_error, U_error_name, is_print,
                                  img_name_extension,
                                  # %%
@@ -109,7 +110,7 @@ def U_compare(U, U_0, U_0_title, z,
                                       # %%                          何况 一般默认 is_self_colorbar = 1...
                                       z=z, )
 
-    is_print and print("=·=·=·=·=·=·=·=·=·= 对比 end =·=·=·=·=·=·=·=·=·=")
+    is_print and print("=·=·=·=·=·=·=·=·=·= " + ugHGU + " 对比 end =·=·=·=·=·=·=·=·=·=")
     
     # #%%
     # # 对比 U 与 U_0 的 绝对误差 的 相对误差
@@ -190,7 +191,7 @@ def U_compare(U, U_0, U_0_title, z,
     # # 储存 U_error_relative 到 txt 文件
     #
     # # if is_save == 1:
-    # np.savetxt(U_error_relative_full_name, U_error_relative) if is_save_txt else savemat(U_error_relative_full_name, {"U":U_error_relative})
+    # np.savetxt(U_error_relative_full_name, U_error_relative) if is_save_txt else savemat(U_error_relative_full_name, {ugHGU:U_error_relative})
     #
     # #%%
     # # 对比 U 与 U_0 的 相对误差
@@ -268,5 +269,5 @@ def U_compare(U, U_0, U_0_title, z,
     # # 储存 U_relative_error 到 txt 文件
     #
     # # if is_save == 1:
-    # np.savetxt(U_relative_error_full_name, U_relative_error) if is_save_txt else savemat(U_relative_error_full_name, {"U":U_relative_error})
+    # np.savetxt(U_relative_error_full_name, U_relative_error) if is_save_txt else savemat(U_relative_error_full_name, {ugHGU:U_relative_error})
     

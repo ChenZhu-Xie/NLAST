@@ -10,6 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read
 from fun_img_Resize import if_image_Add_black_border
+from fun_linear import fft2
 from fun_compare import U_compare
 from b_3_SHG_NLA import SHG_NLA
 from B_3_SHG_NLA_SSI_chi2 import SHG_NLA_SSI
@@ -240,6 +241,26 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                                   is_phase_only)
 
     # %%
+    # 对比 G2_NLA 与 G2_SSI 的 （绝对）误差
+
+    U_compare(fft2(U2_NLA), fft2(U2_SSI), U_key2_SSI.replace("U", "G"), L0_Crystal,
+              # %%
+              img_name_extension, size_PerPixel, size_fig,
+              # %%
+              is_save, is_save_txt, dpi,
+              # %%
+              cmap_2d,
+              # %%
+              ticks_num, is_contourf,
+              is_title_on, is_axes_on, is_mm,
+              # %%
+              fontsize, font,
+              # %%S
+              is_colorbar_on, is_energy,
+              # %%
+              is_relative, is_print, )
+
+    # %%
     # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
 
     U_compare(U2_NLA, U2_SSI, U_key2_SSI, L0_Crystal,
@@ -266,8 +287,8 @@ if __name__ == '__main__':
                          is_phase_only_Structure=0,
                          # %%
                          z_pump_Structure=0,
-                         is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
-                         l_Structure=0, p_Structure=0,
+                         is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
+                         l_Structure=1, p_Structure=0,
                          theta_x_Structure=0, theta_y_Structure=0,
                          # %%
                          is_random_phase_Structure=0,
@@ -278,7 +299,7 @@ if __name__ == '__main__':
                          is_phase_only=0,
                          # %%
                          z_pump=0,
-                         is_LG=0, is_Gauss=1, is_OAM=0,
+                         is_LG=0, is_Gauss=0, is_OAM=0,
                          l=0, p=0,
                          theta_x=0, theta_y=0,
                          # %%
@@ -286,7 +307,7 @@ if __name__ == '__main__':
                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                          # %%---------------------------------------------------------------------
                          # %%
-                         U_NonZero_size=0.9, w0=0.3, w0_Structure=0, structure_size_Enlarge=0.1,
+                         U_NonZero_size=0.9, w0=0.1, w0_Structure=0, structure_size_Enlarge=0.1,
                          L0_Crystal=2, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
                          sheets_stored_num=10,
                          z0_section_1_expect=0, z0_section_2_expect=0,
@@ -304,9 +325,9 @@ if __name__ == '__main__':
                          lam1=1, is_air_pump=0, is_air=0, T=25,
                          deff=30, is_fft=1, fft_mode=0,
                          is_sum_Gm=0, mG=0,
-                         is_linear_convolution=1,
+                         is_linear_convolution=0,
                          #%%
-                         Tx=13.769, Ty=20, Tz=0,
+                         Tx=10.769, Ty=20, Tz=7.9,
                          mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%

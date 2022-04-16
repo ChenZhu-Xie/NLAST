@@ -10,6 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
+from fun_linear import fft2
 from fun_compare import U_compare
 from fun_global_var import init_GLV_DICT, fset, fget, fkey
 from b_1_AST import AST
@@ -189,8 +190,9 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                                   is_phase_only)
 
     U2_Z_ADD = U1_z2 + U2_z2
-    init_GLV_DICT("", "a", "ADD", "ssi", **kwargs)
+    init_GLV_DICT("", "a", "ADD", "ssi", **kwargs) # 主要是用于 之后 compare 里 fkey 获取 U_title 或 U_name 用
     fset("U", U2_Z_ADD)
+    fset("G", fft2(U2_Z_ADD))
 
     folder_address = U_plot_save(fget("U"), fkey("U"), 1,
                                  img_name_extension,
@@ -205,6 +207,27 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
                                  z=Z, )
+
+    # %%
+    # 对比 fget("G") 与 G2_Z 的 （绝对）误差
+
+    U_compare(fget("G"), fft2(U2_Z), U_key2_Z.replace("U", "G"), Z,
+              # %%
+              img_name_extension, size_PerPixel, size_fig,
+              # %%
+              is_save, is_save_txt, dpi,
+              # %%
+              cmap_2d,
+              # %%
+              ticks_num, is_contourf,
+              is_title_on, is_axes_on, is_mm,
+              # %%
+              fontsize, font,
+              # %%S
+              is_colorbar_on, is_energy,
+              # %%
+              is_relative, is_print, )
+
 
     # %%
     # 对比 U2_Z_Superposition 与 U2_Z 的 （绝对）误差
