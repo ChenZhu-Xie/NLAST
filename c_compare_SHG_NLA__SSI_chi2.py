@@ -278,7 +278,7 @@ if __name__ == '__main__':
                          is_phase_only=0,
                          # %%
                          z_pump=0,
-                         is_LG=0, is_Gauss=0, is_OAM=0,
+                         is_LG=0, is_Gauss=1, is_OAM=0,
                          l=0, p=0,
                          theta_x=0, theta_y=0,
                          # %%
@@ -286,7 +286,7 @@ if __name__ == '__main__':
                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                          # %%---------------------------------------------------------------------
                          # %%
-                         U_NonZero_size=0.9, w0=0.1, w0_Structure=0, structure_size_Enlarge=0.1,
+                         U_NonZero_size=0.9, w0=0.3, w0_Structure=0, structure_size_Enlarge=0.1,
                          L0_Crystal=2, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
                          sheets_stored_num=10,
                          z0_section_1_expect=0, z0_section_2_expect=0,
@@ -303,14 +303,14 @@ if __name__ == '__main__':
                          # %%
                          lam1=1, is_air_pump=0, is_air=0, T=25,
                          deff=30, is_fft=1, fft_mode=0,
-                         is_sum_Gm=1, mG=10,
-                         is_linear_convolution=0,
+                         is_sum_Gm=0, mG=0,
+                         is_linear_convolution=1,
                          #%%
-                         Tx=19.769, Ty=20, Tz=12.139,
-                         mx=1, my=0, mz=0,
+                         Tx=13.769, Ty=20, Tz=0,
+                         mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
-                         is_save=1, is_save_txt=0, dpi=100,
+                         is_save=0, is_save_txt=0, dpi=100,
                          # %%
                          color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
                          elev=10, azim=-65, alpha=2,

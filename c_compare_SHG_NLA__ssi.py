@@ -276,14 +276,14 @@ if __name__ == '__main__':
                          z_pump=0,
                          is_LG=0, is_Gauss=0, is_OAM=0,
                          l=0, p=0,
-                         theta_x=1, theta_y=0,
+                         theta_x=0, theta_y=0,
                          # %%
                          is_random_phase=0,
                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                          # %%---------------------------------------------------------------------
                          # %%
-                         U_NonZero_size=0.9, w0=0, w0_Structure=0, structure_size_Enlarge=0.1,
-                         L0_Crystal=1.23, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
+                         U_NonZero_size=0.9, w0=0.2, w0_Structure=0, structure_size_Enlarge=0.1,
+                         L0_Crystal=2.66, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
                          sheets_stored_num=10,
                          z0_section_1_expect=0, z0_section_2_expect=0,
                          X=0, Y=0,
@@ -299,10 +299,10 @@ if __name__ == '__main__':
                          # %%
                          lam1=1.064, is_air_pump=0, is_air=0, T=25,
                          deff=30, is_fft=1, fft_mode=0,
-                         is_sum_Gm=1, mG=100,
+                         is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
-                         Tx=10, Ty=20, Tz=7,
+                         Tx=10, Ty=20, Tz=11.55,
                          mx=0, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%

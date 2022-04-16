@@ -290,13 +290,13 @@ if __name__ == '__main__':
                          z_pump=0,
                          is_LG=0, is_Gauss=0, is_OAM=0,
                          l=0, p=0,
-                         theta_x=0, theta_y=0,
+                         theta_x=1, theta_y=0,
                          # %%
                          is_random_phase=0,
                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                          # %%---------------------------------------------------------------------
                          # %%
-                         U_NonZero_size=0.9, w0=0, w0_Structure=0, structure_size_Enlarge=0.1,
+                         U_NonZero_size=0.9, w0=0.3, w0_Structure=0, structure_size_Enlarge=0.1,
                          L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=0.5,
                          #%%
                          sheets_stored_num=10,

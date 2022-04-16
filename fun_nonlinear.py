@@ -9,7 +9,7 @@ import math
 import numpy as np
 from fun_array_Transform import Roll_xy
 from fun_linear import Cal_kz, fft2, ifft2, Uz_AST, Find_energy_Dropto_fraction
-from fun_pump import incline_profile
+from fun_statistics import find_Kz
 
 
 # %%
@@ -92,25 +92,24 @@ def args_SHG(k1, k2, size_PerPixel,
 
 # %%
 
-def Cal_dk_zQ_SHG(k1,
-                         k1_z_shift, k2_z_shift,
-                         mesh_k1_x_k1_y_shift, mesh_k2_x_k2_y_shift,
-                         n2_x, n2_y,
-                         Gx, Gy, Gz, ):
+def Cal_dk_zQ_SHG(k1, k1_z, k2_z,
+                 mesh_k1_x_k1_y, mesh_k2_x_k2_y,
+                 n2_x, n2_y,
+                 Gx, Gy, Gz, ):
     # n2_x_n2_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k2_x_k2_y 的 mesh，所以用 Gy 才对应
-    dk_x_shift = mesh_k2_x_k2_y_shift[n2_x, n2_y, 0] - mesh_k1_x_k1_y_shift[:, :, 0] - Gy
-    # 其实 mesh_k2_x_k2_y_shift[:, :, 0]、mesh_n2_x_n2_y_shift[:, :, 0]、mesh_n2_x_n2_y[:, :, 0]、 n2_x 均只和 y，即 [:, :] 中的 第 2 个数字 有关，
+    dk_x = mesh_k2_x_k2_y[n2_x, n2_y, 0] - mesh_k1_x_k1_y[:, :, 0] - Gy
+    # 其实 mesh_k2_x_k2_y[:, :, 0]、mesh_n2_x_n2_y[:, :, 0]、mesh_n2_x_n2_y[:, :, 0]、 n2_x 均只和 y，即 [:, :] 中的 第 2 个数字 有关，
     # 只由 列 y、ky 决定，与行 即 x、kx 无关
     # 而 Gy 得与 列 y、ky 发生关系,
     # 所以是 - Gy 而不是 Gx
-    # 并且这里的 dk_x_shift 应写为 dk_y_shift
-    dk_y_shift = mesh_k2_x_k2_y_shift[n2_x, n2_y, 1] - mesh_k1_x_k1_y_shift[:, :, 1] - Gx
-    k1_z_shift_dk_x_dk_y = (k1 ** 2 - dk_x_shift ** 2 - dk_y_shift ** 2 + 0j) ** 0.5
+    # 并且这里的 dk_x 应写为 dk_y
+    dk_y = mesh_k2_x_k2_y[n2_x, n2_y, 1] - mesh_k1_x_k1_y[:, :, 1] - Gx
+    k1_z_dk_x_dk_y = (k1 ** 2 - dk_x ** 2 - dk_y ** 2 + 0j) ** 0.5
 
-    dk_z_shift = k1_z_shift + k1_z_shift_dk_x_dk_y - k2_z_shift[n2_x, n2_y]
-    dk_zQ_shift = dk_z_shift + Gz
+    dk_z = k1_z + k1_z_dk_x_dk_y - k2_z[n2_x, n2_y]
+    dk_zQ = dk_z + Gz
 
-    return dk_zQ_shift
+    return dk_zQ
 
 
 # %%
@@ -134,211 +133,207 @@ def Cal_roll_xy(Gx, Gy,
 
 def G2_z_modulation_NLAST(k1, k2, Gz,
                           modulation, U1_0, iz, const, ):
-    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
-    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
+    k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
+    k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
 
-    # kiiz_shift = k1 + k2_z_shift + Gz # 草，倍频是加 k1_z_shift，和频才是加 k2_z_shift（而非 k3_z_shift）
-    kiizQ_shift = k1 + k1_z_shift + Gz
-
+    is_old_version = 0
     Cal_version = 1
     Res_version = 1
 
-    if Cal_version == 1:
-        # %% == version 1（更自洽）
-        U1_z_Squared_modulated = fft2(
-            ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
-        # print(np.min(np.abs((kiiz_shift ** 2 - k2 ** 2))))
-        U1_0_Squared_modulated = fft2(
-            ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2 ** 2)) * U1_0 ** 2)
+    if is_old_version == 1:
+        is_positive = 1  # 1 或 -1
 
-    elif Cal_version == 2:
-        # %% == version 1.1
-        U1_z_Squared_modulated = fft2(
-            ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2_z_shift ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
-        U1_0_Squared_modulated = fft2(
-            ifft2(fft2(modulation) / (kiizQ_shift ** 2 - k2_z_shift ** 2)) * U1_0 ** 2)
+        # kiiz = k1 + k2_z + Gz # 草，倍频是加 k1_z，和频才是加 k2_z（而非 k3_z）
+        kiizQ = k1 + k1_z + Gz
 
-    elif Cal_version == 3:
-        # %% == version 2（少近似）
-        U1_z_Squared_modulated = fft2(
-            modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ_shift ** 2 - k2_z_shift ** 2)))
+        if Cal_version == 1:
+            # %% == version 1（更自洽）
+            G1_Uz_Squared_modulated = fft2(
+                ifft2(fft2(modulation) / (kiizQ ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
+            # print(np.min(np.abs((kiiz ** 2 - k2 ** 2))))
+            g1_U0_Squared_modulated = fft2(
+                ifft2(fft2(modulation) / (kiizQ ** 2 - k2 ** 2)) * U1_0 ** 2)
 
-        U1_0_Squared_modulated = fft2(
-            modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ_shift ** 2 - k2_z_shift ** 2)))
+        elif Cal_version == 2:
+            # %% == version 1.1
+            G1_Uz_Squared_modulated = fft2(
+                ifft2(fft2(modulation) / (kiizQ ** 2 - k2_z ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
+            g1_U0_Squared_modulated = fft2(
+                ifft2(fft2(modulation) / (kiizQ ** 2 - k2_z ** 2)) * U1_0 ** 2)
 
-    elif Cal_version == 4:
-        # %% == version 2.1
-        U1_z_Squared_modulated = fft2(
-            modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ_shift ** 2 - k2 ** 2)))
+        elif Cal_version == 3:
+            # %% == version 2（少近似）
+            G1_Uz_Squared_modulated = fft2(
+                modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ ** 2 - k2_z ** 2)))
 
-        U1_0_Squared_modulated = fft2(
-            modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ_shift ** 2 - k2 ** 2)))
+            g1_U0_Squared_modulated = fft2(
+                modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k2_z ** 2)))
 
-    if Res_version == 1:
-        # 不加 负号，U 的相位 会差个 π，我也不知道 为什么
-        G2_z_shift = - const * (U1_z_Squared_modulated * math.e ** (Gz * iz * 1j)
-                                - U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
-    elif Res_version == 2:
-        G2_z_shift = const * U1_z_Squared_modulated * math.e ** (Gz * iz * 1j)
+        elif Cal_version == 4:
+            # %% == version 2.1
+            G1_Uz_Squared_modulated = fft2(
+                modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ ** 2 - k2 ** 2)))
 
-    elif Res_version == 3:
-        G2_z_shift = - const * U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j)
+            g1_U0_Squared_modulated = fft2(
+                modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k2 ** 2)))
 
-    return G2_z_shift
+        if Res_version == 1:
+            # 不加 负号，U 的相位 会差个 π，我也不知道 为什么
+            G2_z = is_positive * const * (G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
+                                    - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j))
+        elif Res_version == 2:
+            G2_z = const * G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
+
+        elif Res_version == 3:
+            G2_z = - const * g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
+
+    else:
+        G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2) * math.e ** (Gz * iz * 1j)
+        g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2) * math.e ** (k2_z * iz * 1j)
+
+        if Cal_version == 1:
+            K1_z = find_Kz(fft2(U1_0), k1)
+            kiizQ = 2 * K1_z + Gz
+            denominator = kiizQ ** 2 - k2_z ** 2
+        elif Cal_version == 2:
+            kiizQ = 2 * k1_z + Gz
+            denominator = kiizQ ** 2 - k2_z ** 2
+
+        if Res_version == 1:
+            molecule = G1_Uz_Squared_modulated - g1_U0_Squared_modulated
+            G2_z = const * molecule / denominator
+        elif Res_version == 2:
+            G2_z = const * G1_Uz_Squared_modulated / denominator
+        elif Res_version == 2:
+            G2_z = const * g1_U0_Squared_modulated / denominator
+
+    return G2_z
 
 
 def G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
                              modulation, U1_0, iz, const, ):
-    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
-    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
+    k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
+    k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
 
-    kiiz_shift = k1 + k1_z_shift
-    dkiiz_shift = kiiz_shift - k2
-    dz = Tz_unit / 2
-    J = int(iz / dz - 1)
-    # J = iz / dz - 1
-    # J = iz / dz
-
-    # print(J, (-1)**J)
-
+    is_old_version = 1
     version = 1
 
-    if version == 1:
-        # %% version 1（更自洽）
+    if is_old_version == 1:
+        kiiz = k1 + k1_z
+        dkiiz = kiiz - k2
+        dz = Tz_unit / 2
+        J = int(iz / dz - 1)
+        # J = iz / dz - 1
+        # J = iz / dz
 
-        U1_z_Squared_modulated_1 = fft2(
-            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz_shift * dz * 1j))) \
-            * Uz_AST(U1_0, k1, iz) ** 2)
+        # print(J, (-1)**J)
 
-        U1_z_Squared_modulated_2 = fft2(
-            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (kiiz_shift * dz * 1j))) \
-            * Uz_AST(U1_0, k1, iz) ** 2)
+        is_positive = 1 # 1 或 -1
 
-        U1_0_Squared_modulated = fft2(
-            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)
-                  * (1 / (1 + math.e ** (- dkiiz_shift * dz * 1j)) - 1 / (1 + math.e ** (kiiz_shift * dz * 1j)))) \
-            * U1_0 ** 2)
+        if version == 1:
+            # %% version 1（更自洽）
 
-        G2_z_shift = - const * (U1_z_Squared_modulated_1 * (-1) ** J
-                                - U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z_shift * iz * 1j)
-                                + U1_0_Squared_modulated * math.e ** (k2_z_shift * iz * 1j))
+            G_U1_z_Squared_modulated_1 = fft2(
+                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz * dz * 1j))) \
+                * Uz_AST(U1_0, k1, iz) ** 2)
 
-    else:
-        # %% version 2（少近似）
+            G_U1_z_Squared_modulated_2 = fft2(
+                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2) / (1 + math.e ** (kiiz * dz * 1j))) \
+                * Uz_AST(U1_0, k1, iz) ** 2)
 
-        U1_z_Squared_modulated_1 = fft2(
-            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz_shift * dz * 1j))) \
-            * Uz_AST(U1_0, k1, iz) ** 2)
+            g_U1_0_Squared_modulated = fft2(
+                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2)
+                      * (1 / (1 + math.e ** (- dkiiz * dz * 1j)) - 1 / (1 + math.e ** (kiiz * dz * 1j)))) \
+                * U1_0 ** 2)
 
-        U1_z_Squared_modulated_2 = fft2(
-            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) \
-            * Uz_AST(U1_0, k1, iz) ** 2 / (1 + math.e ** (kiiz_shift * dz * 1j)))
+            G2_z = - const * (G_U1_z_Squared_modulated_1 * (-1) ** J
+                                    - G_U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z * iz * 1j)
+                                    + g_U1_0_Squared_modulated * math.e ** (k2_z * iz * 1j))
 
-        U1_0_Squared_modulated_1 = fft2(
-            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz_shift * dz * 1j))) \
-            * U1_0 ** 2)
+        elif version == 2:
+            # %% version 2（少近似）
 
-        U1_0_Squared_modulated_2 = fft2(
-            ifft2(fft2(modulation) / (kiiz_shift ** 2 - k2 ** 2)) \
-            * U1_0 ** 2 / (1 + math.e ** (kiiz_shift * dz * 1j)))
+            G_U1_z_Squared_modulated_1 = fft2(
+                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz * dz * 1j))) \
+                * Uz_AST(U1_0, k1, iz) ** 2)
 
-        G2_z_shift = - const * (U1_z_Squared_modulated_1 * (-1) ** J
-                                - U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z_shift * iz * 1j)
-                                + U1_0_Squared_modulated_1 * math.e ** (k2_z_shift * iz * 1j)
-                                - U1_0_Squared_modulated_2 * math.e ** (k2_z_shift * iz * 1j))
+            G_U1_z_Squared_modulated_2 = fft2(
+                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2)) \
+                * Uz_AST(U1_0, k1, iz) ** 2 / (1 + math.e ** (kiiz * dz * 1j)))
 
-    return G2_z_shift
+            g_U1_0_Squared_modulated_1 = fft2(
+                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz * dz * 1j))) \
+                * U1_0 ** 2)
+
+            g_U1_0_Squared_modulated_2 = fft2(
+                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2)) \
+                * U1_0 ** 2 / (1 + math.e ** (kiiz * dz * 1j)))
+
+            G2_z = is_positive * const * (G_U1_z_Squared_modulated_1 * (-1) ** J
+                                    - G_U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z * iz * 1j)
+                                    + g_U1_0_Squared_modulated_1 * math.e ** (k2_z * iz * 1j)
+                                    - g_U1_0_Squared_modulated_2 * math.e ** (k2_z * iz * 1j))
+
+    return G2_z
 
 
 def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
                U1_0, iz, const,
                is_linear_convolution, ):
     Ix, Iy = U1_0.shape[0], U1_0.shape[1]
-    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(Ix, Iy, k2)
+    k2_z, mesh_k2_x_k2_y = Cal_kz(Ix, Iy, k2)
 
-    G_U1_z0_Squared_shift = fft2(Uz_AST(U1_0, k1, iz) ** 2)
-    g_U1_0_Squared_shift = fft2(U1_0 ** 2)
+    G_U1_z_Squared = fft2(Uz_AST(U1_0, k1, iz) ** 2)
+    g_U1_0_Squared = fft2(U1_0 ** 2)
 
     roll_x, roll_y = Cal_roll_xy(Gx, Gy,
                                  Ix, Iy, )
 
-    G_U1_z0_Squared_shift_Q = Roll_xy(G_U1_z0_Squared_shift,
+    G_U1_z_Squared_Q = Roll_xy(G_U1_z_Squared,
                                       roll_x, roll_y,
                                       is_linear_convolution, )
-    g_U1_0_Squared_shift_Q = Roll_xy(g_U1_0_Squared_shift,
+    g_U1_0_Squared_Q = Roll_xy(g_U1_0_Squared,
                                      roll_x, roll_y,
                                      is_linear_convolution, )
 
+    is_old_version = 0
     Res_version = 1
 
     if Res_version == 1:
-        molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j) \
-                   - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j)
+        molecule = G_U1_z_Squared_Q * math.e ** (Gz * iz * 1j) \
+                   - g_U1_0_Squared_Q * math.e ** (k2_z * iz * 1j)
 
     elif Res_version == 2:
-        molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j)
+        molecule = G_U1_z_Squared_Q * math.e ** (Gz * iz * 1j)
 
     elif Res_version == 3:
-        molecule = - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j)
+        molecule = - g_U1_0_Squared_Q * math.e ** (k2_z * iz * 1j)
+
+    if is_old_version == 1:
+
+        # %% denominator: dk_Squared
+
+        # n2_x_n2_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k2_x_k2_y 的 mesh，所以用 Gy 才对应
+        k1izQ = (k1 ** 2 - (mesh_k2_x_k2_y[:, :, 0] - Gy) ** 2 - (
+                mesh_k2_x_k2_y[:, :, 1] - Gx) ** 2 + 0j) ** 0.5
+
+        kizQ = k1 + k1izQ + Gz
+        # kizQ = k1 + k2_z + Gz
+        denominator = kizQ ** 2 - k2_z ** 2
+
+        kizQ = k1 + (k1 ** 2 - Gx ** 2 - Gy ** 2) ** 0.5 + Gz
+        denominator = kizQ ** 2 - k2 ** 2
+
+    else:
+        K1_z = find_Kz(fft2(U1_0), k1)
+        kiizQ = 2 * K1_z + Gz
+        denominator = kiizQ ** 2 - k2_z ** 2
 
     # %%
+    is_positive = 1  # 1 或 -1
+    G2_z = 2 * const * is_positive * molecule / denominator
 
-    # Gz_shift, mesh_dont_care = Cal_kz(I1_x, I1_y, Gz)
-    # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz_shift * iz * 1j) \
-    #            - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j)
-
-    # %%
-
-    # U = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j)
-    # U = incline_profile(I1_x, I1_y, 
-    #                     U, k2, 
-    #                     - np.arcsin(Gx/k2) / math.pi * 180, - np.arcsin(Gy/k2) / math.pi * 180, )
-    # molecule = U - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
-
-    # %%
-
-    # roll_x, roll_y = Cal_roll_xy(Gx, Gy,
-    #                               I2_x, I2_y, )
-
-    # g1_shift_roll = Roll_xy(g1_shift,
-    #                     roll_x//2, roll_y//2,
-    #                     is_linear_convolution, )
-    # G_U1_z0_Squared_shift_Q = fft2(Uz_AST(ifft2(g1_shift_roll), k1, i1_z0) ** 2)
-
-    # g_U1_0_Squared_shift = fft2(U1_0 ** 2)
-    # g_U1_0_Squared_shift_Q = Roll_xy(g_U1_0_Squared_shift,
-    #                                   roll_x, roll_y,
-    #                                   is_linear_convolution, )
-
-    # molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j) \
-    #             - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
-
-    # %%
-
-    # if Gx == 0 and Gy == 0:
-    #     molecule = G_U1_z0_Squared_shift_Q * math.e ** (Gz * iz * 1j) \
-    #                 - g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
-    # else:
-    #     molecule = g_U1_0_Squared_shift_Q * math.e ** (k2_z_shift * iz * 1j) 
-
-    # %% denominator: dk_shift_Squared
-
-    # n2_x_n2_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k2_x_k2_y 的 mesh，所以用 Gy 才对应
-    k1izQ_shift = (k1 ** 2 - (mesh_k2_x_k2_y_shift[:, :, 0] - Gy) ** 2 - (
-            mesh_k2_x_k2_y_shift[:, :, 1] - Gx) ** 2 + 0j) ** 0.5
-
-    kizQ_shift = k1 + k1izQ_shift + Gz
-    # kizQ_shift = k1 + k2_z_shift + Gz
-    denominator = kizQ_shift ** 2 - k2_z_shift ** 2
-
-    kizQ_shift = k1 + (k1 ** 2 - Gx ** 2 - Gy ** 2) ** 0.5 + Gz
-    denominator = kizQ_shift ** 2 - k2 ** 2
-
-    # %% G2_z0_shift
-
-    G2_z_shift = 2 * const * molecule / denominator
-
-    return G2_z_shift
+    return G2_z
 
 
 # %%
@@ -347,24 +342,24 @@ def G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
                      U1_0, iz, const,
                      is_linear_convolution, ):
     Ix, Iy = U1_0.shape[0], U1_0.shape[1]
-    k1_z_shift, mesh_k1_x_k1_y_shift = Cal_kz(Ix, Iy, k1)
-    k2_z_shift, mesh_k2_x_k2_y_shift = Cal_kz(Ix, Iy, k2)
+    k1_z, mesh_k1_x_k1_y = Cal_kz(Ix, Iy, k1)
+    k2_z, mesh_k2_x_k2_y = Cal_kz(Ix, Iy, k2)
 
-    G_U1_z0_Squared_shift = fft2(Uz_AST(U1_0, k1, iz) ** 2)
-    g_U1_0_Squared_shift = fft2(U1_0 ** 2)
+    G_U1_z_Squared = fft2(Uz_AST(U1_0, k1, iz) ** 2)
+    g_U1_0_Squared = fft2(U1_0 ** 2)
 
-    dG_Squared_shift = G_U1_z0_Squared_shift \
-                       - g_U1_0_Squared_shift * math.e ** (k2_z_shift * iz * 1j)
+    dG_Squared = G_U1_z_Squared \
+                       - g_U1_0_Squared * math.e ** (k2_z * iz * 1j)
 
-    # %% denominator: dk_shift_Squared
+    # %% denominator: dk_Squared
 
-    kiizQ_shift = k1 + k1_z_shift + Gz
+    kiizQ = k1 + k1_z + Gz
 
-    dk_shift_Squared = kiizQ_shift ** 2 - k2_z_shift ** 2
+    dk_Squared = kiizQ ** 2 - k2_z ** 2
 
     # %% fractional
 
-    fractional = dG_Squared_shift / dk_shift_Squared
+    fractional = dG_Squared / dk_Squared
 
     roll_x, roll_y = Cal_roll_xy(Gx, Gy,
                                  Ix, Iy, )
@@ -373,17 +368,17 @@ def G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
                            roll_x, roll_y,
                            is_linear_convolution, )
 
-    # %% G2_z0_shift
+    # %% G2_z0
 
-    G2_z_shift = 2 * const * fractional_Q * math.e ** (Gz * iz * 1j)
+    G2_z = 2 * const * fractional_Q * math.e ** (Gz * iz * 1j)
 
-    return G2_z_shift
+    return G2_z
 
 
 # %%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 
-def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
+def Info_find_contours_SHG(g1, k1_z, k2_z, Tz, mz,
                            z0, size_PerPixel, deff_structure_length_expect,
                            is_print=1, is_contours=1, n_TzQ=1, Gz_max_Enhance=1, match_mode=1):
     # %%
@@ -393,8 +388,8 @@ def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
 
         is_print and print("=·=·=·=·=·=·=·=·=·= 描边 start =·=·=·=·=·=·=·=·=·=")
 
-        dk = 2 * np.max(np.abs(k1_z_shift)) - np.max(np.abs(k2_z_shift))
-        # print(k2_z_shift[0,0])
+        dk = 2 * np.max(np.abs(k1_z)) - np.max(np.abs(k2_z))
+        # print(k2_z[0,0])
         is_print and print("dk = {} / μm, {}".format(dk / size_PerPixel / 1000, dk))
         lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: um
         # print("相干长度 = {} μm".format(lc))
@@ -413,14 +408,14 @@ def Info_find_contours_SHG(g1_shift, k1_z_shift, k2_z_shift, Tz, mz,
 
         # %%
 
-        # print("k2_z_min = {} / μm, k1_z_min = {} / μm".format(np.min(np.abs(k2_z_shift))/size_PerPixel/1000, np.min(np.abs(k1_z_shift))/size_PerPixel/1000))
-        # print(np.abs(k2_z_shift))
+        # print("k2_z_min = {} / μm, k1_z_min = {} / μm".format(np.min(np.abs(k2_z))/size_PerPixel/1000, np.min(np.abs(k1_z))/size_PerPixel/1000))
+        # print(np.abs(k2_z))
         if match_mode == 1:
-            ix, iy, scale, energy_fraction = Find_energy_Dropto_fraction(g1_shift, 2 / 3, 0.1)
-            Gz_max = np.abs(k2_z_shift[ix, 0]) - 2 * np.abs(k1_z_shift[ix, 0])
+            ix, iy, scale, energy_fraction = Find_energy_Dropto_fraction(g1, 2 / 3, 0.1)
+            Gz_max = np.abs(k2_z[ix, 0]) - 2 * np.abs(k1_z[ix, 0])
             is_print and print("scale = {}, energy_fraction = {}".format(scale, energy_fraction))
         else:
-            Gz_max = np.min(np.abs(k2_z_shift)) - 2 * np.min(np.abs(k1_z_shift))
+            Gz_max = np.min(np.abs(k2_z)) - 2 * np.min(np.abs(k1_z))
 
         Gz_max = Gz_max * Gz_max_Enhance
         is_print and print("Gz_max = {} / μm, {}".format(Gz_max / size_PerPixel / 1000, Gz_max))
