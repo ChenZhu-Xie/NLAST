@@ -10,6 +10,7 @@ import numpy as np
 from fun_array_Transform import Roll_xy
 from fun_linear import Cal_kz, fft2, ifft2, Uz_AST, Find_energy_Dropto_fraction
 from fun_statistics import find_Kz
+from fun_global_var import init_accu
 
 
 # %%
@@ -49,7 +50,7 @@ def Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
                is_print=1):
     dk = 2 * k1 - k2  # Unit: 1 / mm
     lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: μm
-    is_print and print("相干长度 = {} μm".format(lc))
+    is_print and print("lc = {} μm, Tc = {} μm".format(lc, lc * 2))
 
     # print(type(Tz) != np.float64)
     # print(type(Tz) != float) # float = np.float ≠ np.float64
@@ -70,6 +71,9 @@ def Cal_GxGyGz(mx, my, mz,
     Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000)  # Tz / 1000 即以 mm 为单位
     Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000)  # Tz / 1000 即以 mm 为单位
 
+    is_print and print("mx = {} μm, my = {} μm, mz = {} μm".format(mx, my, mz))
+    is_print and print("Tx = {} μm, Ty = {} μm, Tz = {} μm".format(Tx, Ty, Tz))
+
     return Gx, Gy, Gz
 
 
@@ -79,13 +83,19 @@ def args_SHG(k1, k2, size_PerPixel,
              mx, my, mz,
              Tx, Ty, Tz,
              is_print, ):
+    info = "args_SHG"
+    is_first = int(init_accu(info) == 0) # 若第一次调用 args_SHG，则 is_first 为 1，否则为 0
+    is_Print = is_print * is_first # 两个 得都 非零，才 print
+    is_Print and print("        =·=·=·=·=·=·=·=·=·= 参数_SHG start =·=·=·=·=·=·=·=·=·=")
 
     dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
-                            is_print=0)
+                            is_Print)
 
     Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                             Tx, Ty, Tz, size_PerPixel,
-                            is_print)
+                            is_Print)
+
+    is_Print and print("        =·=·=·=·=·=·=·=·=·= 参数_SHG end =·=·=·=·=·=·=·=·=·=")
     return dk, lc, Tz, \
            Gx, Gy, Gz
 
@@ -383,14 +393,18 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, Tz, mz,
                            is_print=1, is_contours=1, n_TzQ=1, Gz_max_Enhance=1, match_mode=1):
     # %%
     # 描边
+    key = "Info_find_contours_SHG"
+    is_first = int(init_accu(key) == 0)  # 若第一次调用 args_SHG，则 is_first 为 1，否则为 0
+    is_Print = is_print * is_first  # 两个 得都 非零，才 print
 
-    if is_contours != 0:
+    is_contours != -1 and is_Print and print("        =·=·=·=·=·=·=·=·=·= info_描边 start =·=·=·=·=·=·=·=·=·=")
 
-        is_print and print("=·=·=·=·=·=·=·=·=·= 描边 start =·=·=·=·=·=·=·=·=·=")
+    if is_contours != -1 and is_contours != 0: # 等于 0 或 -1 则让该 子程序 完全不行使 contours 功能，甚至不提示...
+        # 但 0 但会 约束 deff_structure_length_expect， -1 则彻底 啥也不干
 
         dk = 2 * np.max(np.abs(k1_z)) - np.max(np.abs(k2_z))
         # print(k2_z[0,0])
-        is_print and print("dk = {} / μm, {}".format(dk / size_PerPixel / 1000, dk))
+        is_Print and print("dk = {} / μm, {}".format(dk / size_PerPixel / 1000, dk))
         lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: um
         # print("相干长度 = {} μm".format(lc))
         # print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
@@ -413,12 +427,12 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, Tz, mz,
         if match_mode == 1:
             ix, iy, scale, energy_fraction = Find_energy_Dropto_fraction(g1, 2 / 3, 0.1)
             Gz_max = np.abs(k2_z[ix, 0]) - 2 * np.abs(k1_z[ix, 0])
-            is_print and print("scale = {}, energy_fraction = {}".format(scale, energy_fraction))
+            is_Print and print("scale = {}, energy_fraction = {}".format(scale, energy_fraction))
         else:
             Gz_max = np.min(np.abs(k2_z)) - 2 * np.min(np.abs(k1_z))
 
         Gz_max = Gz_max * Gz_max_Enhance
-        is_print and print("Gz_max = {} / μm, {}".format(Gz_max / size_PerPixel / 1000, Gz_max))
+        is_Print and print("Gz_max = {} / μm, {}".format(Gz_max / size_PerPixel / 1000, Gz_max))
         Tz_min = 2 * math.pi * mz * size_PerPixel / (
                     abs(Gz_max) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         # print("Tz_min = {} μm".format(Tz_min))
@@ -431,51 +445,59 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, Tz, mz,
         z0_min = TzQ_min
 
         # %%
-
         if is_contours != 2:
-            is_print and print("=·=·=·=·=·=·=·=·=·= 描边 1：若无额外要求 =·=·=·=·=·=·=·=·=·=")  # 波长定，Tz 定 (lcQ 定)，z0 不定
+            is_Print and print("        =·=·=·=·=·=·=·=·=·= info_描边 1：若无额外要求 =·=·=·=·=·=·=·=·=·=")  # 波长定，Tz 定 (lcQ 定)，z0 不定
 
-            is_print and print("z0_exp = {} mm".format(z0_min * n_TzQ))
-            is_print and print("Tz_exp = {} μm".format(Tz_min))
+            is_Print and print("z0_exp = {} mm".format(z0_min * n_TzQ))
+            is_Print and print("Tz_exp = {} μm".format(Tz_min))
 
         # %%
 
         if is_contours != 1:
-            is_print and print("=·=·=·=·=·=·=·=·=·= 描边 2：若希望 mod( 现 z0, TzQ_exp ) = 0 =·=·=·=·=·=·=·=·=·=")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
+            # 如果 is_contours 是 0，不不要 = 则不 print 描边信息，且不设置；但 deff_structure_length_expect = z0_recommend
+            # 如果 is_contours 是 1，不要要 = 则不 print 描边信息，因为直接 就设置成 min 了；同时 deff_structure_length_expect = z0_recommend
+            # 如果 is_contours 是 2，要要要 = 则要 print 描边信息，因为只是 设置成 exp；同时 deff_structure_length_expect = z0_recommend
+            # 如果 is_contours 是 -1，不不不 = 则不 print 描边信息，且不设置；且不 deff_structure_length_expect = z0_recommend
+            # 如果 is_contours 是 other，要不要 = 则要 print 描边信息，且不设置；但 deff_structure_length_expect = z0_recommend
+            # 真值表中，还缺少 “不要不”，以及 “要要不”、“不不不”，才能使得 AAA + AAB + BBA+ BBB = 1 + 3 + 3 + 1 = 8
+            # “不要不” 不存在，因为第 2 个设置之后，意味着要 进行描边，所以 第 3 个必须 = 要；同理 “要要不” 也不存在
+            # “要不不” 也不存在，因为 提供信息 但啥也不干，有什么用？提供信息就是为了做事，提供了就要做。所以 若第 1 个为 要，则第 2 个也得为 要。
+            # “不不不” 也就是 意味着 这个函数 没用。。。那拿你来干啥，提供点信息，总是好的吧。。。算了，也安排上 “不不不选项”
+            is_Print and print("        =·=·=·=·=·=·=·=·=·= info_描边 2：若希望 mod( 现 z0, TzQ_exp ) = 0 =·=·=·=·=·=·=·=·=·=")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
 
-            is_print and print("lcQ_min = {} mm".format(lcQ_min))
+            is_Print and print("lcQ_min = {} mm".format(lcQ_min))
             TzQ_exp = z0 / (z0 // TzQ_min)  # 满足 Tz_min <= · <= Tz_max = 原 Tz， 且 能使 z0 整除 TzQ 中，最小（最接近 TzQ_min）的 TzQ
             lcQ_exp = TzQ_exp / 2
-            is_print and print("lcQ_exp = {} mm".format(lcQ_exp))
-            is_print and print("lcQ     = {} mm".format(lcQ))
-            is_print and print("lc = {} μm".format(lc))
+            is_Print and print("lcQ_exp = {} mm".format(lcQ_exp))
+            is_Print and print("lcQ     = {} mm".format(lcQ))
+            is_Print and print("lc = {} μm".format(lc))
             # print("TzQ_min = {} mm".format(TzQ_min))
             # print("TzQ_exp = {} mm".format(TzQ_exp))
             # print("TzQ     = {} mm".format(TzQ))
 
-            is_print and print("z0_min = {} mm # ==> 1.先调 z0 >= z0_min".format(
+            is_Print and print("z0_min = {} mm # ==> 1.先调 z0 >= z0_min".format(
                 z0_min))  # 先使 TzQ_exp 不遇分母 为零的错误，以 正确预测 lcQ_exp，以及后续的 Tz_exp
             z0_exp = TzQ_exp  # 满足 >= TzQ_min， 且 能整除 TzQ_exp 中，最小的 z0
             # z0_exp = TzQ # 满足 >= TzQ_min， 且 能整除 TzQ_exp 中，最小的 z0
-            is_print and print("z0_exp = {} mm # ==> 2.再调 z0 = z0_exp".format(z0_exp * n_TzQ))
+            is_Print and print("z0_exp = {} mm # ==> 2.再调 z0 = z0_exp".format(z0_exp * n_TzQ))
             # print("z0_exp = {} * n mm # ==> 3.最后调 z0 = z0_exp".format(z0_exp))
-            is_print and print("z0     = {} mm".format(z0))
+            is_Print and print("z0     = {} mm".format(z0))
 
             dkQ_exp = math.pi / lcQ_exp * size_PerPixel
             Gz_exp = dkQ_exp - dk
             Tz_exp = 2 * math.pi * mz * size_PerPixel / (
                         abs(Gz_exp) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
-            is_print and print("Tz_min = {} μm".format(Tz_min))
-            is_print and print("Tz_exp = {} μm # ==> 2.同时 Tz = Tz_exp".format(Tz_exp))
-            is_print and print("Tz     = {} μm".format(Tz))
-            is_print and print("Tz_max = {} μm".format(lc * 2))
+            is_Print and print("Tz_min = {} μm".format(Tz_min))
+            is_Print and print("Tz_exp = {} μm # ==> 2.同时 Tz = Tz_exp".format(Tz_exp))
+            is_Print and print("Tz     = {} μm".format(Tz))
+            is_Print and print("Tz_max = {} μm".format(lc * 2))
 
             domain_min = Tz_min / 2
-            is_print and print("畴宽_min = {} μm".format(domain_min))
+            is_Print and print("畴宽_min = {} μm".format(domain_min))
             domain_exp = Tz_exp / 2
-            is_print and print("畴宽_exp = {} μm".format(domain_exp))
-            is_print and print("畴宽     = {} μm".format(Tz / 2))
-            is_print and print("畴宽_max = {} μm".format(lc))
+            is_Print and print("畴宽_exp = {} μm".format(domain_exp))
+            is_Print and print("畴宽     = {} μm".format(Tz / 2))
+            is_Print and print("畴宽_max = {} μm".format(lc))
 
         # %%
 
@@ -489,17 +511,17 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, Tz, mz,
         z0_recommend = z0
         Tz_recommend = Tz
 
-    if is_contours != 0:
+    if is_contours != -1: # 等于 -1 则 不额外覆盖 deff_structure_sheet_expect 的值
 
         # if deff_structure_length_expect <= z0_recommend + deff_structure_sheet_expect / 1000:
         #     deff_structure_length_expect = z0_recommend + deff_structure_sheet_expect / 1000
-        #     is_print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
+        #     is_Print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
 
         if deff_structure_length_expect < z0_recommend:
             deff_structure_length_expect = z0_recommend
-            is_print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
+            is_Print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
 
-        is_print and print("=·=·=·=·=·=·=·=·=·= 描边 end =·=·=·=·=·=·=·=·=·=")
+    is_contours != -1 and is_Print and print("        =·=·=·=·=·=·=·=·=·= info_描边 end =·=·=·=·=·=·=·=·=·=")
 
     return z0_recommend, Tz_recommend, deff_structure_length_expect
 
@@ -536,7 +558,7 @@ def Info_find_contours(dk, Tz, mz,
 
         # %%
 
-        print("=·=·=·=·=·=·=·=·=·= 描边必需 1 =·=·=·=·=·=·=·=·=·=")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
+        print("        =·=·=·=·=·=·=·=·=·= 描边必需 1 =·=·=·=·=·=·=·=·=·=")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
 
         lcQ_min = (wc ** 2 + z0 ** 2) ** 0.5 - z0
         print("相干长度_Q_min = {} mm".format(lcQ_min))
@@ -570,7 +592,7 @@ def Info_find_contours(dk, Tz, mz,
 
         # %%
 
-        print("=·=·=·=·=·=·=·=·=·= 描边必需 2 =·=·=·=·=·=·=·=·=·=")  # 波长定，Tz 定 (lcQ 定)，z0 不定
+        print("        =·=·=·=·=·=·=·=·=·= 描边必需 2 =·=·=·=·=·=·=·=·=·=")  # 波长定，Tz 定 (lcQ 定)，z0 不定
 
         z0_min = (wc ** 2 - lcQ ** 2) / (2 * lcQ)  # 以使 (wc**2 + z0**2)**0.5 - z0 = lcQ_exp <= lcQ
         # 这个玩意其实还得保证 >= TzQ_min，以先使 TzQ_exp 不遇分母 为零的错误，以 正确预测 lcQ_exp，以及后续的 Tz_exp
@@ -579,4 +601,4 @@ def Info_find_contours(dk, Tz, mz,
         print("z0_exp = {} mm".format(z0_exp))
         print("z0     = {} mm # ==> 2.接着调 z0 = z0_exp".format(z0))
 
-        print("=·=·=·=·=·=·=·=·=·= 描边 end =·=·=·=·=·=·=·=·=·=")
+        print("        =·=·=·=·=·=·=·=·=·= 描边 end =·=·=·=·=·=·=·=·=·=")

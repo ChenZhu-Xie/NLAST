@@ -83,6 +83,11 @@ def SHG_NLA_ssi(U_name="",
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
+    #%%
+
+    info = "NLA_小步长_迭代版"
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+
     # kwargs['ray'] = init_GLV_DICT(U_name, "^", "SSI", "Nla", **kwargs)
     init_GLV_DICT(U_name, "h", "NLA", "ssi", **kwargs)
 
@@ -136,7 +141,7 @@ def SHG_NLA_ssi(U_name="",
     Gx, Gy, Gz = args_SHG(k1, k2, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
-                          is_print=0, )
+                          is_print, )
 
     # %%
 
@@ -259,6 +264,8 @@ def SHG_NLA_ssi(U_name="",
                 # %%
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
+
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
 
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 

@@ -159,6 +159,8 @@ def slice_ssi(L0_Crystal, Duty_Cycle_z,
                z0_section_1_expect, z0_section_2_expect,
                Tz, zoomout_times, size_PerPixel,
                is_print, ):
+    info = "切片_ssi"
+    is_print and print("        =·=·=·=·=·=·=·=·=·= " + info + " start =·=·=·=·=·=·=·=·=·=")
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
@@ -235,6 +237,8 @@ def slice_ssi(L0_Crystal, Duty_Cycle_z,
     Set("sheet_th_endface", sheet_th_endface)
     Set("sheet_th_sec1", sheet_th_section_1)
     Set("sheet_th_sec2", sheet_th_section_2)
+
+    is_print and print("        =·=·=·=·=·=·=·=·=·= " + info + " end =·=·=·=·=·=·=·=·=·=")
 
     return diz, deff_structure_sheet, \
            sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \
@@ -476,6 +480,8 @@ def slice_SSI(L0_Crystal, size_PerPixel,
                z0_section_1_expect, z0_section_2_expect,
                is_stripe, mx, my, Tx, Ty, Tz, Duty_Cycle_z, structure_xy_mode, 
                is_print):
+    info = "切片_SSI"
+    is_print and print("        =·=·=·=·=·=·=·=·=·= " + info + " start =·=·=·=·=·=·=·=·=·=")
     # %%
     # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
 
@@ -554,6 +560,8 @@ def slice_SSI(L0_Crystal, size_PerPixel,
     Set("sheet_th_endface", sheet_th_endface)
     Set("sheet_th_sec1", sheet_th_section_1)
     Set("sheet_th_sec2", sheet_th_section_2)
+
+    is_print and print("        =·=·=·=·=·=·=·=·=·= " + info + " end =·=·=·=·=·=·=·=·=·=")
 
     return diz, deff_structure_sheet, \
            sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \

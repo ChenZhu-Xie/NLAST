@@ -73,6 +73,8 @@ def image_Add_black_border(img_full_name="Grating.png",
     # img_full_name = "Grating.png"
     # border_percentage = 0.5 # 边框 占图片的 百分比，也即 图片 放大系数
 
+    is_print and print("    >·>·>·>·>·>·>·>·>·> 加黑边 start >·>·>·>·>·>·>·>·>·>")
+
     # %%
     # 预处理 导入图片 为方形，并加边框
 
@@ -86,7 +88,7 @@ def image_Add_black_border(img_full_name="Grating.png",
         if img.shape[0] < img.shape[1]:  # 如果 图片很宽，就上下加 黑色_不透明_边框
             image_Border(img_address, img_squared_address, loc='t', width=(img.shape[1] - img.shape[0]) // 2,
                          color=(0, 0, 0, 255))
-            if (img.shape[1] - img.shape[0]) % 2 == 1:  # 如果 宽高差 是 奇数，则 下边框 多加一个 像素
+            if (img.shape[1] - img.shape[0]) % 2 ==a 1:  # 如果 宽高差 是 奇数，则 下边框 多加一个 像素
                 image_Border(img_squared_address, img_squared_address, loc='b',
                              width=(img.shape[1] - img.shape[0]) // 2 + 1, color=(0, 0, 0, 255))
             else:
@@ -113,6 +115,8 @@ def image_Add_black_border(img_full_name="Grating.png",
     img_squared_bordered = cv2.imdecode(np.fromfile(img_squared_bordered_address, dtype=np.uint8),
                                         0)  # 按 相对路径 + 灰度图 读取图片
     is_print and print("U.shape = img_squared_bordered.shape = {}".format(img_squared_bordered.shape))
+
+    is_print and print("    >·>·>·>·>·>·>·>·>·> 加黑边 end >·>·>·>·>·>·>·>·>·>")
 
 
 # %%

@@ -75,6 +75,11 @@ def structure_chi2_3D(U_name="",
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
+    #%%
+
+    info = "χ2_3D_生成结构"
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+
     init_GLV()
 
     # %%
@@ -213,6 +218,8 @@ def structure_chi2_3D(U_name="",
 
     # print(mj)
     # print(len(mj))
+
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
 
 if __name__ == '__main__':
     structure_chi2_3D(U_name="",

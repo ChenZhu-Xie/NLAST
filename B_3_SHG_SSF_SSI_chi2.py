@@ -100,6 +100,11 @@ def SHG_SSF_SSI(U_name="",
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
+    #%%
+
+    info = "SSF_迭代版_大步长"
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+
     # kwargs['ray'] = init_GLV_DICT(U_name, "^", "SSI", "SFM", **kwargs)
     init_GLV_DICT(U_name, "h", "SSF", "SSI", **kwargs)
 
@@ -381,6 +386,8 @@ def SHG_SSF_SSI(U_name="",
                 # %%
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
+
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
 
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 

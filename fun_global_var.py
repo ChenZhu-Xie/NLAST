@@ -51,13 +51,16 @@ def Get(key):
 
 # %%
 
-def init_tkey(key):  # get_format_key：每次调用 tset 的时候，创建一个名为 key_th 的变量，且每次创建的 th 不同
-    name = key + "_" + "th"
-    if name not in GLOBALS_DICT: # 给 th 取一个与 key 本身 有关的键，这样 对不同名的 key，都可 对他们 独立 累加 其 th
-        Set(name, 0)
+def init_accu(key, init_value=0): # 设定一个 全局变量累加器（名称、初值 默认为 0），用于不可重入的计数，或只能进行一次的过程。
+    if key not in GLOBALS_DICT:
+        Set(key, init_value)
     else:
-        Set(name, Get(name) + 1)
-    return key + "_" + str(Get(name)) # 每次产生一个新的变量名
+        Set(key, Get(key) + 1)
+    return Get(key)
+
+def init_tkey(key):  # get_format_key：每次调用 tset 的时候，创建一个名为 key_th 的变量，且每次创建的 th 不同
+    name = key + "_" + "th" # 给 th 取一个与 key 本身 有关的键，这样 对不同名的 key，都可 对他们 独立 累加 其 th
+    return key + "_" + str(init_accu(name)) # 每次产生一个新的变量名
 
 def init_tset(key, value):  # set_format_key_value：每次都 初始化一个 新的 键-值对
     name = init_tkey(key) # 初始化一个新的 key_th 名

@@ -73,6 +73,10 @@ def structure_n1_3D(U_name="",
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
+    #%%
+    info = "n_3D_生成结构"
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+
     init_GLV()
 
     # %%
@@ -180,6 +184,8 @@ def structure_n1_3D(U_name="",
     my_thread(10, sheets_num,
               fun1, noop, noop,
               is_ordered=1, is_print=is_print, )
+
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
 
 
 if __name__ == '__main__':

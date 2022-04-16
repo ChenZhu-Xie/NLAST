@@ -58,6 +58,11 @@ def AST(U_name="",
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
+    #%%
+
+    info = "AST_线性"
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+
     # kwargs['ray'] = init_GLV_DICT(U_name, "~", "", "AST", **kwargs)
     init_GLV_DICT(U_name, "l", "AST", "", **kwargs)
 
@@ -120,6 +125,8 @@ def AST(U_name="",
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
                    z0, )
+
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
 
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 

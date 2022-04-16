@@ -133,7 +133,7 @@ def my_thread(threads_num, fors_num,
 
     # if thread_name == "thread_0":  # 如果 调用该 my_thread 的 函数，其名字 不含 Fun
     if "Fun" not in inspect.stack()[1][3]:
-        is_print and print("----- {} --> consume time: {} s -----".format(inspect.stack()[1][3], time.time() - tick_start))
+        is_print and print("        ----- {} --> consume time: {} s -----".format(inspect.stack()[1][3], time.time() - tick_start))
 
 #%%
 # 多线程 v1.0

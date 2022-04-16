@@ -100,6 +100,11 @@ def SHG_NLA_SSI(U_name="",
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
+    #%%
+
+    info = "NLAST_迭代版_大步长"
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+
     # kwargs['ray'] = init_GLV_DICT(U_name, "^", "SSI", "NLA", **kwargs) # 更新的传入的 ray 键的值
     init_GLV_DICT(U_name, "h", "NLA", "SSI", **kwargs)  # 不更新 并传入 pump_pic_or_U
 
@@ -319,6 +324,8 @@ def SHG_NLA_SSI(U_name="",
                 # %%
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
+
+    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
 
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 

@@ -34,7 +34,7 @@ def U_compare(U, U_0, U_0_title, z,
               is_relative = 1, is_print = 2, ):
     U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_0_title)
 
-    is_print and print("=·=·=·=·=·=·=·=·=·= " + ugHGU + " 对比 start =·=·=·=·=·=·=·=·=·=")
+    is_print and print("        =·=·=·=·=·=·=·=·=·= " + ugHGU + "_对比 start =·=·=·=·=·=·=·=·=·=")
 
     if is_relative == 1: # 归一化
         U = U/np.max(np.abs(U))
@@ -96,7 +96,7 @@ def U_compare(U, U_0, U_0_title, z,
 
     #%%
 
-    folder_address = U_error_plot_save(U, U_0, is_print,
+    folder_address = U_error_plot_save(U, U_0, ugHGU, is_print,
                                       img_name_extension,
                                       # %%
                                       size_PerPixel,
@@ -110,7 +110,7 @@ def U_compare(U, U_0, U_0_title, z,
                                       # %%                          何况 一般默认 is_self_colorbar = 1...
                                       z=z, )
 
-    is_print and print("=·=·=·=·=·=·=·=·=·= " + ugHGU + " 对比 end =·=·=·=·=·=·=·=·=·=")
+    is_print and print("        =·=·=·=·=·=·=·=·=·= " + ugHGU + "_对比 end =·=·=·=·=·=·=·=·=·=")
     
     # #%%
     # # 对比 U 与 U_0 的 绝对误差 的 相对误差

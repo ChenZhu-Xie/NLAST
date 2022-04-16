@@ -610,7 +610,7 @@ def U_plot_save(U, U_name, is_print,
 
 #%%
 
-def U_error_plot_save(U, U_0, is_print,
+def U_error_plot_save(U, U_0, ugHGU, is_print,
                       img_name_extension,
                       # %%
                       size_PerPixel,
@@ -627,20 +627,20 @@ def U_error_plot_save(U, U_0, is_print,
     from fun_global_var import fkey
 
     U_error = U - U_0
-    U_error_name = fkey("U") + "_error"
+    U_error_name = fkey(ugHGU) + "_error"
 
     folder_address = U_dir(U_error_name, is_save, **kwargs, )
 
     #%%
     U_amp_error = np.abs(U) - np.abs(U_0)
-    U_amp_error_name = fkey("U") + "_amp_error"
+    U_amp_error_name = fkey(ugHGU) + "_amp_error"
     U_energy_print(U_amp_error, U_amp_error_name, is_print,
                    **kwargs, )
     U_rsd_print(U_amp_error, U_amp_error_name, is_print,
                 **kwargs, )
 
     U_phase_error = np.abs(U) - np.angle(U_0)
-    U_phase_error_name = fkey("U") + "_phase_error"
+    U_phase_error_name = fkey(ugHGU) + "_phase_error"
     U_energy_print(U_phase_error, U_phase_error_name, is_print,
                    **kwargs, )
     U_rsd_print(U_phase_error, U_phase_error_name, is_print,
