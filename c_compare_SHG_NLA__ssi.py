@@ -9,6 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import numpy as np
 from fun_os import img_squared_bordered_Read
+from fun_global_var import tree_print
 from fun_img_Resize import if_image_Add_black_border
 from fun_linear import fft2
 from fun_compare import U_compare
@@ -94,6 +95,9 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
                      is_NLA=1, is_relative=1,
                      # %%
                      **kwargs, ):
+    info = "利用 SHG 对比：NLA 与 ssi"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
     if_image_Add_black_border("", img_full_name,
@@ -274,7 +278,7 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_relative, is_print, )
+              is_relative, is_print, is_end=1, )
 
     # %%
 
@@ -355,6 +359,6 @@ if __name__ == '__main__':
                          # %%
                          is_NLA=1, is_relative=1,
                          # %%
-                         border_percentage=0.1, )
+                         border_percentage=0.1, is_end=-1, )
 
 # 注意 colorbar 上的数量级

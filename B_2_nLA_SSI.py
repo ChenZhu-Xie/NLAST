@@ -17,7 +17,7 @@ from fun_SSI import slice_ssi
 from fun_linear import init_AST, init_SHG, fft2, ifft2
 from fun_nonlinear import args_SHG
 from fun_thread import my_thread
-from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
+from fun_global_var import tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -83,11 +83,12 @@ def nLA_ssi(U_name="",
 
     #%%
 
-    info = "NLAST_处理折射率"
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+    info = "NLA_折射率调制"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    # kwargs['ray'] = init_GLV_DICT(U_name, "~", "SSI", "nla", **kwargs)
-    init_GLV_DICT(U_name, "l", "nLA", "ssi", **kwargs)
+    # kwargs['ray'] = init_GLV_rmw(U_name, "~", "SSI", "nla", **kwargs)
+    init_GLV_rmw(U_name, "l", "nLA", "ssi", **kwargs)
 
     # %%
 
@@ -221,7 +222,7 @@ def nLA_ssi(U_name="",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z0, )
+                   z0, is_end=1, )
 
     # %%
 
@@ -247,8 +248,6 @@ def nLA_ssi(U_name="",
                 # %%
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
-
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
 
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
@@ -305,4 +304,4 @@ if __name__ == '__main__':
             # %%
             is_print=1,
             # %%
-            border_percentage=0.1, ray="1", )
+            border_percentage=0.1, ray="1", is_end=-1, )

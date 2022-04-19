@@ -25,7 +25,10 @@ def my_thread(threads_num, fors_num,
               is_ordered=1, is_print=1,
               **kwargs, ):
 
-    from fun_global_var import init_tset, Set, Get # 放在外面（上面）会报 循环引用 的错
+    from fun_global_var import init_tset, Set, Get, tree_print # 放在外面（上面）会报 循环引用 的错
+
+    is_end, add_level = kwargs.get("is_end", 0), kwargs.get("add_level", 0)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     
     thread_name = init_tset("thread", 0)[1] # 只取其名字
     for_name = init_tset("for", 0)[1] # 只取其名字
@@ -133,7 +136,7 @@ def my_thread(threads_num, fors_num,
 
     # if thread_name == "thread_0":  # 如果 调用该 my_thread 的 函数，其名字 不含 Fun
     if "Fun" not in inspect.stack()[1][3]:
-        is_print and print("        ----- {} --> consume time: {} s -----".format(inspect.stack()[1][3], time.time() - tick_start))
+        is_print and print(tree_print(is_end) + "{} --> consume time: {} s".format(inspect.stack()[1][3], time.time() - tick_start))
 
 #%%
 # 多线程 v1.0

@@ -7,16 +7,17 @@ Created on Fri Feb 25 20:23:31 2022
 
 import numpy as np
 from fun_algorithm import find_nearest, gcd_of_float
-from fun_global_var import Set
+from fun_global_var import Set, tree_print
 
 # %%
 # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
 def Cal_diz(Duty_Cycle_z, size_PerPixel, Tz,
-            zoomout_times=5, is_print=1, ):
+            zoomout_times=5, is_print=1, **kwargs):
     # %%
     deff_structure_sheet = Tz * gcd_of_float(Duty_Cycle_z)[0] / zoomout_times # 保证 deff_structure_sheet 始终能被 Tz 和 Tz * Duty_Cycle_z 整除
-    is_print and print("deff_structure_sheet = {} μm".format(deff_structure_sheet)) # Unit: μm 调制区域切片厚度 的 实际纵向尺寸
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_sheet = {} μm".format(deff_structure_sheet)) # Unit: μm 调制区域切片厚度 的 实际纵向尺寸
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     diz = deff_structure_sheet / 1000 / size_PerPixel  # Unit: mm / mm = 1
 
     return diz, deff_structure_sheet
@@ -27,7 +28,7 @@ def Cal_diz(Duty_Cycle_z, size_PerPixel, Tz,
 
 def Cal_Iz_frontface(diz,
                      z0_structure_frontface_expect, L0_Crystal, size_PerPixel,
-                     is_print=1, ):
+                     is_print=1, **kwargs):
     # %%
     if z0_structure_frontface_expect <= 0 or z0_structure_frontface_expect >= L0_Crystal or (
             type(z0_structure_frontface_expect) != float and type(z0_structure_frontface_expect) != np.float64 and type(
@@ -40,7 +41,8 @@ def Cal_Iz_frontface(diz,
     sheets_num_frontface = int(Iz_frontface // diz) + int(leftover != 0)
     sheet_th_frontface = sheets_num_frontface - 1 if sheets_num_frontface >= 1 else 0  # 但需要 前面一层 的 前端面 的 序数 来获取值
     z0_structure_frontface = Iz_frontface * size_PerPixel
-    is_print and print("z0_structure_frontface = {} mm".format(z0_structure_frontface))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_structure_frontface = {} mm".format(z0_structure_frontface))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     
     zj_frontface = np.arange(sheets_num_frontface + 1, dtype=np.float64()) * diz * size_PerPixel
     zj_frontface[-1] = z0_structure_frontface # 覆盖最后一个可能超了的，不真实的值。直接 zj_frontface[sheets_num_frontface] 也行
@@ -53,14 +55,15 @@ def Cal_Iz_frontface(diz,
 
 def Cal_Iz_structure(diz,
                      deff_structure_length, size_PerPixel,
-                     is_print=1, ):
+                     is_print=1, **kwargs):
     # %%
     Iz_structure = deff_structure_length / size_PerPixel  # Iz_structure 对应的是 期望的（连续的），而不是 实际的（discrete 离散的）？不，就得是离散的。
 
     leftover = Iz_structure - Iz_structure//diz * diz
     sheets_num_structure = int(Iz_structure // diz) + int(leftover != 0)
-    is_print and print("deff_structure_length = {} mm".format(deff_structure_length))
-    
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_length = {} mm".format(deff_structure_length))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+
     zj_structure = np.arange(sheets_num_structure + 1, dtype=np.float64()) * diz * size_PerPixel
     zj_structure[-1] = deff_structure_length
 
@@ -72,7 +75,7 @@ def Cal_Iz_structure(diz,
 
 def Cal_Iz_endface(sheets_num_frontface, sheets_num_structure,
                    zj_frontface, zj_structure, size_PerPixel,
-                   is_print=1, ):
+                   is_print=1, **kwargs):
     # %%
     sheets_num_endface = sheets_num_frontface + sheets_num_structure
     sheet_th_endface = sheets_num_endface - 1 if sheets_num_endface >= 1 else 0  # 但需要 前面一层 的 前端面 的 序数 来获取值
@@ -81,7 +84,8 @@ def Cal_Iz_endface(sheets_num_frontface, sheets_num_structure,
     
     z0_structure_endface = zj_frontface[-1] + zj_structure[-1]
     Iz_endface = z0_structure_endface / size_PerPixel
-    is_print and print("z0_structure_endface = {} mm".format(z0_structure_endface))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_structure_endface = {} mm".format(z0_structure_endface))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheet_th_endface, sheets_num_endface, Iz_endface, z0_structure_endface, zj_endface
 
@@ -91,7 +95,7 @@ def Cal_Iz_endface(sheets_num_frontface, sheets_num_structure,
 
 def Cal_Iz(diz, zj_endface, 
            L0_Crystal, size_PerPixel,
-           is_print=1, ):
+           is_print=1, **kwargs):
     # %%
     Iz = L0_Crystal / size_PerPixel
 
@@ -107,7 +111,8 @@ def Cal_Iz(diz, zj_endface,
     zj = np.append(zj_endface, zj_endface[-1] + zj_left[1:])
     # print(sheets_num == len(zj) - 1)
 
-    is_print and print("z0 = L0_Crystal = {} mm".format(L0_Crystal))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0 = L0_Crystal = {} mm".format(L0_Crystal))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheets_num, Iz, zj
 
@@ -116,20 +121,24 @@ def Cal_Iz(diz, zj_endface,
 
 def Cal_IxIy(I1_x, I1_y,
              deff_structure_size_expect, size_PerPixel,
-             is_print=1, ):
+             is_print=1, **kwargs):
     Ix, Iy = int(deff_structure_size_expect / size_PerPixel), int(deff_structure_size_expect / size_PerPixel)
     # Ix, Iy 需要与 I1_x, I1_y 同奇偶性，这样 加边框 才好加（对称地加 而不用考虑 左右两边加的量 可能不一样）
     Ix, Iy = Ix + np.mod(I1_x - Ix, 2), Iy + np.mod(I1_y - Iy, 2)
     deff_structure_size = Ix * size_PerPixel  # Unit: mm 不包含 边框，调制区域 的 实际横向尺寸
-    is_print and print("deff_structure_size = {} mm".format(deff_structure_size))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_size = {} mm".format(deff_structure_size))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return Ix, Iy, deff_structure_size
 
 # %%
 
-def slice_structure_SSI(Duty_Cycle_z, deff_structure_length_expect,
+def slice_structure_ssi(Duty_Cycle_z, deff_structure_length_expect,
                         Tz, zoomout_times, size_PerPixel,
-                        is_print):
+                        is_print, **kwargs):
+    info = "结构_纵向切片_ssi"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
@@ -142,7 +151,7 @@ def slice_structure_SSI(Duty_Cycle_z, deff_structure_length_expect,
     sheets_num, Iz, deff_structure_length, zj_structure = \
         Cal_Iz_structure(diz,
                          deff_structure_length_expect, size_PerPixel,
-                         is_print)
+                         is_print, is_end=1)
 
     # %%
 
@@ -158,9 +167,10 @@ def slice_ssi(L0_Crystal, Duty_Cycle_z,
                z0_structure_frontface_expect, deff_structure_length_expect,
                z0_section_1_expect, z0_section_2_expect,
                Tz, zoomout_times, size_PerPixel,
-               is_print, ):
-    info = "切片_ssi"
-    is_print and print("        =·=·=·=·=·=·=·=·=·= " + info + " start =·=·=·=·=·=·=·=·=·=")
+               is_print, **kwargs):
+    info = "晶体_纵向切片_ssi"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
@@ -227,7 +237,7 @@ def slice_ssi(L0_Crystal, Duty_Cycle_z,
     # 定义 需要展示的截面 2 距离晶体后端面 的 纵向实际像素、需要展示的截面 2 距离晶体后端面 的 实际纵向尺寸
 
     sheet_th_section_2, sheets_num_section_2, iz_2, z0_2 \
-        = cal_iz_2(zj, L0_Crystal, z0_section_2_expect, size_PerPixel, is_print, )
+        = cal_iz_2(zj, L0_Crystal, z0_section_2_expect, size_PerPixel, is_print, is_end=1)
 
     #%%
 
@@ -237,8 +247,6 @@ def slice_ssi(L0_Crystal, Duty_Cycle_z,
     Set("sheet_th_endface", sheet_th_endface)
     Set("sheet_th_sec1", sheet_th_section_1)
     Set("sheet_th_sec2", sheet_th_section_2)
-
-    is_print and print("        =·=·=·=·=·=·=·=·=·= " + info + " end =·=·=·=·=·=·=·=·=·=")
 
     return diz, deff_structure_sheet, \
            sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \
@@ -256,7 +264,7 @@ def slice_ssi(L0_Crystal, Duty_Cycle_z,
 # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
 
 def cal_Iz_frontface(z0_structure_frontface_expect, L0_Crystal, size_PerPixel,
-                     is_print=1, ):
+                     is_print=1, **kwargs):
     if z0_structure_frontface_expect <= 0 or z0_structure_frontface_expect >= L0_Crystal or (
             type(z0_structure_frontface_expect) != float and type(z0_structure_frontface_expect) != np.float64 and type(
         z0_structure_frontface_expect) != int):
@@ -267,7 +275,8 @@ def cal_Iz_frontface(z0_structure_frontface_expect, L0_Crystal, size_PerPixel,
     sheets_num_frontface = 1 if z0_structure_frontface > 0 else 0
     sheet_th_frontface = sheets_num_frontface - 1 if sheets_num_frontface >= 1 else 0
 
-    is_print and print("z0_structure_frontface = {} mm".format(z0_structure_frontface))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_structure_frontface = {} mm".format(z0_structure_frontface))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface
 
@@ -290,10 +299,11 @@ def cal_Iz_endface_1(z0_structure_frontface, deff_structure_length_expect, L0_Cr
 # %%
 
 def cal_Iz_structure(deff_structure_length, size_PerPixel,
-                     is_print=1, ):
+                     is_print=1, **kwargs):
 
     Iz_structure = deff_structure_length / size_PerPixel
-    is_print and print("deff_structure_length = {} mm".format(deff_structure_length))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_length = {} mm".format(deff_structure_length))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return Iz_structure
 
@@ -302,13 +312,14 @@ def cal_Iz_structure(deff_structure_length, size_PerPixel,
 
 def cal_Iz_endface_2(sheets_num_frontface, sheets_num_structure,
                      z0_structure_endface, size_PerPixel,
-                     is_print=1, ):
+                     is_print=1, **kwargs):
 
     sheets_num_endface = sheets_num_frontface + sheets_num_structure
     sheet_th_endface = sheets_num_endface - 1 if sheets_num_endface >= 1 else 0
 
     Iz_endface = z0_structure_endface / size_PerPixel
-    is_print and print("z0_structure_endface = {} mm".format(z0_structure_endface))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_structure_endface = {} mm".format(z0_structure_endface))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheet_th_endface, sheets_num_endface, Iz_endface
 
@@ -317,12 +328,13 @@ def cal_Iz_endface_2(sheets_num_frontface, sheets_num_structure,
 # 定义 晶体 的 纵向实际像素、晶体 的 实际纵向尺寸
 
 def cal_Iz(sheets_num_endface, z0_structure_endface, L0_Crystal, size_PerPixel,
-           is_print=1, ):
+           is_print=1, **kwargs):
     z0 = L0_Crystal
     Iz = L0_Crystal / size_PerPixel
     sheets_num = sheets_num_endface + 1 if z0_structure_endface < L0_Crystal else sheets_num_endface
 
-    is_print and print("z0 = L0_Crystal = {} mm".format(L0_Crystal))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0 = L0_Crystal = {} mm".format(L0_Crystal))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheets_num, Iz, z0
 
@@ -331,7 +343,7 @@ def cal_Iz(sheets_num_endface, z0_structure_endface, L0_Crystal, size_PerPixel,
 # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
 def cal_diz(Duty_Cycle_z, Tz, Iz_structure, size_PerPixel,
-            is_print=1, ):
+            is_print=1, **kwargs):
     deff_structure_sheet = Tz / 1000 # Unit: mm
     # 不论是否 mz != 0，即 不论 结构 是否 提供 z 向倒格矢，都对 结构 分片
     # z 向无周期，分片干啥，就是为了看演化。不看演化不如直接用一步到位的 NLA 程序。
@@ -357,7 +369,8 @@ def cal_diz(Duty_Cycle_z, Tz, Iz_structure, size_PerPixel,
         # leftover2 == 0 时为 diz * Duty_Cycle_z
         # leftover2 < 0 即 leftover < diz * Duty_Cycle_z 时为 leftover
 
-    is_print and print("deff_structure_sheet = {} μm".format(deff_structure_sheet * 1000))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_sheet = {} μm".format(deff_structure_sheet * 1000))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheets_num_structure, diz, deff_structure_sheet
 
@@ -449,9 +462,10 @@ def cal_zj_izj_dizj_mj(zj_structure, mj_structure, z0_structure_frontface, z0_st
 # 定义 需要展示的截面 1 距离晶体前端面 的 纵向实际像素、需要展示的截面 1 距离晶体前端面 的 实际纵向尺寸
 
 def cal_iz_1(zj, z0_section_1_expect, size_PerPixel,
-             is_print=1, ):
+             is_print=1, **kwargs):
     sheets_num_section_1, z0_1 = find_nearest(zj, z0_section_1_expect)
-    is_print and print("z0_section_1 = {} mm".format(z0_1))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_section_1 = {} mm".format(z0_1))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     Iz_1 = z0_1 / size_PerPixel
     sheet_th_section_1 = sheets_num_section_1 - 1 if sheets_num_section_1 != 0 else 0
 
@@ -462,9 +476,10 @@ def cal_iz_1(zj, z0_section_1_expect, size_PerPixel,
 # 定义 需要展示的截面 2 距离晶体后端面 的 纵向实际像素、需要展示的截面 2 距离晶体后端面 的 实际纵向尺寸
 
 def cal_iz_2(zj, L0_Crystal, z0_section_2_expect, size_PerPixel,
-             is_print=1, ):
+             is_print=1, **kwargs):
     sheets_num_section_2, z0_2 = find_nearest(zj, L0_Crystal - z0_section_2_expect)
-    is_print and print("z0_section_2 = {} mm".format(z0_2))
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_section_2 = {} mm".format(z0_2))
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     Iz_2 = z0_2 / size_PerPixel
     sheet_th_section_2 = sheets_num_section_2 - 1 if sheets_num_section_2 >= 1 else 0
 
@@ -479,9 +494,10 @@ def slice_SSI(L0_Crystal, size_PerPixel,
                z0_structure_frontface_expect, deff_structure_length_expect,
                z0_section_1_expect, z0_section_2_expect,
                is_stripe, mx, my, Tx, Ty, Tz, Duty_Cycle_z, structure_xy_mode, 
-               is_print):
-    info = "切片_SSI"
-    is_print and print("        =·=·=·=·=·=·=·=·=·= " + info + " start =·=·=·=·=·=·=·=·=·=")
+               is_print, **kwargs):
+    info = "晶体_纵向切片_SSI"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
 
@@ -499,7 +515,7 @@ def slice_SSI(L0_Crystal, size_PerPixel,
     # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
 
     Iz_structure = cal_Iz_structure(deff_structure_length, size_PerPixel,
-                                    is_print=1, )
+                                    is_print, )
 
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
@@ -550,7 +566,7 @@ def slice_SSI(L0_Crystal, size_PerPixel,
 
     sheet_th_section_2, sheets_num_section_2, Iz_2, z0_2 \
         = cal_iz_2(zj, deff_structure_length_expect, z0_section_2_expect, size_PerPixel,
-                   is_print, )
+                   is_print, is_end=1)
 
     #%%
 
@@ -560,8 +576,6 @@ def slice_SSI(L0_Crystal, size_PerPixel,
     Set("sheet_th_endface", sheet_th_endface)
     Set("sheet_th_sec1", sheet_th_section_1)
     Set("sheet_th_sec2", sheet_th_section_2)
-
-    is_print and print("        =·=·=·=·=·=·=·=·=·= " + info + " end =·=·=·=·=·=·=·=·=·=")
 
     return diz, deff_structure_sheet, \
            sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \

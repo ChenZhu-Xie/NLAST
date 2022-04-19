@@ -45,7 +45,7 @@ def imgs2gif_art(img_paths, gif_address, # loop = 0 代表 循环播放, 1 只�
     #     ims.append([im])
 
     '''多线程 begin'''
-    def fun1(for_th, fors_num, *arg, ):
+    def fun1(for_th, fors_num, *arg, **kwargs, ):
         img = cv2.imdecode(np.fromfile(img_paths[for_th], dtype=np.uint8), cv2.IMREAD_UNCHANGED)
         # 保留 BGR + alpha 通道 3维 * 4通道
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)

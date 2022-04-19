@@ -17,7 +17,7 @@ from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, \
     G2_z_modulation_NLAST, G2_z_modulation_3D_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import init_GLV_DICT, end_SSI, Get, dset, dget, fget, fkey, fGHU_plot_save
+from fun_global_var import tree_print, init_GLV_rmw, end_SSI, Get, dset, dget, fget, fkey, fGHU_plot_save
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 
@@ -91,11 +91,12 @@ def SHG_NLA(U_name="",
 
     #%%
 
-    info = "NLAST_一步版"
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+    info = "NLAST_一拳超人"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    # kwargs['ray'] = init_GLV_DICT(U_name, "^", "", "NLA", **kwargs)
-    init_GLV_DICT(U_name, "h", "NLA", "", **kwargs)
+    # kwargs['ray'] = init_GLV_rmw(U_name, "^", "", "NLA", **kwargs)
+    init_GLV_rmw(U_name, "h", "NLA", "", **kwargs)
 
     #%%
 
@@ -166,7 +167,7 @@ def SHG_NLA(U_name="",
 
         g_rotate_180 = Rotate_180(g_shift)
 
-        def fun1(for_th, fors_num, *args, ):
+        def fun1(for_th, fors_num, *args, **kwargs, ):
             for n2_y in range(Iy):
                 dk_zQ = Cal_dk_zQ_SHG(k1,
                                     k1_z, k2_z,
@@ -330,9 +331,7 @@ def SHG_NLA(U_name="",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z0, )
-
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
+                   z0, is_end=1, )
 
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
@@ -399,4 +398,4 @@ if __name__ == '__main__':
             is_print=1, is_contours=66, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
-            border_percentage=0.1, ray="2", )
+            border_percentage=0.1, ray="2", is_end=-1, )

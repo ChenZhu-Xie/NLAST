@@ -10,7 +10,6 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
-from fun_global_var import init_GLV
 from A_3_structure_chi2_Generate_3D import structure_chi2_3D
 from B_3_SHG_NLA_ssi import SHG_NLA_ssi
 from B_3_SHG_SSF_ssi import SHG_SSF_ssi
@@ -92,13 +91,13 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                      is_NLA=1,
                      # %%
                      **kwargs, ):
+    is_end, add_level = kwargs.get("is_end", 0), kwargs.get("add_level", 0)  # 将 is_end 拦截 下来，传给最末尾 的 含 print 函数
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # Image_Add_Black_border
 
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
-    
-    init_GLV()
 
     # %%
     # 为了生成 U_0 和 g_shift
@@ -232,9 +231,9 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
            Gz_max_Enhance, match_mode, ]
 
     if is_NLA == 1:
-        U, G, ray, method_and_way, U_key = SHG_NLA_ssi(*args_SHG_ssi)
+        U, G, ray, method_and_way, U_key = SHG_NLA_ssi(*args_SHG_ssi, is_end=is_end, )
     else:
-        U, G, ray, method_and_way, U_key = SHG_SSF_ssi(*args_SHG_ssi)
+        U, G, ray, method_and_way, U_key = SHG_SSF_ssi(*args_SHG_ssi, is_end=is_end, )
 
     return U, G, ray, method_and_way, U_key
 
@@ -312,4 +311,4 @@ if __name__ == '__main__':
                      # %%
                      is_NLA=1,
                      # %%
-                     border_percentage=0.1, )
+                     border_percentage=0.1, is_end=-1, )

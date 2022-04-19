@@ -12,7 +12,7 @@ import numpy as np
 import scipy.stats
 import inspect
 from fun_os import img_squared_bordered_Read, U_Read, U_read_only, U_dir, U_energy_print, U_plot, U_save
-from fun_global_var import init_accu
+from fun_global_var import init_accu, tree_print
 from fun_img_Resize import img_squared_Resize
 from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase
 from fun_linear import Cal_n, Cal_kz, fft2, ifft2
@@ -402,7 +402,8 @@ def pump(file_full_name="Grating.png",
     title = method + " - " + name
     folder_address = U_dir(title, is_save, z=z, )
 
-    U_energy_print(U_z0, title, is_print, )
+    U_energy_print(U_z0, title, is_print, **kwargs)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     U_amp_plot_address, U_phase_plot_address = U_plot(folder_address,
                                                       U_z0, title,
@@ -547,9 +548,12 @@ def pump_pic_or_U_structure(U_structure_name="",
                             # %%
                             **kwargs, ):
     info = "pump_pic_or_U_structure"
-    is_first = int(init_accu(info) == 0)  # 若第一次调用 pump_pic_or_U_structure，则 is_first 为 1，否则为 0
+    is_first = int(init_accu(info, 1) == 1)  # 若第一次调用 pump_pic_or_U_structure，则 is_first 为 1，否则为 0
     is_Print = is_print * is_first  # 两个 得都 非零，才 print
-    is_Print and print("        =·=·=·=·=·=·=·=·=·= 泵浦_for_结构 start =·=·=·=·=·=·=·=·=·=")
+
+    info = "泵浦_for_结构"
+    is_Print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 导入 方形，以及 加边框 的 图片
 
@@ -562,7 +566,7 @@ def pump_pic_or_U_structure(U_structure_name="",
     # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
 
     deff_structure_size_expect = U_NonZero_size * (1 + structure_size_Enlarge)
-    is_Print and print("deff_structure_size_expect = {} mm".format(deff_structure_size_expect))
+    is_Print and print(tree_print() + "deff_structure_size_expect = {} mm".format(deff_structure_size_expect))
 
     Ix_structure, Iy_structure, deff_structure_size = Cal_IxIy(Ix, Iy,
                                                                deff_structure_size_expect, size_PerPixel,
@@ -597,6 +601,7 @@ def pump_pic_or_U_structure(U_structure_name="",
                          is_air_pump,
                          lam1, T, p="e")
 
+            kwargs["is_end"] = 1
             U_structure, g_shift_structure = pump(img_squared_resize_full_name,
                                                   Ix_structure, Iy_structure, size_PerPixel,
                                                   U_structure, w0, k, z_pump,
@@ -627,8 +632,6 @@ def pump_pic_or_U_structure(U_structure_name="",
         # 但 cv2 、 skimage.transform 中 resize 都能处理 图片 和 float64，
         # 但似乎 没有东西 能直接 处理 complex128，但可 分别处理 实部和虚部，再合并为 complex128
         g_shift_structure = fft2(U_structure)
-
-    is_Print and print("        =·=·=·=·=·=·=·=·=·= 泵浦_for_结构 end =·=·=·=·=·=·=·=·=·=")
 
     return img_name, img_name_extension, img_squared, \
            size_PerPixel, size_fig, Ix, Iy, \

@@ -9,7 +9,7 @@ Created on Sun Dec 26 22:09:04 2021
 
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
-from fun_global_var import init_GLV_DICT, end_AST, Get, fget, fkey, fGHU_plot_save
+from fun_global_var import tree_print, init_GLV_rmw, end_AST, Get, fget, fkey, fGHU_plot_save
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST
 np.seterr(divide='ignore', invalid='ignore')
@@ -60,11 +60,12 @@ def AST(U_name="",
 
     #%%
 
-    info = "AST_线性"
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+    info = "AST_线性角谱"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    # kwargs['ray'] = init_GLV_DICT(U_name, "~", "", "AST", **kwargs)
-    init_GLV_DICT(U_name, "l", "AST", "", **kwargs)
+    # kwargs['ray'] = init_GLV_rmw(U_name, "~", "", "AST", **kwargs)
+    init_GLV_rmw(U_name, "l", "AST", "", **kwargs)
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
@@ -124,9 +125,7 @@ def AST(U_name="",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z0, )
-
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
+                   z0, is_end=1, )
 
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
@@ -167,4 +166,4 @@ if __name__ == '__main__':
         # %%
         is_print=1,
         # %%
-        border_percentage=0.1, ray="1", )
+        border_percentage=0.1, ray="1", is_end=-1, )

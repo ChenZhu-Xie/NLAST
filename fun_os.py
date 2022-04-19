@@ -10,6 +10,7 @@ import re
 import cv2
 import numpy as np
 import math
+from fun_global_var import tree_print
 from scipy.io import loadmat, savemat
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_gif_video import imgs2gif_imgio, imgs2gif_PIL, imgs2gif_art
@@ -223,19 +224,23 @@ def gan_Uz_dir_address(U_name, **kwargs, ):
 
 # %%
 
-def U_energy_print(U, U_name, is_print,
+def U_energy_print(U_receive, U_name, is_print, # 外面的 **kwargs 可能传进 “U” 这个关键字，所以...用 U_receive 代替 实参名 U
                    **kwargs, ):  # kwargs 是 z
 
     U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
 
-    is_print and print(U_full_name + ".total_energy = {}".format(np.sum(np.abs(U) ** 2)))
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".total_energy = {}"
+                       .format(np.sum(np.abs(U_receive) ** 2))) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-def U_rsd_print(U, U_name, is_print,
+def U_rsd_print(U_receive, U_name, is_print,
                 **kwargs, ):  # kwargs 是 z
 
     U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
 
-    is_print and is_print-1 and print(U_full_name + ".rsd = {}".format(np.std(np.abs(U)) / np.mean(np.abs(U)))) # is_print 是 1 和 0 都不行，得是 2 等才行...
+    is_print and is_print-1 and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".rsd = {}"
+                                      .format(np.std(np.abs(U_receive)) / np.mean(np.abs(U_receive)))) # is_print 是 1 和 0 都不行，得是 2 等才行...
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
 # %%
 
@@ -576,10 +581,21 @@ def U_plot_save(U, U_name, is_print,
                 # %%                          何况 一般默认 is_self_colorbar = 1...
                 **kwargs, ):  # **kwargs = z
 
-    U_energy_print(U, U_name, is_print,
-                   **kwargs, )
-    U_rsd_print(U, U_name, is_print,
-                **kwargs, )
+    if is_print == 1:
+        U_energy_print(U, U_name, is_print,
+                       **kwargs, )
+    elif is_print == 2:
+        is_end, add_level = kwargs.get("is_end", 0), kwargs.get("add_level", 0)
+        kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+
+        U_energy_print(U, U_name, is_print,
+                       **kwargs, )
+
+        kwargs["is_end"] = is_end
+        # 这里不能单纯地加 is_end=is_end，否则 会报错 U_rsd_print() got multiple values for keyword argument 'is_end'
+        U_rsd_print(U, U_name, is_print,
+                    **kwargs, )
+        kwargs["is_end"] = 0
 
     folder_address = U_dir(U_name, is_save, **kwargs, )
 
@@ -626,6 +642,10 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
 
     from fun_global_var import fkey
 
+    info = ugHGU + "_先取模或相位_后误差"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+
     U_error = U - U_0
     U_error_name = fkey(ugHGU) + "_error"
 
@@ -641,10 +661,17 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
 
     U_phase_error = np.abs(U) - np.angle(U_0)
     U_phase_error_name = fkey(ugHGU) + "_phase_error"
-    U_energy_print(U_phase_error, U_phase_error_name, is_print,
-                   **kwargs, )
-    U_rsd_print(U_phase_error, U_phase_error_name, is_print,
-                **kwargs, )
+    if is_print == 1:
+        kwargs["is_end"] = 1
+        U_energy_print(U_phase_error, U_phase_error_name, is_print,
+                       **kwargs, )
+    elif is_print == 2:
+        U_energy_print(U_phase_error, U_phase_error_name, is_print,
+                       **kwargs, )
+        kwargs["is_end"] = 1
+        U_rsd_print(U_phase_error, U_phase_error_name, is_print,
+                    **kwargs, )
+    kwargs["is_end"] = 0
 
     # %%
     # 绘图：U
@@ -690,7 +717,7 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                   # %%
                   is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                   # %%                          何况 一般默认 is_self_colorbar = 1...
-                  z, ):  # 默认必须给 z
+                  z, **kwargs, ):  # 默认必须给 z，kwargs 里是 is_end
 
     folder_address = U_plot_save(G, G_name, 0,
                                  img_name_extension,
@@ -745,7 +772,7 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z=z, )
+                                 z=z, **kwargs, )
 
     if is_energy_evolution_on == 1:
         U_energy_plot_address = U_energy_plot(folder_address,
@@ -1079,7 +1106,7 @@ def U_amps_z_plot(folder_address,
 
         """ plot2d 无法多线程，因为会挤占 同一个 fig 这个 全局的画布资源？ 注释了 plt.show() 也没用，应该不是它的锅。
         不过其实可以在 U_amp_plot 里面搞多线程，因为 获取 address 和 title 不是全局的 """
-        # def fun1(for_th, fors_num, *arg, ):
+        # def fun1(for_th, fors_num, *arg, **kwargs, ):
         #     U_amp_plot_address, U_amp_title = U_amp_plot(U0_name, folder_address, is_auto_seq_and_z,
         #                                                  # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
         #                                                  U[:, :, for_th], U_name, method,
@@ -1170,7 +1197,7 @@ def U_phases_z_plot(folder_address,
 
         """ plot2d 无法多线程，因为会挤占 同一个 fig 这个 全局的画布资源？ 注释了 plt.show() 也没用，应该不是它的锅。
         不过其实可以在 U_amp_plot 里面搞多线程，因为 获取 address 和 title 不是全局的 """
-        # def fun1(for_th, fors_num, *arg, ):
+        # def fun1(for_th, fors_num, *arg, **kwargs, ):
         #     U_phase_plot_address, U_phase_title = U_phase_plot(U0_name, folder_address, is_auto_seq_and_z,
         #                                                        U[:, :, for_th], U_name, method,
         #                                                        img_name_extension,

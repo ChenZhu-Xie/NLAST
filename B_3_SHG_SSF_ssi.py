@@ -17,7 +17,7 @@ from fun_SSI import slice_ssi
 from fun_linear import init_AST, init_SHG, fft2, ifft2
 from fun_nonlinear import Eikz, args_SHG, Info_find_contours_SHG
 from fun_thread import my_thread
-from fun_global_var import init_GLV_DICT, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
+from fun_global_var import tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -86,11 +86,12 @@ def SHG_SSF_ssi(U_name="",
 
     #%%
 
-    info = "SSF_迭代版_小步长"
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+    info = "SSF_小步长_ssi"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    # kwargs['ray'] = init_GLV_DICT(U_name, "^", "SSI", "Sfm", **kwargs)
-    init_GLV_DICT(U_name, "h", "SSF", "ssi", **kwargs)
+    # kwargs['ray'] = init_GLV_rmw(U_name, "^", "SSI", "Sfm", **kwargs)
+    init_GLV_rmw(U_name, "h", "SSF", "ssi", **kwargs)
 
     # %%
 
@@ -299,7 +300,7 @@ def SHG_SSF_ssi(U_name="",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z0, )
+                   z0, is_end=1,)
 
     # %%
 
@@ -326,8 +327,6 @@ def SHG_SSF_ssi(U_name="",
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
-
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
@@ -345,7 +344,7 @@ if __name__ == '__main__':
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
             U_NonZero_size=1, w0=0.3,
-            L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
+            L0_Crystal=1, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
             Duty_Cycle_z=0.5, zoomout_times=5, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
@@ -386,4 +385,4 @@ if __name__ == '__main__':
             is_print=1, is_contours=1, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
-            border_percentage=0.1, ray="2", )
+            border_percentage=0.1, ray="2", is_end=-1, )

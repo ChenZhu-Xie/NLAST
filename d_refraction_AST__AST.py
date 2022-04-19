@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 #%%
 
+from fun_global_var import tree_print
 from fun_img_Resize import if_image_Add_black_border
 from b_1_AST import AST
 
@@ -45,7 +46,9 @@ def refraction_AST__AST(img_full_name = "Grating.png",
                         is_print = 1,
                         # %%
                         **kwargs, ):
-    
+    info = "利用 折射 检验：AST"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     #%%
     # 线性 惠更斯 菲涅尔 原理
 
@@ -91,7 +94,7 @@ def refraction_AST__AST(img_full_name = "Grating.png",
     #     AST(*args_AST(zn, is_air), )
 
     # U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
-    #     AST(*args_AST(z1, 1), U=U_zn, ray=ray_zn, )
+    #     AST(*args_AST(z1, 1), U=U_zn, ray=ray_zn, is_end=1, )
     
     #%%
     # 先以 1 衍射 z1 后 以 n 衍射 zn
@@ -100,7 +103,7 @@ def refraction_AST__AST(img_full_name = "Grating.png",
         AST(*args_AST(z1, 1), )
 
     U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
-        AST(*args_AST(zn, is_air), U=U_z1, ray=ray_z1, )
+        AST(*args_AST(zn, is_air), U=U_z1, ray=ray_z1, is_end=1, )
     
     #%%
 
@@ -139,4 +142,4 @@ if __name__ == '__main__':
                         #%%
                         is_print = 1,
                         # %%
-                        border_percentage=0.1, )
+                        border_percentage=0.1, is_end=-1, )

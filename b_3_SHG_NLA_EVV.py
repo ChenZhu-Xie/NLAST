@@ -17,7 +17,7 @@ from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, G2_z_
     G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG, G2_z_modulation_3D_NLAST
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import Set, Get, init_GLV_DICT, init_EVV, Fun3, end_SSI, \
+from fun_global_var import tree_print, Set, Get, init_GLV_rmw, init_EVV, Fun3, end_SSI, \
     dset, dget, fget, fkey, fGHU_plot_save, fU_EVV_plot
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -99,11 +99,12 @@ def SHG_NLA_EVV(U_name="",
 
     #%%
 
-    info = "NLAST_演化版"
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
+    info = "NLAST_演化版_EVV"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    # kwargs['ray'] = init_GLV_DICT(U_name, "^", "EVV", "NLA", **kwargs)
-    init_GLV_DICT(U_name, "h", "NLA", "EVV", **kwargs)
+    # kwargs['ray'] = init_GLV_rmw(U_name, "^", "EVV", "NLA", **kwargs)
+    init_GLV_rmw(U_name, "h", "NLA", "EVV", **kwargs)
 
     # %%
 
@@ -379,7 +380,7 @@ def SHG_NLA_EVV(U_name="",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z0, )
+                   z0, is_end=1, )
 
     # %%
 
@@ -402,8 +403,6 @@ def SHG_NLA_EVV(U_name="",
                 is_plot_3d_XYz,
                 # %%
                 z0, )
-
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
 
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
@@ -435,7 +434,7 @@ if __name__ == '__main__':
             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
             # %%
             U_NonZero_size=1, w0=0.1,
-            z0=3, sheets_stored_num=10,
+            z0=1, sheets_stored_num=10,
             # %%
             lam1=0.8, is_air_pump=0, is_air=0, T=25,
             deff=30, is_fft=1, fft_mode=0,
@@ -476,4 +475,4 @@ if __name__ == '__main__':
             is_print=1, is_contours=66, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
-            border_percentage=0.1, ray="2", )
+            border_percentage=0.1, ray="2", is_end=-1, )

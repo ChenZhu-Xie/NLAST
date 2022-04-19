@@ -84,7 +84,8 @@ def A_to_B_2_nLA_ssi(U_name_Structure = "",
                      is_print = 1,
                      # %%
                      **kwargs, ):
-    
+    is_end, add_level = kwargs.get("is_end", 0), kwargs.get("add_level", 0)  # 将 is_end 拦截 下来，传给最末尾 的 含 print 函数
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     #%%
     # Image_Add_Black_border
 
@@ -135,7 +136,8 @@ def A_to_B_2_nLA_ssi(U_name_Structure = "",
     
     #%%
     # B_3_NLA_SSI
-    
+
+
     U, G, ray, method_and_way, U_key = \
         nLA_ssi(U_name,
                 img_full_name,
@@ -181,7 +183,9 @@ def A_to_B_2_nLA_ssi(U_name_Structure = "",
                 is_plot_3d_XYz, is_plot_selective,
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 #%%
-                is_print, )
+                is_print,
+                #%%
+                is_end=is_end, )
 
     return U, G, ray, method_and_way, U_key
 
@@ -254,4 +258,4 @@ if __name__ == '__main__':
                      #%%
                      is_print = 1,
                      # %%
-                     border_percentage=0.1, )
+                     border_percentage=0.1, is_end=-1, )

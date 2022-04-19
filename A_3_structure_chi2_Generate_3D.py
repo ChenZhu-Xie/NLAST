@@ -10,13 +10,13 @@ Created on Sun Dec 26 22:09:04 2021
 import numpy as np
 from scipy.io import savemat
 from fun_os import U_dir
+from fun_global_var import tree_print
 from fun_algorithm import gcd_of_float
 from fun_img_Resize import if_image_Add_black_border
-from fun_SSI import slice_structure_SSI
+from fun_SSI import slice_structure_ssi
 from fun_nonlinear import Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import init_GLV
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -78,10 +78,8 @@ def structure_chi2_3D(U_name="",
     #%%
 
     info = "χ2_3D_生成结构"
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " start >·>·>·>·>·>·>·>·>·>")
-
-    init_GLV()
-
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
     n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
@@ -145,7 +143,7 @@ def structure_chi2_3D(U_name="",
     z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z_shift, k2_z_shift, Tz, mz,
                                                                             z0, size_PerPixel,
                                                                             deff_structure_length_expect,
-                                                                            0, is_contours, n_TzQ, Gz_max_Enhance,
+                                                                            is_print, is_contours, n_TzQ, Gz_max_Enhance,
                                                                             match_mode, )
 
     # %%
@@ -155,7 +153,7 @@ def structure_chi2_3D(U_name="",
 
     diz, deff_structure_sheet, sheets_num, \
     Iz, deff_structure_length, Tz_unit = \
-        slice_structure_SSI(Duty_Cycle_z, deff_structure_length_expect,
+        slice_structure_ssi(Duty_Cycle_z, deff_structure_length_expect,
                             Tz, zoomout_times, size_PerPixel,
                             is_print)
 
@@ -167,7 +165,7 @@ def structure_chi2_3D(U_name="",
     # 逐层 绘制 并 输出 structure
 
     mj = []
-    def fun1(for_th, fors_num, *args, ):
+    def fun1(for_th, fors_num, *args, **kwargs, ):
         iz = for_th * diz
         step_nums_left, step_nums_right, step_nums_total = gcd_of_float(Duty_Cycle_z)[1]
 
@@ -214,12 +212,10 @@ def structure_chi2_3D(U_name="",
 
     my_thread(10, sheets_num,
               fun1, noop, noop,
-              is_ordered=1, is_print=is_print, )
+              is_ordered=1, is_print=is_print, is_end=1)
 
     # print(mj)
     # print(len(mj))
-
-    is_print and print("    >·>·>·>·>·>·>·>·>·> " + info + " end >·>·>·>·>·>·>·>·>·>")
 
 if __name__ == '__main__':
     structure_chi2_3D(U_name="",
@@ -268,4 +264,4 @@ if __name__ == '__main__':
                       is_print=1, is_contours=1, n_TzQ=1,
                       Gz_max_Enhance=1, match_mode=1,
                       # %%
-                      border_percentage=0.1, )
+                      border_percentage=0.1, is_end=-1, )

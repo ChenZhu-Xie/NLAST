@@ -10,7 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
-from fun_global_var import init_GLV_DICT, fset, fget, fkey
+from fun_global_var import tree_print, init_GLV_rmw, fset, fget, fkey
 from b_1_AST import AST
 from B_3_SHG_NLA_SSI_chi2 import SHG_NLA_SSI
 from B_3_SHG_SSF_SSI_chi2 import SHG_SSF_SSI
@@ -61,6 +61,9 @@ def consistency_SHG_SSI__AST(img_full_name = "Grating.png",
                             is_NLA = 1,
                             # %%
                             **kwargs, ):
+    info = "利用 SHG 描边：SSI"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 非线性 惠更斯 菲涅尔 原理
 
@@ -198,7 +201,7 @@ def consistency_SHG_SSI__AST(img_full_name = "Grating.png",
                                   is_phase_only)
 
     U2_Z_ADD = U1_z_SSI + U2_z_AST
-    init_GLV_DICT("", "a", "ADD", "SSI", **kwargs)
+    init_GLV_rmw("", "a", "ADD", "SSI", **kwargs)
     fset("U", U2_Z_ADD)
 
     folder_address = U_plot_save(fget("U"), fkey("U"), 1,
@@ -213,7 +216,7 @@ def consistency_SHG_SSI__AST(img_full_name = "Grating.png",
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z=Z, )
+                                 z=Z, is_end=1, )
 
     # %%
 
@@ -261,6 +264,6 @@ if __name__ == '__main__':
                                 #%%
                                 is_NLA = 1,
                                 # %%
-                                border_percentage=0.1, )
+                                border_percentage=0.1, is_end=-1, )
 
 # 注意 colorbar 上的数量级

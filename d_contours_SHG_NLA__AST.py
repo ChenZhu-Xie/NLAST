@@ -10,7 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
-from fun_global_var import init_GLV_DICT, fset, fget, fkey
+from fun_global_var import tree_print, init_GLV_rmw, fset, fget, fkey
 from b_1_AST import AST
 from b_3_SHG_NLA import SHG_NLA
 np.seterr(divide='ignore', invalid='ignore')
@@ -78,6 +78,9 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                             Gz_max_Enhance=1, match_mode=1,
                             # %%
                             **kwargs, ):
+    info = "利用 SHG 描边：NLAST"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 非线性 惠更斯 菲涅尔 原理
 
@@ -207,7 +210,7 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                                   is_phase_only)
 
     U2_Z_ADD = U1_z_NLA + U2_z_AST
-    init_GLV_DICT("", "a", "ADD", "", **kwargs)
+    init_GLV_rmw("", "a", "ADD", "", **kwargs)
     fset("U", U2_Z_ADD)
 
     folder_address = U_plot_save(fget("U"), fkey("U"), 1,
@@ -222,7 +225,7 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z=Z, )
+                                 z=Z, is_end=1, )
 
     # %%
 
@@ -286,6 +289,6 @@ if __name__ == '__main__':
                             # %%
                             is_print=2, is_contours=1, n_TzQ=1, Gz_max_Enhance=1, match_mode=1,
                             # %%
-                            border_percentage=0.1, )
+                            border_percentage=0.1, is_end=-1, )
 
 # 注意 colorbar 上的数量级

@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from fun_os import get_desktop, Info_img
+from fun_global_var import tree_print
 
 Image.MAX_IMAGE_PIXELS = 10E10  # Image 的 默认参数 无法处理那么大的图片
 
@@ -69,12 +70,13 @@ def image_Border(src, dst, loc='a', width=3, color=(0, 0, 0, 255)):
 
 def image_Add_black_border(img_full_name="Grating.png",
                            border_percentage=0.5,
-                           is_print=1, ):
+                           is_print=1, **kwargs ):
     # img_full_name = "Grating.png"
     # border_percentage = 0.5 # 边框 占图片的 百分比，也即 图片 放大系数
 
-    is_print and print("    >·>·>·>·>·>·>·>·>·> 加黑边 start >·>·>·>·>·>·>·>·>·>")
-
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "加黑边")
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    # 其实 外面的 kwargs 没传进来，所以这里 直接就是 is_end = 0，add_level = 0
     # %%
     # 预处理 导入图片 为方形，并加边框
 
@@ -82,7 +84,7 @@ def image_Add_black_border(img_full_name="Grating.png",
         img_full_name)
 
     img = cv2.imdecode(np.fromfile(img_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
-    is_print and print("img.shape = {}".format(img.shape))
+    is_print and print(tree_print() + "img.shape = {}".format(img.shape))
 
     if img.shape[0] != img.shape[1]:  # 如果 高 ≠ 宽
         if img.shape[0] < img.shape[1]:  # 如果 图片很宽，就上下加 黑色_不透明_边框
@@ -107,16 +109,14 @@ def image_Add_black_border(img_full_name="Grating.png",
         image_Border(img_address, img_squared_address, loc='a', width=0, color=(0, 0, 0, 255))
 
     img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 绝对路径 + 灰度图 读取图片
-    is_print and print("img_squared.shape = {}".format(img_squared.shape))
+    is_print and print(tree_print() + "img_squared.shape = {}".format(img_squared.shape))
 
     border_width = int(img_squared.shape[0] * border_percentage)
     image_Border(img_squared_address, img_squared_bordered_address, loc='a', width=border_width, color=(0, 0, 0, 255))
 
     img_squared_bordered = cv2.imdecode(np.fromfile(img_squared_bordered_address, dtype=np.uint8),
                                         0)  # 按 相对路径 + 灰度图 读取图片
-    is_print and print("U.shape = img_squared_bordered.shape = {}".format(img_squared_bordered.shape))
-
-    is_print and print("    >·>·>·>·>·>·>·>·>·> 加黑边 end >·>·>·>·>·>·>·>·>·>")
+    is_print and print(tree_print(1) + "U.shape = img_squared_bordered.shape = {}".format(img_squared_bordered.shape))
 
 
 # %%
@@ -129,7 +129,7 @@ def if_image_Add_black_border(U_name, img_full_name,
 
             image_Add_black_border(img_full_name,  # 预处理 导入图片 为方形，并加边框
                                    border_percentage,
-                                   is_print, )
+                                   is_print, ) # 没把 kwargs 传进来，因此 外面的 is_end = 1 不会进来，也就不会 使加黑边 为 末尾
 
 
 # %%
@@ -137,7 +137,9 @@ def if_image_Add_black_border(U_name, img_full_name,
 
 def img_squared_Resize(img_name, img_name_extension, img_squared,
                        Ix_structure, Iy_structure, Ix,
-                       is_print=1, ):
+                       is_print=1, **kwargs):
+    is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "图片裁剪")
+    kwargs["is_end"], kwargs["add_level"] = 0, 0 # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     desktop = get_desktop()
 
     img_squared_resize = cv2.resize(img_squared, (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA)
@@ -145,7 +147,7 @@ def img_squared_Resize(img_name, img_name_extension, img_squared,
     img_squared_resize_address = desktop + "\\" + img_squared_resize_full_name
     # cv2.imwrite(img_squared_resize_address, img_squared_resize) # 保存 img_squared_resize，但不能有 中文路径
     cv2.imencode(img_squared_resize_address, img_squared_resize)[1].tofile(img_squared_resize_address)
-    is_print and print("img_squared_resize.shape = {}".format(img_squared_resize.shape))
+    is_print and print(tree_print() + "img_squared_resize.shape = {}".format(img_squared_resize.shape))
 
     img_squared_resize_bordered_address = desktop + "\\" + "2. " + img_name + "_squared" + "_resize" + "_bordered" + img_name_extension
     border_width = (Ix - Ix_structure) // 2
@@ -153,7 +155,7 @@ def img_squared_Resize(img_name, img_name_extension, img_squared,
                  color=(0, 0, 0, 255))
     img_squared_resize_bordered = cv2.imdecode(np.fromfile(img_squared_resize_bordered_address, dtype=np.uint8),
                                                0)  # 按 相对路径 + 灰度图 读取图片
-    is_print and print(
-        "structure_squared.shape = img_squared_resize_bordered.shape = {}".format(img_squared_resize_bordered.shape))
+    is_print and print(tree_print(1) + "structure_squared.shape = img_squared_resize_bordered.shape = {}"
+                       .format(img_squared_resize_bordered.shape))
 
     return border_width, img_squared_resize_full_name, img_squared_resize

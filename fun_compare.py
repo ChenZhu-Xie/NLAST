@@ -7,7 +7,7 @@ Created on Tue Oct 26 14:41:11 2021
 
 import numpy as np
 from fun_os import split_parts, U_plot_save, U_error_plot_save, U_plot, U_energy_print
-from fun_global_var import fkey
+from fun_global_var import fkey, tree_print
 
 #%%
 
@@ -31,10 +31,13 @@ def U_compare(U, U_0, U_0_title, z,
               #%%
               is_colorbar_on = 1, is_energy = 1,
               #%%
-              is_relative = 1, is_print = 2, ):
+              is_relative = 1, is_print = 2, **kwargs, ):
+    #%%
     U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_0_title)
 
-    is_print and print("        =·=·=·=·=·=·=·=·=·= " + ugHGU + "_对比 start =·=·=·=·=·=·=·=·=·=")
+    info = ugHGU + "_对比"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     if is_relative == 1: # 归一化
         U = U/np.max(np.abs(U))
@@ -78,6 +81,9 @@ def U_compare(U, U_0, U_0_title, z,
     # %%
     # 对比 U 与 U_0 的 绝对误差 1
 
+    info = ugHGU + "_先误差_后取模或相位"
+    is_print and print(tree_print(add_level=2) + info)
+
     U_error = U - U_0
     U_error_name = fkey(ugHGU) + "_error"
     folder_address = U_plot_save(U_error, U_error_name, is_print,
@@ -92,7 +98,7 @@ def U_compare(U, U_0, U_0_title, z,
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z=z, )
+                                 z=z, is_end=1)
 
     #%%
 
@@ -108,9 +114,7 @@ def U_compare(U, U_0, U_0_title, z,
                                       # %%
                                       is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                       # %%                          何况 一般默认 is_self_colorbar = 1...
-                                      z=z, )
-
-    is_print and print("        =·=·=·=·=·=·=·=·=·= " + ugHGU + "_对比 end =·=·=·=·=·=·=·=·=·=")
+                                      z=z, is_end=1)
     
     # #%%
     # # 对比 U 与 U_0 的 绝对误差 的 相对误差

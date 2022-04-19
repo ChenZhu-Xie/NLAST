@@ -10,6 +10,7 @@ Created on Tue Oct 26 14:41:11 2021
 import math
 import numpy as np
 from fun_os import U_dir
+from fun_global_var import Get, tree_print
 from fun_plot import plot_2d
 from fun_pump import pump_pic_or_U_structure
 from fun_linear import init_AST, init_SHG, fft2
@@ -185,6 +186,14 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                is_print=1,
                                # %%
                                **kwargs, ):
+    info = "χ2_2D_横向绘制"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    #%%
+    kwargs["is_end"] = 1 if Get("args_SHG") else 0
+    # 如果 Get("args_SHG") 非 False（则为 1,2,...），说明之前 用过 args_SHG，那么之后这里的 args_SHG 就不会被用，则下面 这个就应是 is_end=1
+    # 否则 Get("args_SHG") == False.
+
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
     Ix_structure, Iy_structure, deff_structure_size, \
@@ -219,6 +228,8 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                                                  # %%
                                                                  **kwargs, )
 
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+
     # %%
 
     n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
@@ -231,7 +242,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
     Gx, Gy, Gz = args_SHG(k1, k2, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
-                          is_print, )
+                          is_print, is_end=1)
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = 1 - is_no_backgroud - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
@@ -379,6 +390,10 @@ def structure_n1_Generate_2D(U_structure_name="",
                              is_print=1,
                              # %%
                              **kwargs, ):
+    info = "n_2D_横向绘制"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    #%%
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
@@ -426,7 +441,7 @@ def structure_n1_Generate_2D(U_structure_name="",
     Gx, Gy, Gz = args_SHG(k1, k2, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
-                          is_print, )
+                          is_print, is_end=1)
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = n1 - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation

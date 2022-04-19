@@ -9,7 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import math
 import numpy as np
-from fun_global_var import init_GLV_DICT, end_STD, fGHU_plot_save
+from fun_global_var import tree_print, init_GLV_rmw, end_STD, fGHU_plot_save
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST
@@ -53,6 +53,9 @@ def interference_AST__AST(img_full_name="Grating.png",
                           is_print=1,
                           # %%
                           **kwargs, ):
+    info = "利用 干涉 描边：AST"
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
     if_image_Add_black_border("", img_full_name,
@@ -138,12 +141,12 @@ def interference_AST__AST(img_full_name="Grating.png",
     # %%
 
     dz_min = math.pi / (k1 / size_PerPixel)
-    is_print and print("dz_min = {} mm".format(dz_min))
+    is_print and print(tree_print() + "dz_min = {} mm".format(dz_min))
 
     delay_min_nums = dz_expect // dz_min
     delay_min_nums_odd = delay_min_nums + np.mod(delay_min_nums + 1, 2)
     dz = dz_min * delay_min_nums_odd
-    is_print and print("dz = {} mm".format(dz))
+    is_print and print(tree_print() + "dz = {} mm".format(dz))
 
     Z = z + dz
 
@@ -154,7 +157,7 @@ def interference_AST__AST(img_full_name="Grating.png",
 
     # %%
 
-    init_GLV_DICT("", "a", "ADD", "", **kwargs)
+    init_GLV_rmw("", "a", "ADD", "", **kwargs)
 
     end_STD(U_z + U_Z, G_z,
             is_energy, n_sigma=3, )
@@ -172,7 +175,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z, )
+                   z, is_end=1, )
 
     # %%
 
@@ -211,4 +214,4 @@ if __name__ == '__main__':
                           # %%
                           is_print=1,
                           # %%
-                          border_percentage=0.1, )
+                          border_percentage=0.1, is_end=-1, )
