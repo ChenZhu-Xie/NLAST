@@ -73,7 +73,7 @@ def init_GLV_tree_print():
     # Get("tree_print")[-1].append("├── ") # [[".", "├── "]]
     # Get("tree_print")[-1].append("|    ") # [[".", "├── ", "|    "]]
     # Get("tree_print")[-1].append("└── ")  # [[".", "├── ", "|    ", "└── "]]
-    # Get("tree_print")[-1].append("    ")  # [[".", "├── ", "|    ", "└── ", "    "]]
+    # Get("tree_print")[-1].append("     ")  # [[".", "├── ", "|    ", "└── ", "     "]]
     #
     # sub_levels_num = 4
     # for i in [i + 1 for i in range(sub_levels_num)]:  # i = 1, 2, 3, ..., sub_levels_num
@@ -90,7 +90,7 @@ def init_GLV_tree_print():
         Get("tree_print").append("├── ")  # [".", "├── "]
         Get("tree_print").append("|    ") # [".", "├── ", "|    "]
         Get("tree_print").append("└── ")  # [".", "├── ", "|    ", "└── "]
-        Get("tree_print").append("    ")  # [".", "├── ", "|    ", "└── ", "    "]
+        Get("tree_print").append("     ")  # [".", "├── ", "|    ", "└── ", "     "]
 
         print(Get("tree_print")[0])
 
@@ -104,7 +104,7 @@ def init_GLV_tree_print():
         Set("dirs" + suffix_2, [[]])
 
 def set_tag_tree_print(level, is_end, ):
-    if abs(is_end) == 1: # 如果 第 i 层 的 is_end 的 模 = 1，则 该层用 "    "
+    if abs(is_end) == 1: # 如果 第 i 层 的 is_end 的 模 = 1，则 该层用 "     "
         # is_end 可以为 -1，表示 最末一个 最靠外的 层级
         Set("tree_print_" + str(level), Get("tree_print")[-1])
     else: # 如果 第 i 层 的 is_end != 1，则 该层用 "|    "
@@ -115,7 +115,7 @@ def get_tags_tree_print(level, ):
     for l in range(level):
         ex_levels_tags += Get("tree_print_" + str(l)) if Get("tree_print_" + str(l)) else Get("tree_print")[2]
         # 如果 Dict 里没 "tree_print_" + str(level) 这个名字，则 return False，则 该层 默认 用 "|    "
-        # 如果有，则返回的值为 "    " 或 "|    " 而 if 这两个东西 恒为 True
+        # 如果有，则返回的值为 "     " 或 "|    " 而 if 这两个东西 恒为 True
     return ex_levels_tags
 
 def info_tree_print(level, is_end=0, ):
@@ -179,7 +179,7 @@ def tree_print(is_end=0, add_level=0): # 默认 is_end = 0 ，即 默认 该层�
         if Get("dirs" + suffix_2)[-1] != []: # 且最末 没有 空容器，则最末 另起一个 空容器（加上分隔符，分开）
             Get("dirs" + suffix_2).append([]) # 不能每次都减掉 积累的所有 is_end，而是只跳到 上一个 is_end=0 隔开的地方（与最末一个 is_end=1 之间的 is_end=1 们）
     if is_end == 1: # is_end 可以为 -1，表示 最末一个 最靠外的 层级
-        # 此时 必须 不让 is_end 积累数加 1，否则 会多一次 shift + tab 前向缩进；但又得用 "└── ", "    " 来显示其和其子层级。
+        # 此时 必须 不让 is_end 积累数加 1，否则 会多一次 shift + tab 前向缩进；但又得用 "└── ", "     " 来显示其和其子层级。
         Get("dirs" + suffix_2)[-1].append(dir) # 只给最末一个容器里加 is_end=0 的 dir
     # print(is_end, Get("ex_is_end"), ";", Get("level_print"), ex_level)
 

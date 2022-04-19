@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['C:\\Users\\ZML\\.spyder-py3\\temp.py', 'A_to_B_3_SHG_NLA_ssi.py', 'A_to_B_2_nLA_ssi.py', 'b_1_AST.py', 'A_2_structure_n1_Generate_3D.py', 'A_3_structure_chi2_Generate_3D.py', 'B_2_nLA_ssi.py', 'b_3_SHG_NLA_EVV.py', 'B_3_SHG_NLA_SSI_chi2.py', 'B_3_SHG_NLA_ssi.py', 'b_3_SHG_NLA.py', 'B_3_SHG_SSF_SSI_chi2.py', 'B_3_SHG_SSF_ssi.py', 'c_compare_SHG_NLA__SSI_chi2.py']
+recent_files = []
 
 [main]
 version = 0.2.0
