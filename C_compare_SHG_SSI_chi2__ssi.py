@@ -359,7 +359,7 @@ if __name__ == '__main__':
                                'color': 'black',  # 'black','gray','darkred'
                                },
                          # %%
-                         is_colorbar_on=1, is_energy=1,
+                         is_colorbar_on=1, is_energy=0,
                          # %%
                          plot_group="UGa", is_animated=1,
                          loop=0, duration=0.033, fps=5,

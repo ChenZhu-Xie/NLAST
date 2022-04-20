@@ -294,8 +294,8 @@ if __name__ == '__main__':
             lam1=0.8, is_air_pump=0, is_air=0, T=25,
             deff=30,
             # %%
-            Tx=10, Ty=10, Tz="2*lc",
-            mx=0, my=0, mz=0,
+            Tx=10, Ty=10, Tz=5.6,
+            mx=0, my=0, mz=1,
             is_NLAST=0,
             # %%
             is_save=1, is_save_txt=0, dpi=100,

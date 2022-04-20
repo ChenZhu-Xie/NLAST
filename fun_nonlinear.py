@@ -218,7 +218,7 @@ def G2_z_modulation_NLAST(k1, k2, Gz,
             G2_z = const * molecule / denominator
         elif Res_version == 2:
             G2_z = const * G1_Uz_Squared_modulated / denominator
-        elif Res_version == 2:
+        elif Res_version == 3:
             G2_z = const * g1_U0_Squared_modulated / denominator
 
     return G2_z

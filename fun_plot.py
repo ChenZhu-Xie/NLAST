@@ -92,7 +92,9 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         
     # kind = 'cubic' # kind = 0,1,2,3 nono，1 维才可以这么写，2 维只有 'linear', 'cubic', 'quintic'
     # f = interp1d(ix, array1D, kind = kind)
-    
+
+    # print(ix)
+    # print(array1D)
     f = UnivariateSpline(ix,array1D,s=0)
     array1D_new = f(ix_new)
     

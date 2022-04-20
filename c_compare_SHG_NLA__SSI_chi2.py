@@ -291,15 +291,15 @@ if __name__ == '__main__':
                          is_phase_only_Structure=0,
                          # %%
                          z_pump_Structure=0,
-                         is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
-                         l_Structure=1, p_Structure=0,
+                         is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
+                         l_Structure=0, p_Structure=0,
                          theta_x_Structure=0, theta_y_Structure=0,
                          # %%
                          is_random_phase_Structure=0,
                          is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                          # %%
                          U_name="",
-                         img_full_name="lena1.png",
+                         img_full_name="grating.png",
                          is_phase_only=0,
                          # %%
                          z_pump=0,
@@ -311,8 +311,8 @@ if __name__ == '__main__':
                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                          # %%---------------------------------------------------------------------
                          # %%
-                         U_NonZero_size=0.9, w0=0, w0_Structure=0, structure_size_Enlarge=0.1,
-                         L0_Crystal=2, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
+                         U_NonZero_size=0.9, w0=0.3, w0_Structure=0, structure_size_Enlarge=0.1,
+                         L0_Crystal=2.66, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
                          sheets_stored_num=10,
                          z0_section_1_expect=0, z0_section_2_expect=0,
                          X=0, Y=0,
@@ -326,13 +326,13 @@ if __name__ == '__main__':
                          is_bulk=0, is_no_backgroud=0,
                          is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
                          # %%
-                         lam1=1, is_air_pump=0, is_air=0, T=25,
+                         lam1=1.064, is_air_pump=0, is_air=0, T=25,
                          deff=30, is_fft=1, fft_mode=0,
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
                          Tx=18.769, Ty=20, Tz=6.9,
-                         mx=1, my=0, mz=1,
+                         mx=0, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
                          is_save=0, is_save_txt=0, dpi=100,

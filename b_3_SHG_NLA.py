@@ -355,15 +355,15 @@ if __name__ == '__main__':
             is_phase_only_Structure=0,
             # %%
             w0_Structure=0, z_pump_Structure=0,
-            is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
-            l_Structure=1, p_Structure=0,
+            is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
+            l_Structure=0, p_Structure=0,
             theta_x_Structure=0, theta_y_Structure=0,
             # %%
             is_random_phase_Structure=0,
             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
             # %%
             U_NonZero_size=0.9, w0=0.1,
-            z0=2.25,
+            z0=10,
             # %%
             lam1=1.064, is_air_pump=0, is_air=0, T=25,
             deff=30, is_fft=1, fft_mode=0,
@@ -395,7 +395,7 @@ if __name__ == '__main__':
             # %%
             is_colorbar_on=1, is_energy=0,
             # %%
-            is_print=1, is_contours=66, n_TzQ=1,
+            is_print=1, is_contours=0, n_TzQ=1,
             Gz_max_Enhance=1, match_mode=1,
             # %%
             border_percentage=0.1, ray="2", is_end=-1, )

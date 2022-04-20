@@ -434,7 +434,7 @@ if __name__ == '__main__':
             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
             # %%
             U_NonZero_size=1, w0=0.1,
-            z0=1, sheets_stored_num=10,
+            z0=5.6, sheets_stored_num=10,
             # %%
             lam1=0.8, is_air_pump=0, is_air=0, T=25,
             deff=30, is_fft=1, fft_mode=0,

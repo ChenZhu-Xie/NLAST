@@ -60,12 +60,14 @@ def Cal_Iz_structure(diz,
     Iz_structure = deff_structure_length / size_PerPixel  # Iz_structure 对应的是 期望的（连续的），而不是 实际的（discrete 离散的）？不，就得是离散的。
 
     leftover = Iz_structure - Iz_structure//diz * diz
-    sheets_num_structure = int(Iz_structure // diz) + int(leftover != 0)
+    sheets_num_structure = int(Iz_structure // diz) + int(leftover != 0) # 这个 leftover 就 保证了 zj 中 没有 重复的 元素（特别是 最末 2 位）
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_length = {} mm".format(deff_structure_length))
     kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    zj_structure = np.arange(sheets_num_structure + 1, dtype=np.float64()) * diz * size_PerPixel
-    zj_structure[-1] = deff_structure_length
+    array_1d = np.arange(sheets_num_structure + 1, dtype=np.float64())
+    zj_structure = array_1d * diz * size_PerPixel
+    zj_structure[-1] = deff_structure_length # 直接覆盖 最末一位，也永远 不会与 倒数第 2 位，值相同。
+    # 相同的话，plot_1d 插值会出问题。
 
     return sheets_num_structure, Iz_structure, deff_structure_length, zj_structure
 
@@ -105,10 +107,11 @@ def Cal_Iz(diz, zj_endface,
     leftover = Il - Il//diz * diz
     sheets_num_left = int(Il // diz) + int(leftover != 0)  # Iz - Iz//diz * diz 比 np.mod(Iz,diz) 好用
     sheets_num = len(zj_endface) - 1 + sheets_num_left
-    
-    zj_left = np.arange(sheets_num_left + 1, dtype=np.float64()) * diz * size_PerPixel
+
+    array_1d = np.arange(sheets_num_left + 1, dtype=np.float64())
+    zj_left = array_1d * diz * size_PerPixel
     zj_left[-1] = L0_Crystal
-    zj = np.append(zj_endface, zj_endface[-1] + zj_left[1:])
+    zj = np.append(zj_endface, zj_endface[-1] + zj_left[1:]) # 保证 没有 重复的元素，否则 plot_1d 会出问题
     # print(sheets_num == len(zj) - 1)
 
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0 = L0_Crystal = {} mm".format(L0_Crystal))
@@ -392,12 +395,16 @@ def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure
     #         zj_structure[j] = z0_structure_frontface + j // 2 * deff_structure_sheet
     #         mj_structure[j] = 1
 
-    zj_structure = z0_structure_frontface + \
-                   np.arange(sheets_num_structure + 1, dtype=np.float64()) * deff_structure_sheet / 2 \
-                   - np.mod(np.arange(sheets_num_structure + 1, dtype=np.float64()), 2) \
-                   * (0.5 - Duty_Cycle_z) * deff_structure_sheet
-
-    zj_structure[-1] = z0_structure_endface
+    array_1d = np.arange(sheets_num_structure + 1, dtype=np.float64())
+    zj_array = array_1d / 2 - np.mod(array_1d, 2) * (0.5 - Duty_Cycle_z)
+    # print(zj_array)
+    zj_structure = z0_structure_frontface + zj_array * deff_structure_sheet
+    # print(zj_structure)
+    if zj_structure[-2] != z0_structure_endface: # 得保证 没有 重复的元素，否则 plot_1d 会出问题
+        zj_structure[-1] = z0_structure_endface
+    else: # 得保证 没有 重复的元素，否则 plot_1d 会出问题
+        zj_structure = zj_structure[:-1] # 否则 踢除 最后一个元素
+        sheets_num_structure -= 1 # 同时 sheets_num_structure - 1
     # print(zj_structure)
 
     Dzj_structure = zj_structure - z0_structure_frontface
@@ -426,7 +433,10 @@ def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure
     mj_structure = mj_structure.tolist()  # 转换为 list 才能储存 不同类型 的值
     # print(mj_structure)
 
-    return zj_structure, mj_structure
+    # print(len(zj_structure))
+    # print(len(mj_structure))
+
+    return zj_structure, mj_structure, sheets_num_structure
 
 
 # %%
@@ -525,6 +535,15 @@ def slice_SSI(L0_Crystal, size_PerPixel,
                   is_print, )
 
     # %%
+    # 生成 structure 各层 z 序列，以及 正负畴 序列信息 mj
+
+    # 及时更新 正确的 sheets_num_structure, 这样 sheets_num、sheets_num_endface 等 关键参数 也都 才是正确的
+    zj_structure, mj_structure, sheets_num_structure \
+        = cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface,
+                              z0_structure_endface,
+                              is_stripe, mx, my, Tx, Ty, Tz, structure_xy_mode, size_PerPixel, )
+
+    # %%
     # 定义 结构后端面 距离 晶体前端面 的 纵向实际像素、结构后端面 距离 晶体前端面 的 实际纵向尺寸 2
 
     sheet_th_endface, sheets_num_endface, Iz_endface \
@@ -538,14 +557,6 @@ def slice_SSI(L0_Crystal, size_PerPixel,
     sheets_num, Iz, z0 \
         = cal_Iz(sheets_num_endface, z0_structure_endface, L0_Crystal, size_PerPixel,
                  is_print, )
-
-    # %%
-    # 生成 structure 各层 z 序列，以及 正负畴 序列信息 mj
-
-    zj_structure, mj_structure \
-        = cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface,
-                              z0_structure_endface,
-                              is_stripe, mx, my, Tx, Ty, Tz, structure_xy_mode, size_PerPixel, )
 
     # %%
     # 生成 晶体内 各层 z 序列、izj、dizj，以及 正负畴 序列信息 mj
