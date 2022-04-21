@@ -59,7 +59,8 @@ def SHG_NLA(U_name="",
         # %%
         # 生成横向结构
         Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
-        Depth = 2, structure_xy_mode = 'x', 
+        Depth = 2, structure_xy_mode = 'x',
+        #%%
         is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
         is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
         # %%
@@ -376,6 +377,7 @@ if __name__ == '__main__':
             # 生成横向结构
             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
             Depth=2, structure_xy_mode='x',
+            # %%
             is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
             is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
             # %%

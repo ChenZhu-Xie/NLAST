@@ -6,7 +6,7 @@ Created on Tue Oct 26 14:41:11 2021
 """
 
 import numpy as np
-from fun_os import split_parts, U_plot_save, U_error_plot_save, U_plot, U_energy_print
+from fun_os import split_parts, U_plot_save, U_error_plot_save, U_plot, U_energy_print, U_custom_print
 from fun_global_var import fkey, tree_print
 
 #%%
@@ -102,7 +102,7 @@ def U_compare(U, U_0, U_0_title, z,
 
     #%%
 
-    folder_address = U_error_plot_save(U, U_0, ugHGU, is_print,
+    folder_address, U_amp_error_energy = U_error_plot_save(U, U_0, ugHGU, is_print,
                                       img_name_extension,
                                       # %%
                                       size_PerPixel,
@@ -114,8 +114,19 @@ def U_compare(U, U_0, U_0_title, z,
                                       # %%
                                       is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                       # %%                          何况 一般默认 is_self_colorbar = 1...
-                                      z=z, is_end=1)
-    
+                                      z=z, )
+
+    U_0_energy = np.sum(np.abs(U_0) ** 2)
+    U_error = U_amp_error_energy / U_0_energy
+    U_custom_print(U_error, fkey(ugHGU), "relative_error", is_print,
+                   z=z, is_end=1)
+
+    # U_custom_print(U_error, fkey(ugHGU), "relative_error", is_print,
+    #                z=z, )
+    # U_custom_print(U_error / U_0_energy, fkey(ugHGU), "error_coefficient", is_print,
+    #                z=z, is_end=1)
+    return (U_0_energy, U_amp_error_energy)
+
     # #%%
     # # 对比 U 与 U_0 的 绝对误差 的 相对误差
     #

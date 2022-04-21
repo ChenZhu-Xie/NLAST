@@ -242,6 +242,15 @@ def U_rsd_print(U_receive, U_name, is_print,
                                       .format(np.std(np.abs(U_receive)) / np.mean(np.abs(U_receive)))) # is_print 是 1 和 0 都不行，得是 2 等才行...
     kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
+def U_custom_print(U_receive, U_name, custom_info, is_print, # 外面的 **kwargs 可能传进 “U” 这个关键字，所以...用 U_receive 代替 实参名 U
+                   **kwargs, ):  # kwargs 是 z
+
+    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
+
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + "." + custom_info + " = {}"
+                       .format(U_receive)) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
+    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+
 # %%
 
 def U_dir(U_name, is_save,
@@ -512,7 +521,7 @@ def U_plot(folder_address,
 #%%
 
 def U_error_plot(folder_address,
-           U, U_0,
+           U, U_0, ugHGU,
            img_name_extension,
            # %%
            sample, size_PerPixel,
@@ -532,7 +541,7 @@ def U_error_plot(folder_address,
     U_phase_error = np.abs(U) - np.angle(U_0)
 
     U_amp_error_plot_address = U_amp_error_plot(folder_address,
-                                    U_amp_error, fkey("U"),
+                                    U_amp_error, fkey(ugHGU),
                                     img_name_extension,
                                     # %%
                                     [], sample, size_PerPixel,
@@ -548,7 +557,7 @@ def U_error_plot(folder_address,
                                     **kwargs, )
 
     U_phase_error_plot_address = U_phase_error_plot(folder_address,
-                                        U_phase_error, fkey("U"),
+                                        U_phase_error, fkey(ugHGU),
                                         img_name_extension,
                                         # %%
                                         [], sample, size_PerPixel,
@@ -677,7 +686,7 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
     # 绘图：U
 
     U_amp_error_plot_address, U_phase_error_plot_address = U_error_plot(folder_address,
-                                                      U, U_0,
+                                                      U, U_0, ugHGU,
                                                       img_name_extension,
                                                       # %%
                                                       1, size_PerPixel,
@@ -697,7 +706,8 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
     U_save(U_phase_error, U_phase_error_name, folder_address,
            is_save, is_save_txt, **kwargs, )
 
-    return folder_address
+    U_amp_error_energy = np.sum(np.abs(U_amp_error) ** 2)
+    return folder_address, U_amp_error_energy
 
 
 def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto_seq_and_z = 1

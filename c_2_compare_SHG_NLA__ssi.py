@@ -14,7 +14,7 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_linear import fft2
 from fun_compare import U_compare
 from b_3_SHG_NLA import SHG_NLA
-from A_to_B_3_SHG_NLA_ssi import A_to_B_3_SHG_NLA_ssi
+from A_3_to_B_3_SHG_NLA_ssi import A_3_to_B_3_SHG_NLA_ssi
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -106,7 +106,7 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
     # %%
 
     U2_ssi, G2_ssi, ray2_ssi, method_and_way2_ssi, U_key2_ssi = \
-        A_to_B_3_SHG_NLA_ssi(U_name_Structure,
+        A_3_to_B_3_SHG_NLA_ssi(U_name_Structure,
                                 is_phase_only_Structure,
                                 # %%
                                 z_pump_Structure,

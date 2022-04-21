@@ -247,7 +247,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
     # %%
     # 对比 G2_NLA 与 G2_SSI 的 （绝对）误差
 
-    U_compare(fft2(U2_NLA), fft2(U2_SSI), U_key2_SSI.replace("U", "G"), L0_Crystal,
+    G_and_G_error_energy = U_compare(fft2(U2_NLA), fft2(U2_SSI), U_key2_SSI.replace("U", "G"), L0_Crystal,
               # %%
               img_name_extension, size_PerPixel, size_fig,
               # %%
@@ -267,7 +267,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
     # %%
     # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
 
-    U_compare(U2_NLA, U2_SSI, U_key2_SSI, L0_Crystal,
+    U_and_U_error_energy = U_compare(U2_NLA, U2_SSI, U_key2_SSI, L0_Crystal,
               # %%
               img_name_extension, size_PerPixel, size_fig,
               # %%
@@ -286,6 +286,8 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
 
     # %%
 
+    return (G_and_G_error_energy, U_and_U_error_energy)
+
 if __name__ == '__main__':
     compare_SHG_NLA__SSI(U_name_Structure="",
                          is_phase_only_Structure=0,
@@ -299,7 +301,7 @@ if __name__ == '__main__':
                          is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                          # %%
                          U_name="",
-                         img_full_name="grating.png",
+                         img_full_name="lena1.png",
                          is_phase_only=0,
                          # %%
                          z_pump=0,
@@ -331,7 +333,7 @@ if __name__ == '__main__':
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
-                         Tx=18.769, Ty=20, Tz=6.9,
+                         Tx=18.769, Ty=20, Tz=6.95,
                          mx=0, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%

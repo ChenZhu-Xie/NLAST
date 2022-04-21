@@ -13,7 +13,7 @@ from A_2_structure_n1_Generate_3D import structure_n1_3D
 from B_2_nLA_ssi import nLA_ssi
 np.seterr(divide='ignore',invalid='ignore')
 
-def A_to_B_2_nLA_ssi(U_name_Structure = "",
+def A_2_to_B_2_nLA_ssi(U_name_Structure = "",
                      is_phase_only_Structure = 0, 
                      #%%
                      z_pump_Structure = 0, 
@@ -190,7 +190,7 @@ def A_to_B_2_nLA_ssi(U_name_Structure = "",
     return U, G, ray, method_and_way, U_key
 
 if __name__ == '__main__':
-    A_to_B_2_nLA_ssi(U_name_Structure = "",
+    A_2_to_B_2_nLA_ssi(U_name_Structure = "",
                      is_phase_only_Structure = 0,
                      #%%
                      z_pump_Structure = 0,

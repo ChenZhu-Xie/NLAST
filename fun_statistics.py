@@ -22,9 +22,10 @@ def U_Drop_n_sigma(U, n, is_energy):
     
     return U
 
-def find_Kz(g, k):
+def find_Kxyz(g, k):
     k_z, mesh_k_x_k_y = Cal_kz(g.shape[0], g.shape[1], k)
     g_energy = np.sum(np.abs(g)**2)
-    k_z_weight = np.abs(g)**2 / g_energy
-    K_z = np.sum(k_z_weight * k_z)
-    return K_z
+    k_xyz_weight = np.abs(g)**2 / g_energy
+    K_z = np.sum(k_xyz_weight * k_z)
+    K_y, K_x = np.sum(k_xyz_weight * mesh_k_x_k_y[:,:,0]), np.sum(k_xyz_weight * mesh_k_x_k_y[:,:,1])
+    return K_z, (K_y, K_x)

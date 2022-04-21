@@ -17,7 +17,7 @@ np.seterr(divide='ignore', invalid='ignore')
 
 #%%
 
-def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
+def A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                      is_phase_only_Structure=0,
                      # %%
                      z_pump_Structure=0,
@@ -238,7 +238,7 @@ def A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
     return U, G, ray, method_and_way, U_key
 
 if __name__ == '__main__':
-    A_to_B_3_SHG_NLA_ssi(U_name_Structure="",
+    A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                      is_phase_only_Structure=0,
                      # %%
                      z_pump_Structure=0,

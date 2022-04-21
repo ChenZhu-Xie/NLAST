@@ -95,7 +95,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
 
     # print(ix)
     # print(array1D)
-    f = UnivariateSpline(ix,array1D,s=0)
+    f = UnivariateSpline(ix,array1D,s=0) # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
     array1D_new = f(ix_new)
     
     #%% 插值 end
