@@ -163,7 +163,7 @@ def interference_AST__AST(img_full_name="Grating.png",
             is_energy, n_sigma=3, )
 
     fGHU_plot_save(0,  # 默认 全自动 is_auto = 1
-                   img_name_extension,
+                   img_name_extension, is_print,
                    # %%
                    [], 1, size_PerPixel,
                    is_save, is_save_txt, dpi, size_fig,

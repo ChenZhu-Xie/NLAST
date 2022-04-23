@@ -10,7 +10,7 @@ import re
 import cv2
 import numpy as np
 import math
-from fun_global_var import tree_print
+from fun_global_var import Get, tree_print
 from scipy.io import loadmat, savemat
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_gif_video import imgs2gif_imgio, imgs2gif_PIL, imgs2gif_art
@@ -176,7 +176,7 @@ def gan_Uz_name(U_name, is_add_sequence, **kwargs, ):  # args 是 z 或 () 和 s
     if (U_name.find('z') != -1 or U_name.find('Z') != -1) and 'z' in kwargs:
         # 如果 找到 z 或 Z，且 传了 额外的 参数 进来，这个参数 解包后的 第一个参数 不是 空 tuple ()
         z = kwargs['z']
-        U_new_name = U_new_name.replace(part_z, str(float('%.2g' % z)) + "mm")
+        U_new_name = U_new_name.replace(part_z, format(z, Get("F_E")) + "mm") # 原版是 str(float('%.2g' % z))
         # 把 原来含 z 的 part_z 替换为 str(float('%.2g' % z)) + "mm"
 
     if is_add_sequence < 0:  # is_add_sequence >= 0 即有 method_and_way = method + way
@@ -189,7 +189,7 @@ def gan_Uz_plot_address(folder_address, img_name_extension,
                         U_name, suffix, **kwargs):
     Uz_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 1, suffix=suffix,
                                                                             **kwargs, )  # 要加 序列号 # 有 method 和 suffix
-    Uz_name += suffix if suffix != "_energy" else ""
+    Uz_name += suffix if suffix not in U_name else ""
     Uz_name = add___between_ugHGU_and_ray(Uz_name, ugHGU, ray)
     Uz_full_name = Uz_name + img_name_extension
     Uz_plot_address = folder_address + "\\" + Uz_full_name
@@ -200,7 +200,7 @@ def gan_Uz_plot_address(folder_address, img_name_extension,
 def gan_Uz_title(U_name, suffix, **kwargs):
     Uz_title, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, suffix=suffix,
                                                                              **kwargs, )  # 不加 序列号 # 有 method 和 suffix
-    Uz_title += suffix if suffix != "_energy" else ""
+    Uz_title += suffix if suffix not in U_name else ""
     Uz_title = subscript_ray(Uz_title, ugHGU, ray)
     Uz_title = subscript_way(Uz_title, method_and_way)
     return Uz_title
@@ -230,7 +230,7 @@ def U_energy_print(U_receive, U_name, is_print, # 外面的 **kwargs 可能传�
     U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
 
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".total_energy = {}"
-                       .format(np.sum(np.abs(U_receive) ** 2))) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
+                       .format(format(np.sum(np.abs(U_receive) ** 2), Get("F_E")))) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
     kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
 def U_rsd_print(U_receive, U_name, is_print,
@@ -239,7 +239,7 @@ def U_rsd_print(U_receive, U_name, is_print,
     U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
 
     is_print and is_print-1 and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".rsd = {}"
-                                      .format(np.std(np.abs(U_receive)) / np.mean(np.abs(U_receive)))) # is_print 是 1 和 0 都不行，得是 2 等才行...
+                                      .format(format(np.std(np.abs(U_receive)) / np.mean(np.abs(U_receive)), Get("F_E")))) # is_print 是 1 和 0 都不行，得是 2 等才行...
     kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
 def U_custom_print(U_receive, U_name, custom_info, is_print, # 外面的 **kwargs 可能传进 “U” 这个关键字，所以...用 U_receive 代替 实参名 U
@@ -248,7 +248,7 @@ def U_custom_print(U_receive, U_name, custom_info, is_print, # 外面的 **kwarg
     U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
 
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + "." + custom_info + " = {}"
-                       .format(U_receive)) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
+                       .format(format(U_receive, Get("F_E")))) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
     kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
 # %%
@@ -364,7 +364,7 @@ def U_amp_plot(folder_address,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
             is_self_colorbar, is_colorbar_on,
-            is_energy, vmax, vmin, )
+            is_energy, vmax=vmax, vmin=vmin, )
 
     return U_amp_plot_address, U_amp_title
 
@@ -397,7 +397,7 @@ def U_amp_error_plot(folder_address,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
             is_self_colorbar, is_colorbar_on,
-            is_energy, vmax, vmin, )
+            is_energy, vmax=vmax, vmin=vmin, )
 
     return U_amp_error_plot_address, U_amp_error_title
 
@@ -430,7 +430,7 @@ def U_phase_plot(folder_address,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
             is_self_colorbar, is_colorbar_on,
-            0, vmax, vmin, )  # 相位 不能有 is_energy = 1
+            0, vmax=vmax, vmin=vmin, )  # 相位 不能有 is_energy = 1
 
     return U_phase_plot_address, U_phase_title
 
@@ -463,7 +463,7 @@ def U_phase_error_plot(folder_address,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
             is_self_colorbar, is_colorbar_on,
-            0, vmax, vmin, )  # 相位 不能有 is_energy = 1
+            0, vmax=vmax, vmin=vmin, )  # 相位 不能有 is_energy = 1
 
     return U_phase_error_plot_address, U_phase_error_title
 
@@ -711,7 +711,7 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
 
 
 def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto_seq_and_z = 1
-                  G_energy,
+                  G_energy, is_print,
                   H, H_name,
                   U, U_name,
                   U_energy,
@@ -770,7 +770,7 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
                                  z=z, )
 
-    folder_address = U_plot_save(U, U_name, 1,
+    folder_address = U_plot_save(U, U_name, is_print,
                                  img_name_extension,
                                  # %%
                                  size_PerPixel,
@@ -1843,27 +1843,53 @@ def U_energy_plot(folder_address,
                   **kwargs, ):
     # %%
     # 绘制 U_amp
-    suffix = '_energy'
+    suffix = kwargs.get("suffix", "_energy")
+    if "suffix" in kwargs: kwargs.pop("suffix") # 及时删除 "suffix" 键，以使之后 不重复
     # %%
     # 生成 要储存的 图片名 和 地址
     U_energy_full_name, U_energy_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
-                                                                U_name, suffix, **kwargs)
+                                                                    U_name, suffix, **kwargs)
     # %%
     # 生成 图片中的 title
     U_energy_title = gan_Uz_title(U_name, suffix, **kwargs) # 增加 后缀 "_evolution" （才怪，suffix 只 help 辅助 加 5.1 这种序号，原 U_name 里已有 _energy 了）
     # %%
-    U_energy_max = np.max(U)  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar）
-    U_energy_min = np.min(U)  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar）
 
     plot_1d(zj, sample, size_PerPixel,
             U, U_energy_plot_address, U_energy_title,
             is_save, dpi, size_fig_x, size_fig_y,
             color_1d, ticks_num, is_title_on, is_axes_on, is_mm, 1,
-            fontsize, font,
-            0, U_energy_max, U_energy_min)
+            fontsize, font, 0,
+            # %%
+            **kwargs, )
 
     return U_energy_plot_address
 
+def U_error_energy_plot(U, l2, U_name,
+                      img_name_extension,
+                      # %%
+                      zj, zj2, sample, size_PerPixel,
+                      is_save, dpi, size_fig_x, size_fig_y,
+                      # %%
+                      color_1d, color_1d2,
+                      ticks_num, is_title_on, is_axes_on, is_mm,
+                      fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                      # %%
+                      z, **kwargs, ):
+
+    U_energy_plot(get_desktop(),
+                  U, U_name,
+                  img_name_extension,
+                  # %%
+                  zj, sample, size_PerPixel,
+                  is_save, dpi, size_fig_x, size_fig_y,
+                  color_1d, ticks_num,
+                  is_title_on, is_axes_on, is_mm,
+                  fontsize, font,
+                  # %%
+                  z=z, suffix='_error_energy',
+                  # %%
+                  l2=l2, zj2=zj2, color_1d2=color_1d2,
+                  label="energy", label2="error_energy", **kwargs, )
 
 # %%
 

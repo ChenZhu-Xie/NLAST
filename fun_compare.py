@@ -39,10 +39,6 @@ def U_compare(U, U_0, U_0_title, z,
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    if is_relative == 1: # 归一化
-        U = U/np.max(np.abs(U))
-        U_0 = U_0 / np.max(np.abs(U_0))
-
     #%%
     # 画一下 两个待比较的 对象，并 print 一下 能量情况
 
@@ -78,13 +74,19 @@ def U_compare(U, U_0, U_0_title, z,
            # %%
            z=z, )
 
+    # %% 归一化，查看 相对分布 的 大小
+
+    if is_relative == 1: # 归一化
+        U_norm = U/np.max(np.abs(U))
+        U_0_norm = U_0 / np.max(np.abs(U_0))
+
     # %%
     # 对比 U 与 U_0 的 绝对误差 1
 
     info = ugHGU + "_先误差_后取模或相位"
     is_print and print(tree_print(add_level=2) + info)
 
-    U_error = U - U_0
+    U_error = U_norm - U_0_norm
     U_error_name = fkey(ugHGU) + "_error"
     folder_address = U_plot_save(U_error, U_error_name, is_print,
                                  img_name_extension,
@@ -102,7 +104,7 @@ def U_compare(U, U_0, U_0_title, z,
 
     #%%
 
-    folder_address, U_amp_error_energy = U_error_plot_save(U, U_0, ugHGU, is_print,
+    folder_address, U_amp_error_energy = U_error_plot_save(U_norm, U_0_norm, ugHGU, is_print,
                                       img_name_extension,
                                       # %%
                                       size_PerPixel,
@@ -116,16 +118,18 @@ def U_compare(U, U_0, U_0_title, z,
                                       # %%                          何况 一般默认 is_self_colorbar = 1...
                                       z=z, )
 
-    U_0_energy = np.sum(np.abs(U_0) ** 2)
-    U_error = U_amp_error_energy / U_0_energy
-    U_custom_print(U_error, fkey(ugHGU), "relative_error", is_print,
+    U_0_norm_energy = np.sum(np.abs(U_0_norm) ** 2)
+    U_energy_error = U_amp_error_energy / U_0_norm_energy
+    U_custom_print(U_energy_error, fkey(ugHGU), "relative_error", is_print,
                    z=z, is_end=1)
 
-    # U_custom_print(U_error, fkey(ugHGU), "relative_error", is_print,
+    # U_custom_print(U_energy_error, fkey(ugHGU), "relative_error", is_print,
     #                z=z, )
-    # U_custom_print(U_error / U_0_energy, fkey(ugHGU), "error_coefficient", is_print,
+    # U_custom_print(U_energy_error / U_0_energy, fkey(ugHGU), "error_coefficient", is_print,
     #                z=z, is_end=1)
-    return (U_0_energy, U_amp_error_energy)
+
+    U_0_energy = np.sum(np.abs(U_0) ** 2)
+    return (U_0_energy, U_energy_error)
 
     # #%%
     # # 对比 U 与 U_0 的 绝对误差 的 相对误差

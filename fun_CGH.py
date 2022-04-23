@@ -304,7 +304,9 @@ def structure_chi2_Generate_2D(U_structure_name="",
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
-            0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
+            0, is_colorbar_on, 0,
+            # %%
+            vmax = vmax_modulation, vmin = vmin_modulation)
 
     # %%
 
@@ -340,7 +342,9 @@ def structure_chi2_Generate_2D(U_structure_name="",
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
-            0, is_colorbar_on, 0, vmax_modulation, vmin_modulation)
+            0, is_colorbar_on, 0,
+            # %%
+            vmax = vmax_modulation, vmin = vmin_modulation, )
 
     return n1, k1, k1_z, lam2, n2, k2, k2_z, \
            dk, lc, Tz, Gx, Gy, Gz, \
@@ -502,8 +506,9 @@ def structure_n1_Generate_2D(U_structure_name="",
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
-            0, is_colorbar_on,
-            0, vmax_modulation, vmin_modulation)
+            0, is_colorbar_on, 0,
+            # %%
+            vmax=vmax_modulation, vmin=vmin_modulation)
 
     # %%
 
@@ -538,8 +543,9 @@ def structure_n1_Generate_2D(U_structure_name="",
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
-            0, is_colorbar_on,
-            0, vmax_modulation, vmin_modulation)
+            0, is_colorbar_on, 0,
+            # %%
+            vmax=vmax_modulation, vmin=vmin_modulation)
 
     return n1, k1, k1_z, lam2, n2, k2, k2_z, \
            dk, lc, Tz, Gx, Gy, Gz, \

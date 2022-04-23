@@ -287,7 +287,7 @@ def SHG_NLA_SSI(U_name="",
     end_SSI(g_shift, is_energy, n_sigma=3, )
 
     fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
-                   img_name_extension,
+                   img_name_extension, is_print,
                    # %%
                    zj, sample, size_PerPixel,
                    is_save, is_save_txt, dpi, size_fig,

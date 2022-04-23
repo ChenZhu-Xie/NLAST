@@ -84,6 +84,8 @@ def init_GLV_tree_print():
 
     #%%
     init_GLV()
+    Set("F_E", ".2E") # scientific_notation
+    Set("f_f", "%.2f") # 小数记数
     if "tree_print" not in GLOBALS_DICT:
         Set("tree_print", [])
         Get("tree_print").append(".")     # ["."]
@@ -584,7 +586,7 @@ def end_SSI(g_shift, is_energy, n_sigma=3, **kwargs, ):
 # %%
 
 def fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
-                   img_name_extension,
+                   img_name_extension, is_print,
                    # %%
                    zj, sample, size_PerPixel,
                    is_save, is_save_txt, dpi, size_fig,
@@ -600,7 +602,7 @@ def fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
     from fun_os import GHU_plot_save
 
     GHU_plot_save(fget("G"), fkey("G"), is_energy_evolution_on,  # 这边 要省事 免代入 的话，得确保 提前 传入 ray,way,method 三个参数
-                  eget("G"),
+                  eget("G"), is_print,
                   fget("H"), fkey("H"),  # 以及 传入 GHU 这三个 小东西
                   fget("U"), fkey("U"),
                   eget("U"),
@@ -735,3 +737,39 @@ def fU_EVV_plot(img_name_extension,
                    is_plot_3d_XYz,
                    # %%
                    Get("zj"), Get("z_stored"), z, )
+
+def GU_error_energy_plot(G_energy, G_error_energy, U_energy, U_error_energy,
+                        img_name_extension,
+                        # %%
+                        array_dkQ, array_Tz, sample, size_PerPixel,
+                        is_save, dpi, size_fig_x, size_fig_y,
+                        # %%
+                        color_1d, color_1d2,
+                        ticks_num, is_title_on, is_axes_on, is_mm,
+                        fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                        # %%
+                        L0_Crystal, **kwargs, ):
+    from fun_os import U_error_energy_plot
+    U_error_energy_plot(G_energy, G_error_energy, fkey("G"),
+                        img_name_extension,
+                        # %%
+                        array_dkQ, array_Tz, sample, size_PerPixel,
+                        is_save, dpi, size_fig_x, size_fig_y,
+                        # %%
+                        color_1d, color_1d2,
+                        ticks_num, is_title_on, is_axes_on, is_mm,
+                        fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                        # %%
+                        L0_Crystal, **kwargs, )
+
+    U_error_energy_plot(U_energy, U_error_energy, fkey("U"),
+                        img_name_extension,
+                        # %%
+                        array_dkQ, array_Tz, sample, size_PerPixel,
+                        is_save, dpi, size_fig_x, size_fig_y,
+                        # %%
+                        color_1d, color_1d2,
+                        ticks_num, is_title_on, is_axes_on, is_mm,
+                        fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                        # %%
+                        L0_Crystal, **kwargs, )

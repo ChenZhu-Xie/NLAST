@@ -349,7 +349,7 @@ def SHG_SSF_SSI(U_name="",
             is_U=is_U, )
 
     fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
-                   img_name_extension,
+                   img_name_extension, is_print,
                    # %%
                    zj, sample, size_PerPixel,
                    is_save, is_save_txt, dpi, size_fig,

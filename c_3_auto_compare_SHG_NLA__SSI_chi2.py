@@ -9,7 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import math
 import numpy as np
-from fun_global_var import tree_print
+from fun_global_var import tree_print, GU_error_energy_plot
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST, init_SHG
@@ -68,7 +68,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                          # %%
                          is_save=0, is_save_txt=0, dpi=100,
                          # %%
-                         color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+                         color_1d='b', color_1d2='r', cmap_2d='viridis', cmap_3d='rainbow',
                          elev=10, azim=-65, alpha=2,
                          # %%
                          sample=2, ticks_num=6, is_contourf=0,
@@ -95,7 +95,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                          is_NLA=1, is_relative=1,
                          # %%
                          **kwargs, ):
-    info = "扫描参数 自动对比：NLA 与 SSI"
+    info = "扫描 Tz，自动对比：NLA 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
@@ -149,92 +149,145 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                             0, )
 
     Tc = 2 * lc
-    zoomout_times = 10
+    
+    ticks_Num = 4
+    ticks_Num += 1
+    
+    center_times = 40 # >= 1，以防止 Tz 出现负数
+    zoomout_times = (ticks_Num+1) // 2 * center_times # 步长缩得更小，这样 步长 * 步数 更小一些，防止 Tz 出现负数
     if Tz != Tc:
-        delta_k = abs( dk / size_PerPixel - 2 * math.pi / Tz * 1000 ) # Unit: 1 / mm
+        Gz = 2 * math.pi * mz / (Tz / 1000)  # Tz / 1000 即以 mm 为单位
+        delta_k = abs( dk / size_PerPixel + Gz ) # Unit: 1 / mm
     else:
         delta_k = abs( dk / size_PerPixel ) / zoomout_times # delta_k 是 恒正的
 
-    ticks_Num = 20
-    array_1d = np.arange(0,ticks_Num,1)-(ticks_Num-1)//2
+    shift_right = 5 # 这里的 “往右移” 是指 图 往右，左加右减，则 对应 自变量 x 是做差，所以下面是 - shift_right
+    # x 不要 减 太多了，也就是 图不要 往右 移太多，否则 Tz 可能 出现负数
+    array_1d = np.arange(0,ticks_Num,1) - (ticks_Num-1)//2 - shift_right # 尺子整体 更偏右一点，这样负的不多，防止 Tz 出现负数
+    
     array_dkQ = array_1d * delta_k
     array_Gz = array_dkQ - dk / size_PerPixel # Unit: 1 / mm
-    array_Tz = 2 * math.pi * mz / array_Gz  # 以 mm 为单位
+    array_Tz = 2 * math.pi * mz / array_Gz # Unit: mm
+    
+    array_dkQ /= 1000 # Unit: 1 / μm
+    array_Tz *= 1000 # Unit: μm
+    # print(array_dkQ)
+    # print(array_Tz)
+    
+    G_energy = []
+    G_error_energy = []
+    U_energy = []
+    U_error_energy = []
+    
+    for i in range(ticks_Num):
+        tuple_temp = \
+            compare_SHG_NLA__SSI(U_name_Structure,
+                                  is_phase_only_Structure,
+                                  # %%
+                                  z_pump_Structure,
+                                  is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+                                  l_Structure, p_Structure,
+                                  theta_x_Structure, theta_y_Structure,
+                                  # %%
+                                  is_random_phase_Structure,
+                                  is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+                                  # %%
+                                  U_name,
+                                  img_full_name,
+                                  is_phase_only,
+                                  # %%
+                                  z_pump,
+                                  is_LG, is_Gauss, is_OAM,
+                                  l, p,
+                                  theta_x, theta_y,
+                                  # %%
+                                  is_random_phase,
+                                  is_H_l, is_H_theta, is_H_random_phase,
+                                  # %%---------------------------------------------------------------------
+                                  # %%
+                                  U_NonZero_size, w0, w0_Structure, structure_size_Enlarge,
+                                  L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
+                                  sheets_stored_num,
+                                  z0_section_1_expect, z0_section_2_expect,
+                                  X, Y,
+                                  # %%
+                                  Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
+                                  structure_xy_mode, Depth,
+                                  # %%
+                                  is_continuous, is_target_far_field, is_transverse_xy,
+                                  is_reverse_xy, is_positive_xy,
+                                  # %%
+                                  is_bulk, is_no_backgroud,
+                                  is_stored, is_show_structure_face, is_energy_evolution_on,
+                                  # %%
+                                  lam1, is_air_pump, is_air, T,
+                                  deff, is_fft, fft_mode,
+                                  is_sum_Gm, mG,
+                                  is_linear_convolution,
+                                  #%%
+                                  Tx, Ty, array_Tz[i],
+                                  mx, my, mz,
+                                  is_stripe, is_NLAST,
+                                  # %%
+                                  is_save, is_save_txt, dpi,
+                                  # %%
+                                  color_1d, cmap_2d, cmap_3d,
+                                  elev, azim, alpha,
+                                  # %%
+                                  sample, ticks_num, is_contourf,
+                                  is_title_on, is_axes_on, is_mm,
+                                  # %%
+                                  fontsize, font,
+                                  # %%
+                                  is_colorbar_on, is_energy,
+                                  # %%
+                                  plot_group, is_animated,
+                                  loop, duration, fps,
+                                  # %%
+                                  is_plot_3d_XYz, is_plot_selective,
+                                  is_plot_YZ_XZ, is_plot_3d_XYZ,
+                                  # %%
+                                  is_print, is_contours, n_TzQ,
+                                  Gz_max_Enhance, match_mode,
+                                  # %%
+                                  is_NLA, is_relative, is_end=0, )
+            
+        G_energy.append(tuple_temp[0][0])
+        G_error_energy.append(tuple_temp[0][1])
+        U_energy.append(tuple_temp[1][0])
+        U_error_energy.append(tuple_temp[1][1])
+        
+    G_energy = np.array(G_energy) # 需要把 list 转换为 array
+    G_error_energy = np.array(G_error_energy)
+    U_energy = np.array(U_energy)
+    U_error_energy = np.array(U_error_energy)
+    
+    is_end = [0] * (ticks_Num-1)
+    is_end.append(-1)
+    
+    is_print and print(tree_print(add_level=1) + "G_energy 和 G_error")
+    for i in range(ticks_Num):
+        is_print and print(tree_print(is_end[i]) + "Tz, dkQ, G_energy, G_error = {}, {}, {}, {}"
+                           .format(format(array_Tz[i], '.2E'), format(array_dkQ[i], '.2E'),
+                                   format(G_energy[i], '.2E'), format(G_error_energy[i], '.2E')))
+        
+    is_print and print(tree_print(is_end=1, add_level=1) + "U_energy 和 U_error")
+    for i in range(ticks_Num):
+        is_print and print(tree_print(is_end[i]) + "Tz, dkQ, U_energy, U_error = {}, {}, {}, {}"
+                           .format(format(array_Tz[i], '.2E'), format(array_dkQ[i], '.2E'),
+                                   format(U_energy[i], '.2E'), format(U_error_energy[i], '.2E')))
 
-
-    G_U_energy_AND_G_U_error_energy = \
-        compare_SHG_NLA__SSI(U_name_Structure,
-                             is_phase_only_Structure,
-                             # %%
-                             z_pump_Structure,
-                             is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
-                             l_Structure, p_Structure,
-                             theta_x_Structure, theta_y_Structure,
-                             # %%
-                             is_random_phase_Structure,
-                             is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
-                             # %%
-                             U_name,
-                             img_full_name,
-                             is_phase_only,
-                             # %%
-                             z_pump,
-                             is_LG, is_Gauss, is_OAM,
-                             l, p,
-                             theta_x, theta_y,
-                             # %%
-                             is_random_phase,
-                             is_H_l, is_H_theta, is_H_random_phase,
-                             # %%---------------------------------------------------------------------
-                             # %%
-                             U_NonZero_size, w0, w0_Structure, structure_size_Enlarge,
-                             L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
-                             sheets_stored_num,
-                             z0_section_1_expect, z0_section_2_expect,
-                             X, Y,
-                             # %%
-                             Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
-                             structure_xy_mode, Depth,
-                             # %%
-                             is_continuous, is_target_far_field, is_transverse_xy,
-                             is_reverse_xy, is_positive_xy,
-                             # %%
-                             is_bulk, is_no_backgroud,
-                             is_stored, is_show_structure_face, is_energy_evolution_on,
-                             # %%
-                             lam1, is_air_pump, is_air, T,
-                             deff, is_fft, fft_mode,
-                             is_sum_Gm, mG,
-                             is_linear_convolution,
-                             #%%
-                             Tx, Ty, Tz,
-                             mx, my, mz,
-                             is_stripe, is_NLAST,
-                             # %%
-                             is_save, is_save_txt, dpi,
-                             # %%
-                             color_1d, cmap_2d, cmap_3d,
-                             elev, azim, alpha,
-                             # %%
-                             sample, ticks_num, is_contourf,
-                             is_title_on, is_axes_on, is_mm,
-                             # %%
-                             fontsize, font,
-                             # %%
-                             is_colorbar_on, is_energy,
-                             # %%
-                             plot_group, is_animated,
-                             loop, duration, fps,
-                             # %%
-                             is_plot_3d_XYz, is_plot_selective,
-                             is_plot_YZ_XZ, is_plot_3d_XYZ,
-                             # %%
-                             is_print, is_contours, n_TzQ,
-                             Gz_max_Enhance, match_mode,
-                             # %%
-                             is_NLA, is_relative, is_end=1, )
-
-
+    GU_error_energy_plot(G_energy, G_error_energy, U_energy, U_error_energy,
+                          img_name_extension,
+                          # %%
+                          array_dkQ, array_Tz, sample, size_PerPixel,
+                          is_save, dpi, size_fig * 10, size_fig,
+                          # %%
+                          color_1d, color_1d2,
+                          ticks_num, is_title_on, is_axes_on, is_mm,
+                          fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                          # %%
+                          L0_Crystal, **kwargs, )
 
     # %%
 
@@ -264,7 +317,7 @@ if __name__ == '__main__':
                          # %%---------------------------------------------------------------------
                          # %%
                          U_NonZero_size=0.9, w0=0.3, w0_Structure=0, structure_size_Enlarge=0.1,
-                         L0_Crystal=1.44, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
+                         L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
                          sheets_stored_num=10,
                          z0_section_1_expect=0, z0_section_2_expect=0,
                          X=0, Y=0,
@@ -283,16 +336,16 @@ if __name__ == '__main__':
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
-                         Tx=18.769, Ty=20, Tz=15,
+                         Tx=14.769, Ty=20, Tz=0,
                          mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
                          is_save=0, is_save_txt=0, dpi=100,
                          # %%
-                         color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+                         color_1d='b', color_1d2='r', cmap_2d='viridis', cmap_3d='rainbow',
                          elev=10, azim=-65, alpha=2,
                          # %%
-                         sample=2, ticks_num=6, is_contourf=0,
+                         sample=1, ticks_num=6, is_contourf=0,
                          is_title_on=1, is_axes_on=1, is_mm=1,
                          # %%
                          fontsize=9,

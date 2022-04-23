@@ -216,11 +216,12 @@ def SHG_NLA_EVV(U_name="",
     # %%
 
     iz = z0 / size_PerPixel
-    zj = np.linspace(0, z0, sheets_stored_num + 1)
+    zj = kwargs.get("zj", np.linspace(0, z0, sheets_stored_num + 1))
     izj = zj / size_PerPixel
     Set("zj", zj)
     Set("izj", izj)
 
+    sheets_stored_num = len(zj) - 1
     init_EVV(g_shift, U_0,
              is_energy_evolution_on, is_stored,
              sheets_stored_num, sheets_stored_num,
@@ -368,7 +369,7 @@ def SHG_NLA_EVV(U_name="",
     end_SSI(g_shift, is_energy, n_sigma=3, )
 
     fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
-                   img_name_extension,
+                   img_name_extension, is_print,
                    # %%
                    zj, sample, size_PerPixel,
                    is_save, is_save_txt, dpi, size_fig,
