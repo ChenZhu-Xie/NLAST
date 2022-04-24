@@ -176,7 +176,8 @@ def gan_Uz_name(U_name, is_add_sequence, **kwargs, ):  # args 是 z 或 () 和 s
     if (U_name.find('z') != -1 or U_name.find('Z') != -1) and 'z' in kwargs:
         # 如果 找到 z 或 Z，且 传了 额外的 参数 进来，这个参数 解包后的 第一个参数 不是 空 tuple ()
         z = kwargs['z']
-        U_new_name = U_new_name.replace(part_z, format(z, Get("F_E")) + "mm") # 原版是 str(float('%.2g' % z))
+        U_new_name = U_new_name.replace(part_z, str(float(Get('f_f') % z)) + "mm")
+        # 原版是 str(float('%.2g' % z))，还用过 format(z, Get("F_E"))、float(format(z, Get('F_E')))，这后两个 也得加 str
         # 把 原来含 z 的 part_z 替换为 str(float('%.2g' % z)) + "mm"
 
     if is_add_sequence < 0:  # is_add_sequence >= 0 即有 method_and_way = method + way
@@ -348,8 +349,7 @@ def U_amp_plot(folder_address,
                is_title_on, is_axes_on, is_mm, is_propagation,
                fontsize, font,
                # %%
-               is_self_colorbar, is_colorbar_on,
-               is_energy, vmax, vmin,
+               is_self_colorbar, is_colorbar_on, is_energy,
                # %%
                **kwargs, ):  # args 是 z 或 ()
 
@@ -363,8 +363,8 @@ def U_amp_plot(folder_address,
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
-            is_self_colorbar, is_colorbar_on,
-            is_energy, vmax=vmax, vmin=vmin, )
+            is_self_colorbar, is_colorbar_on, is_energy,
+            **kwargs )
 
     return U_amp_plot_address, U_amp_title
 
@@ -381,8 +381,7 @@ def U_amp_error_plot(folder_address,
                is_title_on, is_axes_on, is_mm, is_propagation,
                fontsize, font,
                # %%
-               is_self_colorbar, is_colorbar_on,
-               is_energy, vmax, vmin,
+               is_self_colorbar, is_colorbar_on, is_energy,
                # %%
                **kwargs, ):  # args 是 z 或 ()
 
@@ -396,8 +395,8 @@ def U_amp_error_plot(folder_address,
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
-            is_self_colorbar, is_colorbar_on,
-            is_energy, vmax=vmax, vmin=vmin, )
+            is_self_colorbar, is_colorbar_on, is_energy,
+            **kwargs )
 
     return U_amp_error_plot_address, U_amp_error_title
 
@@ -415,7 +414,6 @@ def U_phase_plot(folder_address,
                  fontsize, font,
                  # %%
                  is_self_colorbar, is_colorbar_on,
-                 vmax, vmin,
                  # %%
                  **kwargs, ):  # args 是 z 或 ()
 
@@ -429,8 +427,8 @@ def U_phase_plot(folder_address,
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
-            is_self_colorbar, is_colorbar_on,
-            0, vmax=vmax, vmin=vmin, )  # 相位 不能有 is_energy = 1
+            is_self_colorbar, is_colorbar_on, 0,
+            **kwargs )  # 相位 不能有 is_energy = 1
 
     return U_phase_plot_address, U_phase_title
 
@@ -448,7 +446,6 @@ def U_phase_error_plot(folder_address,
                  fontsize, font,
                  # %%
                  is_self_colorbar, is_colorbar_on,
-                 vmax, vmin,
                  # %%
                  **kwargs, ):  # args 是 z 或 ()
 
@@ -462,8 +459,8 @@ def U_phase_error_plot(folder_address,
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
-            is_self_colorbar, is_colorbar_on,
-            0, vmax=vmax, vmin=vmin, )  # 相位 不能有 is_energy = 1
+            is_self_colorbar, is_colorbar_on, 0,
+            **kwargs )  # 相位 不能有 is_energy = 1
 
     return U_phase_error_plot_address, U_phase_error_title
 
@@ -495,8 +492,7 @@ def U_plot(folder_address,
                                     is_title_on, is_axes_on, is_mm, 0,
                                     fontsize, font,
                                     # %%
-                                    1, is_colorbar_on,
-                                    is_energy, 1, 0,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                    0, is_colorbar_on, is_energy,
                                     # %% 何况 一般默认 is_self_colorbar = 1...
                                     **kwargs, )
 
@@ -511,8 +507,7 @@ def U_plot(folder_address,
                                         is_title_on, is_axes_on, is_mm, 0,
                                         fontsize, font,
                                         # %%
-                                        1, is_colorbar_on,
-                                        1, 0,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                        0, is_colorbar_on,
                                         # %% 何况 一般默认 is_self_colorbar = 1...
                                         **kwargs, )
 
@@ -551,8 +546,7 @@ def U_error_plot(folder_address,
                                     is_title_on, is_axes_on, is_mm, 0,
                                     fontsize, font,
                                     # %%
-                                    1, is_colorbar_on,
-                                    is_energy, 1, 0,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                    0, is_colorbar_on, is_energy,
                                     # %% 何况 一般默认 is_self_colorbar = 1...
                                     **kwargs, )
 
@@ -567,8 +561,7 @@ def U_error_plot(folder_address,
                                         is_title_on, is_axes_on, is_mm, 0,
                                         fontsize, font,
                                         # %%
-                                        1, is_colorbar_on,
-                                        1, 0,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                        0, is_colorbar_on,
                                         # %% 何况 一般默认 is_self_colorbar = 1...
                                         **kwargs, )
 
@@ -830,8 +823,8 @@ def U_slices_plot(folder_address,
                is_title_on, is_axes_on, is_mm, 1,
                fontsize, font,
                # %%
-               0, is_colorbar_on,
-               is_energy, U_YZ_XZ_amp_max, U_YZ_XZ_amp_min,
+               0, is_colorbar_on, is_energy,
+               vmax=U_YZ_XZ_amp_max, vmin=U_YZ_XZ_amp_min,
                # %%
                z=X, )
 
@@ -846,8 +839,8 @@ def U_slices_plot(folder_address,
                is_title_on, is_axes_on, is_mm, 1,
                fontsize, font,
                # %%
-               0, is_colorbar_on,
-               is_energy, U_YZ_XZ_amp_max, U_YZ_XZ_amp_min,
+               0, is_colorbar_on, is_energy,
+               vmax=U_YZ_XZ_amp_max, vmin=U_YZ_XZ_amp_min,
                # %%
                z=Y, )
 
@@ -866,7 +859,7 @@ def U_slices_plot(folder_address,
                  fontsize, font,
                  # %%
                  0, is_colorbar_on,
-                 U_YZ_XZ_phase_max, U_YZ_XZ_phase_min,
+                 vmax=U_YZ_XZ_phase_max, vmin=U_YZ_XZ_phase_min,
                  # %%
                  z=X, )
 
@@ -882,7 +875,7 @@ def U_slices_plot(folder_address,
                  fontsize, font,
                  # %%
                  0, is_colorbar_on,
-                 U_YZ_XZ_phase_max, U_YZ_XZ_phase_min,
+                 vmax=U_YZ_XZ_phase_max, vmin=U_YZ_XZ_phase_min,
                  # %%
                  z=Y, )
 
@@ -933,8 +926,8 @@ def U_selects_plot(folder_address,
                is_title_on, is_axes_on, is_mm, 0,
                fontsize, font,
                # %%
-               0, is_colorbar_on,
-               is_energy, U_amps_max, U_amps_min,
+               0, is_colorbar_on, is_energy,
+               vmax=U_amps_max, vmim=U_amps_min,
                # %%
                z=z_1, )
 
@@ -949,10 +942,11 @@ def U_selects_plot(folder_address,
                is_title_on, is_axes_on, is_mm, 0,
                fontsize, font,
                # %%
-               0, is_colorbar_on,
-               is_energy, U_amps_max, U_amps_min,
+               0, is_colorbar_on, is_energy,
+               vmax=U_amps_max, vmin=U_amps_min,
                # %%
                z=z_2, )
+
     if is_show_structure_face == 1:
         U_amp_plot(folder_address,
                    U_f, U_f_name,
@@ -965,8 +959,8 @@ def U_selects_plot(folder_address,
                    is_title_on, is_axes_on, is_mm, 0,
                    fontsize, font,
                    # %%
-                   0, is_colorbar_on,
-                   is_energy, U_amps_max, U_amps_min,
+                   0, is_colorbar_on, is_energy,
+                   vmax=U_amps_max, vmin=U_amps_min,
                    # %%
                    z=z_f, )
 
@@ -981,8 +975,8 @@ def U_selects_plot(folder_address,
                    is_title_on, is_axes_on, is_mm, 0,
                    fontsize, font,
                    # %%
-                   0, is_colorbar_on,
-                   is_energy, U_amps_max, U_amps_min,
+                   0, is_colorbar_on, is_energy,
+                   vmax=U_amps_max, vmin=U_amps_min,
                    # %%
                    z=z_e, )
 
@@ -1011,7 +1005,7 @@ def U_selects_plot(folder_address,
                  fontsize, font,
                  # %%
                  0, is_colorbar_on,
-                 U_phases_max, U_phases_min,
+                 vmax=U_phases_max, vmin=U_phases_min,
                  # %%
                  z=z_1, )
 
@@ -1027,7 +1021,7 @@ def U_selects_plot(folder_address,
                  fontsize, font,
                  # %%
                  0, is_colorbar_on,
-                 U_phases_max, U_phases_min,
+                 vmax=U_phases_max, vmin=U_phases_min,
                  # %%
                  z=z_2, )
 
@@ -1044,7 +1038,7 @@ def U_selects_plot(folder_address,
                      fontsize, font,
                      # %%
                      0, is_colorbar_on,
-                     U_phases_max, U_phases_min,
+                     vmax=U_phases_max, vmin=U_phases_min,
                      # %%
                      z=z_f, )
 
@@ -1060,7 +1054,7 @@ def U_selects_plot(folder_address,
                      fontsize, font,
                      # %%
                      0, is_colorbar_on,
-                     U_phases_max, U_phases_min,
+                     vmax=U_phases_max, vmin=U_phases_min,
                      # %%
                      z=z_e, )
 
@@ -1104,8 +1098,8 @@ def U_amps_z_plot(folder_address,
                                                      is_title_on, is_axes_on, is_mm, 0,
                                                      fontsize, font,
                                                      # %%
-                                                     0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
-                                                     is_energy, U_amp_max, U_amp_min,
+                                                     0, is_colorbar_on, is_energy,
+                                                     vmax=U_amp_max, vmin=U_amp_min,
                                                      # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                                                      # %%
                                                      z=z_stored[sheet_stored_th], )
@@ -1197,8 +1191,8 @@ def U_phases_z_plot(folder_address,
                                                            fontsize, font,
                                                            # %%
                                                            0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
-                                                           U_phase_max, U_phase_min,
                                                            # %%
+                                                           vmax=U_phase_max, vmin=U_phase_min,
                                                            z=z_stored[sheet_stored_th], )
         imgs_address_list.append(U_phase_plot_address)
         titles_list.append(U_phase_title)  # 每张图片都用单独list的形式加入到图片序列中
@@ -1270,9 +1264,6 @@ def U_amp_plot_3d_XYz(folder_address,
     U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U_name, folder_address, img_name_extension,
                                                                    z=z_stored[-1], )
 
-    U_amp_max = np.max(np.abs(U))  # is_self_colorbar = 1 并设置这个，没有意义，不如直接设置 1 0？ 试试就知道，并不是。
-    U_amp_min = np.min(np.abs(U))  # is_self_colorbar = 1 并设置这个，没有意义，不如直接设置 1 0？ 试试就知道，并不是。
-
     plot_3d_XYz(zj, sample, size_PerPixel,
                 np.abs(U), z_stored,
                 U_amp_plot_address, U_amp_title,
@@ -1280,8 +1271,7 @@ def U_amp_plot_3d_XYz(folder_address,
                 cmap_3d, elev, azim, alpha,
                 ticks_num, is_title_on, is_axes_on, is_mm,
                 fontsize, font,
-                1, is_colorbar_on,  # is_self_colorbar = 1 看上去 直接就 colorbar 统一了，但不是
-                is_energy, U_amp_max, U_amp_min, )
+                0, is_colorbar_on, is_energy, )
 
     return U_amp_plot_address
 
@@ -1307,9 +1297,6 @@ def U_phase_plot_3d_XYz(folder_address,
     U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U_name, folder_address, img_name_extension,
                                                                          z=z_stored[-1], )
 
-    U_phase_max = np.max(np.angle(U))  # is_self_colorbar = 1 并设置这个，没有意义，不如直接设置 1 0？ 试试就知道，并不是。
-    U_phase_min = np.min(np.angle(U))  # is_self_colorbar = 1 并设置这个，没有意义，不如直接设置 1 0？ 试试就知道，并不是。
-
     plot_3d_XYz(zj, sample, size_PerPixel,
                 np.angle(U), z_stored,
                 U_phase_plot_address, U_phase_title,
@@ -1317,8 +1304,7 @@ def U_phase_plot_3d_XYz(folder_address,
                 cmap_3d, elev, azim, alpha,
                 ticks_num, is_title_on, is_axes_on, is_mm,
                 fontsize, font,
-                1, is_colorbar_on,  # is_self_colorbar = 1
-                0, U_phase_max, U_phase_min, )  # 相位 不能有 is_energy = 1
+                0, is_colorbar_on, 0, )  # 相位 不能有 is_energy = 1
 
     return U_phase_plot_address
 
@@ -1344,7 +1330,6 @@ def U_amp_plot_3d_XYZ(folder_address,
                       fontsize, font,
                       # %%
                       is_colorbar_on, is_energy, is_show_structure_face,
-                      vmax, vmin,
                       # %%
                       zj, **kwargs, ):  # args 是 z 或 ()
 
@@ -1363,8 +1348,8 @@ def U_amp_plot_3d_XYZ(folder_address,
                 cmap_3d, elev, azim, alpha,
                 ticks_num, is_title_on, is_axes_on, is_mm,
                 fontsize, font,
-                1, is_colorbar_on,  # is_self_colorbar = 1
-                is_energy, vmax, vmin, )
+                0, is_colorbar_on, is_energy,
+                **kwargs, )
 
     return U_amp_plot_address
 
@@ -1390,7 +1375,6 @@ def U_phase_plot_3d_XYZ(folder_address,
                         fontsize, font,
                         # %%
                         is_colorbar_on, is_show_structure_face,
-                        vmax, vmin,
                         # %%
                         zj, **kwargs, ):  # args 是 z 或 ()
 
@@ -1409,8 +1393,8 @@ def U_phase_plot_3d_XYZ(folder_address,
                 cmap_3d, elev, azim, alpha,
                 ticks_num, is_title_on, is_axes_on, is_mm,
                 fontsize, font,
-                1, is_colorbar_on,  # is_self_colorbar = 1
-                0, vmax, vmin, )  # 相位 不能有 is_energy = 1
+                0, is_colorbar_on, 0,
+                **kwargs, )  # 相位 不能有 is_energy = 1
 
     return U_phase_plot_address
 
@@ -1702,10 +1686,10 @@ def U_SSI_plot(G_stored, G_name,
                                                        fontsize, font,
                                                        # %%
                                                        is_colorbar_on, is_energy, is_show_structure_face,
-                                                       np.max([G_YZ_XZ_amp_max, G_amps_max]),
-                                                       np.min([G_YZ_XZ_amp_min, G_amps_min]),
                                                        # %%
-                                                       zj, z=z, )
+                                                       zj, z=z,
+                                                       vmax=np.max([G_YZ_XZ_amp_max, G_amps_max]),
+                                                       vmin=np.min([G_YZ_XZ_amp_min, G_amps_min]),)
 
             # %%
             # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
@@ -1730,10 +1714,10 @@ def U_SSI_plot(G_stored, G_name,
                                                            fontsize, font,
                                                            # %%
                                                            is_colorbar_on, is_show_structure_face,
-                                                           np.max([G_YZ_XZ_phase_max, G_phases_max]),
-                                                           np.min([G_YZ_XZ_phase_min, G_phases_min]),
                                                            # %%
-                                                           zj, z=z, )
+                                                           zj, z=z,
+                                                           vmax=np.max([G_YZ_XZ_phase_max, G_phases_max]),
+                                                           vmin=np.min([G_YZ_XZ_phase_min, G_phases_min]),)
 
         # %%
 
@@ -1784,8 +1768,6 @@ def U_SSI_plot(G_stored, G_name,
                                                        fontsize, font,
                                                        # %%
                                                        is_colorbar_on, is_energy, is_show_structure_face,
-                                                       np.max([U_YZ_XZ_amp_max, U_amps_max]),
-                                                       np.min([U_YZ_XZ_amp_min, U_amps_min]),
                                                        # %%
                                                        zj, z=z, )
 
@@ -1812,10 +1794,10 @@ def U_SSI_plot(G_stored, G_name,
                                                            fontsize, font,
                                                            # %%
                                                            is_colorbar_on, is_show_structure_face,
-                                                           np.max([U_YZ_XZ_phase_max, U_phases_max]),
-                                                           np.min([U_YZ_XZ_phase_min, U_phases_min]),
                                                            # %%
-                                                           zj, z=z, )
+                                                           zj, z=z,
+                                                           vmax=np.max([U_YZ_XZ_phase_max, U_phases_max]),
+                                                           vmin=np.min([U_YZ_XZ_phase_min, U_phases_min]),)
 
 # %%
 

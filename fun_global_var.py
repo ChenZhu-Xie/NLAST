@@ -84,7 +84,7 @@ def init_GLV_tree_print():
 
     #%%
     init_GLV()
-    Set("F_E", ".2E") # scientific_notation
+    Set("F_E", ".2e") # scientific_notation
     Set("f_f", "%.2f") # 小数记数
     if "tree_print" not in GLOBALS_DICT:
         Set("tree_print", [])

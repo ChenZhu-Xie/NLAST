@@ -9,7 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import math
 import numpy as np
-from fun_global_var import tree_print, GU_error_energy_plot
+from fun_global_var import Get, tree_print, GU_error_energy_plot
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST, init_SHG
@@ -268,14 +268,14 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
     is_print and print(tree_print(add_level=1) + "G_energy 和 G_error")
     for i in range(ticks_Num):
         is_print and print(tree_print(is_end[i]) + "Tz, dkQ, G_energy, G_error = {}, {}, {}, {}"
-                           .format(format(array_Tz[i], '.2E'), format(array_dkQ[i], '.2E'),
-                                   format(G_energy[i], '.2E'), format(G_error_energy[i], '.2E')))
+                           .format(format(array_Tz[i], Get("F_E")), format(array_dkQ[i], Get("F_E")),
+                                   format(G_energy[i], Get("F_E")), format(G_error_energy[i], Get("F_E"))))
         
     is_print and print(tree_print(is_end=1, add_level=1) + "U_energy 和 U_error")
     for i in range(ticks_Num):
         is_print and print(tree_print(is_end[i]) + "Tz, dkQ, U_energy, U_error = {}, {}, {}, {}"
-                           .format(format(array_Tz[i], '.2E'), format(array_dkQ[i], '.2E'),
-                                   format(U_energy[i], '.2E'), format(U_error_energy[i], '.2E')))
+                           .format(format(array_Tz[i], Get("F_E")), format(array_dkQ[i], Get("F_E")),
+                                   format(U_energy[i], Get("F_E")), format(U_error_energy[i], Get("F_E"))))
 
     GU_error_energy_plot(G_energy, G_error_energy, U_energy, U_error_energy,
                           img_name_extension,

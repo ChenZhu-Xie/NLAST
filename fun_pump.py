@@ -386,8 +386,10 @@ def pump(file_full_name="Grating.png",
                                                       # %%
                                                       1, size_PerPixel,
                                                       is_save, dpi, size_fig,
+                                                      # %%
                                                       cmap_2d, ticks_num, is_contourf,
                                                       is_title_on, is_axes_on, is_mm,
+                                                      # %%
                                                       fontsize, font,
                                                       is_colorbar_on, is_energy,
                                                       # %%
@@ -411,8 +413,10 @@ def pump(file_full_name="Grating.png",
                                                       # %%
                                                       1, size_PerPixel,
                                                       is_save, dpi, size_fig,
+                                                      # %%
                                                       cmap_2d, ticks_num, is_contourf,
                                                       is_title_on, is_axes_on, is_mm,
+                                                      # %%
                                                       fontsize, font,
                                                       is_colorbar_on, is_energy,
                                                       # %%
