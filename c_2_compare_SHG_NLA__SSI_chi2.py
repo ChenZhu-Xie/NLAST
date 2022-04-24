@@ -326,7 +326,7 @@ if __name__ == '__main__':
                          is_reverse_xy=0, is_positive_xy=1,
                          # %%
                          is_bulk=0, is_no_backgroud=0,
-                         is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
+                         is_stored=1, is_show_structure_face=0, is_energy_evolution_on=1,
                          # %%
                          lam1=1.064, is_air_pump=0, is_air=0, T=25,
                          deff=30, is_fft=1, fft_mode=0,

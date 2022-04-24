@@ -9,7 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import numpy as np
 from fun_os import img_squared_bordered_Read
-from fun_global_var import tree_print
+from fun_global_var import tree_print, Get
 from fun_img_Resize import if_image_Add_black_border
 from fun_linear import fft2
 from fun_compare import U_compare
@@ -178,69 +178,72 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
         SHG_NLA_SSI(*args_SSI, ) if is_NLA == 1 else \
             SHG_SSF_SSI(*args_SSI, )
 
+    args_EVV = \
+        [U_name,
+        img_full_name,
+        is_phase_only,
+        # %%
+        z_pump,
+        is_LG, is_Gauss, is_OAM,
+        l, p,
+        theta_x, theta_y,
+        # %%
+        is_random_phase,
+        is_H_l, is_H_theta, is_H_random_phase,
+        # %%
+        # 生成横向结构
+        U_name_Structure,
+        structure_size_Enlarge,
+        is_phase_only_Structure,
+        # %%
+        w0_Structure, z_pump_Structure,
+        is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+        l_Structure, p_Structure,
+        theta_x_Structure, theta_y_Structure,
+        # %%
+        is_random_phase_Structure,
+        is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+        # %%
+        U_NonZero_size, w0,
+        L0_Crystal, sheets_stored_num,
+        # %%
+        lam1, is_air_pump, is_air, T,
+        deff, is_fft, fft_mode,
+        is_sum_Gm, mG,
+        is_linear_convolution,
+        # %%
+        Tx, Ty, Tz,
+        mx, my, mz,
+        # %%
+        # 生成横向结构
+        Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
+        Depth, structure_xy_mode,
+        # %%
+        is_continuous, is_target_far_field, is_transverse_xy,
+        is_reverse_xy, is_positive_xy, is_no_backgroud,
+        is_stored, is_energy_evolution_on,
+        # %%
+        is_save, is_save_txt, dpi,
+        # %%
+        color_1d, cmap_2d, cmap_3d,
+        elev, azim, alpha,
+        # %%
+        sample, ticks_num, is_contourf,
+        is_title_on, is_axes_on,
+        is_mm,
+        # %%
+        fontsize, font,
+        # %%
+        is_colorbar_on, is_energy, is_plot_3d_XYz,
+        # %%
+        plot_group, is_animated,
+        loop, duration, fps,
+        # %%
+        is_print, is_contours, n_TzQ,
+        Gz_max_Enhance, match_mode, ]
+
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
-        SHG_NLA_EVV(U_name,
-                img_full_name,
-                is_phase_only,
-                # %%
-                z_pump,
-                is_LG, is_Gauss, is_OAM,
-                l, p,
-                theta_x, theta_y,
-                # %%
-                is_random_phase,
-                is_H_l, is_H_theta, is_H_random_phase,
-                # %%
-                # 生成横向结构
-                U_name_Structure,
-                structure_size_Enlarge,
-                is_phase_only_Structure,
-                # %%
-                w0_Structure, z_pump_Structure,
-                is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
-                l_Structure, p_Structure,
-                theta_x_Structure, theta_y_Structure,
-                # %%
-                is_random_phase_Structure,
-                is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
-                # %%
-                U_NonZero_size, w0,
-                L0_Crystal, sheets_stored_num,
-                # %%
-                lam1, is_air_pump, is_air, T,
-                deff, is_fft, fft_mode,
-                is_sum_Gm, mG,
-                is_linear_convolution,
-                # %%
-                Tx, Ty, Tz,
-                mx, my, mz,
-                # %%
-                # 生成横向结构
-                Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
-                Depth, structure_xy_mode,
-                # %%
-                is_continuous, is_target_far_field, is_transverse_xy,
-                is_reverse_xy, is_positive_xy, is_no_backgroud,
-                is_stored, is_energy_evolution_on,
-                # %%
-                is_save, is_save_txt, dpi,
-                # %%
-                color_1d, cmap_2d, cmap_3d,
-                elev, azim, alpha,
-                # %%
-                sample, ticks_num, is_contourf,
-                is_title_on, is_axes_on,
-                is_mm,
-                # %%
-                fontsize, font,
-                # %%
-                is_colorbar_on, is_energy, is_plot_3d_XYz,
-                # %%
-                plot_group, is_animated,
-                loop, duration, fps,
-                # %%
-                is_print, is_contours, n_TzQ,
-                Gz_max_Enhance, match_mode, )
+        SHG_NLA_EVV(*args_EVV, zj=Get("z_stored"), ) if is_stored==1 else SHG_NLA_EVV(*args_EVV, )
 
     # %%
 
@@ -330,7 +333,7 @@ if __name__ == '__main__':
                          is_reverse_xy=0, is_positive_xy=1,
                          # %%
                          is_bulk=0, is_no_backgroud=0,
-                         is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
+                         is_stored=1, is_show_structure_face=0, is_energy_evolution_on=1,
                          # %%
                          lam1=1.064, is_air_pump=0, is_air=0, T=25,
                          deff=30, is_fft=1, fft_mode=0,

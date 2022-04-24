@@ -51,7 +51,7 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
             gan_tickslabels -= Center_divisible
             gan_ticks = gan_tickslabels + Average # 把 0 放中间
             if abs(Max) < 10:
-                gan_tickslabels = lormat(gan_tickslabels, '%.2f')[0]
+                gan_tickslabels = lormat(gan_tickslabels, '%.3f')[0]
             else:
                 gan_tickslabels = lormat(gan_tickslabels, '%.1f')[0]
         else:
@@ -66,7 +66,7 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
             if abs(Max) >= 1e3 or abs(Max) < 1e-2 :
                 gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '.1e')
             elif abs(Max) < 10:
-                gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '%.2f')
+                gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '%.3f')
             else:
                 gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '%.1f')
         gan_ticks = [z / Max * kwargs.get("I", Max) for z in gan_ticks]
@@ -211,9 +211,11 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             
             vmax2 = kwargs.get("vmax2", np.max(kwargs['l2']) if is_energy != 1 else np.max(np.abs(kwargs['l2'])) ** 2)
             vmin2 = kwargs.get("vmin2", np.min(kwargs['l2']) if is_energy != 1 else np.max(np.abs(kwargs['l2'])) ** 2)
+            if is_energy == 1 and "vmax" in kwargs: vmax = vmax ** 2
+            if is_energy == 1 and "vmin" in kwargs: vmin = vmin ** 2
             yticks, yticklabels = gan_ticks(vmax2, ticks_num, Min=vmin2)
-            ax1.set_yticks(yticks)
-            ax1.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
+            ax2.set_yticks(yticks)
+            ax2.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
 
             ax2.set_xlabel(xlabel2, fontsize=fontsize, fontdict=font)
             ax2.set_ylabel(ylabel2, fontsize=fontsize, fontdict=font)
@@ -237,7 +239,10 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
     if is_title_on:
         # fig.suptitle(array1D_title, fontsize=fontsize+add_size, fontdict=font)
         # sgtitle 放置位置与 suptitle 相似，必须将其放在所有 subplot 的最后
-        ax1.set_title(array1D_title, fontsize=fontsize+2, fontdict=font)
+        if "l2" in kwargs:
+            ax2.set_title(array1D_title, fontsize=fontsize+add_size, fontdict=font)
+        else:
+            ax1.set_title(array1D_title, fontsize=fontsize+add_size, fontdict=font)
 
     plt.show()
 
@@ -370,6 +375,8 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
 
     vmax = kwargs.get("vmax", np.max(array2D) if is_energy != 1 else np.max(np.abs(array2D)) ** 2)
     vmin = kwargs.get("vmin", np.min(array2D) if is_energy != 1 else np.min(np.abs(array2D)) ** 2)
+    if is_energy == 1 and "vmax" in kwargs: vmax = vmax ** 2
+    if is_energy == 1 and "vmin" in kwargs: vmin = vmin ** 2
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
     array2D_new = array2D_new if is_energy != 1 else np.abs(array2D_new) ** 2
     if is_self_colorbar == 1:
@@ -539,6 +546,8 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
         UZ = np.dstack((U_1, U_2))
     vmax = kwargs.get("vmax", max(np.max(UXY),np.max(UZ)) if is_energy != 1 else max(np.max(np.abs(UXY)),np.max(np.abs(UZ))) ** 2)
     vmin = kwargs.get("vmin", min(np.min(UXY),np.min(UZ)) if is_energy != 1 else min(np.min(np.abs(UXY)),np.min(np.abs(UZ))) ** 2)
+    if is_energy == 1 and "vmax" in kwargs: vmax = vmax ** 2
+    if is_energy == 1 and "vmin" in kwargs: vmin = vmin ** 2
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
     Ixy = Iy
     if is_self_colorbar == 1:
@@ -696,6 +705,8 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
 
     vmax = kwargs.get("vmax", np.max(U_z_stored) if is_energy != 1 else np.max(np.abs(U_z_stored)) ** 2)
     vmin = kwargs.get("vmin", np.min(U_z_stored) if is_energy != 1 else np.min(np.abs(U_z_stored)) ** 2)
+    if is_energy == 1 and "vmax" in kwargs: vmax = vmax ** 2
+    if is_energy == 1 and "vmin" in kwargs: vmin = vmin ** 2
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
     if is_self_colorbar == 1:
         i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])

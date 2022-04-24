@@ -15,7 +15,7 @@ from fun_linear import fft2
 from fun_compare import U_compare
 from B_3_SHG_NLA_SSI_chi2 import SHG_NLA_SSI
 from B_3_SHG_SSF_SSI_chi2 import SHG_SSF_SSI
-from A_to_B_3_SHG_NLA_ssi import A_to_B_3_SHG_NLA_ssi
+from A_3_to_B_3_SHG_NLA_ssi import A_3_to_B_3_SHG_NLA_ssi
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -106,7 +106,7 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
     # %%
 
     U2_ssi, G2_ssi, ray2_ssi, method_and_way2_ssi, U_key2_ssi = \
-        A_to_B_3_SHG_NLA_ssi(U_name_Structure,
+        A_3_to_B_3_SHG_NLA_ssi(U_name_Structure,
                                 is_phase_only_Structure,
                                 # %%
                                 z_pump_Structure,

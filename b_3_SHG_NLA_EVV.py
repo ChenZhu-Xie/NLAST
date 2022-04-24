@@ -216,6 +216,8 @@ def SHG_NLA_EVV(U_name="",
     # %%
 
     iz = z0 / size_PerPixel
+    # zj = kwargs.get("zj", np.linspace(0, z0, sheets_stored_num + 1)) \
+    #     if is_stored==1 else np.linspace(0, z0, sheets_stored_num + 1)
     zj = kwargs.get("zj", np.linspace(0, z0, sheets_stored_num + 1))
     izj = zj / size_PerPixel
     Set("zj", zj)
@@ -414,8 +416,8 @@ if __name__ == '__main__':
             is_phase_only=0,
             # %%
             z_pump=0,
-            is_LG=1, is_Gauss=1, is_OAM=1,
-            l=10, p=3,
+            is_LG=0, is_Gauss=0, is_OAM=0,
+            l=0, p=0,
             theta_x=0, theta_y=0,
             # %%
             is_random_phase=0,
@@ -434,16 +436,16 @@ if __name__ == '__main__':
             is_random_phase_Structure=0,
             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
             # %%
-            U_NonZero_size=1, w0=0.1,
-            z0=5.6, sheets_stored_num=10,
+            U_NonZero_size=0.9, w0=0.3,
+            z0=2.66, sheets_stored_num=10,
             # %%
-            lam1=0.8, is_air_pump=0, is_air=0, T=25,
+            lam1=1.064, is_air_pump=0, is_air=0, T=25,
             deff=30, is_fft=1, fft_mode=0,
             is_sum_Gm=0, mG=0,
             is_linear_convolution=0,
             # %%
-            Tx=10, Ty=10, Tz=0,
-            mx=0, my=0, mz=0,
+            Tx=10, Ty=10, Tz=6.95,
+            mx=0, my=0, mz=1,
             # %%
             # 生成横向结构
             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
