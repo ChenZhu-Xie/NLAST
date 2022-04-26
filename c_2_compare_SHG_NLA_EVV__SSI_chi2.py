@@ -300,7 +300,7 @@ if __name__ == '__main__':
                          is_phase_only_Structure=0,
                          # %%
                          z_pump_Structure=0,
-                         is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
+                         is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
                          l_Structure=0, p_Structure=0,
                          theta_x_Structure=0, theta_y_Structure=0,
                          # %%
@@ -333,15 +333,15 @@ if __name__ == '__main__':
                          is_reverse_xy=0, is_positive_xy=1,
                          # %%
                          is_bulk=0, is_no_backgroud=0,
-                         is_stored=1, is_show_structure_face=0, is_energy_evolution_on=1,
+                         is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
                          # %%
                          lam1=1.064, is_air_pump=0, is_air=0, T=25,
                          deff=30, is_fft=1, fft_mode=0,
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
-                         Tx=18.769, Ty=20, Tz=6.95,
-                         mx=0, my=0, mz=1,
+                         Tx=18.769, Ty=20, Tz=6.97,
+                         mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
                          is_save=0, is_save_txt=0, dpi=100,
@@ -349,7 +349,7 @@ if __name__ == '__main__':
                          color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
                          elev=10, azim=-65, alpha=2,
                          # %%
-                         sample=2, ticks_num=6, is_contourf=0,
+                         sample=1, ticks_num=6, is_contourf=0,
                          is_title_on=1, is_axes_on=1, is_mm=1,
                          # %%
                          fontsize=9,

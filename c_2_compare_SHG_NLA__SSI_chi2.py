@@ -326,15 +326,15 @@ if __name__ == '__main__':
                          is_reverse_xy=0, is_positive_xy=1,
                          # %%
                          is_bulk=0, is_no_backgroud=0,
-                         is_stored=1, is_show_structure_face=0, is_energy_evolution_on=1,
+                         is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
                          # %%
                          lam1=1.064, is_air_pump=0, is_air=0, T=25,
                          deff=30, is_fft=1, fft_mode=0,
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
-                         Tx=18.769, Ty=20, Tz=6.95,
-                         mx=0, my=0, mz=1,
+                         Tx=18.769, Ty=20, Tz=6.7,
+                         mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
                          is_save=0, is_save_txt=0, dpi=100,

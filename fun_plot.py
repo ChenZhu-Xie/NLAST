@@ -40,8 +40,8 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
             Str = "2" + Str[1:]
         elif int(Str[0]) > 5: # =5, =2, =1 则不理睬
             Str = "5" + Str[1:]
-        step = float(Str) # 保留 1 位有效数字
-        ticks_num_real = (Max - Min)//step
+        step = float(Str) if float(Str) !=0 else 1 # 保留 1 位有效数字
+        ticks_num_real = (Max - Min)//step if step !=0 else 6
         ticks = np.arange(0, ticks_num_real + 1, 1)
         gan_tickslabels = ticks * step
         if is_centered == 1:

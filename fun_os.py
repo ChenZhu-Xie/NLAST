@@ -10,7 +10,7 @@ import re
 import cv2
 import numpy as np
 import math
-from fun_global_var import Get, tree_print
+from fun_global_var import Set, Get, tree_print
 from scipy.io import loadmat, savemat
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_gif_video import imgs2gif_imgio, imgs2gif_PIL, imgs2gif_art
@@ -1922,6 +1922,8 @@ def img_squared_bordered_Read(img_full_name,
     else:
         U = img_squared_bordered.astype(np.complex128)
 
+    Set("size_PerPixel", size_PerPixel)
+
     return img_name, img_name_extension, img_squared, size_PerPixel, size_fig, Ix, Iy, U
 
 
@@ -1949,5 +1951,7 @@ def U_Read(U_name, img_full_name,
     img_name, img_name_extension, img_address, \
     img_squared_address, img_squared_bordered_address, \
     img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size)
+
+    Set("size_PerPixel", size_PerPixel)
 
     return img_name, img_name_extension, img_squared, size_PerPixel, size_fig, Ix, Iy, U
