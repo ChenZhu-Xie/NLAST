@@ -293,7 +293,7 @@ if __name__ == '__main__':
                          is_phase_only_Structure=0,
                          # %%
                          z_pump_Structure=0,
-                         is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
+                         is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
                          l_Structure=0, p_Structure=0,
                          theta_x_Structure=0, theta_y_Structure=0,
                          # %%
@@ -333,7 +333,7 @@ if __name__ == '__main__':
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
-                         Tx=18.769, Ty=20, Tz=6.7,
+                         Tx=10, Ty=20, Tz=10,
                          mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%

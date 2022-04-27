@@ -243,8 +243,8 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
         Gz_max_Enhance, match_mode, ]
 
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
-        SHG_NLA_EVV(*args_EVV, zj=Get("z_stored"), ) if is_stored==1 else SHG_NLA_EVV(*args_EVV, )
-
+        SHG_NLA_EVV(*args_EVV, zj=Get("z_stored"), ) if abs(is_stored)==1 else SHG_NLA_EVV(*args_EVV, )
+    # 如果 is_stored == 1 或 -1，则把 SSI 或 ssi 生成的 z_stored 传进 SHG_NLA_EVV 作为 他的 zj，方便 比较。不画图 则传 -1 进去。
     # %%
 
     img_name, img_name_extension, img_squared, \
@@ -333,15 +333,15 @@ if __name__ == '__main__':
                          is_reverse_xy=0, is_positive_xy=1,
                          # %%
                          is_bulk=0, is_no_backgroud=0,
-                         is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
+                         is_stored=-1, is_show_structure_face=0, is_energy_evolution_on=1,
                          # %%
                          lam1=1.064, is_air_pump=0, is_air=0, T=25,
                          deff=30, is_fft=1, fft_mode=0,
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
-                         Tx=18.769, Ty=20, Tz=6.97,
-                         mx=1, my=0, mz=1,
+                         Tx=10.769, Ty=20, Tz=6.7,
+                         mx=0, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
                          is_save=0, is_save_txt=0, dpi=100,

@@ -403,7 +403,7 @@ def init_SSI(g_shift, U_0,
         eget("G")[0] = np.sum(np.abs(dget("G")) ** 2)
         eget("U")[0] = np.sum(np.abs(dget("U")) ** 2)
 
-    if is_stored == 1:
+    if abs(is_stored) == 1:
         sheet_th_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.int64())
         iz_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
         z_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
@@ -419,6 +419,7 @@ def init_SSI(g_shift, U_0,
         sset("G", np.zeros((Ix, Iy, int(sheets_stored_num + 1)), dtype=np.complex128()))
         sset("U", np.zeros((Ix, Iy, int(sheets_stored_num + 1)), dtype=np.complex128()))
 
+    if is_stored == 1:
         # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
         YZset("G", np.zeros((Ix, sheets_num + 1), dtype=np.complex128()))
         XZset("G", np.zeros((Iy, sheets_num + 1), dtype=np.complex128()))
@@ -433,6 +434,7 @@ def init_SSI(g_shift, U_0,
         set1("U", np.zeros((Ix, Iy), dtype=np.complex128()))
         set2("G", np.zeros((Ix, Iy), dtype=np.complex128()))
         set2("U", np.zeros((Ix, Iy), dtype=np.complex128()))
+
 
 
 def init_EVV(g_shift, U_0,
@@ -461,7 +463,7 @@ def init_EVV(g_shift, U_0,
         eget("G")[0] = np.sum(np.abs(dget("G")) ** 2)
         eget("U")[0] = np.sum(np.abs(dget("U")) ** 2)
 
-    if is_stored == 1:
+    if abs(is_stored) == 1:
         sheet_th_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.int64())
         iz_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
         z_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
@@ -493,6 +495,17 @@ def fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
         eget("U")[for_th + 1] = np.sum(np.abs(U_zdz) ** 2)
         # print(eget("U")[for_th + 1])
 
+    if abs(Get("is_stored")) == 1:
+        if np.mod(for_th, Get("sheets_num") // Get("sheets_stored_num")) == 0:
+            # 如果 for_th 是 Get("sheets_num") // Get("sheets_stored_num") 的 整数倍（包括零），则 储存之
+            Get("sheet_th_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = for_th + 1
+            Get("iz_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = Get("izj")[for_th + 1]
+            Get("z_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = Get("zj")[for_th + 1]
+            sget("G")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = G_zdz
+            # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
+            sget("U")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = U_zdz
+            # 储存的 第一层，实际上不是 U_0，而是 U_dz
+
     if Get("is_stored") == 1:
 
         # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
@@ -505,33 +518,22 @@ def fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
 
         # %%
 
-        if np.mod(for_th, Get("sheets_num") // Get("sheets_stored_num")) == 0:
-            # 如果 for_th 是 Get("sheets_num") // Get("sheets_stored_num") 的 整数倍（包括零），则 储存之
-            Get("sheet_th_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = for_th + 1
-            Get("iz_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = Get("izj")[for_th + 1]
-            Get("z_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = Get("zj")[for_th + 1]
-            sget("G")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = G_zdz
-            # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
-            sget("U")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = U_zdz
-            # 储存的 第一层，实际上不是 U_0，而是 U_dz
-
-        if for_th == Get(
-                "sheet_th_frontface"):  # 如果 for_th 是 sheet_th_frontface，则把结构 前端面 场分布 储存起来，对应的是 zj[sheets_num_frontface]
+        if for_th == Get("sheet_th_frontface"):
+            # 如果 for_th 是 sheet_th_frontface，则把结构 前端面 场分布 储存起来，对应的是 zj[sheets_num_frontface]
             setf("G", G_zdz)
             setf("U", U_zdz)
-        if for_th == Get(
-                "sheet_th_endface"):  # 如果 for_th 是 sheet_th_endface，则把结构 后端面 场分布 储存起来，对应的是 zj[sheets_num_endface]
+        if for_th == Get("sheet_th_endface"):
+            # 如果 for_th 是 sheet_th_endface，则把结构 后端面 场分布 储存起来，对应的是 zj[sheets_num_endface]
             sete("G", G_zdz)
             sete("U", U_zdz)
-        if for_th == Get(
-                "sheet_th_sec1"):  # 如果 for_th 是 想要观察的 第一个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
+        if for_th == Get("sheet_th_sec1"):
+            # 如果 for_th 是 想要观察的 第一个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
             set1("G", G_zdz)  # 对应的是 zj[sheets_num_sec1]
             set1("U", U_zdz)
-        if for_th == Get(
-                "sheet_th_sec2"):  # 如果 for_th 是 想要观察的 第二个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
+        if for_th == Get("sheet_th_sec2"):
+            # 如果 for_th 是 想要观察的 第二个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
             set2("G", G_zdz)  # 对应的是 zj[sheets_num_sec2]
             set2("U", U_zdz)
-
 
 def Fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
     U_zdz = ifft2(G_zdz)
@@ -540,7 +542,7 @@ def Fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
         eget("G")[for_th] = np.sum(np.abs(G_zdz) ** 2)
         eget("U")[for_th] = np.sum(np.abs(U_zdz) ** 2)
 
-    if Get("is_stored") == 1:
+    if abs(Get("is_stored")) == 1:
         Get("sheet_th_stored")[for_th] = for_th
         Get("iz_stored")[for_th] = Get("izj")[for_th]
         Get("z_stored")[for_th] = Get("zj")[for_th]
@@ -646,10 +648,12 @@ def fU_SSI_plot(th_f, th_e,
                 z_1, z_2,
                 z_f, z_e, z, ):
     from fun_os import U_SSI_plot
-    if Get("is_stored") == 1:
+
+    if abs(Get("is_stored")) == 1:
         sget("G")[:, :, Get("sheets_stored_num")] = fget("G")  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
         sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U_0，而是 U_dz
 
+    if Get("is_stored") == 1:
         # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
         YZget("G")[:, Get("sheets_num")] = fget("G")[:, Get("th_X")]
         XZget("G")[:, Get("sheets_num")] = fget("G")[Get("th_Y"), :]
@@ -691,7 +695,6 @@ def fU_SSI_plot(th_f, th_e,
                    z_f, z_e,
                    Get("zj"), Get("z_stored"), z, )
 
-
 def fU_EVV_plot(img_name_extension,
                 # %%
                 sample, size_PerPixel,
@@ -712,10 +715,11 @@ def fU_EVV_plot(img_name_extension,
                 # %%
                 z, ):
     from fun_os import U_EVV_plot
-    if Get("is_stored") == 1:
+    if abs(Get("is_stored")) == 1:
         sget("G")[:, :, Get("sheets_stored_num")] = fget("G")  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
         sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U_0，而是 U_dz
 
+    if Get("is_stored") == 1:
         U_EVV_plot(sget("G"), fkey("G"),
                    sget("U"), fkey("U"),
                    img_name_extension,

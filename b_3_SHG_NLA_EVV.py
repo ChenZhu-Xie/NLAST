@@ -429,7 +429,7 @@ if __name__ == '__main__':
             is_phase_only_Structure=0,
             # %%
             w0_Structure=0, z_pump_Structure=0,
-            is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
+            is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
             l_Structure=0, p_Structure=0,
             theta_x_Structure=0, theta_y_Structure=0,
             # %%
@@ -437,15 +437,15 @@ if __name__ == '__main__':
             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
             # %%
             U_NonZero_size=0.9, w0=0.3,
-            z0=2.66, sheets_stored_num=10,
+            z0=10, sheets_stored_num=10,
             # %%
             lam1=1.064, is_air_pump=0, is_air=0, T=25,
             deff=30, is_fft=1, fft_mode=0,
             is_sum_Gm=0, mG=0,
             is_linear_convolution=0,
             # %%
-            Tx=10, Ty=10, Tz=6.95,
-            mx=0, my=0, mz=1,
+            Tx=10, Ty=10, Tz=0,
+            mx=1, my=0, mz=0,
             # %%
             # 生成横向结构
             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
