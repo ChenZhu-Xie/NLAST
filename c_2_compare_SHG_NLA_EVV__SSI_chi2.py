@@ -340,7 +340,7 @@ if __name__ == '__main__':
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
-                         Tx=18.769, Ty=20, Tz=6.7,
+                         Tx=10.769, Ty=20, Tz=0,
                          mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
