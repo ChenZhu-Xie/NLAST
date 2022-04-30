@@ -17,7 +17,7 @@ from fun_SSI import slice_ssi
 from fun_linear import init_AST, init_SHG, fft2, ifft2
 from fun_nonlinear import args_SHG
 from fun_thread import my_thread
-from fun_global_var import tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
+from fun_global_var import tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, sget, skey, fGHU_plot_save, fU_SSI_plot
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -249,7 +249,11 @@ def nLA_ssi(U_name="",
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
-    return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
+    if abs(is_stored) != 1:
+        return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
+    else:
+        return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U"), \
+               sget("U"), sget("G"), skey("U"),
 
 if __name__ == '__main__':
     nLA_ssi(U_name="",

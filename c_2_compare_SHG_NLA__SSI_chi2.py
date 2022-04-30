@@ -16,6 +16,7 @@ from fun_compare import U_compare
 from b_3_SHG_NLA import SHG_NLA
 from B_3_SHG_NLA_SSI_chi2 import SHG_NLA_SSI
 from B_3_SHG_SSF_SSI_chi2 import SHG_SSF_SSI
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -26,7 +27,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                          is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
                          l_Structure=0, p_Structure=0,
                          theta_x_Structure=0, theta_y_Structure=0,
-                         #%%
+                         # %%
                          is_random_phase_Structure=0,
                          is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                          # %%
@@ -38,7 +39,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                          is_LG=0, is_Gauss=1, is_OAM=1,
                          l=1, p=0,
                          theta_x=1, theta_y=0,
-                         #%%
+                         # %%
                          is_random_phase=0,
                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                          # %%---------------------------------------------------------------------
@@ -59,10 +60,10 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                          is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
                          # %%
                          lam1=1.5, is_air_pump=0, is_air=0, T=25,
-                         deff=30,is_fft = 1, fft_mode = 0,
+                         deff=30, is_fft=1, fft_mode=0,
                          is_sum_Gm=0, mG=0,
-                         is_linear_convolution = 0,
-                         #%%
+                         is_linear_convolution=0,
+                         # %%
                          Tx=19.769, Ty=20, Tz=8.139,
                          mx=-1, my=0, mz=1,
                          is_stripe=0, is_NLAST=0,
@@ -248,45 +249,46 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
     # 对比 G2_NLA 与 G2_SSI 的 （绝对）误差
 
     G_and_G_error_energy = U_compare(fft2(U2_NLA), fft2(U2_SSI), U_key2_SSI.replace("U", "G"), L0_Crystal,
-              # %%
-              img_name_extension, size_PerPixel, size_fig,
-              # %%
-              is_save, is_save_txt, dpi,
-              # %%
-              cmap_2d,
-              # %%
-              ticks_num, is_contourf,
-              is_title_on, is_axes_on, is_mm,
-              # %%
-              fontsize, font,
-              # %%S
-              is_colorbar_on, is_energy,
-              # %%
-              is_relative, is_print, )
+                                     # %%
+                                     img_name_extension, size_PerPixel, size_fig,
+                                     # %%
+                                     is_save, is_save_txt, dpi,
+                                     # %%
+                                     cmap_2d,
+                                     # %%
+                                     ticks_num, is_contourf,
+                                     is_title_on, is_axes_on, is_mm,
+                                     # %%
+                                     fontsize, font,
+                                     # %%S
+                                     is_colorbar_on, is_energy,
+                                     # %%
+                                     is_relative, is_print, )
 
     # %%
     # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
 
     U_and_U_error_energy = U_compare(U2_NLA, U2_SSI, U_key2_SSI, L0_Crystal,
-              # %%
-              img_name_extension, size_PerPixel, size_fig,
-              # %%
-              is_save, is_save_txt, dpi,
-              # %%
-              cmap_2d,
-              # %%
-              ticks_num, is_contourf,
-              is_title_on, is_axes_on, is_mm,
-              # %%
-              fontsize, font,
-              # %%S
-              is_colorbar_on, is_energy,
-              # %%
-              is_relative, is_print, is_end=1, )
+                                     # %%
+                                     img_name_extension, size_PerPixel, size_fig,
+                                     # %%
+                                     is_save, is_save_txt, dpi,
+                                     # %%
+                                     cmap_2d,
+                                     # %%
+                                     ticks_num, is_contourf,
+                                     is_title_on, is_axes_on, is_mm,
+                                     # %%
+                                     fontsize, font,
+                                     # %%S
+                                     is_colorbar_on, is_energy,
+                                     # %%
+                                     is_relative, is_print, is_end=1, )
 
     # %%
 
     return (G_and_G_error_energy, U_and_U_error_energy)
+
 
 if __name__ == '__main__':
     compare_SHG_NLA__SSI(U_name_Structure="",
@@ -332,7 +334,7 @@ if __name__ == '__main__':
                          deff=30, is_fft=1, fft_mode=0,
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
-                         #%%
+                         # %%
                          Tx=10, Ty=20, Tz=10,
                          mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,

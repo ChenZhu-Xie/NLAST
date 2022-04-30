@@ -231,11 +231,9 @@ def A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
            Gz_max_Enhance, match_mode, ]
 
     if is_NLA == 1:
-        U, G, ray, method_and_way, U_key = SHG_NLA_ssi(*args_SHG_ssi, is_end=is_end, )
+        return SHG_NLA_ssi(*args_SHG_ssi, is_end=is_end, )
     else:
-        U, G, ray, method_and_way, U_key = SHG_SSF_ssi(*args_SHG_ssi, is_end=is_end, )
-
-    return U, G, ray, method_and_way, U_key
+        return SHG_SSF_ssi(*args_SHG_ssi, is_end=is_end, )
 
 if __name__ == '__main__':
     A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",

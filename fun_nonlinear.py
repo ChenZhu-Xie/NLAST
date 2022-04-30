@@ -214,13 +214,15 @@ def G2_z_modulation_NLAST(k1, k2, Gz,
     k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
     k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
 
-    Big_version = 4
-    Cal_version = 3
+    Big_version = 1
+    Cal_version = 1
     Res_version = 1
 
-    # 3.6 = 1.1 > 2      dismatch OK
     # 3.4 > 3.2 > 1.3    match OK
     # 3.5 wrong
+    # 3.6 = 1.1 > 2      dismatch OK
+    # 4.0 e 指数太大，溢出
+    # 5.0 = 3.4 + 1.1    dismatch + match OK
 
     if Big_version == 0 or Big_version == 2:
 
@@ -429,7 +431,31 @@ def G2_z_modulation_NLAST(k1, k2, Gz,
                * math.e ** E / denominator \
                * (1j * iz)
 
+    elif Big_version == 5:
+        G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
+        g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
+        molecule = G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)\
+                   - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
+        K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
+        kiizQ = 2 * K1_z + Gz
+        denominator = kiizQ ** 2 - k2_z ** 2
+        dismatch = const * molecule / denominator
 
+
+        G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) ** 2)
+        dkiizQ = kiizQ - k2_z
+        inside_sinc = dkiizQ / 2 * iz
+        sinc_denominator = (kiizQ + k2_z) / 2
+        match = const * G1_U_half_z_Squared_modulated \
+               * np.sinc(inside_sinc / np.pi) / sinc_denominator \
+               * math.e ** (Gz * iz * 1j) \
+               * math.e ** (k2_z * iz / 2 * 1j) \
+               * (1j * iz)
+
+        match_factor = math.e ** (- inside_sinc ** 2 / 6)
+        dismatch_factor = 1 - match_factor
+
+        G2_z = dismatch_factor * dismatch + match_factor * match
 
     return G2_z * Get("size_PerPixel")**2
 
@@ -539,7 +565,7 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
                            * (1j * iz)
                 denominator = 1
 
-        # %%
+    # %%
     G2_z = 2 * const * molecule / denominator
 
     return G2_z * Get("size_PerPixel")**2

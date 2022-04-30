@@ -119,8 +119,8 @@ def U_compare(U, U_0, U_0_title, z,
                                       z=z, )
 
     U_0_norm_energy = np.sum(np.abs(U_0_norm) ** 2)
-    U_energy_error = U_amp_error_energy / U_0_norm_energy
-    U_custom_print(U_energy_error, fkey(ugHGU), "relative_error", is_print,
+    U_error_energy = U_amp_error_energy / U_0_norm_energy
+    U_custom_print(U_error_energy, fkey(ugHGU), "relative_error", is_print,
                    z=z, is_end=1)
 
     # U_custom_print(U_energy_error, fkey(ugHGU), "relative_error", is_print,
@@ -129,7 +129,7 @@ def U_compare(U, U_0, U_0_title, z,
     #                z=z, is_end=1)
 
     U_0_energy = np.sum(np.abs(U_0) ** 2)
-    return (U_0_energy, U_energy_error)
+    return (U_0_energy, U_error_energy)
 
     # #%%
     # # 对比 U 与 U_0 的 绝对误差 的 相对误差

@@ -8,8 +8,8 @@ Created on Mon Nov  1 14:38:57 2021
 # %%
 
 import numpy as np
-from fun_os import img_squared_bordered_Read
-from fun_global_var import tree_print, Get
+from fun_os import img_squared_bordered_Read, U_twin_energy_plot
+from fun_global_var import tree_print, Get, eget, sget, skey
 from fun_img_Resize import if_image_Add_black_border
 from fun_linear import fft2
 from fun_compare import U_compare
@@ -69,7 +69,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                          # %%
                          is_save=0, is_save_txt=0, dpi=100,
                          # %%
-                         color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+                         color_1d='b', color_1d2='r', cmap_2d='viridis', cmap_3d='rainbow',
                          elev=10, azim=-65, alpha=2,
                          # %%
                          sample=2, ticks_num=6, is_contourf=0,
@@ -178,6 +178,12 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
         SHG_NLA_SSI(*args_SSI, ) if is_NLA == 1 else \
             SHG_SSF_SSI(*args_SSI, )
 
+    if is_energy_evolution_on == 1: # 截获一下 SSI 的 能量曲线
+        zj_SSI = Get("zj")
+        U2_energy_SSI = eget("U")
+    if abs(is_stored) == 1:
+        U2_stored_SSI, G2_stored_SSI, U2_stored_key_SSI = sget("U"), sget("G"), skey("U")
+
     args_EVV = \
         [U_name,
         img_full_name,
@@ -245,6 +251,13 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SHG_NLA_EVV(*args_EVV, zj=Get("z_stored"), ) if abs(is_stored)==1 else SHG_NLA_EVV(*args_EVV, )
     # 如果 is_stored == 1 或 -1，则把 SSI 或 ssi 生成的 z_stored 传进 SHG_NLA_EVV 作为 他的 zj，方便 比较。不画图 则传 -1 进去。
+
+    if is_energy_evolution_on == 1: # 截获一下 EVV 的 能量曲线
+        zj_EVV = Get("zj")
+        U2_energy_EVV = eget("U")
+    if abs(is_stored) == 1:
+        U2_stored_EVV, G2_stored_EVV, U2_stored_key_EVV = sget("U"), sget("G"), skey("U")
+
     # %%
 
     img_name, img_name_extension, img_squared, \
@@ -253,45 +266,61 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                   U_NonZero_size, dpi,
                                   is_phase_only)
 
-    # %%
-    # 对比 G2_NLA 与 G2_SSI 的 （绝对）误差
+    if kwargs.get("is_output_error_EVV") != 1:
+        # %%
+        # 对比 G2_NLA 与 G2_SSI 的 （绝对）误差
 
-    U_compare(fft2(U2_NLA), fft2(U2_SSI), U_key2_SSI.replace("U", "G"), L0_Crystal,
-              # %%
-              img_name_extension, size_PerPixel, size_fig,
-              # %%
-              is_save, is_save_txt, dpi,
-              # %%
-              cmap_2d,
-              # %%
-              ticks_num, is_contourf,
-              is_title_on, is_axes_on, is_mm,
-              # %%
-              fontsize, font,
-              # %%S
-              is_colorbar_on, is_energy,
-              # %%
-              is_relative, is_print, )
+        U_compare(fft2(U2_NLA), fft2(U2_SSI), U_key2_SSI.replace("U", "G"), L0_Crystal,
+                  # %%
+                  img_name_extension, size_PerPixel, size_fig,
+                  # %%
+                  is_save, is_save_txt, dpi,
+                  # %%
+                  cmap_2d,
+                  # %%
+                  ticks_num, is_contourf,
+                  is_title_on, is_axes_on, is_mm,
+                  # %%
+                  fontsize, font,
+                  # %%S
+                  is_colorbar_on, is_energy,
+                  # %%
+                  is_relative, is_print, )
 
-    # %%
-    # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
+        # %%
+        # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
 
-    U_compare(U2_NLA, U2_SSI, U_key2_SSI, L0_Crystal,
-              # %%
-              img_name_extension, size_PerPixel, size_fig,
-              # %%
-              is_save, is_save_txt, dpi,
-              # %%
-              cmap_2d,
-              # %%
-              ticks_num, is_contourf,
-              is_title_on, is_axes_on, is_mm,
-              # %%
-              fontsize, font,
-              # %%S
-              is_colorbar_on, is_energy,
-              # %%
-              is_relative, is_print, is_end=1, )
+        U_compare(U2_NLA, U2_SSI, U_key2_SSI, L0_Crystal,
+                  # %%
+                  img_name_extension, size_PerPixel, size_fig,
+                  # %%
+                  is_save, is_save_txt, dpi,
+                  # %%
+                  cmap_2d,
+                  # %%
+                  ticks_num, is_contourf,
+                  is_title_on, is_axes_on, is_mm,
+                  # %%
+                  fontsize, font,
+                  # %%S
+                  is_colorbar_on, is_energy,
+                  # %%
+                  is_relative, is_print, is_end=1, )
+
+        if is_energy_evolution_on == 1:
+            U_twin_energy_plot(U2_energy_SSI, U2_energy_EVV, U_key2_SSI.replace("_SSI", ""),
+                               img_name_extension,
+                               # %%
+                               zj_SSI, zj_EVV, sample, size_PerPixel,
+                               is_save, dpi, size_fig * 10, size_fig,
+                               # %%
+                               color_1d, color_1d2,
+                               ticks_num, is_title_on, is_axes_on, is_mm,
+                               fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                               # %%
+                               L0_Crystal, is_energy_normalized=2, **kwargs, )
+
+    # else:
 
     # %%
 
@@ -340,13 +369,13 @@ if __name__ == '__main__':
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
                          #%%
-                         Tx=10.769, Ty=20, Tz=0,
+                         Tx=18.769, Ty=20, Tz=6.7,
                          mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
                          is_save=0, is_save_txt=0, dpi=100,
                          # %%
-                         color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+                         color_1d='b', color_1d2='r', cmap_2d='viridis', cmap_3d='rainbow',
                          elev=10, azim=-65, alpha=2,
                          # %%
                          sample=1, ticks_num=6, is_contourf=0,
@@ -359,7 +388,7 @@ if __name__ == '__main__':
                                'color': 'black',  # 'black','gray','darkred'
                                },
                          # %%
-                         is_colorbar_on=1, is_energy=1,
+                         is_colorbar_on=1, is_energy=0,
                          # %%
                          plot_group="UGa", is_animated=1,
                          loop=0, duration=0.033, fps=5,
@@ -372,6 +401,6 @@ if __name__ == '__main__':
                          # %%
                          is_NLA=1, is_relative=1,
                          # %%
-                         border_percentage=0.1, is_end=-1, )
+                         border_percentage=0.1, is_end=-1, is_output_error_EVV=0, )
 
 # 注意 colorbar 上的数量级

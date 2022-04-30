@@ -137,57 +137,54 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure = "",
     #%%
     # B_3_NLA_SSI
 
+    args_nLA_ssi = \
+        [U_name,
+        img_full_name,
+        is_phase_only,
+        #%%
+        z_pump,
+        is_LG, is_Gauss, is_OAM,
+        l, p,
+        theta_x, theta_y,
+        #%%
+        is_random_phase,
+        is_H_l, is_H_theta, is_H_random_phase,
+        #%%
+        U_NonZero_size, w0,
+        L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
+        Duty_Cycle_z,  zoomout_times, sheets_stored_num,
+        z0_section_1_expect, z0_section_2_expect,
+        X, Y,
+        #%%
+        is_bulk,
+        is_stored, is_show_structure_face, is_energy_evolution_on,
+        #%%
+        lam1, is_air_pump, is_air, T,
+        deff,
+        Tx, Ty, Tz,
+        mx, my, mz,
+        #%%
+        is_save, is_save_txt, dpi,
+        #%%
+        color_1d, cmap_2d, cmap_3d,
+        elev, azim, alpha,
+        #%%
+        sample, ticks_num, is_contourf,
+        is_title_on, is_axes_on, is_mm,
+        #%%
+        fontsize, font,
+        #%%
+        is_colorbar_on, is_energy,
+        # %%
+        plot_group, is_animated,
+        loop, duration, fps,
+        # %%
+        is_plot_3d_XYz, is_plot_selective,
+        is_plot_YZ_XZ, is_plot_3d_XYZ,
+        #%%
+        is_print, ]
 
-    U, G, ray, method_and_way, U_key = \
-        nLA_ssi(U_name,
-                img_full_name,
-                is_phase_only,
-                #%%
-                z_pump,
-                is_LG, is_Gauss, is_OAM,
-                l, p,
-                theta_x, theta_y,
-                #%%
-                is_random_phase,
-                is_H_l, is_H_theta, is_H_random_phase,
-                #%%
-                U_NonZero_size, w0,
-                L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
-                Duty_Cycle_z,  zoomout_times, sheets_stored_num,
-                z0_section_1_expect, z0_section_2_expect,
-                X, Y,
-                #%%
-                is_bulk,
-                is_stored, is_show_structure_face, is_energy_evolution_on,
-                #%%
-                lam1, is_air_pump, is_air, T,
-                deff,
-                Tx, Ty, Tz,
-                mx, my, mz,
-                #%%
-                is_save, is_save_txt, dpi,
-                #%%
-                color_1d, cmap_2d, cmap_3d,
-                elev, azim, alpha,
-                #%%
-                sample, ticks_num, is_contourf,
-                is_title_on, is_axes_on, is_mm,
-                #%%
-                fontsize, font,
-                #%%
-                is_colorbar_on, is_energy,
-                # %%
-                plot_group, is_animated,
-                loop, duration, fps,
-                # %%
-                is_plot_3d_XYz, is_plot_selective,
-                is_plot_YZ_XZ, is_plot_3d_XYZ,
-                #%%
-                is_print,
-                #%%
-                is_end=is_end, )
-
-    return U, G, ray, method_and_way, U_key
+    return nLA_ssi(*args_nLA_ssi, is_end=is_end, )
 
 if __name__ == '__main__':
     A_2_to_B_2_nLA_ssi(U_name_Structure = "",

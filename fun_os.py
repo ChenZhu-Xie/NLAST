@@ -1849,7 +1849,7 @@ def U_energy_plot(folder_address,
 def U_error_energy_plot(U, l2, U_name,
                       img_name_extension,
                       # %%
-                      zj, zj2, sample, size_PerPixel,
+                      zj, ax2_xticklabel, sample, size_PerPixel,
                       is_save, dpi, size_fig_x, size_fig_y,
                       # %%
                       color_1d, color_1d2,
@@ -1868,10 +1868,48 @@ def U_error_energy_plot(U, l2, U_name,
                   is_title_on, is_axes_on, is_mm,
                   fontsize, font,
                   # %%
-                  z=z, suffix='_error_energy',
+                  z=z, suffix='_energy_distribution_error',
                   # %%
-                  l2=l2, zj2=zj2, color_1d2=color_1d2,
-                  label="energy", label2="error_energy", **kwargs, )
+                  l2=l2, color_1d2=color_1d2,
+                  label="energy", ax1_xticklabel=zj, # 强迫 ax1 的 x 轴标签 保持原样
+                  label2="distribution_error", ax2_xticklabel=ax2_xticklabel, **kwargs, )
+
+def U_twin_energy_plot(U, l2, U_name,
+                      img_name_extension,
+                      # %%
+                      zj, zj2, sample, size_PerPixel,
+                      is_save, dpi, size_fig_x, size_fig_y,
+                      # %%
+                      color_1d, color_1d2,
+                      ticks_num, is_title_on, is_axes_on, is_mm,
+                      fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                      # %%
+                      z, **kwargs, ):
+    if kwargs.get("is_energy_normalized", False) == 1:
+        U = U/np.max(U)
+        l2 = l2 / np.max(l2)
+        suffix = '_energy_normalized_compare'
+    elif kwargs.get("is_energy_normalized", False) == 2:
+        l2 = l2 / l2[-1] * U[-1]
+        suffix = '_energy_sync_compare'
+    else:
+        suffix = '_energy_compare'
+
+    U_energy_plot(get_desktop(),
+                  U, U_name,
+                  img_name_extension,
+                  # %%
+                  zj, sample, size_PerPixel,
+                  is_save, dpi, size_fig_x, size_fig_y,
+                  color_1d, ticks_num,
+                  is_title_on, is_axes_on, is_mm,
+                  fontsize, font,
+                  # %%
+                  z=z, suffix=suffix,
+                  # %%
+                  l2=l2, color_1d2=color_1d2,
+                  label="energy_SSI", label2="energy_EVV",
+                  zj2=zj2, **kwargs, )
 
 # %%
 
