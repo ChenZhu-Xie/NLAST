@@ -188,7 +188,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                **kwargs, ):
     info = "χ2_2D_横向绘制"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     #%%
     kwargs["is_end"] = 1 if Get("args_SHG") else 0
     # 如果 Get("args_SHG") 非 False（则为 1,2,...），说明之前 用过 args_SHG，那么之后这里的 args_SHG 就不会被用，则下面 这个就应是 is_end=1
@@ -228,7 +228,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                                                  # %%
                                                                  **kwargs, )
 
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # %%
 
@@ -396,7 +396,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                              **kwargs, ):
     info = "n_2D_横向绘制"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     #%%
 
     img_name, img_name_extension, img_squared, \

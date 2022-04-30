@@ -38,10 +38,12 @@ def lormat(ticks, Str):
 def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
     Str = format((Max - Min) / ticks_num, '.0e')
     if Str != 'nan':
-        if int(Str[0]) > 2 and int(Str[0]) < 5:  # step 默认为 更小的 step，比如 34 则 2，9876 则 5
+        if int(Str[0]) == 3:  # step 默认为 更小的 step，比如 3 则 2，9 则 8，7 则 6，
             Str = "2" + Str[1:]
-        elif int(Str[0]) > 5:  # =5, =2, =1 则不理睬
-            Str = "5" + Str[1:]
+        elif int(Str[0]) == 7:  # = 8, 6, 5, 4, 2, 1 则不理睬
+            Str = "6" + Str[1:]
+        elif int(Str[0]) == 9:
+            Str = "8" + Str[1:]
         step = float(Str) if float(Str) != 0 else 1  # 保留 1 位有效数字
         ticks_num_real = (Max - Min) // step if step != 0 else 6
         ticks = np.arange(0, ticks_num_real + 1, 1)
@@ -76,6 +78,9 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
     else:
         gan_ticks = gan_tickslabels = np.arange(0, ticks_num + 1, 1)
     return gan_ticks, gan_tickslabels
+
+def mjrFormatter(x, pos):
+    return "$10^{{{0}}}$".format("%.1f" % x)  # 奇了怪了， x 本身已经是 格式化过了的，咋还得格式化一次...
 
 def plot_1d(zj, sample=2, size_PerPixel=0.007,
             # %%
@@ -128,6 +133,9 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
     # print(array1D)
     f = UnivariateSpline(ix, array1D, s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
     array1D_new = f(ix_new)
+    array1D_new = array1D_new if is_energy != 1 else np.abs(array1D_new) ** 2
+    if 'ax1_xticklabel' in kwargs:
+        array1D_new = np.log10(array1D_new)
 
     # %%
 
@@ -162,16 +170,9 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         #     # ax1.set_yscale(kwargs.get('ax1_yscale', 'log'))
         #     # ax1.semilogy(x, np.log10(y))
 
-        vmax = kwargs.get("vmax", np.max(array1D) if is_energy != 1 else np.max(np.abs(array1D)) ** 2)
-        vmin = kwargs.get("vmin", np.min(array1D) if is_energy != 1 else np.min(np.abs(array1D)) ** 2)
-        if is_energy == 1 and "vmax" in kwargs: vmax = vmax ** 2
-        if is_energy == 1 and "vmin" in kwargs: vmin = vmin ** 2
-        if 'ax1_xticklabel' in kwargs:
-            def mjrFormatter(x, pos):
-                return "$10^{{{0}}}$".format(x)
-            vmax = np.log10(vmax)
-            vmin = np.log10(vmin)
-        # yticks = np.linspace(vmin, vmax, ticks_num + 1)
+        vmax = kwargs.get("vmax", np.max(array1D_new))
+        vmin = kwargs.get("vmin", np.min(array1D_new))
+
         yticks, yticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
         ax1.set_yticks(yticks)
         ax1.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
@@ -197,9 +198,6 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
 
     # ax1.set_yscale(kwargs.get('ax1_yscale', 'linear')) # linear 会覆盖 之前的 set_yticks，如果该语句在 set_yticks 之后的话
 
-    array1D_new = array1D_new if is_energy != 1 else np.abs(array1D_new) ** 2
-    if 'ax1_xticklabel' in kwargs:
-        array1D_new = np.log10(array1D_new)
     l1, = ax1.plot(ix_new, array1D_new, **ax1_plot_dict)
     ax1.grid()
 
@@ -215,6 +213,12 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             ix2_new = np.linspace(zj[0], zj[-1], Iz_new)
         else:
             ix2_new = ix_new
+
+        f = UnivariateSpline(ix, kwargs['l2'], s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
+        l2_new = f(ix2_new)
+        l2_new = l2_new if is_energy != 1 else np.abs(l2_new) ** 2
+        if 'ax1_xticklabel' in kwargs:
+            l2_new = np.log10(l2_new)
 
         ax2 = fig.add_subplot(111, label="2", frameon=False)  # 不覆盖 下面的 图层
         ax2.xaxis.tick_top()
@@ -254,17 +258,32 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             #     # ax2.set_yscale(kwargs.get('ax2_yscale', 'log'))
             #     # ax2.semilogy(x, np.log10(y))
 
-            if kwargs.get("is_energy_normalized", False) == 2:
-                ax2.set_ylim(ax1.get_ylim())  # ax2 的 y 轴范围 不再自动，而是 强制 ax2 的 y 轴 范围 等于 ax1 的 y 轴范围
-                vmax2, vmin2 = vmax, vmin  # 与 ax2.set_ylim(ax1.get_ylim()) 配合，强制 ax2 的 y 轴 刻度线 等于 ax1 的 刻度线。
+            if "zj2" in kwargs:
+                index = [find_nearest(ix_new, goal)[0] for goal in ix2_new]
+                # print(index)
+                if 'l3' in kwargs:
+                    l3_new = np.abs(l2_new - array1D_new[index]) / array1D_new[index]  # 相对 误差
+                else:
+                    l3_new = np.abs(l2_new - array1D_new[index])  # 花式索引，可以用 list 或 array 作为一个 array 的下标
+
+            if 'l3' in kwargs:
+                f = UnivariateSpline(ix, kwargs['l3'], s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
+                l4_new = f(ix2_new)
+                l4_new = l4_new if is_energy != 1 else np.abs(l4_new) ** 2
+                l4_new = np.log10(l4_new)
+                l3_new = np.log10(l3_new) # l3 传进来时， is_energy_normalized 不能为 2，否则 l3_new 的最后一个值是 0，对数为 - inf
+                # print(l3_new, l4_new)
+
+                vmax2 = kwargs.get("vmax2", max(np.max(l4_new), np.max(l3_new)))
+                vmin2 = kwargs.get("vmin2", min(np.min(l4_new), np.min(l3_new)))
+                # print(vmax2, vmin2)
             else:
-                vmax2 = kwargs.get("vmax2", np.max(kwargs['l2']) if is_energy != 1 else np.max(np.abs(kwargs['l2'])) ** 2)
-                vmin2 = kwargs.get("vmin2", np.min(kwargs['l2']) if is_energy != 1 else np.max(np.abs(kwargs['l2'])) ** 2)
-                if is_energy == 1 and "vmax2" in kwargs: vmax2 = vmax2 ** 2
-                if is_energy == 1 and "vmin2" in kwargs: vmin2 = vmin2 ** 2
-                if 'ax1_xticklabel' in kwargs:
-                    vmax2 = np.log10(vmax2)
-                    vmin2 = np.log10(vmin2)
+                if kwargs.get("is_energy_normalized", False) == 2:
+                    # ax2.set_ylim(ax1.get_ylim())  # ax2 的 y 轴范围 不再自动，而是 强制 ax2 的 y 轴 范围 等于 ax1 的 y 轴范围
+                    vmax2, vmin2 = vmax, vmin  # 与 ax2.set_ylim(ax1.get_ylim()) 配合，强制 ax2 的 y 轴 刻度线 等于 ax1 的 刻度线。
+                else:
+                    vmax2 = kwargs.get("vmax2", np.max(l2_new))
+                    vmin2 = kwargs.get("vmin2", np.min(l2_new))
 
             # %% 获取 ax1 的 上下 lim 的 相对位置，和 相对 间隔 大小，为之后 设置 ax2 的 绝对 lim 范围（y 刻度 线性时）
             ax1_interval_relative = (yticks[1] - yticks[0]) / (ax1.get_ylim()[-1] - ax1.get_ylim()[0])
@@ -276,7 +295,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             ax2.set_yticks(yticks)
             ax2.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
 
-            if 'ax1_xticklabel' in kwargs:
+            if 'ax1_xticklabel' in kwargs or 'l3' in kwargs:
                 # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
                 # ax2.yaxis.set_major_formatter(logfmt)
                 ax2.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter))
@@ -293,35 +312,48 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             ax2.set_xlabel(xlabel2, fontsize=fontsize, fontdict=font)
             ax2.set_ylabel(ylabel2, fontsize=fontsize, fontdict=font)
 
-        f = UnivariateSpline(ix, kwargs['l2'], s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
-        l2_new = f(ix2_new)
-
         ax2_plot_dict = {"color": color_1d2, "label": kwargs.get('label2', None)}
         ax2_plot_dict.update({"alpha": kwargs.get("ax2_alpha", 1),  # 1 即 不透明
                               "linestyle": kwargs.get("ax2_linestyle", '-'),  # 线型
                               "linewidth": kwargs.get("ax2_linewidth", 2), })  # 线宽
-        ax2_plot_dict.update({"marker": kwargs.get("ax2_marker", '+'),  # 标记点
-                              "markeredgecolor": kwargs.get("ax2_markeredgecolor", 'green'),  # 标记点颜色
-                              "markersize": kwargs.get("ax2_markersize", '20'),  # 标记点大小
-                              "markeredgewidth": kwargs.get("ax2_markeredgewidth", 1), })  # 标记点边宽
+        ax2_marker_dict = {"marker": kwargs.get("ax2_marker", '+'),  # 标记点
+                           "markeredgecolor": kwargs.get("ax2_markeredgecolor", 'green'),  # 标记点颜色
+                           "markersize": kwargs.get("ax2_markersize", '20'),  # 标记点大小
+                           "markeredgewidth": kwargs.get("ax2_markeredgewidth", 1), }
+        ax2_plot_dict.update(ax2_marker_dict)
 
-        l2_new = l2_new if is_energy != 1 else np.abs(l2_new) ** 2
-        if 'ax1_xticklabel' in kwargs:
-            l2_new = np.log10(l2_new)
-        l2, = ax2.plot(ix2_new, l2_new, **ax2_plot_dict, )
+        if 'l3' in kwargs:
+            ax1_plot_dict.update({"label": kwargs.get('label2', None),
+                                  "linestyle": kwargs.get("ax2_linestyle", '--'), })
+            ax1_plot_dict.update(ax2_marker_dict)
+            l2, = ax1.plot(ix2_new, l2_new, **ax1_plot_dict, )
+
+            ax2_plot_dict.update({"label": kwargs.get('label3', None),
+                                  "linestyle": kwargs.get("ax2_linestyle", '--'),
+                                  "marker": kwargs.get("l3_marker", 'x'),
+                                  "markeredgecolor": kwargs.get("l4_markeredgecolor", 'gray'), })
+            l4, = ax2.plot(ix2_new, l4_new, **ax2_plot_dict, )
+        else:
+            l2, = ax2.plot(ix2_new, l2_new, **ax2_plot_dict, )
         # ax2.grid()
 
         if "zj2" in kwargs:
-            index = [find_nearest(ix_new, goal)[0] for goal in ix2_new]
-            # print(index)
-            l3_new = np.abs(l2_new - array1D_new[index])  # 花式索引，可以用 list 或 array 作为一个 array 的下标
-            ax2_plot_dict.update({"label": "energy_error",
-                                  "linestyle": kwargs.get("ax3_linestyle", '--'), })
+            if 'l3' in kwargs:
+                ax2_plot_dict.update({"label": "energy_relative_error",
+                                      "linestyle": kwargs.get("l3_linestyle", '-.'),
+                                      "markeredgecolor": kwargs.get("ax2_markeredgecolor", 'green'), })
+            else:
+                ax2_plot_dict.update({"label": "energy_error",
+                                      "linestyle": kwargs.get("l3_linestyle", '--'),
+                                      "markeredgecolor": kwargs.get("ax2_markeredgecolor", 'green'), })
             l3, = ax2.plot(ix2_new, l3_new, **ax2_plot_dict, )
 
         if "label" in kwargs and "label2" in kwargs:
             if "zj2" in kwargs:
-                plt.legend(handles=[l1, l2, l3], **legend_dict, )
+                if 'l3' in kwargs:
+                    plt.legend(handles=[l1, l2, l3, l4], **legend_dict, )
+                else:
+                    plt.legend(handles=[l1, l2, l3], **legend_dict, )
             else:
                 plt.legend(handles=[l1, l2], **legend_dict, )
     else:

@@ -17,7 +17,7 @@ def Cal_diz(Duty_Cycle_z, size_PerPixel, Tz,
     # %%
     deff_structure_sheet = Tz * gcd_of_float(Duty_Cycle_z)[0] / zoomout_times # 保证 deff_structure_sheet 始终能被 Tz 和 Tz * Duty_Cycle_z 整除
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_sheet = {} μm".format(deff_structure_sheet)) # Unit: μm 调制区域切片厚度 的 实际纵向尺寸
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     diz = deff_structure_sheet / 1000 / size_PerPixel  # Unit: mm / mm = 1
 
     return diz, deff_structure_sheet
@@ -42,7 +42,7 @@ def Cal_Iz_frontface(diz,
     sheet_th_frontface = sheets_num_frontface - 1 if sheets_num_frontface >= 1 else 0  # 但需要 前面一层 的 前端面 的 序数 来获取值
     z0_structure_frontface = Iz_frontface * size_PerPixel
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_structure_frontface = {} mm".format(z0_structure_frontface))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     
     zj_frontface = np.arange(sheets_num_frontface + 1, dtype=np.float64()) * diz * size_PerPixel
     zj_frontface[-1] = z0_structure_frontface # 覆盖最后一个可能超了的，不真实的值。直接 zj_frontface[sheets_num_frontface] 也行
@@ -62,7 +62,7 @@ def Cal_Iz_structure(diz,
     leftover = Iz_structure - Iz_structure//diz * diz
     sheets_num_structure = int(Iz_structure // diz) + int(leftover != 0) # 这个 leftover 就 保证了 zj 中 没有 重复的 元素（特别是 最末 2 位）
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_length = {} mm".format(deff_structure_length))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     array_1d = np.arange(sheets_num_structure + 1, dtype=np.float64())
     zj_structure = array_1d * diz * size_PerPixel
@@ -87,7 +87,7 @@ def Cal_Iz_endface(sheets_num_frontface, sheets_num_structure,
     z0_structure_endface = zj_frontface[-1] + zj_structure[-1]
     Iz_endface = z0_structure_endface / size_PerPixel
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_structure_endface = {} mm".format(z0_structure_endface))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheet_th_endface, sheets_num_endface, Iz_endface, z0_structure_endface, zj_endface
 
@@ -115,7 +115,7 @@ def Cal_Iz(diz, zj_endface,
     # print(sheets_num == len(zj) - 1)
 
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0 = L0_Crystal = {} mm".format(L0_Crystal))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheets_num, Iz, zj
 
@@ -130,7 +130,7 @@ def Cal_IxIy(I1_x, I1_y,
     Ix, Iy = Ix + np.mod(I1_x - Ix, 2), Iy + np.mod(I1_y - Iy, 2)
     deff_structure_size = Ix * size_PerPixel  # Unit: mm 不包含 边框，调制区域 的 实际横向尺寸
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_size = {} mm".format(deff_structure_size))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return Ix, Iy, deff_structure_size
 
@@ -141,7 +141,7 @@ def slice_structure_ssi(Duty_Cycle_z, deff_structure_length_expect,
                         is_print, **kwargs):
     info = "结构_纵向切片_ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
@@ -173,7 +173,7 @@ def slice_ssi(L0_Crystal, Duty_Cycle_z,
                is_print, **kwargs):
     info = "晶体_纵向切片_ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
@@ -279,7 +279,7 @@ def cal_Iz_frontface(z0_structure_frontface_expect, L0_Crystal, size_PerPixel,
     sheet_th_frontface = sheets_num_frontface - 1 if sheets_num_frontface >= 1 else 0
 
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_structure_frontface = {} mm".format(z0_structure_frontface))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface
 
@@ -306,7 +306,7 @@ def cal_Iz_structure(deff_structure_length, size_PerPixel,
 
     Iz_structure = deff_structure_length / size_PerPixel
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_length = {} mm".format(deff_structure_length))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return Iz_structure
 
@@ -322,7 +322,7 @@ def cal_Iz_endface_2(sheets_num_frontface, sheets_num_structure,
 
     Iz_endface = z0_structure_endface / size_PerPixel
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_structure_endface = {} mm".format(z0_structure_endface))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheet_th_endface, sheets_num_endface, Iz_endface
 
@@ -337,7 +337,7 @@ def cal_Iz(sheets_num_endface, z0_structure_endface, L0_Crystal, size_PerPixel,
     sheets_num = sheets_num_endface + 1 if z0_structure_endface < L0_Crystal else sheets_num_endface
 
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0 = L0_Crystal = {} mm".format(L0_Crystal))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheets_num, Iz, z0
 
@@ -373,7 +373,7 @@ def cal_diz(Duty_Cycle_z, Tz, Iz_structure, size_PerPixel,
         # leftover2 < 0 即 leftover < diz * Duty_Cycle_z 时为 leftover
 
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_sheet = {} μm".format(deff_structure_sheet * 1000))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     return sheets_num_structure, diz, deff_structure_sheet
 
@@ -475,7 +475,7 @@ def cal_iz_1(zj, z0_section_1_expect, size_PerPixel,
              is_print=1, **kwargs):
     sheets_num_section_1, z0_1 = find_nearest(zj, z0_section_1_expect)
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_section_1 = {} mm".format(z0_1))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     Iz_1 = z0_1 / size_PerPixel
     sheet_th_section_1 = sheets_num_section_1 - 1 if sheets_num_section_1 != 0 else 0
 
@@ -489,7 +489,7 @@ def cal_iz_2(zj, L0_Crystal, z0_section_2_expect, size_PerPixel,
              is_print=1, **kwargs):
     sheets_num_section_2, z0_2 = find_nearest(zj, L0_Crystal - z0_section_2_expect)
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "z0_section_2 = {} mm".format(z0_2))
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     Iz_2 = z0_2 / size_PerPixel
     sheet_th_section_2 = sheets_num_section_2 - 1 if sheets_num_section_2 >= 1 else 0
 
@@ -507,7 +507,7 @@ def slice_SSI(L0_Crystal, size_PerPixel,
                is_print, **kwargs):
     info = "晶体_纵向切片_SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
 

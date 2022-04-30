@@ -101,7 +101,7 @@ def SHG_NLA_EVV(U_name="",
 
     info = "NLAST_演化版_EVV"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "EVV", "NLA", **kwargs)
     init_GLV_rmw(U_name, "h", "NLA", "EVV", **kwargs)
@@ -237,122 +237,122 @@ def SHG_NLA_EVV(U_name="",
         # 但这里的又是必须存在的，因为之后得用它来在 fun2 里累加。。
         # 所以最多也是之后的 Fun3 中的 sset 可以不必存在
 
-        if for_th2 != 0:
-            if is_fft == 0:
+        # for_th2 == 0 时也要算，因为 zj[0] 不一定是 0：外部可能传入 zj
+        if is_fft == 0:
 
-                const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
-                integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
+            const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
+            integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
 
-                g_rotate_180 = Rotate_180(g_shift)
+            g_rotate_180 = Rotate_180(g_shift)
 
-                def fun1(for_th, fors_num, *args, **kwargs, ):
-                    for n2_y in range(Iy):
-                        dk_zQ = Cal_dk_zQ_SHG(k1,
-                                              k1_z, k2_z,
-                                              k1_xy, k2_xy,
-                                              for_th, n2_y,
-                                              Gx, Gy, Gz, )
+            def fun1(for_th, fors_num, *args, **kwargs, ):
+                for n2_y in range(Iy):
+                    dk_zQ = Cal_dk_zQ_SHG(k1,
+                                          k1_z, k2_z,
+                                          k1_xy, k2_xy,
+                                          for_th, n2_y,
+                                          Gx, Gy, Gz, )
 
-                        roll_x, roll_y = Cal_roll_xy(Gx, Gy,
-                                                     Ix, Iy,
-                                                     for_th, n2_y, )
+                    roll_x, roll_y = Cal_roll_xy(Gx, Gy,
+                                                 Ix, Iy,
+                                                 for_th, n2_y, )
 
-                        g_shift_dk_x_dk_y = Roll_xy(g_rotate_180,
-                                                     roll_x, roll_y,
-                                                     is_linear_convolution, )
+                    g_shift_dk_x_dk_y = Roll_xy(g_rotate_180,
+                                                 roll_x, roll_y,
+                                                 is_linear_convolution, )
 
-                        integrate_z0[for_th, n2_y] = np.sum(
-                            g_shift * g_shift_dk_x_dk_y * Eikz(dk_zQ * izj[for_th2]) * izj[for_th2] * size_PerPixel \
-                            * (2 / (dk_zQ / k2_z[for_th, n2_y] + 2)))
+                    integrate_z0[for_th, n2_y] = np.sum(
+                        g_shift * g_shift_dk_x_dk_y * Eikz(dk_zQ * izj[for_th2]) * izj[for_th2] * size_PerPixel \
+                        * (2 / (dk_zQ / k2_z[for_th, n2_y] + 2)))
 
-                my_thread(10, Ix,
-                          fun1, noop, noop,
-                          is_ordered=1, is_print=is_print, )
+            my_thread(10, Ix,
+                      fun1, noop, noop,
+                      is_ordered=1, is_print=is_print, )
 
-                g2_z = const * integrate_z0 / k2_z * size_PerPixel
+            g2_z = const * integrate_z0 / k2_z * size_PerPixel
 
-                Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                    g2_z * np.power(math.e, k2_z * izj[for_th2] * 1j))
+            Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
+                g2_z * np.power(math.e, k2_z * izj[for_th2] * 1j))
 
-            else:
+        else:
 
-                Const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+            Const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
 
-                if fft_mode == 0:
+            if fft_mode == 0:
 
-                    if is_sum_Gm == 0:
-                        Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                            G2_z_modulation_NLAST(k1, k2, Gz,
-                                                  modulation_squared, U_0, izj[for_th2], Const, ))
-                    elif is_sum_Gm == 1:
-                        def fun1(for_th, fors_num, *args, **kwargs, ):
-                            m_z = for_th - mG
-                            Gz_m = 2 * math.pi * m_z * size_PerPixel / (Tz / 1000)
-                            # print(m_z, C_m(m_z), "\n")
+                if is_sum_Gm == 0:
+                    Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
+                        G2_z_modulation_NLAST(k1, k2, Gz,
+                                              modulation_squared, U_0, izj[for_th2], Const, ))
+                elif is_sum_Gm == 1:
+                    def fun1(for_th, fors_num, *args, **kwargs, ):
+                        m_z = for_th - mG
+                        Gz_m = 2 * math.pi * m_z * size_PerPixel / (Tz / 1000)
+                        # print(m_z, C_m(m_z), "\n")
 
-                            # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
-                            Const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
-                            G2_z0_Gm = G2_z_modulation_NLAST(k1, k2, Gz_m,
-                                                             modulation_squared, U_0, izj[for_th2],
-                                                             Const, ) if m_z != 0 else 0
-                            return G2_z0_Gm
+                        # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
+                        Const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
+                        G2_z0_Gm = G2_z_modulation_NLAST(k1, k2, Gz_m,
+                                                         modulation_squared, U_0, izj[for_th2],
+                                                         Const, ) if m_z != 0 else 0
+                        return G2_z0_Gm
 
-                        def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
-                            # print("forth = {}".format(for_th))
-
-                            Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                                Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G2_z0_Gm)
-
-                            return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
-
-                        my_thread(10, 2 * mG + 1,
-                                  fun1, fun2, noop,
-                                  is_ordered=1, is_print=is_print, )
-                    else:
-                        Tz_unit = (Tz / 1000) / size_PerPixel
+                    def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
+                        # print("forth = {}".format(for_th))
 
                         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                            G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
-                                                     modulation_squared, U_0,
-                                                     izj[for_th2], Const, ))
+                            Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G2_z0_Gm)
 
-                elif fft_mode == 1:
+                        return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
 
-                    if is_sum_Gm == 0:
-                        Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                            G2_z_NLAST(k1, k2, Gx, Gy, Gz,
-                                       U_0, izj[for_th2], Const,
-                                       is_linear_convolution, ))
-                    else:
-                        def fun1(for_th, fors_num, *args, **kwargs, ):
-                            m_x = for_th - mG
-                            Gx_m = 2 * math.pi * m_x * size_PerPixel / (Tx / 1000)
-                            # print(m_x, C_m(m_x), "\n")
-
-                            # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
-                            Const = (k2 / size_PerPixel / n2) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
-                            G2_z0_Gm = G2_z_NLAST(k1, k2, Gx_m, Gy, Gz,
-                                                  U_0, izj[for_th2], Const,
-                                                  is_linear_convolution, ) if m_x != 0 else 0
-                            return G2_z0_Gm
-
-                        def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
-
-                            Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                                Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G2_z0_Gm)
-
-                            return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
-
-                        my_thread(10, 2 * mG + 1,
-                                  fun1, fun2, noop,
-                                  is_ordered=1, is_print=is_print, )
-
-                elif fft_mode == 2:
+                    my_thread(10, 2 * mG + 1,
+                              fun1, fun2, noop,
+                              is_ordered=1, is_print=is_print, )
+                else:
+                    Tz_unit = (Tz / 1000) / size_PerPixel
 
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                        G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
-                                         U_0, izj[for_th2], Const,
-                                         is_linear_convolution, ))
+                        G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
+                                                 modulation_squared, U_0,
+                                                 izj[for_th2], Const, ))
+
+            elif fft_mode == 1:
+
+                if is_sum_Gm == 0:
+                    Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
+                        G2_z_NLAST(k1, k2, Gx, Gy, Gz,
+                                   U_0, izj[for_th2], Const,
+                                   is_linear_convolution, ))
+                else:
+                    def fun1(for_th, fors_num, *args, **kwargs, ):
+                        m_x = for_th - mG
+                        Gx_m = 2 * math.pi * m_x * size_PerPixel / (Tx / 1000)
+                        # print(m_x, C_m(m_x), "\n")
+
+                        # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
+                        Const = (k2 / size_PerPixel / n2) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
+                        G2_z0_Gm = G2_z_NLAST(k1, k2, Gx_m, Gy, Gz,
+                                              U_0, izj[for_th2], Const,
+                                              is_linear_convolution, ) if m_x != 0 else 0
+                        return G2_z0_Gm
+
+                    def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
+
+                        Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
+                            Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G2_z0_Gm)
+
+                        return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
+
+                    my_thread(10, 2 * mG + 1,
+                              fun1, fun2, noop,
+                              is_ordered=1, is_print=is_print, )
+
+            elif fft_mode == 2:
+
+                Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
+                    G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
+                                     U_0, izj[for_th2], Const,
+                                     is_linear_convolution, ))
 
         return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
 

@@ -8,7 +8,7 @@ Created on Mon Nov  1 14:38:57 2021
 # %%
 
 import numpy as np
-from fun_os import img_squared_bordered_Read, U_twin_energy_plot
+from fun_os import img_squared_bordered_Read, U_twin_energy_error_plot, U_twin_error_energy_plot
 from fun_global_var import tree_print, Get, eget, sget, skey
 from fun_img_Resize import if_image_Add_black_border
 from fun_linear import fft2
@@ -98,7 +98,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                          **kwargs, ):
     info = "利用 SHG 对比：EVV 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
     if_image_Add_black_border("", img_full_name,
@@ -248,12 +248,14 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
         is_print, is_contours, n_TzQ,
         Gz_max_Enhance, match_mode, ]
 
+    # print(Get("z_stored")[0])
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SHG_NLA_EVV(*args_EVV, zj=Get("z_stored"), ) if abs(is_stored)==1 else SHG_NLA_EVV(*args_EVV, )
     # 如果 is_stored == 1 或 -1，则把 SSI 或 ssi 生成的 z_stored 传进 SHG_NLA_EVV 作为 他的 zj，方便 比较。不画图 则传 -1 进去。
 
     if is_energy_evolution_on == 1: # 截获一下 EVV 的 能量曲线
         zj_EVV = Get("zj")
+        # print(zj_EVV[0])
         U2_energy_EVV = eget("U")
     if abs(is_stored) == 1:
         U2_stored_EVV, G2_stored_EVV, U2_stored_key_EVV = sget("U"), sget("G"), skey("U")
@@ -266,6 +268,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                   U_NonZero_size, dpi,
                                   is_phase_only)
 
+    p_dir = "7. GU_error"
     if kwargs.get("is_output_error_EVV") != 1:
         # %%
         # 对比 G2_NLA 与 G2_SSI 的 （绝对）误差
@@ -285,10 +288,12 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                   # %%S
                   is_colorbar_on, is_energy,
                   # %%
-                  is_relative, is_print, )
+                  is_relative, is_print,
+                  # %%
+                  p_dir=p_dir, )
 
         # %%
-        # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
+        # 对比 U2_NLA 与 U2_SSI 的 （绝对）误差
 
         U_compare(U2_NLA, U2_SSI, U_key2_SSI, L0_Crystal,
                   # %%
@@ -305,10 +310,12 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                   # %%S
                   is_colorbar_on, is_energy,
                   # %%
-                  is_relative, is_print, is_end=1, )
+                  is_relative, is_print,
+                  # %%
+                  p_dir=p_dir, is_end=1, )
 
         if is_energy_evolution_on == 1:
-            U_twin_energy_plot(U2_energy_SSI, U2_energy_EVV, U_key2_SSI.replace("_SSI", ""),
+            U_twin_energy_error_plot(U2_energy_SSI, U2_energy_EVV, U_key2_SSI.replace("_SSI", ""),
                                img_name_extension,
                                # %%
                                zj_SSI, zj_EVV, sample, size_PerPixel,
@@ -318,9 +325,122 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                ticks_num, is_title_on, is_axes_on, is_mm,
                                fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                                # %%
-                               L0_Crystal, is_energy_normalized=2, **kwargs, )
+                               L0_Crystal,
+                               # %%
+                               p_dir=p_dir, is_energy_normalized=2, **kwargs, )
 
-    # else:
+    else:
+        G_energy = []
+        G_error_energy = []
+        U_energy = []
+        U_error_energy = []
+
+        # %%
+        # 对比 G2_NLA 与 G2_SSI 的 （绝对）误差
+
+        is_end = [0] * (len(zj_EVV) - 1)
+        is_end.append(1)
+
+        is_print and print(tree_print(add_level=2) + "G_z_对比：G2_EVV 与 G2_SSI 的 （绝对）误差，随 z 的演化")
+        for i in range(len(zj_EVV)):
+            G_and_G_error_energy = U_compare(G2_stored_EVV[:,:,i], G2_stored_SSI[:,:,i], U2_stored_key_SSI.replace("U", "G"), zj_EVV[i],
+                                              # %%
+                                              img_name_extension, size_PerPixel, size_fig,
+                                              # %%
+                                              is_save, is_save_txt, dpi,
+                                              # %%
+                                              cmap_2d,
+                                              # %%
+                                              ticks_num, is_contourf,
+                                              is_title_on, is_axes_on, is_mm,
+                                              # %%
+                                              fontsize, font,
+                                              # %%S
+                                              is_colorbar_on, is_energy,
+                                              # %%
+                                              is_relative, is_print,
+                                              # %%
+                                              p_dir=p_dir, is_end=is_end[i], )
+
+            G_energy.append(G_and_G_error_energy[0])
+            G_error_energy.append(G_and_G_error_energy[1])
+
+        # %%
+        # 对比 U2_EVV 与 U2_SSI 的 （绝对）误差
+
+        is_print and print(tree_print(add_level=2) + "U_z_对比：U2_EVV 与 U2_SSI 的 （绝对）误差，随 z 的演化")
+        for i in range(len(zj_EVV)):
+            U_and_U_error_energy = U_compare(U2_stored_EVV[:, :, i], U2_stored_SSI[:, :, i], U2_stored_key_SSI, zj_EVV[i],
+                                              # %%
+                                              img_name_extension, size_PerPixel, size_fig,
+                                              # %%
+                                              is_save, is_save_txt, dpi,
+                                              # %%
+                                              cmap_2d,
+                                              # %%
+                                              ticks_num, is_contourf,
+                                              is_title_on, is_axes_on, is_mm,
+                                              # %%
+                                              fontsize, font,
+                                              # %%S
+                                              is_colorbar_on, is_energy,
+                                              # %%
+                                              is_relative, is_print,
+                                              # %%
+                                              p_dir=p_dir, is_end=is_end[i], )
+
+            U_energy.append(U_and_U_error_energy[0])
+            U_error_energy.append(U_and_U_error_energy[1])
+
+        G_energy = np.array(G_energy)  # 需要把 list 转换为 array
+        G_error_energy = np.array(G_error_energy)
+        U_energy = np.array(U_energy)
+        U_error_energy = np.array(U_error_energy)
+
+        is_end = [0] * (len(zj_EVV) - 1)
+        is_end.append(-1)
+
+        is_print and print(tree_print(add_level=1) + "G_energy 和 G_error")
+        for i in range(len(zj_EVV)):
+            is_print and print(tree_print(is_end[i]) + "zj, G_error, G_energy = {}, {}, {}"
+                               .format(format(zj_EVV[i], Get("F_f")), format(G_error_energy[i], Get("F_E")),
+                                       format(G_energy[i], Get("F_E")), ))
+
+        is_print and print(tree_print(is_end=1, add_level=1) + "U_energy 和 U_error")
+        for i in range(len(zj_EVV)):
+            is_print and print(tree_print(is_end[i]) + "zj, U_error, U_energy = {}, {}, {}"
+                               .format(format(zj_EVV[i], Get("F_f")), format(U_error_energy[i], Get("F_E")),
+                                       format(U_energy[i], Get("F_E")), ))
+
+        if is_energy_evolution_on == 1:
+            U_twin_error_energy_plot(U2_energy_SSI, U2_energy_EVV, G_error_energy, U_key2_SSI.replace("_SSI", "").replace("U", "G"),
+                                     img_name_extension,
+                                     # %%
+                                     zj_SSI, zj_EVV, sample, size_PerPixel,
+                                     is_save, dpi, size_fig * 10, size_fig,
+                                     # %%
+                                     color_1d, color_1d2,
+                                     ticks_num, is_title_on, is_axes_on, is_mm,
+                                     fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                                     # %%
+                                     L0_Crystal,
+                                     # %%
+                                     p_dir=p_dir, is_energy_normalized=1, **kwargs, )
+
+            U_twin_error_energy_plot(U2_energy_SSI, U2_energy_EVV, U_error_energy, U_key2_SSI.replace("_SSI", ""),
+                                       img_name_extension,
+                                       # %%
+                                       zj_SSI, zj_EVV, sample, size_PerPixel,
+                                       is_save, dpi, size_fig * 10, size_fig,
+                                       # %%
+                                       color_1d, color_1d2,
+                                       ticks_num, is_title_on, is_axes_on, is_mm,
+                                       fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                                       # %%
+                                       L0_Crystal,
+                                       # %%
+                                       p_dir=p_dir, is_energy_normalized=1, **kwargs, )
+
 
     # %%
 
@@ -351,7 +471,7 @@ if __name__ == '__main__':
                          # %%
                          U_NonZero_size=0.9, w0=0.3, w0_Structure=0, structure_size_Enlarge=0.1,
                          L0_Crystal=2.66, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
-                         sheets_stored_num=10,
+                         sheets_stored_num=3,
                          z0_section_1_expect=0, z0_section_2_expect=0,
                          X=0, Y=0,
                          # %%
@@ -373,12 +493,12 @@ if __name__ == '__main__':
                          mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
-                         is_save=0, is_save_txt=0, dpi=100,
+                         is_save=2, is_save_txt=0, dpi=100,
                          # %%
                          color_1d='b', color_1d2='r', cmap_2d='viridis', cmap_3d='rainbow',
                          elev=10, azim=-65, alpha=2,
                          # %%
-                         sample=1, ticks_num=6, is_contourf=0,
+                         sample=1, ticks_num=7, is_contourf=0,
                          is_title_on=1, is_axes_on=1, is_mm=1,
                          # %%
                          fontsize=9,
@@ -401,6 +521,7 @@ if __name__ == '__main__':
                          # %%
                          is_NLA=1, is_relative=1,
                          # %%
-                         border_percentage=0.1, is_end=-1, is_output_error_EVV=0, )
+                         border_percentage=0.1, is_end=-1, 
+                         is_output_error_EVV=1, )
 
 # 注意 colorbar 上的数量级

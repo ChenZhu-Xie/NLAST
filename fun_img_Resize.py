@@ -75,7 +75,7 @@ def image_Add_black_border(img_full_name="Grating.png",
     # border_percentage = 0.5 # 边框 占图片的 百分比，也即 图片 放大系数
 
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "加黑边")
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", 0)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # 其实 外面的 kwargs 没传进来，所以这里 直接就是 is_end = 0，add_level = 0
     # %%
     # 预处理 导入图片 为方形，并加边框
@@ -139,7 +139,7 @@ def img_squared_Resize(img_name, img_name_extension, img_squared,
                        Ix_structure, Iy_structure, Ix,
                        is_print=1, **kwargs):
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "图片裁剪")
-    kwargs["is_end"], kwargs["add_level"] = 0, 0 # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", 0) # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     desktop = get_desktop()
 
     img_squared_resize = cv2.resize(img_squared, (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA)

@@ -220,7 +220,10 @@ def gan_Uz_dir_address(U_name, **kwargs, ):
                                                                                  **kwargs, )  # 要加 序列号 # 没有 method （诸如 'AST'）
     folder_name = add___between_ugHGU_and_ray(folder_name, ugHGU, ray)
     desktop = get_desktop()
-    folder_address = desktop + "\\" + folder_name
+    if "p_dir" in kwargs:
+        folder_address = desktop + "\\" + kwargs["p_dir"] + "\\" + folder_name
+    else:
+        folder_address = desktop + "\\" + folder_name
     return folder_address
 
 # %%
@@ -232,7 +235,7 @@ def U_energy_print(U_receive, U_name, is_print, # 外面的 **kwargs 可能传�
 
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".total_energy = {}"
                        .format(format(np.sum(np.abs(U_receive) ** 2), Get("F_E")))) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
 def U_rsd_print(U_receive, U_name, is_print,
                 **kwargs, ):  # kwargs 是 z
@@ -241,7 +244,7 @@ def U_rsd_print(U_receive, U_name, is_print,
 
     is_print and is_print-1 and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".rsd = {}"
                                       .format(format(np.std(np.abs(U_receive)) / np.mean(np.abs(U_receive)), Get("F_E")))) # is_print 是 1 和 0 都不行，得是 2 等才行...
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
 def U_custom_print(U_receive, U_name, custom_info, is_print, # 外面的 **kwargs 可能传进 “U” 这个关键字，所以...用 U_receive 代替 实参名 U
                    **kwargs, ):  # kwargs 是 z
@@ -250,7 +253,7 @@ def U_custom_print(U_receive, U_name, custom_info, is_print, # 外面的 **kwarg
 
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + "." + custom_info + " = {}"
                        .format(format(U_receive, Get("F_E")))) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
 # %%
 
@@ -588,7 +591,7 @@ def U_plot_save(U, U_name, is_print,
                        **kwargs, )
     elif is_print == 2:
         is_end, add_level = kwargs.get("is_end", 0), kwargs.get("add_level", 0)
-        kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+        kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
         U_energy_print(U, U_name, is_print,
                        **kwargs, )
@@ -597,7 +600,7 @@ def U_plot_save(U, U_name, is_print,
         # 这里不能单纯地加 is_end=is_end，否则 会报错 U_rsd_print() got multiple values for keyword argument 'is_end'
         U_rsd_print(U, U_name, is_print,
                     **kwargs, )
-        kwargs["is_end"] = 0
+        kwargs.pop("is_end", None)
 
     folder_address = U_dir(U_name, is_save, **kwargs, )
 
@@ -646,7 +649,7 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
 
     info = ugHGU + "_先取模或相位_后误差"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     U_error = U - U_0
     U_error_name = fkey(ugHGU) + "_error"
@@ -673,7 +676,7 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
         kwargs["is_end"] = 1
         U_rsd_print(U_phase_error, U_phase_error_name, is_print,
                     **kwargs, )
-    kwargs["is_end"] = 0
+    kwargs.pop("is_end", None)
 
     # %%
     # 绘图：U
@@ -1857,8 +1860,14 @@ def U_error_energy_plot(U, l2, U_name,
                       fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                       # %%
                       z, **kwargs, ):
+    suffix = '_distribution_error'
 
-    U_energy_plot(get_desktop(),
+    if is_save == 2:
+        is_save = 1
+    folder_address = U_dir(U_name + suffix, is_save,
+                           z=z, **kwargs, )
+
+    U_energy_plot(folder_address,
                   U, U_name,
                   img_name_extension,
                   # %%
@@ -1868,13 +1877,14 @@ def U_error_energy_plot(U, l2, U_name,
                   is_title_on, is_axes_on, is_mm,
                   fontsize, font,
                   # %%
-                  z=z, suffix='_energy_distribution_error',
+                  z=z, suffix=suffix,
                   # %%
                   l2=l2, color_1d2=color_1d2,
                   label="energy", ax1_xticklabel=zj, # 强迫 ax1 的 x 轴标签 保持原样
                   label2="distribution_error", ax2_xticklabel=ax2_xticklabel, **kwargs, )
 
-def U_twin_energy_plot(U, l2, U_name,
+
+def U_twin_energy_error_plot(U, l2, U_name,
                       img_name_extension,
                       # %%
                       zj, zj2, sample, size_PerPixel,
@@ -1888,14 +1898,19 @@ def U_twin_energy_plot(U, l2, U_name,
     if kwargs.get("is_energy_normalized", False) == 1:
         U = U/np.max(U)
         l2 = l2 / np.max(l2)
-        suffix = '_energy_normalized_compare'
+        suffix = '_energy_normalized - compare'
     elif kwargs.get("is_energy_normalized", False) == 2:
         l2 = l2 / l2[-1] * U[-1]
-        suffix = '_energy_sync_compare'
+        suffix = '_energy_sync - compare'
     else:
-        suffix = '_energy_compare'
+        suffix = '_energy - compare'
 
-    U_energy_plot(get_desktop(),
+    if is_save == 2:
+        is_save = 1
+    folder_address = U_dir(U_name + suffix, is_save,
+                           z=z, **kwargs, )
+
+    U_energy_plot(folder_address,
                   U, U_name,
                   img_name_extension,
                   # %%
@@ -1909,6 +1924,50 @@ def U_twin_energy_plot(U, l2, U_name,
                   # %%
                   l2=l2, color_1d2=color_1d2,
                   label="energy_SSI", label2="energy_EVV",
+                  zj2=zj2, **kwargs, )
+
+
+def U_twin_error_energy_plot(U, l2, l3, U_name,
+                              img_name_extension,
+                              # %%
+                              zj, zj2, sample, size_PerPixel,
+                              is_save, dpi, size_fig_x, size_fig_y,
+                              # %%
+                              color_1d, color_1d2,
+                              ticks_num, is_title_on, is_axes_on, is_mm,
+                              fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                              # %%
+                              z, **kwargs, ):
+    if kwargs.get("is_energy_normalized", False) == 1:
+        U = U/np.max(U)
+        l2 = l2 / np.max(l2)
+        suffix = '_energy_normalized & error - compare'
+    elif kwargs.get("is_energy_normalized", False) == 2:
+        l2 = l2 / l2[-1] * U[-1]
+        suffix = '_energy_sync & error - compare'
+    else:
+        suffix = '_energy & error - compare'
+
+    if is_save == 2:
+        is_save = 1
+    folder_address = U_dir(U_name + suffix, is_save,
+                           z=z, **kwargs, )
+
+    U_energy_plot(folder_address,
+                  U, U_name,
+                  img_name_extension,
+                  # %%
+                  zj, sample, size_PerPixel,
+                  is_save, dpi, size_fig_x, size_fig_y,
+                  color_1d, ticks_num,
+                  is_title_on, is_axes_on, is_mm,
+                  fontsize, font,
+                  # %%
+                  z=z, suffix=suffix,
+                  # %%
+                  l2=l2, color_1d2=color_1d2,
+                  label="energy_SSI", label2="energy_EVV",
+                  l3=l3, label3="distribution_error",
                   zj2=zj2, **kwargs, )
 
 # %%

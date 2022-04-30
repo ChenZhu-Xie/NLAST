@@ -97,7 +97,7 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
                      **kwargs, ):
     info = "利用 SHG 对比：NLA 与 ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
     if_image_Add_black_border("", img_full_name,

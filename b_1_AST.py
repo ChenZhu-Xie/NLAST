@@ -62,7 +62,7 @@ def AST(U_name="",
 
     info = "AST_线性角谱"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "~", "", "AST", **kwargs)
     init_GLV_rmw(U_name, "l", "AST", "", **kwargs)

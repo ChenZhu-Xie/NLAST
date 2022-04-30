@@ -405,7 +405,7 @@ def pump(file_full_name="Grating.png",
     folder_address = U_dir(title, is_save, z=z, )
 
     U_energy_print(U_z0, title, is_print, **kwargs)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     U_amp_plot_address, U_phase_plot_address = U_plot(folder_address,
                                                       U_z0, title,
@@ -557,7 +557,7 @@ def pump_pic_or_U_structure(U_structure_name="",
 
     info = "泵浦_for_结构"
     is_Print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 导入 方形，以及 加边框 的 图片
 

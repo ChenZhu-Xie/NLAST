@@ -97,7 +97,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                          **kwargs, ):
     info = "扫描 Tz，自动对比：NLA 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
     if_image_Add_black_border("", img_full_name,
@@ -267,16 +267,17 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
     
     is_print and print(tree_print(add_level=1) + "G_energy 和 G_error")
     for i in range(ticks_Num):
-        is_print and print(tree_print(is_end[i]) + "Tz, dkQ, G_energy, G_error = {}, {}, {}, {}"
-                           .format(format(array_Tz[i], Get("F_E")), format(array_dkQ[i], Get("F_E")),
-                                   format(G_energy[i], Get("F_E")), format(G_error_energy[i], Get("F_E"))))
+        is_print and print(tree_print(is_end[i]) + "Tz, G_error, dkQ, G_energy = {}, {}, {}, {}"
+                           .format(format(array_Tz[i], Get("F_f")), format(G_error_energy[i], Get("F_E")),
+                                   format(array_dkQ[i], Get("F_E")), format(G_energy[i], Get("F_E")), ))
         
     is_print and print(tree_print(is_end=1, add_level=1) + "U_energy 和 U_error")
     for i in range(ticks_Num):
-        is_print and print(tree_print(is_end[i]) + "Tz, dkQ, U_energy, U_error = {}, {}, {}, {}"
-                           .format(format(array_Tz[i], Get("F_E")), format(array_dkQ[i], Get("F_E")),
-                                   format(U_energy[i], Get("F_E")), format(U_error_energy[i], Get("F_E"))))
+        is_print and print(tree_print(is_end[i]) + "Tz, U_error, dkQ, U_energy = {}, {}, {}, {}"
+                           .format(format(array_Tz[i], Get("F_f")), format(U_error_energy[i], Get("F_E")),
+                                   format(array_dkQ[i], Get("F_E")), format(U_energy[i], Get("F_E")), ))
 
+    p_dir = "7. GU_error"
     GU_error_energy_plot(G_energy, G_error_energy, U_energy, U_error_energy,
                           img_name_extension,
                           # %%
@@ -287,7 +288,9 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                           ticks_num, is_title_on, is_axes_on, is_mm,
                           fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                           # %%
-                          L0_Crystal, **kwargs, )
+                          L0_Crystal,
+                          # %%
+                          p_dir=p_dir, **kwargs, )
 
     # %%
 
@@ -340,7 +343,7 @@ if __name__ == '__main__':
                          mx=1, my=0, mz=1,
                          is_stripe=0, is_NLAST=1,
                          # %%
-                         is_save=0, is_save_txt=0, dpi=100,
+                         is_save=2, is_save_txt=0, dpi=100,
                          # %%
                          color_1d='b', color_1d2='r', cmap_2d='viridis', cmap_3d='rainbow',
                          elev=10, azim=-65, alpha=2,

@@ -28,7 +28,7 @@ def my_thread(threads_num, fors_num,
     from fun_global_var import init_tset, Set, Get, tree_print # 放在外面（上面）会报 循环引用 的错
 
     is_end, add_level = kwargs.get("is_end", 0), kwargs.get("add_level", 0)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     
     thread_name = init_tset("thread", 0)[1] # 只取其名字
     for_name = init_tset("for", 0)[1] # 只取其名字

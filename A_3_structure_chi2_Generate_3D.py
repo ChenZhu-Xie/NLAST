@@ -79,7 +79,7 @@ def structure_chi2_3D(U_name="",
 
     info = "χ2_3D_生成结构"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
     n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \

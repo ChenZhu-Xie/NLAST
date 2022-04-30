@@ -7,7 +7,7 @@ Created on Tue Oct 26 14:41:11 2021
 
 import numpy as np
 from fun_os import split_parts, U_plot_save, U_error_plot_save, U_plot, U_energy_print, U_custom_print
-from fun_global_var import fkey, tree_print
+from fun_global_var import Get, fkey, tree_print
 
 #%%
 
@@ -35,9 +35,9 @@ def U_compare(U, U_0, U_0_title, z,
     #%%
     U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_0_title)
 
-    info = ugHGU + "_对比"
+    info = ugHGU + "_" + str(float(Get('f_f') % z)) + "mm" + "_对比"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     #%%
     # 画一下 两个待比较的 对象，并 print 一下 能量情况
@@ -76,9 +76,12 @@ def U_compare(U, U_0, U_0_title, z,
 
     # %% 归一化，查看 相对分布 的 大小
 
+    if is_save == 2:
+        is_save = 1
+
     if is_relative == 1: # 归一化
-        U_norm = U/np.max(np.abs(U))
-        U_0_norm = U_0 / np.max(np.abs(U_0))
+        U_norm = U/np.max(np.abs(U)) if np.max(np.abs(U)) != 0 else U
+        U_0_norm = U_0 / np.max(np.abs(U_0)) if np.max(np.abs(U_0)) != 0 else U_0
 
     # %%
     # 对比 U 与 U_0 的 绝对误差 1
@@ -100,23 +103,23 @@ def U_compare(U, U_0, U_0_title, z,
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z=z, is_end=1)
+                                 z=z, is_end=1, **kwargs, )
 
     #%%
 
     folder_address, U_amp_error_energy = U_error_plot_save(U_norm, U_0_norm, ugHGU, is_print,
-                                      img_name_extension,
-                                      # %%
-                                      size_PerPixel,
-                                      is_save, is_save_txt, dpi, size_fig,
-                                      # %%
-                                      cmap_2d, ticks_num, is_contourf,
-                                      is_title_on, is_axes_on, is_mm,
-                                      fontsize, font,
-                                      # %%
-                                      is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                                      # %%                          何况 一般默认 is_self_colorbar = 1...
-                                      z=z, )
+                                                          img_name_extension,
+                                                          # %%
+                                                          size_PerPixel,
+                                                          is_save, is_save_txt, dpi, size_fig,
+                                                          # %%
+                                                          cmap_2d, ticks_num, is_contourf,
+                                                          is_title_on, is_axes_on, is_mm,
+                                                          fontsize, font,
+                                                          # %%
+                                                          is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                                          # %%                          何况 一般默认 is_self_colorbar = 1...
+                                                          z=z, **kwargs, )
 
     U_0_norm_energy = np.sum(np.abs(U_0_norm) ** 2)
     U_error_energy = U_amp_error_energy / U_0_norm_energy

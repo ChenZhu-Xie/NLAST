@@ -85,6 +85,7 @@ def init_GLV_tree_print():
     #%%
     init_GLV()
     Set("F_E", ".2e") # scientific_notation
+    Set("F_f", ".2f")
     Set("f_f", "%.2f") # 小数记数
     if "tree_print" not in GLOBALS_DICT:
         Set("tree_print", [])
@@ -753,6 +754,7 @@ def GU_error_energy_plot(G_energy, G_error_energy, U_energy, U_error_energy,
                         fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                         # %%
                         L0_Crystal, **kwargs, ):
+
     from fun_os import U_error_energy_plot
     U_error_energy_plot(G_energy, G_error_energy, fkey("G"),
                         img_name_extension,

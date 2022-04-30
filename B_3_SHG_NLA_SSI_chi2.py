@@ -104,7 +104,7 @@ def SHG_NLA_SSI(U_name="",
 
     info = "NLA_大步长_SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "SSI", "NLA", **kwargs) # 更新的传入的 ray 键的值
     init_GLV_rmw(U_name, "h", "NLA", "SSI", **kwargs)  # 不更新 并传入 pump_pic_or_U

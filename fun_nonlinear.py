@@ -92,7 +92,7 @@ def args_SHG(k1, k2, size_PerPixel,
 
     info = "参数_SHG"
     is_Print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
                             is_Print, )
@@ -624,7 +624,7 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, Tz, mz,
     is_Print = is_print * is_first  # 两个 得都 非零，才 print
 
     is_contours != -1 and is_Print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "info_描边")
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     if is_contours != -1 and is_contours != 0: # 等于 0 或 -1 则让该 子程序 完全不行使 contours 功能，甚至不提示...
         # 但 0 但会 约束 deff_structure_length_expect， -1 则彻底 啥也不干

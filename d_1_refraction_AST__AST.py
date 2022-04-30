@@ -48,7 +48,7 @@ def refraction_AST__AST(img_full_name = "Grating.png",
                         **kwargs, ):
     info = "利用 折射 检验：AST"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs["is_end"], kwargs["add_level"] = 0, 0  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     #%%
     # 线性 惠更斯 菲涅尔 原理
 
