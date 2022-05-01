@@ -38,3 +38,13 @@ def gcd_of_float(f): # float
     return step, (step_nums_molecule, step_nums_right, step_nums_denominator)
 
 #%%
+
+def remove_elements(list_or_array, target_to_remove):
+    if type(list_or_array) == np.ndarray:
+        list = list_or_array.tolist()
+    for i in range(len(list)):
+        if target_to_remove in list:
+            list.remove(target_to_remove)
+        else:
+            break
+    return list

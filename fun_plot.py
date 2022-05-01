@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # from mpl_toolkits import ax1_grid1
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import UnivariateSpline, interp1d, interp2d, griddata
-from fun_algorithm import find_nearest
+from fun_algorithm import find_nearest, remove_elements
 from fun_global_var import Get
 
 
@@ -37,6 +37,7 @@ def lormat(ticks, Str):
 
 def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
     Str = format((Max - Min) / ticks_num, '.0e')
+    # print(Str, Max, Min)
     if Str != 'nan':
         if int(Str[0]) == 3:  # step 默认为 更小的 step，比如 3 则 2，9 则 8，7 则 6，
             Str = "2" + Str[1:]
@@ -60,11 +61,13 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
                 gan_tickslabels = lormat(gan_tickslabels, '%.1f')[0]
         else:
             Min_divisible = (-Min) // step * step * (-1)
+            # Min_divisible = Min // step * step
+            # print(Min_divisible)
             # 连 (Max - Min) 除以 step 都有余， 更何况 Min
             # _Min = np.sign(Min) * (abs(Min) // step + int(np.sign(Min)==-1)) * step
             # 额，我发现 np.sign(Min) * (abs(Min) // step + int(np.sign(Min)==-1)) = Min // step
             # _Min = Min // step * step # 负 得更多，正 得更少，保证 _Min < Min，这样才能 在图上显示 Min ？
-            # 不，恰恰相反，图上的 Min 比 轴上的 _Min 更靠左，才能把 轴上的 _Min 显示出来
+            # 不，恰恰相反，图上的 Min 比 轴上的 _Min 更靠左，才能把 轴上的 _Min 显示出来（但得 xlim 和 ylim 比 xyticks 的 左右边界 稍大）
             gan_tickslabels += Min_divisible  # 注意 * 的 优先级比 // 高
             # if abs(Max) >= 1e3 or abs(Min) >= 1e3 or abs(Max) <= 1e-2 or abs(Min) <= 1e-2:
             if abs(Max) >= 1e3 or abs(Max) < 1e-2:
@@ -120,22 +123,70 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
     if is_propagation != 0:
         ix = zj
         ix_new = np.linspace(zj[0], zj[-1], Iz_new)
-        # img = ax1.plot(zj, array1D if is_energy != 1 else array1D ** 2, color=color_1d)
     else:
         ix = [i for i in range(Ix)]
         ix_new = np.linspace(0, Ix - 1, Ix)  # 非传播 则 不对某个方向，偏爱地 重/上采样
-        # img = ax1.plot(range(0, Iz), array1D if is_energy != 1 else array1D ** 2, color=color_1d)
 
     # kind = 'cubic' # kind = 0,1,2,3 nono，1 维才可以这么写，2 维只有 'linear', 'cubic', 'quintic'
     # f = interp1d(ix, array1D, kind = kind)
 
     # print(ix)
     # print(array1D)
-    f = UnivariateSpline(ix, array1D, s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
-    array1D_new = f(ix_new)
+    if sample > 1:
+        f = UnivariateSpline(ix, array1D, s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
+        array1D_new = f(ix_new)
+    else:
+        array1D_new = array1D
     array1D_new = array1D_new if is_energy != 1 else np.abs(array1D_new) ** 2
+
     if 'ax1_xticklabel' in kwargs:
         array1D_new = np.log10(array1D_new)
+        array1D_new_min = min(remove_elements(array1D_new, -float('inf')))  # 防止 绘图 纵坐标 遇 inf 无法解析，并 正确生成 tickslabel
+        array1D_new = [array1D_new_min if array1D_new[i] == -float('inf') else array1D_new[i] for i in range(len(array1D_new))]
+        array1D_new = np.array(array1D_new) # 转成数组
+
+    if "l2" in kwargs:
+        if "zj2" in kwargs:  # 如果 zj2 在，则以 zj2 为 xticks
+            zj = kwargs["zj2"]
+            Iz = len(zj)
+            Iz_new = (Iz - 1) * sample + 1
+            ix = zj
+            ix2_new = np.linspace(zj[0], zj[-1], Iz_new)
+        else:
+            ix2_new = ix_new
+
+        if sample > 1:
+            f = UnivariateSpline(ix, kwargs['l2'], s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
+            l2_new = f(ix2_new)
+        else:
+            l2_new = kwargs['l2']
+        l2_new = l2_new if is_energy != 1 else np.abs(l2_new) ** 2
+
+        if 'ax1_xticklabel' in kwargs:
+            l2_new = np.log10(l2_new)
+            l2_new_min = min(remove_elements(l2_new, -float('inf'))) # 防止 绘图 纵坐标 遇 inf 无法解析，并 正确生成 tickslabel
+            l2_new = [l2_new_min if l2_new[i] == -float('inf') else l2_new[i] for i in range(len(l2_new))]
+            l2_new = np.array(l2_new)  # 转成数组
+        # print(l2_new)
+
+        if "zj2" in kwargs:
+            index = [find_nearest(ix_new, goal)[0] for goal in ix2_new]
+            # print(index)
+            l3_new = np.abs(l2_new - array1D_new[index])  # 花式索引，可以用 list 或 array 作为一个 array 的下标
+
+        if 'l3' in kwargs:
+            if sample > 1: # 我发现 哪怕 sample == 1，也会导致 被 插值作用，导致 原始值 被改变（不是说好了过每个点么...）
+                f = UnivariateSpline(ix, kwargs['l3'], s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
+                l4_new = f(ix2_new)
+            else:
+                l4_new = kwargs['l3']
+            l4_new = l4_new if is_energy != 1 else np.abs(l4_new) ** 2
+
+            l4_new = np.log10(l4_new)
+            # print(l4_new)
+            l4_new_min = min(remove_elements(l4_new, -float('inf')))
+            l4_new = [l4_new_min if l4_new[i] == -float('inf') else l4_new[i] for i in range(len(l4_new))]
+            l4_new = np.array(l4_new)  # 转成数组
 
     # %%
 
@@ -170,12 +221,19 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         #     # ax1.set_yscale(kwargs.get('ax1_yscale', 'log'))
         #     # ax1.semilogy(x, np.log10(y))
 
-        vmax = kwargs.get("vmax", np.max(array1D_new))
-        vmin = kwargs.get("vmin", np.min(array1D_new))
+        if "l2" in kwargs and 'l3' in kwargs: # 如果 要绘制 4 条曲线
+            vmax = kwargs.get("vmax", max(np.max(array1D_new), np.max(l2_new), np.max(l3_new)))
+            vmin = kwargs.get("vmin", min(np.min(array1D_new), np.min(l2_new), np.min(l3_new)))
+        elif "l2" in kwargs and 'l3' not in kwargs and "ax2_xticklabel" not in kwargs: # 需要 给 min 补个零，防止 ganticks 的时候，不从 0 开始
+            vmax = kwargs.get("vmax", np.max(array1D_new))
+            vmin = 0
+        else:
+            vmax = kwargs.get("vmax", np.max(array1D_new))
+            vmin = kwargs.get("vmin", np.min(array1D_new))
 
-        yticks, yticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
-        ax1.set_yticks(yticks)
-        ax1.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
+        ax1_yticks, ax1_yticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
+        ax1.set_yticks(ax1_yticks)
+        ax1.set_yticklabels(ax1_yticklabels, fontsize=fontsize, fontdict=font)
 
         if 'ax1_xticklabel' in kwargs:
             # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
@@ -205,21 +263,6 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
 
     legend_dict = {'loc': kwargs.get("loc", 0)}  # 5: ‘right’ （右边中间），0: "best" 右上角（默认）
     if "l2" in kwargs:
-        if "zj2" in kwargs:  # 如果 zj2 在，则以 zj2 为 xticks
-            zj = kwargs["zj2"]
-            Iz = len(zj)
-            Iz_new = (Iz - 1) * sample + 1
-            ix = zj
-            ix2_new = np.linspace(zj[0], zj[-1], Iz_new)
-        else:
-            ix2_new = ix_new
-
-        f = UnivariateSpline(ix, kwargs['l2'], s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
-        l2_new = f(ix2_new)
-        l2_new = l2_new if is_energy != 1 else np.abs(l2_new) ** 2
-        if 'ax1_xticklabel' in kwargs:
-            l2_new = np.log10(l2_new)
-
         ax2 = fig.add_subplot(111, label="2", frameon=False)  # 不覆盖 下面的 图层
         ax2.xaxis.tick_top()
         ax2.yaxis.tick_right()
@@ -258,56 +301,30 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             #     # ax2.set_yscale(kwargs.get('ax2_yscale', 'log'))
             #     # ax2.semilogy(x, np.log10(y))
 
-            if "zj2" in kwargs:
-                index = [find_nearest(ix_new, goal)[0] for goal in ix2_new]
-                # print(index)
-                if 'l3' in kwargs:
-                    l3_new = np.abs(l2_new - array1D_new[index]) / array1D_new[index]  # 相对 误差
-                else:
-                    l3_new = np.abs(l2_new - array1D_new[index])  # 花式索引，可以用 list 或 array 作为一个 array 的下标
-
             if 'l3' in kwargs:
-                f = UnivariateSpline(ix, kwargs['l3'], s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
-                l4_new = f(ix2_new)
-                l4_new = l4_new if is_energy != 1 else np.abs(l4_new) ** 2
-                l4_new = np.log10(l4_new)
-                l3_new = np.log10(l3_new) # l3 传进来时， is_energy_normalized 不能为 2，否则 l3_new 的最后一个值是 0，对数为 - inf
-                # print(l3_new, l4_new)
-
-                vmax2 = kwargs.get("vmax2", max(np.max(l4_new), np.max(l3_new)))
-                vmin2 = kwargs.get("vmin2", min(np.min(l4_new), np.min(l3_new)))
+                vmax2 = kwargs.get("vmax2", np.max(l4_new))
+                vmin2 = kwargs.get("vmin2", np.min(l4_new))
                 # print(vmax2, vmin2)
             else:
-                if kwargs.get("is_energy_normalized", False) == 2:
+                if kwargs.get("is_energy_normalized", False) == 2: # 如果要画 随 T 的 演化
                     # ax2.set_ylim(ax1.get_ylim())  # ax2 的 y 轴范围 不再自动，而是 强制 ax2 的 y 轴 范围 等于 ax1 的 y 轴范围
                     vmax2, vmin2 = vmax, vmin  # 与 ax2.set_ylim(ax1.get_ylim()) 配合，强制 ax2 的 y 轴 刻度线 等于 ax1 的 刻度线。
-                else:
+                elif "ax2_xticklabel" not in kwargs: # 如果要画 随 T 的 演化
+                    vmax2 = kwargs.get("vmax2", max(np.max(l2_new), np.max(l3_new)))
+                    # vmin2 = kwargs.get("vmin2", min(np.min(l2_new), np.min(l3_new)))
+                    vmin2 = 0 # 这样才能使 ticks 和 labels 的 第一个元素 是 0
+                else: # 如果 要画 随 dk 的 演化
                     vmax2 = kwargs.get("vmax2", np.max(l2_new))
                     vmin2 = kwargs.get("vmin2", np.min(l2_new))
 
-            # %% 获取 ax1 的 上下 lim 的 相对位置，和 相对 间隔 大小，为之后 设置 ax2 的 绝对 lim 范围（y 刻度 线性时）
-            ax1_interval_relative = (yticks[1] - yticks[0]) / (ax1.get_ylim()[-1] - ax1.get_ylim()[0])
-            ax1_down_lim_relative_location = (yticks[0] - ax1.get_ylim()[0]) / (yticks[1] - yticks[0]) # 下对齐
-            # ax1_up_lim_relative_location = (ax1.get_ylim()[-1] - yticks[-1]) / (yticks[-1] - yticks[-2]) # 上对齐
-            # --------- 搭配 start（y 刻度 线性时）
-
-            yticks, yticklabels = gan_ticks(vmax2, ticks_num, Min=vmin2)
-            ax2.set_yticks(yticks)
-            ax2.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
+            ax2_yticks, ax2_yticklabels = gan_ticks(vmax2, ticks_num, Min=vmin2)
+            ax2.set_yticks(ax2_yticks)
+            ax2.set_yticklabels(ax2_yticklabels, fontsize=fontsize, fontdict=font)
 
             if 'ax1_xticklabel' in kwargs or 'l3' in kwargs:
                 # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
                 # ax2.yaxis.set_major_formatter(logfmt)
                 ax2.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter))
-
-            # %% 设置 ax2 的 绝对 lim 范围，使其 刻度线 与 ax1 的 刻度线 对齐（y 刻度 线性时）
-            ax2_lim_absolute = (yticks[1] - yticks[0]) / ax1_interval_relative
-            ax2_down_lim = yticks[0] - (yticks[1] - yticks[0]) * ax1_down_lim_relative_location # 下对齐
-            ax2_up_lim = ax2_down_lim + ax2_lim_absolute # 下对齐
-            # ax2_up_lim = yticks[-1] + (yticks[-1] - yticks[-2]) * ax1_up_lim_relative_location # 上对齐
-            # ax2_down_lim = ax2_up_lim - ax2_lim_absolute # 上对齐
-            ax2.set_ylim(ax2_down_lim, ax2_up_lim)
-            # --------- 搭配 end（y 刻度 线性时）
 
             ax2.set_xlabel(xlabel2, fontsize=fontsize, fontdict=font)
             ax2.set_ylabel(ylabel2, fontsize=fontsize, fontdict=font)
@@ -316,7 +333,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         ax2_plot_dict.update({"alpha": kwargs.get("ax2_alpha", 1),  # 1 即 不透明
                               "linestyle": kwargs.get("ax2_linestyle", '-'),  # 线型
                               "linewidth": kwargs.get("ax2_linewidth", 2), })  # 线宽
-        ax2_marker_dict = {"marker": kwargs.get("ax2_marker", '+'),  # 标记点
+        ax2_marker_dict = {"marker": kwargs.get("ax2_marker", '|'),  # 标记点
                            "markeredgecolor": kwargs.get("ax2_markeredgecolor", 'green'),  # 标记点颜色
                            "markersize": kwargs.get("ax2_markersize", '20'),  # 标记点大小
                            "markeredgewidth": kwargs.get("ax2_markeredgewidth", 1), }
@@ -329,7 +346,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             l2, = ax1.plot(ix2_new, l2_new, **ax1_plot_dict, )
 
             ax2_plot_dict.update({"label": kwargs.get('label3', None),
-                                  "linestyle": kwargs.get("ax2_linestyle", '--'),
+                                  "linestyle": kwargs.get("l3_linestyle", '-.'),
                                   "marker": kwargs.get("l3_marker", 'x'),
                                   "markeredgecolor": kwargs.get("l4_markeredgecolor", 'gray'), })
             l4, = ax2.plot(ix2_new, l4_new, **ax2_plot_dict, )
@@ -339,14 +356,33 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
 
         if "zj2" in kwargs:
             if 'l3' in kwargs:
-                ax2_plot_dict.update({"label": "energy_relative_error",
-                                      "linestyle": kwargs.get("l3_linestyle", '-.'),
-                                      "markeredgecolor": kwargs.get("ax2_markeredgecolor", 'green'), })
+                ax1_plot_dict.update({"label": "energy_error",
+                                      "linestyle": kwargs.get("l3_linestyle", '-.'), })
+
+                l3, = ax1.plot(ix2_new, l3_new, **ax1_plot_dict, )
             else:
                 ax2_plot_dict.update({"label": "energy_error",
-                                      "linestyle": kwargs.get("l3_linestyle", '--'),
-                                      "markeredgecolor": kwargs.get("ax2_markeredgecolor", 'green'), })
-            l3, = ax2.plot(ix2_new, l3_new, **ax2_plot_dict, )
+                                      "linestyle": kwargs.get("l3_linestyle", '--'), })
+                l3, = ax2.plot(ix2_new, l3_new, **ax2_plot_dict, )
+
+        # 要等 ax1 中 所有 曲线 plot 完事 之后，ax1.get_ylim() 获取到的 ax1 的 ylim 才是真实的
+        # %% 获取 ax1 的 上下 lim 的 相对位置，和 相对 间隔 大小，为之后 设置 ax2 的 绝对 lim 范围（y 刻度 线性时）
+        ax1_interval_relative = (ax1_yticks[1] - ax1_yticks[0]) / (ax1.get_ylim()[-1] - ax1.get_ylim()[0])
+        # print(ax1_yticks[1] - ax1_yticks[0], ax1.get_ylim())
+        ax1_down_lim_relative_location = (ax1_yticks[0] - ax1.get_ylim()[0]) / (
+                ax1_yticks[1] - ax1_yticks[0])  # 下对齐
+        # ax1_up_lim_relative_location = (ax1.get_ylim()[-1] - ax1_yticks[-1]) / (ax1_yticks[-1] - ax1_yticks[-2]) # 上对齐
+        # --------- 搭配 start（y 刻度 线性时）
+
+        # %% 设置 ax2 的 绝对 lim 范围，使其 刻度线 与 ax1 的 刻度线 对齐（y 刻度 线性时）
+        ax2_lim_absolute = (ax2_yticks[1] - ax2_yticks[0]) / ax1_interval_relative
+        # print(ax2_yticks[1] - ax2_yticks[0], ax1_interval_relative)
+        ax2_down_lim = ax2_yticks[0] - (ax2_yticks[1] - ax2_yticks[0]) * ax1_down_lim_relative_location  # 下对齐
+        ax2_up_lim = ax2_down_lim + ax2_lim_absolute  # 下对齐
+        # ax2_up_lim = ax2_yticks[-1] + (ax2_yticks[-1] - ax2_yticks[-2]) * ax1_up_lim_relative_location # 上对齐
+        # ax2_down_lim = ax2_up_lim - ax2_lim_absolute # 上对齐
+        ax2.set_ylim(ax2_down_lim, ax2_up_lim)
+        # --------- 搭配 end（y 刻度 线性时）
 
         if "label" in kwargs and "label2" in kwargs:
             if "zj2" in kwargs:
@@ -445,8 +481,12 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
 
     # ix_mesh, iy_mesh = np.meshgrid(ix, iy)
     # f = interp2d(ix_mesh,iy_mesh,array2D,kind=kind)
-    f = interp2d(ix, iy, array2D, kind=kind)
-    array2D_new = f(ix_new, iy_new)
+    if sample > 1:
+        f = interp2d(ix, iy, array2D, kind=kind)
+        array2D_new = f(ix_new, iy_new)
+    else:
+        array2D_new = array2D
+    array2D_new = array2D_new if is_energy != 1 else np.abs(array2D_new) ** 2
     # %% 插值 end
 
     if is_axes_on == 0:
@@ -500,12 +540,10 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
         ax1.set_xlabel(xlabel, fontsize=fontsize, fontdict=font)  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         ax1.set_ylabel(ylabel, fontsize=fontsize, fontdict=font)  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
 
-    vmax = kwargs.get("vmax", np.max(array2D) if is_energy != 1 else np.max(np.abs(array2D)) ** 2)
-    vmin = kwargs.get("vmin", np.min(array2D) if is_energy != 1 else np.min(np.abs(array2D)) ** 2)
-    if is_energy == 1 and "vmax" in kwargs: vmax = vmax ** 2
-    if is_energy == 1 and "vmin" in kwargs: vmin = vmin ** 2
+    vmax = kwargs.get("vmax", np.max(array2D_new))
+    vmin = kwargs.get("vmin", np.min(array2D_new))
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
-    array2D_new = array2D_new if is_energy != 1 else np.abs(array2D_new) ** 2
+
     if is_self_colorbar == 1:
         if is_contourf == 1:
             img = ax1.contourf(array2D_new, cmap=cmap_2d, )
@@ -522,10 +560,9 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
         cb = fig.colorbar(img, cax=cax)
         # cb = fig.colorbar(img, cax=cax, extend='both')
         cb.ax.tick_params(labelsize=fontsize)  # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
-        if is_self_colorbar != 1:  # np.round(np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1), 2) 保留 2 位小数，改为 保留 2 位 有效数字
+        if is_self_colorbar != 1:
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
-            cb.set_ticks(
-                cticks)  # range(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, round((vmax-vmin) / ticks_num ,2)) 其中 range 步长不支持 非整数，只能用 np.arange 或 np.linspace
+            cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
         cb.set_label(clabel, fontsize=fontsize, fontdict=font)  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
@@ -591,10 +628,29 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
 
     kind = 'cubic'  # kind = 0,1,2,3 nono，1 维才可以这么写，2 维只有 'linear', 'cubic', 'quintic'
 
-    f = interp2d(ix, iy, U_YZ, kind=kind)
-    U_YZ_new = f(ix_new, iy_new)
-    f = interp2d(ix, iy, U_XZ, kind=kind)
-    U_XZ_new = f(ix_new, iy_new)
+    if sample > 1:
+        f = interp2d(ix, iy, U_YZ, kind=kind)
+        U_YZ_new = f(ix_new, iy_new)
+        f = interp2d(ix, iy, U_XZ, kind=kind)
+        U_XZ_new = f(ix_new, iy_new)
+    else:
+        U_YZ_new = U_YZ
+        U_XZ_new = U_XZ
+
+    U_YZ_new = U_YZ_new if is_energy != 1 else np.abs(U_YZ_new) ** 2
+    U_XZ_new = U_XZ_new if is_energy != 1 else np.abs(U_XZ_new) ** 2
+    U_1 = U_1 if is_energy != 1 else np.abs(U_1) ** 2
+    U_2 = U_2 if is_energy != 1 else np.abs(U_2) ** 2
+    if is_show_structure_face == 1:
+        U_structure_front = U_structure_front if is_energy != 1 else np.abs(U_structure_front) ** 2
+        U_structure_end = U_structure_end if is_energy != 1 else np.abs(U_structure_end) ** 2
+
+    if is_show_structure_face == 1:
+        UXY = np.dstack((U_YZ_new, U_XZ_new))
+        UZ = np.dstack((U_1, U_2, U_structure_front, U_structure_end))
+    else:
+        UXY = np.dstack((U_YZ_new, U_XZ_new))
+        UZ = np.dstack((U_1, U_2))
     # %% 插值 end
 
     if is_axes_on == 0:
@@ -658,26 +714,8 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
 
     ax1.view_init(elev=elev, azim=azim);  # 后一个为负 = 绕 z 轴逆时针
 
-    U_YZ_new = U_YZ_new if is_energy != 1 else np.abs(U_YZ_new) ** 2
-    U_XZ_new = U_XZ_new if is_energy != 1 else np.abs(U_XZ_new) ** 2
-    U_1 = U_1 if is_energy != 1 else np.abs(U_1) ** 2
-    U_2 = U_2 if is_energy != 1 else np.abs(U_2) ** 2
-    if is_show_structure_face == 1:
-        U_structure_front = U_structure_front if is_energy != 1 else np.abs(U_structure_front) ** 2
-        U_structure_end = U_structure_end if is_energy != 1 else np.abs(U_structure_end) ** 2
-
-    if is_show_structure_face == 1:
-        UXY = np.dstack((U_YZ, U_XZ))
-        UZ = np.dstack((U_1, U_2, U_structure_front, U_structure_end))
-    else:
-        UXY = np.dstack((U_YZ, U_XZ))
-        UZ = np.dstack((U_1, U_2))
-    vmax = kwargs.get("vmax", max(np.max(UXY), np.max(UZ)) if is_energy != 1 else max(np.max(np.abs(UXY)),
-                                                                                      np.max(np.abs(UZ))) ** 2)
-    vmin = kwargs.get("vmin", min(np.min(UXY), np.min(UZ)) if is_energy != 1 else min(np.min(np.abs(UXY)),
-                                                                                      np.min(np.abs(UZ))) ** 2)
-    if is_energy == 1 and "vmax" in kwargs: vmax = vmax ** 2
-    if is_energy == 1 and "vmin" in kwargs: vmin = vmin ** 2
+    vmax = kwargs.get("vmax", max(np.max(UXY), np.max(UZ)))
+    vmin = kwargs.get("vmin", min(np.min(UXY), np.min(UZ)))
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
     Ixy = Iy
     if is_self_colorbar == 1:
@@ -732,7 +770,7 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
         cb = fig.colorbar(img, cax=cax)
         # cb = fig.colorbar(img, cax=cax, extend='both')
         cb.ax.tick_params(labelsize=fontsize)  # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
-        if is_self_colorbar != 1:  # np.round(np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1), 2) 保留 2 位小数，改为 保留 2 位 有效数字
+        if is_self_colorbar != 1:
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
@@ -840,19 +878,18 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
     ax1.get_proj = lambda: np.dot(Axes3D.get_proj(ax1), np.diag([1, 1 / x_stretch_factor, 1 / x_stretch_factor, 1]))
     # ax1.get_proj = lambda: np.dot(Axes3D.get_proj(ax1), np.diag([1, 1/x_stretch_factor, 1/x_stretch_factor, 1/x_stretch_factor]))
 
-    vmax = kwargs.get("vmax", np.max(U_z_stored) if is_energy != 1 else np.max(np.abs(U_z_stored)) ** 2)
-    vmin = kwargs.get("vmin", np.min(U_z_stored) if is_energy != 1 else np.min(np.abs(U_z_stored)) ** 2)
-    if is_energy == 1 and "vmax" in kwargs: vmax = vmax ** 2
-    if is_energy == 1 and "vmin" in kwargs: vmin = vmin ** 2
+    U_z_stored = U_z_stored if is_energy != 1 else np.abs(U_z_stored) ** 2
+    vmax = kwargs.get("vmax", np.max(U_z_stored))
+    vmin = kwargs.get("vmin", np.min(U_z_stored))
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
+
     if is_self_colorbar == 1:
         i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
         i_Y = i_Y[::-1]
         for sheet_stored_th in range(sheets_stored_num + 1):
             img = ax1.scatter3D(find_nearest(ix_new, z_stored[sheet_stored_th])[0], i_X, i_Y,
                                 # ix_new.tolist().index(z_stored[sheet_stored_th])
-                                c=U_z_stored[:, :, sheet_stored_th] if is_energy != 1 else np.abs(
-                                    U_z_stored[:, :, sheet_stored_th]) ** 2, cmap=cmap_3d,
+                                c=U_z_stored[:, :, sheet_stored_th], cmap=cmap_3d,
                                 alpha=math.e ** -3 * math.e ** (-1 * alpha * sheet_stored_th / sheets_stored_num))
     else:
         i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
@@ -860,8 +897,7 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
         for sheet_stored_th in range(sheets_stored_num + 1):
             img = ax1.scatter3D(find_nearest(ix_new, z_stored[sheet_stored_th])[0], i_X, i_Y,
                                 # ix_new.tolist().index(z_stored[sheet_stored_th])
-                                c=U_z_stored[:, :, sheet_stored_th] if is_energy != 1 else np.abs(
-                                    U_z_stored[:, :, sheet_stored_th]) ** 2, cmap=cmap_3d,
+                                c=U_z_stored[:, :, sheet_stored_th], cmap=cmap_3d,
                                 alpha=math.e ** -3 * math.e ** (-1 * alpha * sheet_stored_th / sheets_stored_num),
                                 vmin=vmin, vmax=vmax)
 
@@ -870,7 +906,7 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
         cb = fig.colorbar(img, cax=cax)
         # cb = fig.colorbar(img, cax=cax, extend='both')
         cb.ax.tick_params(labelsize=fontsize)  # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
-        if is_self_colorbar != 1:  # np.round(np.linspace(vmin if is_energy != 1 else vmin**2, vmax if is_energy != 1 else vmax**2, ticks_num + 1), 2) 保留 2 位小数，改为 保留 2 位 有效数字
+        if is_self_colorbar != 1:
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)

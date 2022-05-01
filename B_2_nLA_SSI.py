@@ -162,7 +162,7 @@ def nLA_ssi(U_name="",
 
     method = "MOD"
     folder_name = method + " - " + "n1_modulation_squared"
-    folder_address = U_dir(folder_name, is_save - 0.5 * is_bulk, )
+    folder_address = U_dir(folder_name, 1 - is_bulk, )
 
     init_SSI(g_shift, U_0,
              is_energy_evolution_on, is_stored,

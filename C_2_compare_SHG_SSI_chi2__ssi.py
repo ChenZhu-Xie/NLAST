@@ -257,6 +257,7 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
     # %%
     # 对比 G2_NLA 与 G2_ssi 的 （绝对）误差
 
+    p_dir = "7. GU_error"
     U_compare(fft2(U2_SSI), fft2(U2_ssi), U_key2_ssi.replace("U", "G"), L0_Crystal,
               # %%
               img_name_extension, size_PerPixel, size_fig,
@@ -272,7 +273,9 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_relative, is_print, )
+              is_relative, is_print,
+              # %%
+              p_dir=p_dir, )
 
     # %%
     # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
@@ -292,7 +295,9 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_relative, is_print, is_end=1, )
+              is_relative, is_print,
+              # %%
+              p_dir=p_dir, is_end=1, )
 
     # %%
 

@@ -121,7 +121,8 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure = "",
                   mx, my, mz,
                   is_stripe,
                   #%%
-                  is_save, is_save_txt, dpi, 
+                  is_save, is_save_txt, dpi,
+                  is_bulk,
                   #%%
                   cmap_2d, 
                   #%%

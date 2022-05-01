@@ -50,6 +50,7 @@ def structure_chi2_3D(U_name="",
                       is_stripe=0,
                       # %%
                       is_save=0, is_save_txt=0, dpi=100,
+                      is_bulk=1,
                       # %%
                       cmap_2d='viridis',
                       # %%
@@ -195,7 +196,7 @@ def structure_chi2_3D(U_name="",
             modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
             modulation_squared_address = folder_address + "\\" + modulation_squared_full_name
 
-            if is_save == 1:
+            if is_bulk == 0:
                 np.savetxt(modulation_squared_address, m, fmt='%i') if is_save_txt else savemat(
                     modulation_squared_address, {'chi2_modulation_squared': m})
 
@@ -206,7 +207,7 @@ def structure_chi2_3D(U_name="",
             modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
             modulation_squared_address = folder_address + "\\" + modulation_squared_full_name
 
-            if is_save == 1:
+            if is_bulk == 0:
                 np.savetxt(modulation_squared_address, m, fmt='%i') if is_save_txt else savemat(
                     modulation_squared_address, {'chi2_modulation_squared': m})
 
@@ -246,6 +247,7 @@ if __name__ == '__main__':
                       is_stripe=0,
                       # %%
                       is_save=0, is_save_txt=0, dpi=100,
+                      is_bulk=1,
                       # %%
                       cmap_2d='viridis',
                       # %%

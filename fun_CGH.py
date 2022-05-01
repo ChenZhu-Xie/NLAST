@@ -271,7 +271,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     method = "MOD"
     folder_name = method + " - " + "χ2_modulation_squared"
-    folder_address = U_dir(folder_name, is_save - 0.5 * is_bulk, )
+    folder_address = U_dir(folder_name, 1 - is_bulk, )
 
     #%%
 
@@ -284,7 +284,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
     # address = folder_address + "\\" + full_name + img_name_extension
     # plot_2d([], 1, size_PerPixel,
     #         structure, address, title,
-    #         is_save - 0.5 * is_bulk, dpi, size_fig,
+    #         1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
     #         cmap_2d, ticks_num, is_contourf,
     #         is_title_on, is_axes_on, is_mm, 0,
     #         fontsize, font,
@@ -300,7 +300,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
     address = folder_address + "\\" + full_name + img_name_extension
     plot_2d([], 1, size_PerPixel,
             modulation_squared, address, title,
-            is_save - 0.5 * is_bulk, dpi, size_fig,
+            1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
@@ -321,7 +321,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
     # address = folder_address + "\\" + full_name + img_name_extension
     # plot_2d([], 1, size_PerPixel,  
     #         structure_opposite, address, title,
-    #         is_save - 0.5 * is_bulk, dpi, size_fig,
+    #         1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
     #         cmap_2d, ticks_num, is_contourf,
     #         is_title_on, is_axes_on, is_mm, 0,
     #         fontsize, font,
@@ -338,7 +338,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
     address = folder_address + "\\" + full_name + img_name_extension
     plot_2d([], 1, size_PerPixel,
             modulation_opposite_squared, address, title,
-            is_save - 0.5 * is_bulk, dpi, size_fig,
+            1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
@@ -474,7 +474,7 @@ def structure_n1_Generate_2D(U_structure_name="",
 
     method = "MOD"
     folder_name = method + " - " + "n1_modulation_squared"
-    folder_address = U_dir(folder_name, is_save - 0.5 * is_bulk, )
+    folder_address = U_dir(folder_name, 1 - is_bulk, )
 
     #%%
 
@@ -486,7 +486,7 @@ def structure_n1_Generate_2D(U_structure_name="",
     # address = folder_address + "\\" + name + img_name_extension
     # plot_2d([], 1, size_PerPixel,  
     #         structure, address, title,
-    #         is_save - 0.5 * is_bulk, dpi, size_fig,
+    #         1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
     #         cmap_2d, ticks_num, is_contourf,
     #         is_title_on, is_axes_on, is_mm, 0,
     #         fontsize, font,
@@ -502,7 +502,7 @@ def structure_n1_Generate_2D(U_structure_name="",
     address = folder_address + "\\" + name + img_name_extension
     plot_2d([], 1, size_PerPixel,
             modulation_squared, address, title,
-            is_save - 0.5 * is_bulk, dpi, size_fig,
+            1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,
@@ -522,7 +522,7 @@ def structure_n1_Generate_2D(U_structure_name="",
     # address = folder_address + "\\" + name + img_name_extension
     # plot_2d([], 1, size_PerPixel,  
     #         structure_opposite, address, title,
-    #         is_save - 0.5 * is_bulk, dpi, size_fig,
+    #         1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
     #         cmap_2d, ticks_num, is_contourf,
     #         is_title_on, is_axes_on, is_mm, 0,
     #         fontsize, font,
@@ -539,7 +539,7 @@ def structure_n1_Generate_2D(U_structure_name="",
     address = folder_address + "\\" + name + img_name_extension
     plot_2d([], 1, size_PerPixel,
             modulation_opposite_squared, address, title,
-            is_save - 0.5 * is_bulk, dpi, size_fig,
+            1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, 0,
             fontsize, font,

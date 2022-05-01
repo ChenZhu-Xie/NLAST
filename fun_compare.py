@@ -122,7 +122,9 @@ def U_compare(U, U_0, U_0_title, z,
                                                           z=z, **kwargs, )
 
     U_0_norm_energy = np.sum(np.abs(U_0_norm) ** 2)
+    # print(U_amp_error_energy)
     U_error_energy = U_amp_error_energy / U_0_norm_energy
+    # print(U_error_energy)
     U_custom_print(U_error_energy, fkey(ugHGU), "relative_error", is_print,
                    z=z, is_end=1)
 

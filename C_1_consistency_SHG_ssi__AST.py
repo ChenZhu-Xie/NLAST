@@ -10,60 +10,93 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
-from fun_linear import fft2
-from fun_compare import U_compare
 from fun_global_var import tree_print, init_GLV_rmw, fset, fget, fkey
+from fun_linear import fft2
+from fun_pump import pump_pic_or_U
+from fun_compare import U_compare
+from A_3_structure_chi2_Generate_3D import structure_chi2_3D
 from b_1_AST import AST
 from B_3_SHG_NLA_ssi import SHG_NLA_ssi
 from B_3_SHG_SSF_ssi import SHG_SSF_ssi
 np.seterr(divide='ignore', invalid='ignore')
 
 
-def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
-                            is_phase_only = 0,
-                            #%%
-                            z_pump = 0,
-                            is_LG = 0, is_Gauss = 0, is_OAM = 0,
-                            l = 0, p = 0,
-                            theta_x = 0, theta_y = 0,
-                            #%%
-                            is_random_phase = 0,
-                            is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
-                            #%%
-                            U_NonZero_size = 1, w0 = 0.3,
-                            z1 = 1, z2 = 5,
-                            Duty_Cycle_z=0.5, zoomout_times=5,
-                            is_energy_evolution_on = 1,
-                            #%%
-                            lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,
-                            deff = 30,
-                            #%%
-                            Tx = 10, Ty = 10, Tz = "2*lc",
-                            mx = 0, my = 0, mz = 0,
-                            is_NLAST = 0,
-                            #%%
-                            is_save = 0, is_save_txt = 0, dpi = 100,
-                            #%%
-                            color_1d = 'b', cmap_2d = 'viridis',
-                            #%%
-                            sample = 2, ticks_num = 6, is_contourf = 0,
-                            is_title_on = 1, is_axes_on = 1, is_mm = 1,
-                            #%%
-                            fontsize = 9,
-                            font = {'family': 'serif',
-                                    'style': 'normal', # 'normal', 'italic', 'oblique'
-                                    'weight': 'normal',
-                                    'color': 'black', # 'black','gray','darkred'
-                                    },
-                            #%%
-                            is_colorbar_on = 1, is_energy = 1,
-                            #%%
-                            is_print = 1, is_contours = 1, n_TzQ = 1,
-                            Gz_max_Enhance = 1, match_mode = 1,
-                            #%%
-                            is_NLA = 1, is_relative=1,
-                            # %%
-                            **kwargs, ):
+def consistency_SHG_ssi__AST(img_full_name="Grating.png",
+                             is_phase_only=0,
+                             # %%
+                             z_pump=0,
+                             is_LG=0, is_Gauss=0, is_OAM=0,
+                             l=0, p=0,
+                             theta_x=0, theta_y=0,
+                             # %%
+                             is_random_phase=0,
+                             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+                             # %% 生成横向结构
+                             U_name_Structure='',
+                             structure_size_Enlarge=0.1,
+                             is_phase_only_Structure=0,
+                             # %%
+                             w0_Structure=0, z_pump_Structure=0,
+                             is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
+                             l_Structure=0, p_Structure=0,
+                             theta_x_Structure=0, theta_y_Structure=0,
+                             # %%
+                             is_random_phase_Structure=0,
+                             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+                             # %%
+                             U_NonZero_size=1, w0=0.3,
+                             z1=1, z2=2,
+                             # %% 不关心
+                             z0_structure_frontface_expect=0, deff_structure_length_expect=10,
+                             sheets_stored_num=10, z0_section_1_expect=0, z0_section_2_expect=0,
+                             X=0, Y=0,
+                             # %% 不关心
+                             is_bulk=1, is_no_backgroud=0,
+                             is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
+                             # %%
+                             lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                             deff=30,
+                             # %%
+                             Tx=10, Ty=10, Tz="2*lc",
+                             mx=0, my=0, mz=0,
+                             is_stripe=0, is_NLAST=1,  # 不关心 is_stripe
+                             # %% 生成横向结构
+                             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+                             Depth=2, zoomout_times=5, structure_xy_mode='x',
+                             # %%
+                             is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+                             is_reverse_xy=0, is_positive_xy=1,
+                             # %%
+                             is_save=0, is_save_txt=0, dpi=100,
+                             # %%
+                             color_1d='b', cmap_2d='viridis',
+                             # %% 不关心
+                             cmap_3d='rainbow', elev=10, azim=-65, alpha=2,
+                             # %%
+                             sample=2, ticks_num=6, is_contourf=0,
+                             is_title_on=1, is_axes_on=1, is_mm=1,
+                             # %%
+                             fontsize=9,
+                             font={'family': 'serif',
+                                   'style': 'normal',  # 'normal', 'italic', 'oblique'
+                                   'weight': 'normal',
+                                   'color': 'black',  # 'black','gray','darkred'
+                                   },
+                             # %%
+                             is_colorbar_on=1, is_energy=1,
+                             # %% 不关心
+                             plot_group="UGa", is_animated=1,
+                             loop=0, duration=0.033, fps=5,
+                             # %% 不关心
+                             is_plot_3d_XYz=0, is_plot_selective=0,
+                             is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+                             # %%
+                             is_print=1, is_contours=66, n_TzQ=1,
+                             Gz_max_Enhance=1, match_mode=1,
+                             # %% 该程序 独有
+                             is_NLA=1, is_relative=1,
+                             # %%
+                             **kwargs, ):
     info = "利用 SHG 检验：ssi 自洽性"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
@@ -72,6 +105,86 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
 
     if_image_Add_black_border("", img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
+
+    # %%
+    # 为了生成 U_0 和 g_shift
+
+    img_name, img_name_extension, img_squared, \
+    size_PerPixel, size_fig, Ix, Iy, \
+    U_0, g_shift = pump_pic_or_U("",
+                                 img_full_name,
+                                 is_phase_only,
+                                 # %%
+                                 z_pump,
+                                 is_LG, is_Gauss, is_OAM,
+                                 l, p,
+                                 theta_x, theta_y,
+                                 # %%
+                                 is_random_phase,
+                                 is_H_l, is_H_theta, is_H_random_phase,
+                                 # %%
+                                 U_NonZero_size, w0,
+                                 # %%
+                                 lam1, is_air_pump, T,
+                                 # %%
+                                 is_save, is_save_txt, dpi,
+                                 cmap_2d,
+                                 # %%
+                                 ticks_num, is_contourf,
+                                 is_title_on, is_axes_on, is_mm,
+                                 # %%
+                                 fontsize, font,
+                                 # %%
+                                 is_colorbar_on, is_energy,
+                                 # %%
+                                 is_print,
+                                 # %%
+                                 **kwargs, )
+
+    # %%
+
+    structure_chi2_3D(U_name_Structure,
+                      img_full_name,
+                      is_phase_only_Structure,
+                      # %%
+                      z_pump_Structure,
+                      is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+                      l_Structure, p_Structure,
+                      theta_x_Structure, theta_y_Structure,
+                      # %%
+                      is_random_phase_Structure,
+                      is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+                      # %%
+                      U_NonZero_size, w0_Structure, structure_size_Enlarge,
+                      deff_structure_length_expect,
+                      # %%
+                      Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
+                      structure_xy_mode, Depth, zoomout_times,
+                      # %%
+                      is_continuous, is_target_far_field, is_transverse_xy,
+                      is_reverse_xy, is_positive_xy, is_no_backgroud,
+                      # %%
+                      lam1, is_air_pump, is_air, T,
+                      Tx, Ty, Tz,
+                      mx, my, mz,
+                      is_stripe,
+                      # %%
+                      is_save, is_save_txt, dpi,
+                      is_bulk,
+                      # %%
+                      cmap_2d,
+                      # %%
+                      ticks_num, is_contourf,
+                      is_title_on, is_axes_on, is_mm,
+                      # %%
+                      fontsize, font,
+                      # %%
+                      is_colorbar_on, is_energy,
+                      # %%
+                      is_print, is_contours, n_TzQ,
+                      Gz_max_Enhance, match_mode,
+                      # %%
+                      g_shift=g_shift, L0_Crystal=max(z1, z2), )
 
     # %%
     # 先衍射 z1 后倍频 z2
@@ -122,24 +235,24 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                 is_H_l, is_H_theta, is_H_random_phase,
                 # %%
                 U_NonZero_size, w0,
-                z_ssi, 0, 10,
-                Duty_Cycle_z, zoomout_times, 10,
-                0, 0, 0, 0,
+                z_ssi, z0_structure_frontface_expect, deff_structure_length_expect,
+                Duty_Cycle_z, zoomout_times, sheets_stored_num,
+                z0_section_1_expect, z0_section_2_expect,
+                X, Y,
                 # %%
-                1, 0,
-                0, 0, is_energy_evolution_on,
+                is_bulk, is_no_backgroud,
+                is_stored, is_show_structure_face, is_energy_evolution_on,
                 # %%
                 lam1, is_air_pump, is_air, T,
                 deff,
-                # %%
                 Tx, Ty, Tz,
                 mx, my, mz,
                 is_NLAST,
                 # %%
                 is_save, is_save_txt, dpi,
                 # %%
-                color_1d, cmap_2d, 'rainbow',
-                10, -65, 2,
+                color_1d, cmap_2d, cmap_3d,
+                elev, azim, alpha,
                 # %%
                 sample, ticks_num, is_contourf,
                 is_title_on, is_axes_on, is_mm,
@@ -148,11 +261,11 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
                 # %%
                 is_colorbar_on, is_energy,
                 # %%
-                "UGa", 1,
-                0, 0.033, 5,
+                plot_group, is_animated,
+                loop, duration, fps,
                 # %%
-                0, 0,
-                1, 0,
+                is_plot_3d_XYz, is_plot_selective,
+                is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 is_print, is_contours, n_TzQ,
                 Gz_max_Enhance, match_mode, ]
@@ -214,6 +327,7 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
     # %%
     # 对比 fget("G") 与 G2_Z 的 （绝对）误差
 
+    p_dir = "7. GU_error"
     U_compare(fget("G"), fft2(U2_Z), U_key2_Z.replace("U", "G"), Z,
               # %%
               img_name_extension, size_PerPixel, size_fig,
@@ -229,8 +343,9 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_relative, is_print, )
-
+              is_relative, is_print,
+              # %%
+              p_dir=p_dir, )
 
     # %%
     # 对比 U2_Z_Superposition 与 U2_Z 的 （绝对）误差
@@ -250,55 +365,88 @@ def consistency_SHG_ssi__AST(img_full_name = "Grating.png",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_relative, is_print, is_end=1, )
+              is_relative, is_print,
+              # %%
+              p_dir=p_dir, is_end=1, )
 
     # %%
 
 if __name__ == '__main__':
-    consistency_SHG_ssi__AST(img_full_name = "Grating.png",
-                            is_phase_only = 0,
-                            #%%
-                            z_pump = 0,
-                            is_LG = 0, is_Gauss = 0, is_OAM = 0,
-                            l = 0, p = 0,
-                            theta_x = 0, theta_y = 0,
-                            #%%
-                            is_random_phase = 0,
-                            is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
-                            #%%
-                            U_NonZero_size = 1, w0 = 0.3,
-                            z1 = 1, z2 = 2,
-                            Duty_Cycle_z=0.5, zoomout_times=5,
-                            is_energy_evolution_on = 1,
-                            #%%
-                            lam1 = 0.8, is_air_pump = 0, is_air = 0, T = 25,
-                            deff = 30,
-                            #%%
-                            Tx = 10, Ty = 10, Tz = "2*lc",
-                            mx = 0, my = 0, mz = 0,
-                            is_NLAST = 1,
-                            #%%
-                            is_save = 0, is_save_txt = 0, dpi = 100,
-                            #%%
-                            color_1d = 'b', cmap_2d = 'viridis',
-                            #%%
-                            sample = 2, ticks_num = 6, is_contourf = 0,
-                            is_title_on = 1, is_axes_on = 1, is_mm = 1,
-                            #%%
-                            fontsize = 9,
-                            font = {'family': 'serif',
-                                    'style': 'normal', # 'normal', 'italic', 'oblique'
-                                    'weight': 'normal',
-                                    'color': 'black', # 'black','gray','darkred'
-                                    },
-                            #%%
-                            is_colorbar_on = 1, is_energy = 1,
-                            #%%
-                            is_print = 1, is_contours = 66, n_TzQ = 1,
-                            Gz_max_Enhance = 1, match_mode = 1,
-                            #%%
-                            is_NLA = 0, is_relative=1,
-                            # %%
-                            border_percentage=0.1, is_end=-1, )
+    consistency_SHG_ssi__AST(img_full_name="Grating.png",
+                             is_phase_only=0,
+                             # %%
+                             z_pump=0,
+                             is_LG=0, is_Gauss=0, is_OAM=0,
+                             l=0, p=0,
+                             theta_x=0, theta_y=0,
+                             # %%
+                             is_random_phase=0,
+                             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+                             # %% 生成横向结构
+                             U_name_Structure='',
+                             structure_size_Enlarge=0.1,
+                             is_phase_only_Structure=0,
+                             # %%
+                             w0_Structure=0, z_pump_Structure=0,
+                             is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
+                             l_Structure=0, p_Structure=0,
+                             theta_x_Structure=0, theta_y_Structure=0,
+                             # %%
+                             is_random_phase_Structure=0,
+                             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+                             # %%
+                             U_NonZero_size=1, w0=0.3,
+                             z1=1, z2=2,
+                             # %% 不关心
+                             z0_structure_frontface_expect=0, deff_structure_length_expect=10,
+                             sheets_stored_num=10, z0_section_1_expect=0, z0_section_2_expect=0,
+                             X=0, Y=0,
+                             # %% 不关心
+                             is_bulk=1, is_no_backgroud=0,
+                             is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
+                             # %%
+                             lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                             deff=30,
+                             # %%
+                             Tx=10, Ty=10, Tz="2*lc",
+                             mx=0, my=0, mz=0,
+                             is_stripe=0, is_NLAST=1,  # 不关心 is_stripe
+                             # %% 生成横向结构
+                             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+                             Depth=2, zoomout_times=5, structure_xy_mode='x',
+                             # %%
+                             is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+                             is_reverse_xy=0, is_positive_xy=1,
+                             # %%
+                             is_save=0, is_save_txt=0, dpi=100,
+                             # %%
+                             color_1d='b', cmap_2d='viridis',
+                             # %% 不关心
+                             cmap_3d='rainbow', elev=10, azim=-65, alpha=2,
+                             # %%
+                             sample=2, ticks_num=6, is_contourf=0,
+                             is_title_on=1, is_axes_on=1, is_mm=1,
+                             # %%
+                             fontsize=9,
+                             font={'family': 'serif',
+                                   'style': 'normal',  # 'normal', 'italic', 'oblique'
+                                   'weight': 'normal',
+                                   'color': 'black',  # 'black','gray','darkred'
+                                   },
+                             # %%
+                             is_colorbar_on=1, is_energy=1,
+                             # %% 不关心
+                             plot_group="UGa", is_animated=1,
+                             loop=0, duration=0.033, fps=5,
+                             # %% 不关心
+                             is_plot_3d_XYz=0, is_plot_selective=0,
+                             is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+                             # %%
+                             is_print=1, is_contours=66, n_TzQ=1,
+                             Gz_max_Enhance=1, match_mode=1,
+                             # %% 该程序 独有
+                             is_NLA=1, is_relative=1,
+                             # %% 该程序 作为 主入口时
+                             border_percentage=0.1, is_end=-1, )
 
 # 注意 colorbar 上的数量级

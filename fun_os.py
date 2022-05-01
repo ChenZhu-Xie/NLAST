@@ -15,6 +15,7 @@ from scipy.io import loadmat, savemat
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_gif_video import imgs2gif_imgio, imgs2gif_PIL, imgs2gif_art
 
+
 # %%
 # 获取 桌面路径（C 盘 原生）
 
@@ -41,12 +42,12 @@ def get_cd():
 # 查找
 
 # 查找 text 中的 数字部分
-def find_nums(text): # 这个没用了，也就是 ray
+def find_nums(text):  # 这个没用了，也就是 ray
     return re.findall('(\d+)', text)
 
 
 # 查找 text 中的 非数字部分
-def find_NOT_nums(text): # 这个没用了，也就是 ugHGU
+def find_NOT_nums(text):  # 这个没用了，也就是 ugHGU
     return re.findall('(\D+)', text)
 
 
@@ -56,22 +57,23 @@ def find_part_has_s_in_text(text, s, separator):
         if s in part:  # 找到 第一个 part 之后，不加 含 z 的 part，就 跳出 for 循环
             return part
 
+
 # 查找 ray_sequence
 def split_parts(U_name):
     if ' - ' in U_name:
-        Part_1 = U_name.split(' - ')[0] # 取出 seq + method + way 的 method_and_way
-        method_and_way = Part_1.split(" ")[1] if " " in Part_1 else Part_1 # 去掉 seq，只保留 method + way
+        Part_1 = U_name.split(' - ')[0]  # 取出 seq + method + way 的 method_and_way
+        method_and_way = Part_1.split(" ")[1] if " " in Part_1 else Part_1  # 去掉 seq，只保留 method + way
         Part_2 = U_name.split(' - ')[1]  # 取 由 AST - U0_ ... 分割的 第二部分：U0_ ...
     else:
         method_and_way = ""
         Part_2 = U_name  # 应该不存在 没有 method 而有 sequence 的可能（只有 文件夹 才有这 可能）
     if '_' in Part_2:
-        part_1 = Part_2.split('_')[0] # 取 part_2 中的 第一部分 U1
+        part_1 = Part_2.split('_')[0]  # 取 part_2 中的 第一部分 U1
     elif ' ' in Part_2:
         part_1 = Part_2.split(" ")[1]
     else:
         part_1 = Part_2
-    ray_seq = part_1[1:] if len(part_1[1:]) > 0 else "" # 取出 U0_name 第一部分 第一个字符之后的东西
+    ray_seq = part_1[1:] if len(part_1[1:]) > 0 else ""  # 取出 U0_name 第一部分 第一个字符之后的东西
     ugHGU = part_1[0] if len(part_1) > 0 else ""
     U_name_no_seq = method_and_way + (' - ' if method_and_way != "" else "") + Part_2
 
@@ -83,15 +85,17 @@ def split_parts(U_name):
 
     return U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq
 
+
 # 查找 ray （ 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray ）
-def set_ray(U0_name, ray_new, **kwargs): # U0_name 只在这有用，用于获取 其 ray，获取一次后就不需 U0_name 了
-    if "ray" not in kwargs: # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
+def set_ray(U0_name, ray_new, **kwargs):  # U0_name 只在这有用，用于获取 其 ray，获取一次后就不需 U0_name 了
+    if "ray" not in kwargs:  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
         U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U0_name)  # 从 U0_name 中找到 ray_sequence
         ray = ray_seq[0] + ray_new if len(ray_seq) != 0 else ray_new
     else:
         ray = kwargs['ray'] + ray_new if "ray" in kwargs else ray_new  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
 
     return ray
+
 
 # # 查找 ray（已废弃）
 # def get_ray(U0_name, U_name, ): # 这个没用了，已经被 split_parts 和 set_ray 替代了
@@ -105,17 +109,19 @@ def set_ray(U0_name, ray_new, **kwargs): # U0_name 只在这有用，用于获�
 #     ray += U_name_rays[0] if len(U_name_rays) != 0 else ""
 #     return ray
 
-#%%
+# %%
 # 替换
 
-def replace_p_ray(title, ugHGU, ray): # ugHGU 起到了 标识符的作用，防止误 replace 了 其他字符串
+def replace_p_ray(title, ugHGU, ray):  # ugHGU 起到了 标识符的作用，防止误 replace 了 其他字符串
     return title.replace(ugHGU + ray, ugHGU + ray.replace("0", "p"))
 
-def subscript_ray(title, ugHGU, ray): # ugHGU 起到了 标识符的作用，防止误 replace 了 其他字符串
+
+def subscript_ray(title, ugHGU, ray):  # ugHGU 起到了 标识符的作用，防止误 replace 了 其他字符串
     # return title.replace(ugHGU + ray, ugHGU + "$_{" + ray.replace("0", "p") + "}$")
     return title.replace(ugHGU + ray, ugHGU + "$_{" + ray + "}$")
 
-def subscript_way(title, method_and_way): # method 起到了 标识符的作用，防止误 replace 了 其他字符串
+
+def subscript_way(title, method_and_way):  # method 起到了 标识符的作用，防止误 replace 了 其他字符串
     if '_' in method_and_way:
         method = method_and_way.split("_")[0]
         way = method_and_way.split("_")[1]
@@ -123,13 +129,15 @@ def subscript_way(title, method_and_way): # method 起到了 标识符的作用�
     else:
         return title
 
+
 def add___between_ugHGU_and_ray(Uz_name, ugHGU, ray):
     return Uz_name.replace(ugHGU + ray, ugHGU + "_" + ray)
 
-
     # %%
+
+
 # 生成 part_1 （被 分隔符 分隔的 第一个） 字符串
-def gan_seq(U_name, is_add_sequence, # 就 2 功能，加序号，减 method_and_way
+def gan_seq(U_name, is_add_sequence,  # 就 2 功能，加序号，减 method_and_way
             **kwargs, ):  # kwargs 是 “suffix”
 
     # ugHGU = find_NOT_nums(U_name.split('_')[0])[0]
@@ -154,7 +162,7 @@ def gan_seq(U_name, is_add_sequence, # 就 2 功能，加序号，减 method_and
 
         if "suffix" in kwargs:  # 如果 还传入了 后缀 "_phase" 或 '_amp'
             suffix = kwargs["suffix"]
-            if suffix == '_amp' or suffix == '_amp_error' or suffix == '_energy' :
+            if suffix == '_amp' or suffix == '_amp_error' or suffix == '_energy':
                 seq += '1.'
             elif suffix == '_phase' or suffix == '_phase_error':
                 seq += '2.'
@@ -168,7 +176,7 @@ def gan_seq(U_name, is_add_sequence, # 就 2 功能，加序号，减 method_and
 def gan_Uz_name(U_name, is_add_sequence, **kwargs, ):  # args 是 z 或 () 和 suffix
 
     U_name_no_seq, method_and_way, Part_2, ugHGU, ray = split_parts(U_name)
-    seq = gan_seq(U_name, is_add_sequence, **kwargs, ) # is_add_sequence 模为 1 即有 seq
+    seq = gan_seq(U_name, is_add_sequence, **kwargs, )  # is_add_sequence 模为 1 即有 seq
     U_new_name = seq + U_name_no_seq
     # %%
     # 查找 含 z 的 字符串 part_z
@@ -189,7 +197,7 @@ def gan_Uz_name(U_name, is_add_sequence, **kwargs, ):  # args 是 z 或 () 和 s
 def gan_Uz_plot_address(folder_address, img_name_extension,
                         U_name, suffix, **kwargs):
     Uz_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 1, suffix=suffix,
-                                                                            **kwargs, )  # 要加 序列号 # 有 method 和 suffix
+                                                                             **kwargs, )  # 要加 序列号 # 有 method 和 suffix
     Uz_name += suffix if suffix not in U_name else ""
     Uz_name = add___between_ugHGU_and_ray(Uz_name, ugHGU, ray)
     Uz_full_name = Uz_name + img_name_extension
@@ -200,11 +208,12 @@ def gan_Uz_plot_address(folder_address, img_name_extension,
 
 def gan_Uz_title(U_name, suffix, **kwargs):
     Uz_title, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, suffix=suffix,
-                                                                             **kwargs, )  # 不加 序列号 # 有 method 和 suffix
+                                                                              **kwargs, )  # 不加 序列号 # 有 method 和 suffix
     Uz_title += suffix if suffix not in U_name else ""
     Uz_title = subscript_ray(Uz_title, ugHGU, ray)
     Uz_title = subscript_way(Uz_title, method_and_way)
     return Uz_title
+
 
 def gan_Uz_save_address(U_name, folder_address, is_save_txt,
                         **kwargs):
@@ -214,6 +223,7 @@ def gan_Uz_save_address(U_name, folder_address, is_save_txt,
     file_name = U_full_name + (is_save_txt and ".txt" or ".mat")
     U_address = folder_address + "\\" + file_name
     return U_address, ugHGU
+
 
 def gan_Uz_dir_address(U_name, **kwargs, ):
     folder_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, -1,
@@ -226,34 +236,45 @@ def gan_Uz_dir_address(U_name, **kwargs, ):
         folder_address = desktop + "\\" + folder_name
     return folder_address
 
+
 # %%
 
-def U_energy_print(U_receive, U_name, is_print, # 外面的 **kwargs 可能传进 “U” 这个关键字，所以...用 U_receive 代替 实参名 U
+def U_energy_print(U_receive, U_name, is_print,  # 外面的 **kwargs 可能传进 “U” 这个关键字，所以...用 U_receive 代替 实参名 U
                    **kwargs, ):  # kwargs 是 z
 
-    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
+    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0,
+                                                                                 **kwargs, )  # 不加 序列号 # 要有 method （诸如 'AST'）
 
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".total_energy = {}"
-                       .format(format(np.sum(np.abs(U_receive) ** 2), Get("F_E")))) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+                       .format(format(np.sum(np.abs(U_receive) ** 2), Get("F_E"))))  # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+
 
 def U_rsd_print(U_receive, U_name, is_print,
                 **kwargs, ):  # kwargs 是 z
 
-    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
+    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0,
+                                                                                 **kwargs, )  # 不加 序列号 # 要有 method （诸如 'AST'）
 
-    is_print and is_print-1 and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".rsd = {}"
-                                      .format(format(np.std(np.abs(U_receive)) / np.mean(np.abs(U_receive)), Get("F_E")))) # is_print 是 1 和 0 都不行，得是 2 等才行...
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    is_print and is_print - 1 and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".rsd = {}"
+                                        .format(
+        format(np.std(np.abs(U_receive)) / np.mean(np.abs(U_receive)), Get("F_E"))))  # is_print 是 1 和 0 都不行，得是 2 等才行...
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-def U_custom_print(U_receive, U_name, custom_info, is_print, # 外面的 **kwargs 可能传进 “U” 这个关键字，所以...用 U_receive 代替 实参名 U
+
+def U_custom_print(U_receive, U_name, custom_info, is_print,  # 外面的 **kwargs 可能传进 “U” 这个关键字，所以...用 U_receive 代替 实参名 U
                    **kwargs, ):  # kwargs 是 z
 
-    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0, **kwargs, ) # 不加 序列号 # 要有 method （诸如 'AST'）
+    U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0,
+                                                                                 **kwargs, )  # 不加 序列号 # 要有 method （诸如 'AST'）
 
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + "." + custom_info + " = {}"
-                       .format(format(U_receive, Get("F_E")))) # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+                       .format(format(U_receive, Get("F_E"))))  # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+
 
 # %%
 
@@ -268,44 +289,44 @@ def U_dir(U_name, is_save,
 
     return folder_address
 
+
 # %%
 
 def U_amp_plot_address_and_title(U_name, folder_address, img_name_extension,
-                                 **kwargs, ): # kwargs 是 z
+                                 **kwargs, ):  # kwargs 是 z
     # %%
     # 绘制 U_amp
     suffix = '_amp'
     # %%
     # 生成 要储存的 图片名 和 地址
     U_amp_full_name, U_amp_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
-                                                            U_name, suffix, **kwargs)
+                                                              U_name, suffix, **kwargs)
     # %%
     # 生成 图片中的 title
     U_amp_title = gan_Uz_title(U_name, suffix, **kwargs)  # 增加 后缀 "_amp" 或 "_phase"
 
-
     return U_amp_plot_address, U_amp_title
 
 
-#%%
+# %%
 
 def U_amp_error_plot_address_and_title(U_name, folder_address, img_name_extension,
-                                 **kwargs, ): # kwargs 是 z
+                                       **kwargs, ):  # kwargs 是 z
     # %%
     # 绘制 U_amp
     suffix = '_amp_error'
     # %%
     # 生成 要储存的 图片名 和 地址
     U_amp_error_full_name, U_amp_error_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
-                                                            U_name, suffix, **kwargs)
+                                                                          U_name, suffix, **kwargs)
     # %%
     # 生成 图片中的 title
     U_amp_error_title = gan_Uz_title(U_name, suffix, **kwargs)  # 增加 后缀 "_amp" 或 "_phase"
 
-
     return U_amp_error_plot_address, U_amp_error_title
 
-#%%
+
+# %%
 
 def U_phase_plot_address_and_title(U_name, folder_address, img_name_extension,
                                    **kwargs, ):
@@ -315,29 +336,31 @@ def U_phase_plot_address_and_title(U_name, folder_address, img_name_extension,
     # %%
     # 生成 要储存的 图片名 和 地址
     U_phase_full_name, U_phase_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
-                                                            U_name, suffix, **kwargs)
+                                                                  U_name, suffix, **kwargs)
     # %%
     # 生成 图片中的 title
     U_phase_title = gan_Uz_title(U_name, suffix, **kwargs)  # 增加 后缀 "_amp" 或 "_phase"
 
     return U_phase_plot_address, U_phase_title
 
-#%%
+
+# %%
 
 def U_phase_error_plot_address_and_title(U_name, folder_address, img_name_extension,
-                                   **kwargs, ):
+                                         **kwargs, ):
     # %%
     # 绘制 U_phase
     suffix = '_phase_error'
     # %%
     # 生成 要储存的 图片名 和 地址
     U_phase_error_full_name, U_phase_error_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
-                                                            U_name, suffix, **kwargs)
+                                                                              U_name, suffix, **kwargs)
     # %%
     # 生成 图片中的 title
     U_phase_error_title = gan_Uz_title(U_name, suffix, **kwargs)  # 增加 后缀 "_amp" 或 "_phase"
 
     return U_phase_error_plot_address, U_phase_error_title
+
 
 # %%
 
@@ -367,29 +390,31 @@ def U_amp_plot(folder_address,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
             is_self_colorbar, is_colorbar_on, is_energy,
-            **kwargs )
+            **kwargs)
 
     return U_amp_plot_address, U_amp_title
 
-#%%
+
+# %%
 
 def U_amp_error_plot(folder_address,
-               U, U_name,
-               img_name_extension,
-               # %%
-               zj, sample, size_PerPixel,
-               is_save, dpi, size_fig,
-               # %%
-               cmap_2d, ticks_num, is_contourf,
-               is_title_on, is_axes_on, is_mm, is_propagation,
-               fontsize, font,
-               # %%
-               is_self_colorbar, is_colorbar_on, is_energy,
-               # %%
-               **kwargs, ):  # args 是 z 或 ()
+                     U, U_name,
+                     img_name_extension,
+                     # %%
+                     zj, sample, size_PerPixel,
+                     is_save, dpi, size_fig,
+                     # %%
+                     cmap_2d, ticks_num, is_contourf,
+                     is_title_on, is_axes_on, is_mm, is_propagation,
+                     fontsize, font,
+                     # %%
+                     is_self_colorbar, is_colorbar_on, is_energy,
+                     # %%
+                     **kwargs, ):  # args 是 z 或 ()
 
-    U_amp_error_plot_address, U_amp_error_title = U_amp_error_plot_address_and_title(U_name, folder_address, img_name_extension,
-                                                                   **kwargs, )
+    U_amp_error_plot_address, U_amp_error_title = U_amp_error_plot_address_and_title(U_name, folder_address,
+                                                                                     img_name_extension,
+                                                                                     **kwargs, )
     # %%
 
     plot_2d(zj, sample, size_PerPixel,
@@ -399,9 +424,10 @@ def U_amp_error_plot(folder_address,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
             is_self_colorbar, is_colorbar_on, is_energy,
-            **kwargs )
+            **kwargs)
 
     return U_amp_error_plot_address, U_amp_error_title
+
 
 # %%
 
@@ -431,29 +457,31 @@ def U_phase_plot(folder_address,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
             is_self_colorbar, is_colorbar_on, 0,
-            **kwargs )  # 相位 不能有 is_energy = 1
+            **kwargs)  # 相位 不能有 is_energy = 1
 
     return U_phase_plot_address, U_phase_title
 
-#%%
+
+# %%
 
 def U_phase_error_plot(folder_address,
-                 U, U_name,
-                 img_name_extension,
-                 # %%
-                 zj, sample, size_PerPixel,
-                 is_save, dpi, size_fig,
-                 # %%
-                 cmap_2d, ticks_num, is_contourf,
-                 is_title_on, is_axes_on, is_mm, is_propagation,
-                 fontsize, font,
-                 # %%
-                 is_self_colorbar, is_colorbar_on,
-                 # %%
-                 **kwargs, ):  # args 是 z 或 ()
+                       U, U_name,
+                       img_name_extension,
+                       # %%
+                       zj, sample, size_PerPixel,
+                       is_save, dpi, size_fig,
+                       # %%
+                       cmap_2d, ticks_num, is_contourf,
+                       is_title_on, is_axes_on, is_mm, is_propagation,
+                       fontsize, font,
+                       # %%
+                       is_self_colorbar, is_colorbar_on,
+                       # %%
+                       **kwargs, ):  # args 是 z 或 ()
 
-    U_phase_error_plot_address, U_phase_error_title = U_phase_error_plot_address_and_title(U_name, folder_address, img_name_extension,
-                                                                         **kwargs, )
+    U_phase_error_plot_address, U_phase_error_title = U_phase_error_plot_address_and_title(U_name, folder_address,
+                                                                                           img_name_extension,
+                                                                                           **kwargs, )
     # %%
 
     plot_2d(zj, sample, size_PerPixel,
@@ -463,9 +491,10 @@ def U_phase_error_plot(folder_address,
             is_title_on, is_axes_on, is_mm, is_propagation,
             fontsize, font,
             is_self_colorbar, is_colorbar_on, 0,
-            **kwargs )  # 相位 不能有 is_energy = 1
+            **kwargs)  # 相位 不能有 is_energy = 1
 
     return U_phase_error_plot_address, U_phase_error_title
+
 
 # %%
 
@@ -516,22 +545,23 @@ def U_plot(folder_address,
 
     return U_amp_plot_address, U_phase_plot_address
 
-#%%
+
+# %%
 
 def U_error_plot(folder_address,
-           U, U_0, ugHGU,
-           img_name_extension,
-           # %%
-           sample, size_PerPixel,
-           is_save, dpi, size_fig,
-           # %%
-           cmap_2d, ticks_num, is_contourf,
-           is_title_on, is_axes_on, is_mm,
-           fontsize, font,
-           # %%
-           is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-           # %%                          何况 一般默认 is_self_colorbar = 1...
-           **kwargs, ):  # args 是 z 或 ()
+                 U, U_0, ugHGU,
+                 img_name_extension,
+                 # %%
+                 sample, size_PerPixel,
+                 is_save, dpi, size_fig,
+                 # %%
+                 cmap_2d, ticks_num, is_contourf,
+                 is_title_on, is_axes_on, is_mm,
+                 fontsize, font,
+                 # %%
+                 is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                 # %%                          何况 一般默认 is_self_colorbar = 1...
+                 **kwargs, ):  # args 是 z 或 ()
 
     from fun_global_var import fkey
 
@@ -539,36 +569,37 @@ def U_error_plot(folder_address,
     U_phase_error = np.abs(U) - np.angle(U_0)
 
     U_amp_error_plot_address = U_amp_error_plot(folder_address,
-                                    U_amp_error, fkey(ugHGU),
-                                    img_name_extension,
-                                    # %%
-                                    [], sample, size_PerPixel,
-                                    is_save, dpi, size_fig,
-                                    # %%
-                                    cmap_2d, ticks_num, is_contourf,
-                                    is_title_on, is_axes_on, is_mm, 0,
-                                    fontsize, font,
-                                    # %%
-                                    0, is_colorbar_on, is_energy,
-                                    # %% 何况 一般默认 is_self_colorbar = 1...
-                                    **kwargs, )
+                                                U_amp_error, fkey(ugHGU),
+                                                img_name_extension,
+                                                # %%
+                                                [], sample, size_PerPixel,
+                                                is_save, dpi, size_fig,
+                                                # %%
+                                                cmap_2d, ticks_num, is_contourf,
+                                                is_title_on, is_axes_on, is_mm, 0,
+                                                fontsize, font,
+                                                # %%
+                                                0, is_colorbar_on, is_energy,
+                                                # %% 何况 一般默认 is_self_colorbar = 1...
+                                                **kwargs, )
 
     U_phase_error_plot_address = U_phase_error_plot(folder_address,
-                                        U_phase_error, fkey(ugHGU),
-                                        img_name_extension,
-                                        # %%
-                                        [], sample, size_PerPixel,
-                                        is_save, dpi, size_fig,
-                                        # %%
-                                        cmap_2d, ticks_num, is_contourf,
-                                        is_title_on, is_axes_on, is_mm, 0,
-                                        fontsize, font,
-                                        # %%
-                                        0, is_colorbar_on,
-                                        # %% 何况 一般默认 is_self_colorbar = 1...
-                                        **kwargs, )
+                                                    U_phase_error, fkey(ugHGU),
+                                                    img_name_extension,
+                                                    # %%
+                                                    [], sample, size_PerPixel,
+                                                    is_save, dpi, size_fig,
+                                                    # %%
+                                                    cmap_2d, ticks_num, is_contourf,
+                                                    is_title_on, is_axes_on, is_mm, 0,
+                                                    fontsize, font,
+                                                    # %%
+                                                    0, is_colorbar_on,
+                                                    # %% 何况 一般默认 is_self_colorbar = 1...
+                                                    **kwargs, )
 
     return U_amp_error_plot_address, U_phase_error_plot_address
+
 
 # %%
 
@@ -591,7 +622,8 @@ def U_plot_save(U, U_name, is_print,
                        **kwargs, )
     elif is_print == 2:
         is_end, add_level = kwargs.get("is_end", 0), kwargs.get("add_level", 0)
-        kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+        kwargs.pop("is_end", None);
+        kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
         U_energy_print(U, U_name, is_print,
                        **kwargs, )
@@ -623,13 +655,14 @@ def U_plot_save(U, U_name, is_print,
     # %%
     # 储存 U 到 txt 文件
 
-    U_save(U, U_name, folder_address,
-           is_save, is_save_txt, **kwargs, )
+    U_address, ugHGU = U_save(U, U_name, folder_address,
+                                is_save, is_save_txt, **kwargs, )
 
     return folder_address
     # return folder_address, U_address, U_amp_plot_address, U_phase_plot_address
 
-#%%
+
+# %%
 
 def U_error_plot_save(U, U_0, ugHGU, is_print,
                       img_name_extension,
@@ -649,14 +682,15 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
 
     info = ugHGU + "_先取模或相位_后误差"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     U_error = U - U_0
     U_error_name = fkey(ugHGU) + "_error"
 
     folder_address = U_dir(U_error_name, is_save, **kwargs, )
 
-    #%%
+    # %%
     U_amp_error = np.abs(U) - np.abs(U_0)
     U_amp_error_name = fkey(ugHGU) + "_amp_error"
     U_energy_print(U_amp_error, U_amp_error_name, is_print,
@@ -682,25 +716,25 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
     # 绘图：U
 
     U_amp_error_plot_address, U_phase_error_plot_address = U_error_plot(folder_address,
-                                                      U, U_0, ugHGU,
-                                                      img_name_extension,
-                                                      # %%
-                                                      1, size_PerPixel,
-                                                      is_save, dpi, size_fig,
-                                                      cmap_2d, ticks_num, is_contourf,
-                                                      is_title_on, is_axes_on, is_mm,
-                                                      fontsize, font,
-                                                      is_colorbar_on, is_energy,
-                                                      # %%
-                                                      **kwargs, )
+                                                                        U, U_0, ugHGU,
+                                                                        img_name_extension,
+                                                                        # %%
+                                                                        1, size_PerPixel,
+                                                                        is_save, dpi, size_fig,
+                                                                        cmap_2d, ticks_num, is_contourf,
+                                                                        is_title_on, is_axes_on, is_mm,
+                                                                        fontsize, font,
+                                                                        is_colorbar_on, is_energy,
+                                                                        # %%
+                                                                        **kwargs, )
 
     # %%
     # 储存 U 到 txt 文件
 
-    U_save(U_amp_error, U_amp_error_name, folder_address,
-           is_save, is_save_txt, **kwargs, )
-    U_save(U_phase_error, U_phase_error_name, folder_address,
-           is_save, is_save_txt, **kwargs, )
+    U_address, ugHGU = U_save(U_amp_error, U_amp_error_name, folder_address,
+                               is_save, is_save_txt, **kwargs, )
+    U_address, ugHGU = U_save(U_phase_error, U_phase_error_name, folder_address,
+                                is_save, is_save_txt, **kwargs, )
 
     U_amp_error_energy = np.sum(np.abs(U_amp_error) ** 2)
     return folder_address, U_amp_error_energy
@@ -1692,7 +1726,7 @@ def U_SSI_plot(G_stored, G_name,
                                                        # %%
                                                        zj, z=z,
                                                        vmax=np.max([G_YZ_XZ_amp_max, G_amps_max]),
-                                                       vmin=np.min([G_YZ_XZ_amp_min, G_amps_min]),)
+                                                       vmin=np.min([G_YZ_XZ_amp_min, G_amps_min]), )
 
             # %%
             # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
@@ -1720,7 +1754,7 @@ def U_SSI_plot(G_stored, G_name,
                                                            # %%
                                                            zj, z=z,
                                                            vmax=np.max([G_YZ_XZ_phase_max, G_phases_max]),
-                                                           vmin=np.min([G_YZ_XZ_phase_min, G_phases_min]),)
+                                                           vmin=np.min([G_YZ_XZ_phase_min, G_phases_min]), )
 
         # %%
 
@@ -1800,18 +1834,23 @@ def U_SSI_plot(G_stored, G_name,
                                                            # %%
                                                            zj, z=z,
                                                            vmax=np.max([U_YZ_XZ_phase_max, U_phases_max]),
-                                                           vmin=np.min([U_YZ_XZ_phase_min, U_phases_min]),)
+                                                           vmin=np.min([U_YZ_XZ_phase_min, U_phases_min]), )
+
 
 # %%
 
 def U_save(U, U_name, folder_address,
            is_save, is_save_txt, **kwargs, ):
     U_address, ugHGU = gan_Uz_save_address(U_name, folder_address, is_save_txt,
-                                            **kwargs)
+                                           **kwargs)
     if is_save == 1:
         np.savetxt(U_address, U) if is_save_txt else savemat(U_address, {ugHGU: U})
 
-    return U_address
+        txt_address = folder_address + "\\" + "data_names.txt"
+        with open(txt_address, "a+") as txt: # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
+            txt.write(ugHGU + ' ; ' + U_name + ' ; ' + U_address + "\n")
+
+    return U_address, ugHGU
 
 
 # %%
@@ -1829,14 +1868,15 @@ def U_energy_plot(folder_address,
     # %%
     # 绘制 U_amp
     suffix = kwargs.get("suffix", "_energy")
-    if "suffix" in kwargs: kwargs.pop("suffix") # 及时删除 "suffix" 键，以使之后 不重复
+    if "suffix" in kwargs: kwargs.pop("suffix")  # 及时删除 "suffix" 键，以使之后 不重复
     # %%
     # 生成 要储存的 图片名 和 地址
     U_energy_full_name, U_energy_plot_address = gan_Uz_plot_address(folder_address, img_name_extension,
                                                                     U_name, suffix, **kwargs)
     # %%
     # 生成 图片中的 title
-    U_energy_title = gan_Uz_title(U_name, suffix, **kwargs) # 增加 后缀 "_evolution" （才怪，suffix 只 help 辅助 加 5.1 这种序号，原 U_name 里已有 _energy 了）
+    U_energy_title = gan_Uz_title(U_name, suffix,
+                                  **kwargs)  # 增加 后缀 "_evolution" （才怪，suffix 只 help 辅助 加 5.1 这种序号，原 U_name 里已有 _energy 了）
     # %%
 
     plot_1d(zj, sample, size_PerPixel,
@@ -1849,24 +1889,27 @@ def U_energy_plot(folder_address,
 
     return U_energy_plot_address
 
-def U_error_energy_plot(U, l2, U_name,
-                      img_name_extension,
-                      # %%
-                      zj, ax2_xticklabel, sample, size_PerPixel,
-                      is_save, dpi, size_fig_x, size_fig_y,
-                      # %%
-                      color_1d, color_1d2,
-                      ticks_num, is_title_on, is_axes_on, is_mm,
-                      fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
-                      # %%
-                      z, **kwargs, ):
-    suffix = '_distribution_error'
+
+def U_error_energy_plot_save(U, l2, U_name,
+                            img_name_extension, is_save_txt,
+                            # %%
+                            zj, ax2_xticklabel, sample, size_PerPixel,
+                            is_save, dpi, size_fig_x, size_fig_y,
+                            # %%
+                            color_1d, color_1d2,
+                            ticks_num, is_title_on, is_axes_on, is_mm,
+                            fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                            # %%
+                            z, **kwargs, ):
+    title_suffix = '_distribution_error'
 
     if is_save == 2:
         is_save = 1
-    folder_address = U_dir(U_name + suffix, is_save,
+    folder_address = U_dir(U_name + title_suffix, is_save,
                            z=z, **kwargs, )
 
+    label1 = "energy"
+    label2 = "distribution_error"
     U_energy_plot(folder_address,
                   U, U_name,
                   img_name_extension,
@@ -1877,39 +1920,59 @@ def U_error_energy_plot(U, l2, U_name,
                   is_title_on, is_axes_on, is_mm,
                   fontsize, font,
                   # %%
-                  z=z, suffix=suffix,
+                  z=z, suffix=title_suffix,
                   # %%
                   l2=l2, color_1d2=color_1d2,
-                  label="energy", ax1_xticklabel=zj, # 强迫 ax1 的 x 轴标签 保持原样
-                  label2="distribution_error", ax2_xticklabel=ax2_xticklabel, **kwargs, )
+                  label=label1, ax1_xticklabel=zj,  # 强迫 ax1 的 x 轴标签 保持原样
+                  label2=label2, ax2_xticklabel=ax2_xticklabel, **kwargs, )
+
+    U_address, ugHGU = U_save(U, U_name + "_" + label1, folder_address,
+                               is_save, is_save_txt,
+                               z=z, **kwargs, )
+
+    U_address, ugHGU = U_save(l2, U_name + "_" + label2, folder_address,
+                               is_save, is_save_txt,
+                               z=z, **kwargs, )
+
+    U_address, ugHGU = U_save(zj, U_name + "_" + "dkQ", folder_address,
+                              is_save, is_save_txt,
+                              z=z, **kwargs, )
+
+    U_address, ugHGU = U_save(ax2_xticklabel, U_name + "_" + "Tz", folder_address,
+                              is_save, is_save_txt,
+                              z=z, **kwargs, )
 
 
-def U_twin_energy_error_plot(U, l2, U_name,
-                      img_name_extension,
-                      # %%
-                      zj, zj2, sample, size_PerPixel,
-                      is_save, dpi, size_fig_x, size_fig_y,
-                      # %%
-                      color_1d, color_1d2,
-                      ticks_num, is_title_on, is_axes_on, is_mm,
-                      fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
-                      # %%
-                      z, **kwargs, ):
+
+
+def U_twin_energy_error_plot_save(U, l2, U_name,
+                                 img_name_extension, is_save_txt,
+                                 # %%
+                                 zj, zj2, sample, size_PerPixel,
+                                 is_save, dpi, size_fig_x, size_fig_y,
+                                 # %%
+                                 color_1d, color_1d2,
+                                 ticks_num, is_title_on, is_axes_on, is_mm,
+                                 fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                                 # %%
+                                 z, **kwargs, ):
     if kwargs.get("is_energy_normalized", False) == 1:
-        U = U/np.max(U)
+        U = U / np.max(U)
         l2 = l2 / np.max(l2)
-        suffix = '_energy_normalized - compare'
+        title_suffix = '_energy_normalized - compare'
     elif kwargs.get("is_energy_normalized", False) == 2:
         l2 = l2 / l2[-1] * U[-1]
-        suffix = '_energy_sync - compare'
+        title_suffix = '_energy_sync - compare'
     else:
-        suffix = '_energy - compare'
+        title_suffix = '_energy - compare'
 
     if is_save == 2:
         is_save = 1
-    folder_address = U_dir(U_name + suffix, is_save,
+    folder_address = U_dir(U_name + title_suffix, is_save,
                            z=z, **kwargs, )
 
+    label1 = "SSI_energy"
+    label2 = "EVV_energy"
     U_energy_plot(folder_address,
                   U, U_name,
                   img_name_extension,
@@ -1920,39 +1983,58 @@ def U_twin_energy_error_plot(U, l2, U_name,
                   is_title_on, is_axes_on, is_mm,
                   fontsize, font,
                   # %%
-                  z=z, suffix=suffix,
+                  z=z, suffix=title_suffix,
                   # %%
                   l2=l2, color_1d2=color_1d2,
-                  label="energy_SSI", label2="energy_EVV",
+                  label=label1, label2=label2,
                   zj2=zj2, **kwargs, )
 
+    U_address, ugHGU = U_save(U, U_name + "_" + label1, folder_address,
+                               is_save, is_save_txt,
+                               z=z, **kwargs, )
 
-def U_twin_error_energy_plot(U, l2, l3, U_name,
-                              img_name_extension,
-                              # %%
-                              zj, zj2, sample, size_PerPixel,
-                              is_save, dpi, size_fig_x, size_fig_y,
-                              # %%
-                              color_1d, color_1d2,
-                              ticks_num, is_title_on, is_axes_on, is_mm,
-                              fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
-                              # %%
-                              z, **kwargs, ):
+    U_address, ugHGU = U_save(l2, U_name + "_" + label2, folder_address,
+                               is_save, is_save_txt,
+                               z=z, **kwargs, )
+
+    U_address, ugHGU = U_save(zj, U_name + "_" + "zj_SSI", folder_address,
+                              is_save, is_save_txt,
+                              z=z, **kwargs, )
+
+    U_address, ugHGU = U_save(zj2, U_name + "_" + "zj_EVV", folder_address,
+                              is_save, is_save_txt,
+                              z=z, **kwargs, )
+
+
+def U_twin_error_energy_plot_save(U, l2, l3, U_name,
+                                 img_name_extension, is_save_txt,
+                                 # %%
+                                 zj, zj2, sample, size_PerPixel,
+                                 is_save, dpi, size_fig_x, size_fig_y,
+                                 # %%
+                                 color_1d, color_1d2,
+                                 ticks_num, is_title_on, is_axes_on, is_mm,
+                                 fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                                 # %%
+                                 z, **kwargs, ):
     if kwargs.get("is_energy_normalized", False) == 1:
-        U = U/np.max(U)
+        U = U / np.max(U)
         l2 = l2 / np.max(l2)
-        suffix = '_energy_normalized & error - compare'
+        title_suffix = '_energy_normalized & error - compare'
     elif kwargs.get("is_energy_normalized", False) == 2:
         l2 = l2 / l2[-1] * U[-1]
-        suffix = '_energy_sync & error - compare'
+        title_suffix = '_energy_sync & error - compare'
     else:
-        suffix = '_energy & error - compare'
+        title_suffix = '_energy & error - compare'
 
     if is_save == 2:
         is_save = 1
-    folder_address = U_dir(U_name + suffix, is_save,
+    folder_address = U_dir(U_name + title_suffix, is_save,
                            z=z, **kwargs, )
 
+    label1 = "SSI_energy"
+    label2 = "EVV_energy"
+    label3 = "distribution_error"
     U_energy_plot(folder_address,
                   U, U_name,
                   img_name_extension,
@@ -1963,12 +2045,33 @@ def U_twin_error_energy_plot(U, l2, l3, U_name,
                   is_title_on, is_axes_on, is_mm,
                   fontsize, font,
                   # %%
-                  z=z, suffix=suffix,
+                  z=z, suffix=title_suffix,
                   # %%
                   l2=l2, color_1d2=color_1d2,
-                  label="energy_SSI", label2="energy_EVV",
-                  l3=l3, label3="distribution_error",
+                  label=label1, label2=label2,
+                  l3=l3, label3=label3,
                   zj2=zj2, **kwargs, )
+
+    U_address, ugHGU = U_save(U, U_name + "_" + label1, folder_address,
+                               is_save, is_save_txt,
+                               z=z, **kwargs, )
+
+    U_address, ugHGU = U_save(l2, U_name + "_" + label2, folder_address,
+                               is_save, is_save_txt,
+                               z=z, **kwargs, )
+
+    U_address, ugHGU = U_save(l3, U_name + "_" + label3, folder_address,
+                               is_save, is_save_txt,
+                               z=z, **kwargs, )
+
+    U_address, ugHGU = U_save(zj, U_name + "_" + "zj_SSI", folder_address,
+                              is_save, is_save_txt,
+                              z=z, **kwargs, )
+
+    U_address, ugHGU = U_save(zj2, U_name + "_" + "zj_EVV", folder_address,
+                              is_save, is_save_txt,
+                              z=z, **kwargs, )
+
 
 # %%
 
