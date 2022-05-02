@@ -24,8 +24,11 @@ def init_GLV():
     if GLV_init_times == 0:  # 只在第一次初始化的时候，才初始化
         global GLOBALS_DICT
         GLOBALS_DICT = {}
+        # %% 初始化 一些值
+        GLOBALS_DICT["F_E"] = ".2e" # scientific_notation
+        GLOBALS_DICT["F_f"] = ".2f"
+        GLOBALS_DICT["f_f"] = "%.2f" # 小数记数
     GLV_init_times += 1
-
 
 # %%
 
@@ -86,9 +89,6 @@ def init_GLV_tree_print():
 
     # %%
     init_GLV()
-    Set("F_E", ".2e")  # scientific_notation
-    Set("F_f", ".2f")
-    Set("f_f", "%.2f")  # 小数记数
     if "tree_print" not in GLOBALS_DICT:
         Set("tree_print", [])
         Get("tree_print").append(".")  # ["."]

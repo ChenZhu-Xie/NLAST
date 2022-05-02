@@ -184,10 +184,13 @@ def gan_Uz_name(U_name, is_add_sequence, **kwargs, ):  # args 是 z 或 () 和 s
     if (U_name.find('z') != -1 or U_name.find('Z') != -1) and 'z' in kwargs:
         # 如果 找到 z 或 Z，且 传了 额外的 参数 进来，这个参数 解包后的 第一个参数 不是 空 tuple ()
         z = kwargs['z']
-        U_new_name = U_new_name.replace(part_z, str(float(Get('f_f') % z)) + "mm")
+        # print(U_name, z, part_z)
+        part_z_context = "_" + part_z # 需要 含 z 上下文 整体替换，否则 可能 误替换了 所有含 z 的 字符串
+        part_z_format = "_" + str(float(Get('f_f') % z)) + "mm" # Set('f_f') 首先得 初始化好
+        U_new_name = U_new_name.replace(part_z_context, part_z_format, 1) # 只替换 找到的 第一个 匹配项
         # 原版是 str(float('%.2g' % z))，还用过 format(z, Get("F_E"))、float(format(z, Get('F_E')))，这后两个 也得加 str
         # 把 原来含 z 的 part_z 替换为 str(float('%.2g' % z)) + "mm"
-
+    # print(U_new_name)
     if is_add_sequence < 0:  # is_add_sequence >= 0 即有 method_and_way = method + way
         U_new_name = U_new_name.replace(method_and_way + " - ", "")
 
@@ -228,6 +231,7 @@ def gan_Uz_save_address(U_name, folder_address, is_save_txt,
 def gan_Uz_dir_address(U_name, **kwargs, ):
     folder_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, -1,
                                                                                  **kwargs, )  # 要加 序列号 # 没有 method （诸如 'AST'）
+    # print(folder_name)
     folder_name = add___between_ugHGU_and_ray(folder_name, ugHGU, ray)
     desktop = get_desktop()
     if "p_dir" in kwargs:
@@ -282,6 +286,7 @@ def U_dir(U_name, is_save,
           **kwargs, ):  # kwargs 是 z
 
     folder_address = gan_Uz_dir_address(U_name, **kwargs, )
+    # print(folder_address)
 
     if is_save == 1:
         if not os.path.isdir(folder_address):
@@ -774,17 +779,28 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                                  z=z, )
 
     if is_energy_evolution_on == 1:
+        size_fig_x, size_fig_y = size_fig * kwargs.get("size_fig_x_scale", 10), \
+                                 size_fig * kwargs.get("size_fig_y_scale", 1)
+        suffix = "_energy"
+
         U_energy_plot_address = U_energy_plot(folder_address,
-                                              G_energy, G_name + "_energy",
+                                              G_energy, G_name + suffix,
                                               img_name_extension,
                                               # %%
                                               zj, sample, size_PerPixel,
-                                              is_save, dpi, size_fig * 10, size_fig,
+                                              is_save, dpi, size_fig_x, size_fig_y,
                                               color_1d, ticks_num,
                                               is_title_on, is_axes_on, is_mm,
                                               fontsize, font,
                                               # %%
                                               z=z, )
+        U_address, ugHGU = U_save(G_energy, G_name + suffix, folder_address,
+                                  is_save, is_save_txt,
+                                  z=z, suffix=suffix, **kwargs, )
+        suffix = "_" + "zj"
+        U_address, ugHGU = U_save(zj, G_name + suffix, folder_address,
+                                  is_save, is_save_txt,
+                                  z=z, suffix=suffix, **kwargs, )
 
     folder_address = U_plot_save(H, H_name, 0,
                                  img_name_extension,
@@ -820,13 +836,20 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                                               img_name_extension,
                                               # %%
                                               zj, sample, size_PerPixel,
-                                              is_save, dpi, size_fig * 10, size_fig,
+                                              is_save, dpi, size_fig_x, size_fig_y,
                                               color_1d, ticks_num,
                                               is_title_on, is_axes_on, is_mm,
                                               fontsize, font,
                                               # %%
                                               z=z, )
+        U_address, ugHGU = U_save(U_energy, U_name + suffix, folder_address,
+                                  is_save, is_save_txt,
+                                  z=z, suffix=suffix, **kwargs, )
 
+        suffix = "_" + "zj"
+        U_address, ugHGU = U_save(zj, U_name + suffix, folder_address,
+                                  is_save, is_save_txt,
+                                  z=z, suffix=suffix, **kwargs, )
 
 # %%
 
@@ -1839,6 +1862,35 @@ def U_SSI_plot(G_stored, G_name,
 
 # %%
 
+def gan_Data_Seq(txt, folder_address):
+    txt.seek(0)  # 光标移到 txt 开头
+    whole_text = txt.read() # 这句话后，光标 已经 移到末尾
+    txt.seek(0)  # 光标再移到 txt 开头（这个是真的坑）
+    lines = txt.readlines()
+    # txt.seek(2)  # 光标移到 txt 末尾（不必了，其实 已经移到 末尾了）
+    data_seq = 0
+    if folder_address in whole_text:  # 如果 folder_address 在以前的 记录中 出现过
+        for i in range(len(lines)):
+            line = lines[i]
+            line = line[:-1]
+            if folder_address in line:  # 从上往下，获得 记录中 第一次出现，所在行 的 dir_seq
+                data_seq += 1 # 依据：不会有 2 个 数据，储存在同一个 python 生成的 mat 文件中，txt 倒是可能。。。
+                Data_Seq = line.split(' ; ')[0]
+                dir_seq = Data_Seq.split('.')[0]
+            # elif data_seq > 0:  # 如果 line 里没有 folder_address，但 data_seq 又 > 0，
+            #     # 说明 曾有过 folder_address 但结束了，所以后续 不会再有了，所以 直接退出。（）
+            #     # 如果 line 里没有 folder_address，但 data_seq 又 = 0，说明还没到，继续 for 循环，不 break
+            #     break # 若 特殊情况，间隔一段 不同后，后续 还有 folder_address 相同，则 for 循环 必须执行到 末尾
+    elif len(lines) > 0:  # 如果 folder_address 在以前的 记录中 没出现过，但已经有数据记录
+        line = lines[-1]
+        Data_Seq = line.split(' ; ')[0]
+        dir_seq = Data_Seq.split('.')[0]  # 获取 最后一行 的 dir_seq
+        dir_seq = str(int(dir_seq) + 1)  # 把它加 1，作为 序数
+    else:
+        dir_seq = str(len(lines))  # str(0) 也行
+    Data_Seq = dir_seq + '.' + str(data_seq)  # 更新 Data_Seq
+    return Data_Seq
+
 def U_save(U, U_name, folder_address,
            is_save, is_save_txt, **kwargs, ):
     U_address, ugHGU = gan_Uz_save_address(U_name, folder_address, is_save_txt,
@@ -1846,12 +1898,52 @@ def U_save(U, U_name, folder_address,
     if is_save == 1:
         np.savetxt(U_address, U) if is_save_txt else savemat(U_address, {ugHGU: U})
 
+        txt_address = get_desktop() + "\\" + "data_dir_names.txt"
+        with open(txt_address, "a+") as txt:  # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
+            Data_Seq = gan_Data_Seq(txt, folder_address)
+            txt.write(Data_Seq + ' ; ' +
+                      folder_address + ' ; ' + U_address + "\n")
+
         txt_address = folder_address + "\\" + "data_names.txt"
         with open(txt_address, "a+") as txt: # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
-            txt.write(ugHGU + ' ; ' + U_name + ' ; ' + U_address + "\n")
+            # z_str = (' ; ' + str(kwargs['z'])) if 'z' in kwargs else '' # 空容易报错
+            # U_name_no_suffix = (' ; ' + U_name.replace(kwargs['suffix'], '')) if 'suffix' in kwargs else ''
+            z_str = ' ; ' + (str(kwargs['z']) if 'z' in kwargs else 'z')
+            U_name_no_suffix = ' ; ' + (U_name.replace(kwargs['suffix'], '') if 'suffix' in kwargs else 'U_name_no_suffix')
+            txt.write(Data_Seq + ' ; ' +
+                      ugHGU + ' ; ' + U_name + ' ; ' + U_address +
+                      z_str + U_name_no_suffix + "\n")
 
     return U_address, ugHGU
 
+def get_Data_address(Data_Seq):
+    txt_address = get_desktop() + "\\" + "data_dir_names.txt"
+    with open(txt_address, "r") as txt:
+        lines = txt.readlines()  # 注意是 readlines 不是 readline，否则 只读了 一行，而不是 所有行 构成的 列表
+        # lines = lines[:-1] # 把 最后一行 的 换行 去掉（不用去了，每个 \n 包含在上一行了）
+    Data_Seq = str(Data_Seq) + (("." + "0") if '.' not in str(Data_Seq) else '') # 不加括号 有问题，也是醉了
+    str_list = []
+    for line in lines:
+        line = line[:-1]
+        # print(Data_Seq, line.split(' ; ')[0])
+        if Data_Seq == line.split(' ; ')[0]:
+            str_list = line.split(' ; ')
+            break
+    return str_list
+
+def get_Data_info(Data_Seq):
+    folder_address, U_address = get_Data_address(Data_Seq)
+    txt_address = folder_address + "\\" + "data_names.txt"
+    with open(txt_address, "r") as txt:
+        lines = txt.readlines()
+    Data_Seq = str(Data_Seq) + (("." + "0") if '.' not in str(Data_Seq) else '')
+    str_list = []
+    for line in lines:
+        line = line[:-1]
+        if Data_Seq == line.split(' ; ')[0]:
+            str_list = line.split(' ; ')
+            break
+    return str_list
 
 # %%
 
@@ -1926,21 +2018,25 @@ def U_error_energy_plot_save(U, l2, U_name,
                   label=label1, ax1_xticklabel=zj,  # 强迫 ax1 的 x 轴标签 保持原样
                   label2=label2, ax2_xticklabel=ax2_xticklabel, **kwargs, )
 
-    U_address, ugHGU = U_save(U, U_name + "_" + label1, folder_address,
-                               is_save, is_save_txt,
-                               z=z, **kwargs, )
-
-    U_address, ugHGU = U_save(l2, U_name + "_" + label2, folder_address,
-                               is_save, is_save_txt,
-                               z=z, **kwargs, )
-
-    U_address, ugHGU = U_save(zj, U_name + "_" + "dkQ", folder_address,
+    suffix = "_" + label1
+    U_address, ugHGU = U_save(U, U_name + suffix, folder_address,
                               is_save, is_save_txt,
-                              z=z, **kwargs, )
+                              z=z, suffix=suffix, **kwargs, )
 
-    U_address, ugHGU = U_save(ax2_xticklabel, U_name + "_" + "Tz", folder_address,
+    suffix = "_" + label2
+    U_address, ugHGU = U_save(l2, U_name + suffix, folder_address,
                               is_save, is_save_txt,
-                              z=z, **kwargs, )
+                              z=z, suffix=suffix, **kwargs, )
+
+    suffix = "_" + "dkQ"
+    U_address, ugHGU = U_save(zj, U_name + suffix, folder_address,
+                              is_save, is_save_txt,
+                              z=z, suffix=suffix, **kwargs, )
+
+    suffix = "_" + "Tz"
+    U_address, ugHGU = U_save(ax2_xticklabel, U_name + suffix, folder_address,
+                              is_save, is_save_txt,
+                              z=z, suffix=suffix, **kwargs, )
 
 
 
@@ -1989,21 +2085,25 @@ def U_twin_energy_error_plot_save(U, l2, U_name,
                   label=label1, label2=label2,
                   zj2=zj2, **kwargs, )
 
-    U_address, ugHGU = U_save(U, U_name + "_" + label1, folder_address,
+    suffix = "_" + label1
+    U_address, ugHGU = U_save(U, U_name + suffix, folder_address,
                                is_save, is_save_txt,
-                               z=z, **kwargs, )
+                               z=z, suffix=suffix, **kwargs, )
 
-    U_address, ugHGU = U_save(l2, U_name + "_" + label2, folder_address,
+    suffix = "_" + label2
+    U_address, ugHGU = U_save(l2, U_name + suffix, folder_address,
                                is_save, is_save_txt,
-                               z=z, **kwargs, )
+                               z=z, suffix=suffix, **kwargs, )
 
-    U_address, ugHGU = U_save(zj, U_name + "_" + "zj_SSI", folder_address,
+    suffix = "_" + "zj_SSI"
+    U_address, ugHGU = U_save(zj, U_name + suffix, folder_address,
                               is_save, is_save_txt,
-                              z=z, **kwargs, )
+                              z=z, suffix=suffix, **kwargs, )
 
-    U_address, ugHGU = U_save(zj2, U_name + "_" + "zj_EVV", folder_address,
+    suffix = "_" + "zj_EVV"
+    U_address, ugHGU = U_save(zj2, U_name + suffix, folder_address,
                               is_save, is_save_txt,
-                              z=z, **kwargs, )
+                              z=z, suffix=suffix, **kwargs, )
 
 
 def U_twin_error_energy_plot_save(U, l2, l3, U_name,
@@ -2052,25 +2152,30 @@ def U_twin_error_energy_plot_save(U, l2, l3, U_name,
                   l3=l3, label3=label3,
                   zj2=zj2, **kwargs, )
 
-    U_address, ugHGU = U_save(U, U_name + "_" + label1, folder_address,
-                               is_save, is_save_txt,
-                               z=z, **kwargs, )
-
-    U_address, ugHGU = U_save(l2, U_name + "_" + label2, folder_address,
-                               is_save, is_save_txt,
-                               z=z, **kwargs, )
-
-    U_address, ugHGU = U_save(l3, U_name + "_" + label3, folder_address,
-                               is_save, is_save_txt,
-                               z=z, **kwargs, )
-
-    U_address, ugHGU = U_save(zj, U_name + "_" + "zj_SSI", folder_address,
+    suffix = "_" + label1
+    U_address, ugHGU = U_save(U, U_name + suffix, folder_address,
                               is_save, is_save_txt,
-                              z=z, **kwargs, )
+                              z=z, suffix=suffix, **kwargs, )
 
-    U_address, ugHGU = U_save(zj2, U_name + "_" + "zj_EVV", folder_address,
+    suffix = "_" + label2
+    U_address, ugHGU = U_save(l2, U_name + suffix, folder_address,
                               is_save, is_save_txt,
-                              z=z, **kwargs, )
+                              z=z, suffix=suffix, **kwargs, )
+
+    suffix = "_" + label3
+    U_address, ugHGU = U_save(l3, U_name + suffix, folder_address,
+                               is_save, is_save_txt,
+                               z=z, suffix=suffix, **kwargs, )
+
+    suffix = "_" + "zj_SSI"
+    U_address, ugHGU = U_save(zj, U_name + suffix, folder_address,
+                              is_save, is_save_txt,
+                              z=z, suffix=suffix, **kwargs, )
+
+    suffix = "_" + "zj_EVV"
+    U_address, ugHGU = U_save(zj2, U_name + suffix, folder_address,
+                              is_save, is_save_txt,
+                              z=z, suffix=suffix, **kwargs, )
 
 
 # %%
@@ -2130,10 +2235,19 @@ def img_squared_bordered_Read(img_full_name,
 # %%
 
 def U_read_only(U_name, is_save_txt):
-    desktop = get_desktop()
-    U_full_name = U_name + (is_save_txt and ".txt" or ".mat")
-    U_address = desktop + "\\" + U_full_name
-    U = np.loadtxt(U_address, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U_full_name)['U']  # 加载 复振幅场
+    if len(U_name.split('.')) == 2 and \
+            len(find_NOT_nums(U_name.split('.')[0])) == 0 and len(find_NOT_nums(U_name.split('.')[1])) == 0:
+        str_list = get_Data_info(U_name) # 如果 U_name 完全符合 Data_Seq 的 语法规范
+        ugHGU, U_address = str_list[1], str_list[3]
+    else:
+        if ".txt" in U_name or ".mat" in U_name:
+            U_full_name = U_name
+        else:
+            U_full_name = U_name + (is_save_txt and ".txt" or ".mat")
+        U_address = get_desktop() + "\\" + U_full_name
+        U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_name)
+
+    U = np.loadtxt(U_address, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U_full_name)[ugHGU]  # 加载 复振幅场
 
     return U
 

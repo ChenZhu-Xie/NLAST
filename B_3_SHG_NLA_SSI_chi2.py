@@ -404,4 +404,5 @@ if __name__ == '__main__':
                 is_print=1, is_contours=66, n_TzQ=1,
                 Gz_max_Enhance=1, match_mode=1,
                 # %%
-                border_percentage=0.1, ray="2", is_end=-1, )
+                border_percentage=0.1, ray="2", is_end=-1,
+                size_fig_x_scale = 10, size_fig_y_scale = 1, )

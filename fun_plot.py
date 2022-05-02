@@ -140,10 +140,13 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
     array1D_new = array1D_new if is_energy != 1 else np.abs(array1D_new) ** 2
 
     if 'ax1_xticklabel' in kwargs:
-        array1D_new = np.log10(array1D_new)
-        array1D_new_min = min(remove_elements(array1D_new, -float('inf')))  # 防止 绘图 纵坐标 遇 inf 无法解析，并 正确生成 tickslabel
-        array1D_new = [array1D_new_min if array1D_new[i] == -float('inf') else array1D_new[i] for i in range(len(array1D_new))]
-        array1D_new = np.array(array1D_new) # 转成数组
+        if kwargs.get("ax_yscale", None) != 'linear':
+            def convert_inf_to_min(array): # 防止 绘图 纵坐标 遇 inf 无法解析，并 正确生成 tickslabel
+                array_min = min(remove_elements(array, -float('inf')))
+                list = [array_min if array[i] == -float('inf') else array[i] for i in range(len(array))]
+                return np.array(list)  # 转成数组
+            array1D_new = np.log10(array1D_new)
+            array1D_new = convert_inf_to_min(array1D_new) # 转成数组
 
     if "l2" in kwargs:
         if "zj2" in kwargs:  # 如果 zj2 在，则以 zj2 为 xticks
@@ -163,10 +166,9 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         l2_new = l2_new if is_energy != 1 else np.abs(l2_new) ** 2
 
         if 'ax1_xticklabel' in kwargs:
-            l2_new = np.log10(l2_new)
-            l2_new_min = min(remove_elements(l2_new, -float('inf'))) # 防止 绘图 纵坐标 遇 inf 无法解析，并 正确生成 tickslabel
-            l2_new = [l2_new_min if l2_new[i] == -float('inf') else l2_new[i] for i in range(len(l2_new))]
-            l2_new = np.array(l2_new)  # 转成数组
+            if kwargs.get("ax_yscale", None) != 'linear':
+                l2_new = np.log10(l2_new)
+                l2_new = convert_inf_to_min(l2_new)  # 转成数组
         # print(l2_new)
 
         if "zj2" in kwargs:
@@ -182,11 +184,10 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
                 l4_new = kwargs['l3']
             l4_new = l4_new if is_energy != 1 else np.abs(l4_new) ** 2
 
-            l4_new = np.log10(l4_new)
-            # print(l4_new)
-            l4_new_min = min(remove_elements(l4_new, -float('inf')))
-            l4_new = [l4_new_min if l4_new[i] == -float('inf') else l4_new[i] for i in range(len(l4_new))]
-            l4_new = np.array(l4_new)  # 转成数组
+            if kwargs.get("ax_yscale", None) != 'linear':
+                l4_new = np.log10(l4_new)
+                # print(l4_new)
+                l4_new = convert_inf_to_min(l4_new)  # 转成数组
 
     # %%
 
@@ -322,9 +323,10 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             ax2.set_yticklabels(ax2_yticklabels, fontsize=fontsize, fontdict=font)
 
             if 'ax1_xticklabel' in kwargs or 'l3' in kwargs:
-                # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
-                # ax2.yaxis.set_major_formatter(logfmt)
-                ax2.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter))
+                if kwargs.get("ax_yscale", None) != 'linear':
+                    # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
+                    # ax2.yaxis.set_major_formatter(logfmt)
+                    ax2.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter))
 
             ax2.set_xlabel(xlabel2, fontsize=fontsize, fontdict=font)
             ax2.set_ylabel(ylabel2, fontsize=fontsize, fontdict=font)
@@ -613,7 +615,9 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
                 xlabel='Z', ylabel='X', zlabel='Y', clabel='', **kwargs, ):
     # %%
 
-    fig = plt.figure(figsize=(size_fig * 10, size_fig * 10), dpi=dpi)
+    size_fig_3D_x, size_fig_3D_y = size_fig * kwargs.get("size_fig_3D_x_scale", 10), \
+                                   size_fig * kwargs.get("size_fig_3D_y_scale", 10)
+    fig = plt.figure(figsize=(size_fig_3D_x, size_fig_3D_y), dpi=dpi)
     ax1 = fig.add_subplot(111, projection='3d', label="1")
     fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
 
@@ -816,7 +820,9 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
                 xlabel='Z', ylabel='X', zlabel='Y', clabel='', **kwargs, ):
     # %%
 
-    fig = plt.figure(figsize=(size_fig * 10, size_fig * 10), dpi=dpi)
+    size_fig_3D_x, size_fig_3D_y = size_fig * kwargs.get("size_fig_3D_x_scale", 10), \
+                                   size_fig * kwargs.get("size_fig_3D_y_scale", 10)
+    fig = plt.figure(figsize=(size_fig_3D_x, size_fig_3D_y), dpi=dpi)
     ax1 = fig.add_subplot(111, projection='3d', label="1")
     fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
 

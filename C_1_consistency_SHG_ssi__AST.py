@@ -447,6 +447,7 @@ if __name__ == '__main__':
                              # %% 该程序 独有
                              is_NLA=1, is_relative=1,
                              # %% 该程序 作为 主入口时
-                             border_percentage=0.1, is_end=-1, )
+                             border_percentage=0.1, is_end=-1,
+                             size_fig_x_scale = 10, size_fig_y_scale = 1, )
 
 # 注意 colorbar 上的数量级

@@ -95,6 +95,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                              Gz_max_Enhance=1, match_mode=1,
                              # %%
                              is_NLA=1, is_relative=1,
+                             is_energy_normalized=2, is_output_error_EVV=1,
                              # %%
                              **kwargs, ):
     info = "利用 SHG 对比：EVV 与 SSI"
@@ -270,10 +271,9 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                   U_NonZero_size, dpi,
                                   is_phase_only)
 
+    size_fig_x, size_fig_y = size_fig * kwargs.get("size_fig_x_scale", 10), size_fig * kwargs.get("size_fig_y_scale", 1)
     p_dir = "7. GU_error"
-    is_energy_normalized = kwargs.get("is_energy_normalized", 0)
-    kwargs.pop("is_energy_normalized", None)
-    if kwargs.get("is_output_error_EVV", False) != 1:
+    if is_output_error_EVV != 1:
         # %%
         # 对比 G2_NLA 与 G2_SSI 的 （绝对）误差
 
@@ -323,7 +323,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                           img_name_extension, is_save_txt,
                                           # %%
                                           zj_SSI, zj_EVV, sample, size_PerPixel,
-                                          is_save, dpi, size_fig * 10, size_fig,
+                                          is_save, dpi, size_fig_x, size_fig_y,
                                           # %%
                                           color_1d, color_1d2,
                                           ticks_num, is_title_on, is_axes_on, is_mm,
@@ -425,7 +425,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                           img_name_extension, is_save_txt,
                                           # %%
                                           zj_SSI, zj_EVV, sample, size_PerPixel,
-                                          is_save, dpi, size_fig * 10, size_fig,
+                                          is_save, dpi, size_fig_x, size_fig_y,
                                           # %%
                                           color_1d, color_1d2,
                                           ticks_num, is_title_on, is_axes_on, is_mm,
@@ -440,7 +440,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                           img_name_extension, is_save_txt,
                                           # %%
                                           zj_SSI, zj_EVV, sample, size_PerPixel,
-                                          is_save, dpi, size_fig * 10, size_fig,
+                                          is_save, dpi, size_fig_x, size_fig_y,
                                           # %%
                                           color_1d, color_1d2,
                                           ticks_num, is_title_on, is_axes_on, is_mm,
@@ -530,8 +530,10 @@ if __name__ == '__main__':
                              Gz_max_Enhance=1, match_mode=1,
                              # %%
                              is_NLA=1, is_relative=1,
+                             is_energy_normalized=2, is_output_error_EVV=1,
                              # %%
                              border_percentage=0.1, is_end=-1,
-                             is_energy_normalized=2, is_output_error_EVV=1, )
+                             size_fig_x_scale=10, size_fig_y_scale=1,
+                             ax_yscale='linear', )
 
 # 注意 colorbar 上的数量级

@@ -25,73 +25,73 @@ np.seterr(divide='ignore', invalid='ignore')
 # %%
 
 def SHG_NLA_EVV(U_name="",
-            img_full_name="Grating.png",
-            is_phase_only=0,
-            # %%
-            z_pump=0,
-            is_LG=0, is_Gauss=0, is_OAM=0,
-            l=0, p=0,
-            theta_x=0, theta_y=0,
-            # %%
-            is_random_phase=0,
-            is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-            # %%
-            # 生成横向结构
-            U_name_Structure='',
-            structure_size_Enlarge=0.1,
-            is_phase_only_Structure=0,
-            # %%
-            w0_Structure=0, z_pump_Structure=0,
-            is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
-            l_Structure=0, p_Structure=0,
-            theta_x_Structure=0, theta_y_Structure=0,
-            # %%
-            is_random_phase_Structure=0,
-            is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
-            # %%
-            U_NonZero_size=1, w0=0.3,
-            z0=1, sheets_stored_num=10,
-            # %%
-            lam1=0.8, is_air_pump=0, is_air=0, T=25,
-            deff=30, is_fft=1, fft_mode=0,
-            is_sum_Gm=0, mG=0,
-            is_linear_convolution=0,
-            # %%
-            Tx=10, Ty=10, Tz="2*lc",
-            mx=0, my=0, mz=0,
-            # %%
-            # 生成横向结构
-            Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-            Depth=2, structure_xy_mode='x',
-            # %%
-            is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
-            is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
-            is_stored=1, is_energy_evolution_on=1,
-            # %%
-            is_save=0, is_save_txt=0, dpi=100,
-            # %%
-            color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
-            elev=10, azim=-65, alpha=2,
-            # %%
-            sample=2, ticks_num=6, is_contourf=0,
-            is_title_on=1, is_axes_on=1, is_mm=1,
-            # %%
-            fontsize=9,
-            font={'family': 'serif',
-                  'style': 'normal',  # 'normal', 'italic', 'oblique'
-                  'weight': 'normal',
-                  'color': 'black',  # 'black','gray','darkred'
-                  },
-            # %%
-            is_colorbar_on=1, is_energy=0, is_plot_3d_XYz = 0,
-            # %%
-            plot_group = "UGa", is_animated = 1,
-            loop = 0, duration = 0.033, fps = 5,
-            # %%
-            is_print=1, is_contours=1, n_TzQ=1,
-            Gz_max_Enhance=1, match_mode=1,
-            # %%
-            **kwargs, ):
+                img_full_name="Grating.png",
+                is_phase_only=0,
+                # %%
+                z_pump=0,
+                is_LG=0, is_Gauss=0, is_OAM=0,
+                l=0, p=0,
+                theta_x=0, theta_y=0,
+                # %%
+                is_random_phase=0,
+                is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+                # %%
+                # 生成横向结构
+                U_name_Structure='',
+                structure_size_Enlarge=0.1,
+                is_phase_only_Structure=0,
+                # %%
+                w0_Structure=0, z_pump_Structure=0,
+                is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
+                l_Structure=0, p_Structure=0,
+                theta_x_Structure=0, theta_y_Structure=0,
+                # %%
+                is_random_phase_Structure=0,
+                is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+                # %%
+                U_NonZero_size=1, w0=0.3,
+                z0=1, sheets_stored_num=10,
+                # %%
+                lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                deff=30, is_fft=1, fft_mode=0,
+                is_sum_Gm=0, mG=0,
+                is_linear_convolution=0,
+                # %%
+                Tx=10, Ty=10, Tz="2*lc",
+                mx=0, my=0, mz=0,
+                # %%
+                # 生成横向结构
+                Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+                Depth=2, structure_xy_mode='x',
+                # %%
+                is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+                is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
+                is_stored=1, is_energy_evolution_on=1,
+                # %%
+                is_save=0, is_save_txt=0, dpi=100,
+                # %%
+                color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+                elev=10, azim=-65, alpha=2,
+                # %%
+                sample=2, ticks_num=6, is_contourf=0,
+                is_title_on=1, is_axes_on=1, is_mm=1,
+                # %%
+                fontsize=9,
+                font={'family': 'serif',
+                      'style': 'normal',  # 'normal', 'italic', 'oblique'
+                      'weight': 'normal',
+                      'color': 'black',  # 'black','gray','darkred'
+                      },
+                # %%
+                is_colorbar_on=1, is_energy=0, is_plot_3d_XYz = 0,
+                # %%
+                plot_group = "UGa", is_animated = 1,
+                loop = 0, duration = 0.033, fps = 5,
+                # %%
+                is_print=1, is_contours=1, n_TzQ=1,
+                Gz_max_Enhance=1, match_mode=1,
+                # %%
+                **kwargs, ):
     # %%
 
     if_image_Add_black_border(U_name, img_full_name,
@@ -412,70 +412,71 @@ def SHG_NLA_EVV(U_name="",
 
 if __name__ == '__main__':
     SHG_NLA_EVV(U_name="",
-            img_full_name="lena1.png",
-            is_phase_only=0,
-            # %%
-            z_pump=0,
-            is_LG=0, is_Gauss=0, is_OAM=0,
-            l=0, p=0,
-            theta_x=0, theta_y=0,
-            # %%
-            is_random_phase=0,
-            is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-            # %%
-            # 生成横向结构
-            U_name_Structure='',
-            structure_size_Enlarge=0.1,
-            is_phase_only_Structure=0,
-            # %%
-            w0_Structure=0, z_pump_Structure=0,
-            is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
-            l_Structure=0, p_Structure=0,
-            theta_x_Structure=0, theta_y_Structure=0,
-            # %%
-            is_random_phase_Structure=0,
-            is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
-            # %%
-            U_NonZero_size=0.9, w0=0.3,
-            z0=10, sheets_stored_num=10,
-            # %%
-            lam1=1.064, is_air_pump=0, is_air=0, T=25,
-            deff=30, is_fft=1, fft_mode=0,
-            is_sum_Gm=0, mG=0,
-            is_linear_convolution=0,
-            # %%
-            Tx=10, Ty=10, Tz=0,
-            mx=1, my=0, mz=0,
-            # %%
-            # 生成横向结构
-            Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-            Depth=2, structure_xy_mode='x',
-            # %%
-            is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
-            is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
-            is_stored=1, is_energy_evolution_on=1,
-            # %%
-            is_save=0, is_save_txt=0, dpi=100,
-            # %%
-            color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
-            elev=10, azim=-65, alpha=2,
-            # %%
-            sample=2, ticks_num=6, is_contourf=0,
-            is_title_on=1, is_axes_on=1, is_mm=1,
-            # %%
-            fontsize=9,
-            font={'family': 'serif',
-                  'style': 'normal',  # 'normal', 'italic', 'oblique'
-                  'weight': 'normal',
-                  'color': 'black',  # 'black','gray','darkred'
-                  },
-            # %%
-            is_colorbar_on=1, is_energy=0, is_plot_3d_XYz = 0,
-            #%%
-            plot_group = "UGa", is_animated = 1,
-            loop = 0, duration = 0.033, fps = 5,
-            # %%
-            is_print=1, is_contours=66, n_TzQ=1,
-            Gz_max_Enhance=1, match_mode=1,
-            # %%
-            border_percentage=0.1, ray="2", is_end=-1, )
+                img_full_name="lena1.png",
+                is_phase_only=0,
+                # %%
+                z_pump=0,
+                is_LG=0, is_Gauss=0, is_OAM=0,
+                l=0, p=0,
+                theta_x=0, theta_y=0,
+                # %%
+                is_random_phase=0,
+                is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+                # %%
+                # 生成横向结构
+                U_name_Structure='',
+                structure_size_Enlarge=0.1,
+                is_phase_only_Structure=0,
+                # %%
+                w0_Structure=0, z_pump_Structure=0,
+                is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
+                l_Structure=0, p_Structure=0,
+                theta_x_Structure=0, theta_y_Structure=0,
+                # %%
+                is_random_phase_Structure=0,
+                is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+                # %%
+                U_NonZero_size=0.9, w0=0.3,
+                z0=10, sheets_stored_num=10,
+                # %%
+                lam1=1.064, is_air_pump=0, is_air=0, T=25,
+                deff=30, is_fft=1, fft_mode=0,
+                is_sum_Gm=0, mG=0,
+                is_linear_convolution=0,
+                # %%
+                Tx=10, Ty=10, Tz=0,
+                mx=1, my=0, mz=0,
+                # %%
+                # 生成横向结构
+                Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+                Depth=2, structure_xy_mode='x',
+                # %%
+                is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+                is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
+                is_stored=0, is_energy_evolution_on=1,
+                # %%
+                is_save=1, is_save_txt=0, dpi=100,
+                # %%
+                color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+                elev=10, azim=-65, alpha=2,
+                # %%
+                sample=2, ticks_num=6, is_contourf=0,
+                is_title_on=1, is_axes_on=1, is_mm=1,
+                # %%
+                fontsize=9,
+                font={'family': 'serif',
+                      'style': 'normal',  # 'normal', 'italic', 'oblique'
+                      'weight': 'normal',
+                      'color': 'black',  # 'black','gray','darkred'
+                      },
+                # %%
+                is_colorbar_on=1, is_energy=0, is_plot_3d_XYz = 0,
+                #%%
+                plot_group = "UGa", is_animated = 1,
+                loop = 0, duration = 0.033, fps = 5,
+                # %%
+                is_print=1, is_contours=66, n_TzQ=1,
+                Gz_max_Enhance=1, match_mode=1,
+                # %%
+                border_percentage=0.1, ray="2", is_end=-1,
+                size_fig_x_scale = 10, size_fig_y_scale = 1, )
