@@ -177,6 +177,8 @@ def gan_Uz_name(U_name, is_add_sequence, **kwargs, ):  # args 是 z 或 () 和 s
 
     U_name_no_seq, method_and_way, Part_2, ugHGU, ray = split_parts(U_name)
     seq = gan_seq(U_name, is_add_sequence, **kwargs, )  # is_add_sequence 模为 1 即有 seq
+    # seq = "" # 取消了 手动 给最后一个 folder 添加 seq 的 机制，完全自动化了
+    # oh 不，mat 文件 是要加 seq 的，folder 不加
     U_new_name = seq + U_name_no_seq
     # %%
     # 查找 含 z 的 字符串 part_z
@@ -229,8 +231,10 @@ def gan_Uz_save_address(U_name, folder_address, is_save_txt,
 
 
 def gan_Uz_dir_address(U_name, **kwargs, ):
-    folder_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, -1,
-                                                                                 **kwargs, )  # 要加 序列号 # 没有 method （诸如 'AST'）
+    # folder_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, -1,
+    #                                                                              **kwargs, )  # 要加 序列号 # 没有 method （诸如 'AST'）
+    folder_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0,
+                                                                                 **kwargs, )  # 不加 序列号 # 没有 method （诸如 'AST'）
     # print(folder_name)
     if ugHGU in "gHGU":
         folder_name = add___between_ugHGU_and_ray(folder_name, ugHGU, ray)
@@ -249,16 +253,28 @@ def gan_Uz_dir_address(U_name, **kwargs, ):
 
         folder_address_relative = ''
         for l in range(level):
-            if l != level-1: # 如果不是 最后一级（最后一级 的 dirs[l] 已经设定了 seq 了，是其自带的）
-                dirs[l] = level_seq[l] + '. ' + dirs[l]
+            dirs[l] = level_seq[l] + '. ' + dirs[l] # 现在已经 解除限制了 = =
+            # if l != level-1: # 如果不是 最后一级（最后一级 的 dirs[l] 已经设定了 seq 了，是其自带的）
+            #     dirs[l] = level_seq[l] + '. ' + dirs[l]
             folder_address_relative += dirs[l]
             folder_address_relative += ("\\" if l != level-1 else '')
 
         folder_address = get_desktop() + "\\" + folder_address_relative
+        # %%
+        if kwargs.get("is_no_data_save", 0) == 1: # 如果 只产生 有父目录的 文件夹 以及 其下的图片，没有数据 存在里面
+            # ugHGU, z_str, U_name_no_suffix, U_name, U_address = '', '', '', '', ''
+            z_str = str(kwargs['z']) if 'z' in kwargs else 'z'
+            U_name_no_suffix = folder_name.replace(kwargs['suffix'], '') if 'suffix' in kwargs else 'U_name_no_suffix'
+            ugHGU, z_str, U_name_no_suffix, U_name, U_address = ugHGU, z_str, U_name_no_suffix, folder_name, ''
+
+            txt_address = get_desktop() + "\\" + "data_dir_names.txt"
+            with open(txt_address, "a+") as txt:  # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
+                attr_Auto_Set(locals())  # 定义完 所有 attr 后，就写入 记录之
+                attr_line = auto_gan_attr_line()
+                txt.write(attr_line)
     else:
         folder_address = get_desktop() + "\\" + folder_name
     return folder_address
-
 
 # %%
 
@@ -851,6 +867,7 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                                  z=z, is_end=is_end, **kwargs, )
 
     if is_energy_evolution_on == 1:
+        suffix = "_energy"
         U_energy_plot_address = U_energy_plot(folder_address,
                                               U_energy, U_name + "_energy",
                                               img_name_extension,
@@ -1502,7 +1519,10 @@ def U_EVV_plot(G_stored, G_name,
                is_plot_3d_XYz,
                # %%
                zj, z_stored, z, ):
-    folder_address = U_dir(G_name + "_sheets", is_save, z=z, )
+    p_dir = 'GU_EVV_2d'
+    is_no_data_save = 1
+    folder_address = U_dir(G_name + "_sheets", is_save,
+                           z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
 
     # -------------------------
 
@@ -1542,7 +1562,8 @@ def U_EVV_plot(G_stored, G_name,
 
     # -------------------------
 
-    folder_address = U_dir(U_name + "_sheets", is_save, z=z, )
+    folder_address = U_dir(U_name + "_sheets", is_save,
+                           z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
 
     if ("U" in plot_group and "a" in plot_group):
         gif_address = U_amps_z_plot(folder_address,
@@ -1635,6 +1656,8 @@ def U_SSI_plot(G_stored, G_name,
                z_1, z_2,
                z_f, z_e,
                zj, z_stored, z, ):
+    p_dir = "GU_SSI_2d"
+    is_no_data_save = 1
     # %%
 
     U_EVV_plot(G_stored, G_name,
@@ -1664,7 +1687,8 @@ def U_SSI_plot(G_stored, G_name,
     if is_plot_selective == 1:
 
         if "G" in plot_group:
-            folder_address = U_dir(G_name + "_sheets_selective", is_save, z=z, )
+            folder_address = U_dir(G_name + "_sheets_selective", is_save,
+                                   z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
 
             # ------------------------- 储存 G1_section_1_shift_amp、G1_section_1_shift_amp、G1_structure_frontface_shift_amp、G1_structure_endface_shift_amp
             # ------------------------- 储存 G1_section_1_shift_phase、G1_section_1_shift_phase、G1_structure_frontface_shift_phase、G1_structure_endface_shift_phase
@@ -1691,7 +1715,8 @@ def U_SSI_plot(G_stored, G_name,
         # %%
 
         if "U" in plot_group:
-            folder_address = U_dir(U_name + "_sheets_selective", is_save, z=z, )
+            folder_address = U_dir(U_name + "_sheets_selective", is_save,
+                                   z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
 
             # ------------------------- 储存 U0_section_1_amp、U0_section_1_amp、U0_structure_frontface_amp、U0_structure_endface_amp
             # ------------------------- 储存 U0_section_1_phase、U0_section_1_phase、U0_structure_frontface_phase、U0_structure_endface_phase
@@ -1719,7 +1744,8 @@ def U_SSI_plot(G_stored, G_name,
 
     if is_plot_YZ_XZ == 1:
 
-        folder_address = U_dir(G_name + "_YZ_XZ", is_save, z=z, )
+        folder_address = U_dir(G_name + "_YZ_XZ", is_save,
+                               z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
 
         # ========================= G1_shift_YZ_stored_amp、G1_shift_XZ_stored_amp
         # ------------------------- G1_shift_YZ_stored_phase、G1_shift_XZ_stored_phase
@@ -1801,7 +1827,8 @@ def U_SSI_plot(G_stored, G_name,
 
         # %%
 
-        folder_address = U_dir(U_name + "_YZ_XZ", is_save, z=z, )
+        folder_address = U_dir(U_name + "_YZ_XZ", is_save,
+                               z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
 
         # ========================= U0_YZ_stored_amp、U0_XZ_stored_amp
         # ------------------------- U0_YZ_stored_phase、U0_XZ_stored_phase
@@ -1917,6 +1944,7 @@ def gan_Data_Seq(txt, folder_address):
     lines = txt.readlines()
     # txt.seek(2)  # 光标移到 txt 末尾（不必了，其实 已经移到 末尾了）
 
+    level_min = 1 # 把 level 的基数抬升 1：不从 0 开始计。
     trigger = 0
     if folder_address in whole_text:  # 如果 folder_address 在以前的 记录中 出现过
         trigger = 1
@@ -1926,22 +1954,22 @@ def gan_Data_Seq(txt, folder_address):
         dir_seq = Data_Seq.split('.')[0]  # 获取 最后一行 的 dir_seq
         dir_seq = str(int(dir_seq) + 1)  # 把它加 1，作为 序数
     else:
-        dir_seq = str(len(lines))  # str(0) 也行
+        dir_seq = str(level_min)  # str(0) 也行
 
     folder_address_relative = folder_address.replace(get_desktop() + "\\", "")
     # 相对路径中，将只剩下 kwargs["p_dir"] + "\\" + folder_name 或 folder_name
     dirs = folder_address_relative.split("\\")
-    dirs = [(DIR.split(' ')[1] if len(DIR.split(' '))>1 and 
+    dirs = [(DIR.replace(DIR.split(' ')[0] + ' ', "") if len(DIR.split(' '))>1 and
              set(find_NOT_nums(DIR.split(' ')[0]))=={"."} else DIR) 
              for DIR in dirs] # 有空格 则 取第一部分，若其中 非数字只有 '.' 的话，取 第二部分
     level = len(dirs)  # 桌面上的 folder 内的东西 就是 1，内部的 就是 2...诸如此类
     # print(level)
-    level_seq = [0] * level  # [0,0,0,...]
-    level_seq_max = [0] * level  # [0,0,0,...] 这个 只有 l=0 才有用
+    level_seq = [level_min] * level  # [0,0,0,...]
+    level_seq_max = [level_min] * level  # [0,0,0,...] 这个 只有 l=0 才有用
     dir_repeat_times = [0] * level
     # dir_repeat_line_i = [[]] * level  # [[],[],[],...] # dirs[l] 重复时 所对应的 line 行序数 i
     # 这个 只有 l>0 才有用，其实不用记录 line 的 行序数 i，只需 记录 符合条件的 line 数，所以 [] * level 更省内存
-    data_seq = 0
+    data_seq = level_min
     for i in range(len(lines)):
         line = lines[i]
         line = line[:-1]
@@ -1950,16 +1978,16 @@ def gan_Data_Seq(txt, folder_address):
         folder_address_line = attr_get(line, "folder_address")
         folder_address_line_relative = folder_address_line.replace(get_desktop() + "\\", "")
         dirs_line = folder_address_line_relative.split("\\")
-        dirs_line = [(DIR_line.split(' ')[1] if len(DIR_line.split(' '))>1 and 
+        dirs_line = [(DIR_line.replace(DIR_line.split(' ')[0] + ' ', "") if len(DIR_line.split(' '))>1 and
                      set(find_NOT_nums(DIR_line.split(' ')[0]))=={'.'} else DIR_line) 
-                     for DIR_line in dirs_line] # 把序号 扔了：dirs.replace() 也行
+                     for DIR_line in dirs_line] # 把序号 扔了
+        # print(dirs_line)
         ex_dir_is_in = 0
         for l in range(level):  # 遍历 被 "\\" 分隔出的 每个 dir，储存其 每次出现，所在的 行序数 i
             if l > 0: # 如果 l>0 则必须 额外条件：前一个 dirs[l-1] 在 line_folder_address 中，才记录
                 if ex_dir_is_in == 1:
                     if len(item_level_seq) >= l+1:  # 如果长度 足够被取
                         if level_seq_max[l] < int(item_level_seq[l]): level_seq_max[l] = int(item_level_seq[l])
-                    # print(dirs[l], dirs_line[l])
                     if dirs[l] == dirs_line[l]:
                         dir_repeat_times[l] += 1
                         # dir_repeat_line_i[l].append(i)
@@ -2002,15 +2030,16 @@ def gan_Data_Seq(txt, folder_address):
     for l in range(level):
         if dir_repeat_times[l] == 0:  # 如果 dirs[l] 在以前 从没出现过 len(dir_repeat_line_i[l]) == 0
             if l == 0: #（出现过的话，值已经定好了：保留原值）
-                level_seq[l] = (level_seq_max[l] + 1) if len(lines) > 0 else 0
+                level_seq[l] = (level_seq_max[l] + 1) if len(lines) > 0 else level_min
             else:
-                level_seq[l] = (level_seq_max[l] + 1) if dir_repeat_times[l-1] > 0 else 0
+                level_seq[l] = (level_seq_max[l] + 1) if dir_repeat_times[l-1] > 0 else level_min
         Level_Seq += str(level_seq[l])  # 更新 Level_Seq
         Level_Seq += ('.' if l != level-1 else '')
     # print(Level_Seq)
-    return len(lines), Data_Seq, Level_Seq
+    data_th = len(lines) + level_min
+    return data_th, Data_Seq, Level_Seq
 
-def gan_attr_line():
+def auto_gan_attr_line():
     attr_line = ''
     for index in range(len(Get("item_attr_value_list_save"))):
         attr_line += Get("item_attr_value_list_save")[index]
@@ -2031,7 +2060,7 @@ def U_save(U, U_name, folder_address,
         with open(txt_address, "a+") as txt:  # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
             data_th, Data_Seq, Level_Seq = gan_Data_Seq(txt, folder_address)
             attr_Auto_Set(locals()) # 定义完 所有 attr 后，就写入 记录之
-            attr_line = gan_attr_line()
+            attr_line = auto_gan_attr_line()
             txt.write(attr_line)
 
         txt_address = folder_address + "\\" + "data_names.txt"
@@ -2304,7 +2333,7 @@ def Info_img(img_full_name):
     img_name_extension = os.path.splitext(img_full_name)[1]
     img_address = get_cd() + "\\" + img_full_name  # 默认 在 相对路径下 读，只需要 文件名 即可：读于内
 
-    folder_name = 'img_source'
+    folder_name = '0. BASE - img_source'
     folder_address = U_dir(folder_name, 1, )
 
     img_squared_full_name = "1. " + img_name + "_squared" + img_name_extension  # 除 原始文件 以外，生成的文件 均放在桌面：写出于外

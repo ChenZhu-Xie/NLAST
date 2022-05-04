@@ -196,7 +196,7 @@ def structure_chi2_3D(U_name="",
             modulation_squared_full_name = str(for_th) + (is_save_txt and ".txt" or ".mat")
             modulation_squared_address = folder_address + "\\" + modulation_squared_full_name
 
-            if is_bulk == 0:
+            if is_bulk == 0: # 不用 U_save 也就不储存信息：直接输出；因为这个会大量输出结构，并且信息简单
                 np.savetxt(modulation_squared_address, m, fmt='%i') if is_save_txt else savemat(
                     modulation_squared_address, {'chi2_modulation_squared': m})
 
