@@ -85,6 +85,11 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
 def mjrFormatter(x, pos):
     return "$10^{{{0}}}$".format("%.1f" % x)  # 奇了怪了， x 本身已经是 格式化过了的，咋还得格式化一次...
 
+def convert_inf_to_min(array): # 防止 绘图 纵坐标 遇 inf 无法解析，并 正确生成 tickslabel
+    array_min = min(remove_elements(array, -float('inf')))
+    list = [array_min if array[i] == -float('inf') else array[i] for i in range(len(array))]
+    return np.array(list)  # 转成数组
+
 def plot_1d(zj, sample=2, size_PerPixel=0.007,
             # %%
             array1D=0, array1D_address=os.path.dirname(os.path.abspath(__file__)), array1D_title='',
@@ -141,10 +146,6 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
 
     if 'ax1_xticklabel' in kwargs:
         if kwargs.get("ax_yscale", None) != 'linear':
-            def convert_inf_to_min(array): # 防止 绘图 纵坐标 遇 inf 无法解析，并 正确生成 tickslabel
-                array_min = min(remove_elements(array, -float('inf')))
-                list = [array_min if array[i] == -float('inf') else array[i] for i in range(len(array))]
-                return np.array(list)  # 转成数组
             array1D_new = np.log10(array1D_new)
             array1D_new = convert_inf_to_min(array1D_new) # 转成数组
 

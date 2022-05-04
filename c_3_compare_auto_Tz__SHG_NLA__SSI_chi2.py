@@ -280,21 +280,17 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                            .format(format(array_Tz[i], Get("F_f")), format(U_error_energy[i], Get("F_E")),
                                    format(array_dkQ[i], Get("F_E")), format(U_energy[i], Get("F_E")), ))
 
-    size_fig_x, size_fig_y = size_fig * kwargs.get("size_fig_x_scale", 10), size_fig * kwargs.get("size_fig_y_scale", 1)
-    p_dir = "7. GU_error"
     GU_error_energy_plot_save(G_energy, G_error_energy, U_energy, U_error_energy,
                               img_name_extension, is_save_txt,
                               # %%
                               array_dkQ, array_Tz, sample, size_PerPixel,
-                              is_save, dpi, size_fig_x, size_fig_y,
+                              is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                               # %%
                               color_1d, color_1d2,
                               ticks_num, is_title_on, is_axes_on, is_mm,
                               fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                               # %%
-                              L0_Crystal,
-                              # %%
-                              p_dir=p_dir, **kwargs, )
+                              L0_Crystal, **kwargs, )
 
     # %%
 
@@ -378,7 +374,6 @@ if __name__ == '__main__':
                               num_data_points=40, center_times=1.5, shift_right=3,
                               # %% 该程序 作为 主入口时
                               border_percentage=0.1, is_end=-1,
-                              size_fig_x_scale = 10, size_fig_y_scale = 1,
                               ax_yscale='linear', )
 
 # 注意 colorbar 上的数量级

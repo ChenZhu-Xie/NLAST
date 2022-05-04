@@ -18,7 +18,6 @@ from fun_statistics import U_Drop_n_sigma
 global GLV_init_times
 GLV_init_times = 0
 
-
 def init_GLV():
     global GLV_init_times
     if GLV_init_times == 0:  # 只在第一次初始化的时候，才初始化
@@ -28,6 +27,19 @@ def init_GLV():
         GLOBALS_DICT["F_E"] = ".2e" # scientific_notation
         GLOBALS_DICT["F_f"] = ".2f"
         GLOBALS_DICT["f_f"] = "%.2f" # 小数记数
+        # %% ianls = item_attr_name_list_save, ianlds = item_attr_name_loc_dict_save
+        GLOBALS_DICT["attr_separator"] = ' ; '
+        item_attr_name_list_save = ["data_th", "Data_Seq", "Level_Seq", "ugHGU", "z_str",
+                                 "folder_address", "U_name_no_suffix", "U_name", "U_address", ]
+        # 它 不需要是 全局变量，也就意味者：之后顺序 不能改
+        # 键值（key） 和 键的位置（索引）
+        GLOBALS_DICT["item_attr_value_list_save"] = [None] * len(item_attr_name_list_save) # 它 得是 全局变量：储存的值
+        GLOBALS_DICT["item_attr_name_loc_dict_save"] = {}
+        for i in range(len(item_attr_name_list_save)):
+            GLOBALS_DICT["item_attr_name_loc_dict_save"].update({item_attr_name_list_save[i]: i}) # 键值（key）: 键位
+        # %%
+        GLOBALS_DICT["size_fig_x_scale"] = 10
+        GLOBALS_DICT["size_fig_y_scale"] = 1
     GLV_init_times += 1
 
 # %%
@@ -47,7 +59,6 @@ def Get(key):
         return GLOBALS_DICT[key]  # 取 value 成功，返回 value
     except KeyError:
         return False  # 取 value 失败
-
 
 # %%
 

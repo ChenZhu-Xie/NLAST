@@ -377,7 +377,8 @@ def pump(file_full_name="Grating.png",
 
     name = "G" + ray
     title = method + " - " + name
-    folder_address = U_dir(title, is_save, z=z, )
+    folder_address = U_dir(title, is_save,
+                           z=z, **kwargs, )
 
 
     U_amp_plot_address, U_phase_plot_address = U_plot(folder_address,
@@ -402,7 +403,8 @@ def pump(file_full_name="Grating.png",
 
     name = "U" + ray
     title = method + " - " + name
-    folder_address = U_dir(title, is_save, z=z, )
+    folder_address = U_dir(title, is_save,
+                           z=z, **kwargs, )
 
     U_energy_print(U_z0, title, is_print, **kwargs)
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
@@ -462,6 +464,8 @@ def pump_pic_or_U(U_name="",
                   is_print=1,
                   # %%
                   **kwargs, ):
+    kwargs['p_dir'] = 'pump'
+    # %%
     if (type(U_name) != str) or U_name == "":
 
         # %%
@@ -551,6 +555,8 @@ def pump_pic_or_U_structure(U_structure_name="",
                             is_print=1,
                             # %%
                             **kwargs, ):
+    kwargs['p_dir'] = 'pump_mod'
+    # %%
     info = "pump_pic_or_U_structure"
     is_first = int(init_accu(info, 1) == 1)  # 若第一次调用 pump_pic_or_U_structure，则 is_first 为 1，否则为 0
     is_Print = is_print * is_first  # 两个 得都 非零，才 print
@@ -580,7 +586,7 @@ def pump_pic_or_U_structure(U_structure_name="",
     # 需要先将 目标 U_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix_structure, Iy_structure 相同，才能开始 之后的工作
 
     border_width, img_squared_resize_full_name, img_squared_resize = \
-        img_squared_Resize(img_name, img_name_extension, img_squared,
+        img_squared_Resize(img_full_name, img_squared,
                            Ix_structure, Iy_structure, Ix,
                            is_Print, )
 

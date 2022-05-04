@@ -271,8 +271,6 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                   U_NonZero_size, dpi,
                                   is_phase_only)
 
-    size_fig_x, size_fig_y = size_fig * kwargs.get("size_fig_x_scale", 10), size_fig * kwargs.get("size_fig_y_scale", 1)
-    p_dir = "7. GU_error"
     if is_output_error_EVV != 1:
         # %%
         # 对比 G2_NLA 与 G2_SSI 的 （绝对）误差
@@ -292,9 +290,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                   # %%S
                   is_colorbar_on, is_energy,
                   # %%
-                  is_relative, is_print,
-                  # %%
-                  p_dir=p_dir, )
+                  is_relative, is_print, )
 
         # %%
         # 对比 U2_NLA 与 U2_SSI 的 （绝对）误差
@@ -316,14 +312,14 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                   # %%
                   is_relative, is_print,
                   # %%
-                  p_dir=p_dir, is_end=1, )
+                  is_end=1, )
 
         if is_energy_evolution_on == 1:
             U_twin_energy_error_plot_save(U2_energy_SSI, U2_energy_EVV, U_key2_SSI.replace("_SSI", ""),
                                           img_name_extension, is_save_txt,
                                           # %%
                                           zj_SSI, zj_EVV, sample, size_PerPixel,
-                                          is_save, dpi, size_fig_x, size_fig_y,
+                                          is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                           # %%
                                           color_1d, color_1d2,
                                           ticks_num, is_title_on, is_axes_on, is_mm,
@@ -332,7 +328,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                           # %%
                                           L0_Crystal,
                                           # %%
-                                          p_dir=p_dir, is_energy_normalized=is_energy_normalized, **kwargs, )
+                                          is_energy_normalized=is_energy_normalized, **kwargs, )
 
     else:
         G_energy = []
@@ -366,7 +362,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                              # %%
                                              is_relative, is_print,
                                              # %%
-                                             p_dir=p_dir, is_end=is_end[i], )
+                                             is_end=is_end[i], )
 
             G_energy.append(G_and_G_error_energy[0])
             G_error_energy.append(G_and_G_error_energy[1])
@@ -394,7 +390,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                              # %%
                                              is_relative, is_print,
                                              # %%
-                                             p_dir=p_dir, is_end=is_end[i], )
+                                             is_end=is_end[i], )
 
             U_energy.append(U_and_U_error_energy[0])
             U_error_energy.append(U_and_U_error_energy[1])
@@ -425,7 +421,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                           img_name_extension, is_save_txt,
                                           # %%
                                           zj_SSI, zj_EVV, sample, size_PerPixel,
-                                          is_save, dpi, size_fig_x, size_fig_y,
+                                          is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                           # %%
                                           color_1d, color_1d2,
                                           ticks_num, is_title_on, is_axes_on, is_mm,
@@ -434,13 +430,13 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                           # %%
                                           L0_Crystal,
                                           # %%
-                                          p_dir=p_dir, is_energy_normalized=is_energy_normalized, **kwargs, )
+                                          is_energy_normalized=is_energy_normalized, **kwargs, )
 
             U_twin_error_energy_plot_save(U2_energy_SSI, U2_energy_EVV, U_error_energy, U_key2_SSI.replace("_SSI", ""),
                                           img_name_extension, is_save_txt,
                                           # %%
                                           zj_SSI, zj_EVV, sample, size_PerPixel,
-                                          is_save, dpi, size_fig_x, size_fig_y,
+                                          is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                           # %%
                                           color_1d, color_1d2,
                                           ticks_num, is_title_on, is_axes_on, is_mm,
@@ -449,7 +445,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                           # %%
                                           L0_Crystal,
                                           # %%
-                                          p_dir=p_dir, is_energy_normalized=is_energy_normalized, **kwargs, )
+                                          is_energy_normalized=is_energy_normalized, **kwargs, )
 
     # %%
 
@@ -499,7 +495,7 @@ if __name__ == '__main__':
                              is_sum_Gm=0, mG=0,
                              is_linear_convolution=0,
                              # %%
-                             Tx=18.769, Ty=20, Tz=6.9,
+                             Tx=18.769, Ty=20, Tz=5.9,
                              mx=1, my=0, mz=0,
                              is_stripe=0, is_NLAST=1,
                              # %%
@@ -532,8 +528,7 @@ if __name__ == '__main__':
                              is_NLA=1, is_relative=1,
                              is_energy_normalized=2, is_output_error_EVV=1,
                              # %%
-                             border_percentage=0.1, is_end=-1,
-                             size_fig_x_scale=10, size_fig_y_scale=1,
+                             border_percentage=0.1, is_end=-1, 
                              ax_yscale='linear', )
 
 # 注意 colorbar 上的数量级

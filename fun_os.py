@@ -157,8 +157,8 @@ def gan_seq(U_name, is_add_sequence,  # 就 2 功能，加序号，减 method_an
             seq = "3." if method_and_way == "PUMP" else "5."
         elif ugHGU == 'U':
             seq = "2." if method_and_way == "PUMP" else "6."
-        elif ugHGU == "χ" or ugHGU == "n":
-            seq = "0."
+        # elif ugHGU == "χ" or ugHGU == "n":
+        #     seq = "0."
 
         if "suffix" in kwargs:  # 如果 还传入了 后缀 "_phase" 或 '_amp'
             suffix = kwargs["suffix"]
@@ -232,12 +232,31 @@ def gan_Uz_dir_address(U_name, **kwargs, ):
     folder_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, -1,
                                                                                  **kwargs, )  # 要加 序列号 # 没有 method （诸如 'AST'）
     # print(folder_name)
-    folder_name = add___between_ugHGU_and_ray(folder_name, ugHGU, ray)
-    desktop = get_desktop()
+    if ugHGU in "gHGU":
+        folder_name = add___between_ugHGU_and_ray(folder_name, ugHGU, ray)
     if "p_dir" in kwargs:
-        folder_address = desktop + "\\" + kwargs["p_dir"] + "\\" + folder_name
+        folder_address = get_desktop() + "\\" + kwargs["p_dir"] + "\\" + folder_name
+
+        # %% 自动给 非最末的 每一层 dirs[l] 添加 序数
+        txt_address = get_desktop() + "\\" + "data_dir_names.txt"
+        with open(txt_address, "a+") as txt:  # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
+            data_th, Data_Seq, Level_Seq = gan_Data_Seq(txt, folder_address)
+
+        folder_address_relative = kwargs["p_dir"] + "\\" + folder_name
+        dirs = folder_address_relative.split("\\")
+        level = len(dirs)  # len(dirs) = len(level_seq)
+        level_seq = Level_Seq.split('.')  # ['0','0','0',...]
+
+        folder_address_relative = ''
+        for l in range(level):
+            if l != level-1: # 如果不是 最后一级（最后一级 的 dirs[l] 已经设定了 seq 了，是其自带的）
+                dirs[l] = level_seq[l] + '. ' + dirs[l]
+            folder_address_relative += dirs[l]
+            folder_address_relative += ("\\" if l != level-1 else '')
+
+        folder_address = get_desktop() + "\\" + folder_address_relative
     else:
-        folder_address = desktop + "\\" + folder_name
+        folder_address = get_desktop() + "\\" + folder_name
     return folder_address
 
 
@@ -763,7 +782,11 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                   is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                   # %%                          何况 一般默认 is_self_colorbar = 1...
                   z, **kwargs, ):  # 默认必须给 z，kwargs 里是 is_end
-
+    # kwargs['p_dir'] = 'GHU_2d_energy_1d'
+    kwargs['p_dir'] = 'GHU_2d'
+    is_end, add_level = kwargs.get("is_end", 0), kwargs.get("add_level", 0)
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)
+    # %%
     folder_address = U_plot_save(G, G_name, 0,
                                  img_name_extension,
                                  # %%
@@ -776,19 +799,16 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z=z, )
+                                 z=z, **kwargs, )
 
     if is_energy_evolution_on == 1:
-        size_fig_x, size_fig_y = size_fig * kwargs.get("size_fig_x_scale", 10), \
-                                 size_fig * kwargs.get("size_fig_y_scale", 1)
         suffix = "_energy"
-
         U_energy_plot_address = U_energy_plot(folder_address,
                                               G_energy, G_name + suffix,
                                               img_name_extension,
                                               # %%
                                               zj, sample, size_PerPixel,
-                                              is_save, dpi, size_fig_x, size_fig_y,
+                                              is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                               color_1d, ticks_num,
                                               is_title_on, is_axes_on, is_mm,
                                               fontsize, font,
@@ -814,7 +834,7 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z=z, )
+                                 z=z, **kwargs, )
 
     folder_address = U_plot_save(U, U_name, is_print,
                                  img_name_extension,
@@ -828,7 +848,7 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                                  # %%
                                  is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
-                                 z=z, **kwargs, )
+                                 z=z, is_end=is_end, **kwargs, )
 
     if is_energy_evolution_on == 1:
         U_energy_plot_address = U_energy_plot(folder_address,
@@ -836,7 +856,7 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
                                               img_name_extension,
                                               # %%
                                               zj, sample, size_PerPixel,
-                                              is_save, dpi, size_fig_x, size_fig_y,
+                                              is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                               color_1d, ticks_num,
                                               is_title_on, is_axes_on, is_mm,
                                               fontsize, font,
@@ -1859,6 +1879,34 @@ def U_SSI_plot(G_stored, G_name,
                                                            vmax=np.max([U_YZ_XZ_phase_max, U_phases_max]),
                                                            vmin=np.min([U_YZ_XZ_phase_min, U_phases_min]), )
 
+# %%
+
+def attr_set(item_attr_name, item_attr_value):
+    index = Get("item_attr_name_loc_dict_save")[item_attr_name]
+    Get("item_attr_value_list_save")[index] = item_attr_value
+
+def attr_auto_set(item_attr_name):
+    index = Get("item_attr_name_loc_dict_save")[item_attr_name]
+    Get("item_attr_value_list_save")[index] = globals()[item_attr_name]
+
+def attr_Auto_Set(locals):
+    # print(locals)
+    for item_attr_name in Get("item_attr_name_loc_dict_save"):
+        # print(locals[item_attr_name])
+        index = Get("item_attr_name_loc_dict_save")[item_attr_name]
+        Get("item_attr_value_list_save")[index] = str(locals[item_attr_name])
+        # print(locals[item_attr_name])
+        # Get("item_attr_value_list_save")[index] = globals()[item_attr_name]
+        # 这个 写这才有用：globals() 只能获取 当前 py 文件下的，调用这里的这个的话，只能得到 这个 py 文件中的 globals
+        # 额，也没用，globals() 无法获取到没有用 global 声明的局部变量
+
+def attr_get_from_list(item_attr_name):
+    index = Get("item_attr_name_loc_dict_save")[item_attr_name]
+    return Get("item_attr_value_list_save")[index]
+
+def attr_get(line, item_attr_name): # from line
+    index = Get("item_attr_name_loc_dict_save")[item_attr_name]
+    return line.split(Get("attr_separator"))[index]
 
 # %%
 
@@ -1868,28 +1916,106 @@ def gan_Data_Seq(txt, folder_address):
     txt.seek(0)  # 光标再移到 txt 开头（这个是真的坑）
     lines = txt.readlines()
     # txt.seek(2)  # 光标移到 txt 末尾（不必了，其实 已经移到 末尾了）
-    data_seq = 0
+
+    trigger = 0
     if folder_address in whole_text:  # 如果 folder_address 在以前的 记录中 出现过
-        for i in range(len(lines)):
-            line = lines[i]
-            line = line[:-1]
-            if folder_address in line:  # 从上往下，获得 记录中 第一次出现，所在行 的 dir_seq
-                data_seq += 1 # 依据：不会有 2 个 数据，储存在同一个 python 生成的 mat 文件中，txt 倒是可能。。。
-                Data_Seq = line.split(' ; ')[0]
-                dir_seq = Data_Seq.split('.')[0]
-            # elif data_seq > 0:  # 如果 line 里没有 folder_address，但 data_seq 又 > 0，
-            #     # 说明 曾有过 folder_address 但结束了，所以后续 不会再有了，所以 直接退出。（）
-            #     # 如果 line 里没有 folder_address，但 data_seq 又 = 0，说明还没到，继续 for 循环，不 break
-            #     break # 若 特殊情况，间隔一段 不同后，后续 还有 folder_address 相同，则 for 循环 必须执行到 末尾
+        trigger = 1
     elif len(lines) > 0:  # 如果 folder_address 在以前的 记录中 没出现过，但已经有数据记录
         line = lines[-1]
-        Data_Seq = line.split(' ; ')[0]
+        Data_Seq = attr_get(line, "Data_Seq")
         dir_seq = Data_Seq.split('.')[0]  # 获取 最后一行 的 dir_seq
         dir_seq = str(int(dir_seq) + 1)  # 把它加 1，作为 序数
     else:
         dir_seq = str(len(lines))  # str(0) 也行
+
+    folder_address_relative = folder_address.replace(get_desktop() + "\\", "")
+    # 相对路径中，将只剩下 kwargs["p_dir"] + "\\" + folder_name 或 folder_name
+    dirs = folder_address_relative.split("\\")
+    dirs = [(DIR.split(' ')[1] if len(DIR.split(' '))>1 and 
+             set(find_NOT_nums(DIR.split(' ')[0]))=={"."} else DIR) 
+             for DIR in dirs] # 有空格 则 取第一部分，若其中 非数字只有 '.' 的话，取 第二部分
+    level = len(dirs)  # 桌面上的 folder 内的东西 就是 1，内部的 就是 2...诸如此类
+    # print(level)
+    level_seq = [0] * level  # [0,0,0,...]
+    level_seq_max = [0] * level  # [0,0,0,...] 这个 只有 l=0 才有用
+    dir_repeat_times = [0] * level
+    # dir_repeat_line_i = [[]] * level  # [[],[],[],...] # dirs[l] 重复时 所对应的 line 行序数 i
+    # 这个 只有 l>0 才有用，其实不用记录 line 的 行序数 i，只需 记录 符合条件的 line 数，所以 [] * level 更省内存
+    data_seq = 0
+    for i in range(len(lines)):
+        line = lines[i]
+        line = line[:-1]
+        item_Level_Seq = attr_get(line, "Level_Seq")
+        item_level_seq = item_Level_Seq.split('.')
+        folder_address_line = attr_get(line, "folder_address")
+        folder_address_line_relative = folder_address_line.replace(get_desktop() + "\\", "")
+        dirs_line = folder_address_line_relative.split("\\")
+        dirs_line = [(DIR_line.split(' ')[1] if len(DIR_line.split(' '))>1 and 
+                     set(find_NOT_nums(DIR_line.split(' ')[0]))=={'.'} else DIR_line) 
+                     for DIR_line in dirs_line] # 把序号 扔了：dirs.replace() 也行
+        ex_dir_is_in = 0
+        for l in range(level):  # 遍历 被 "\\" 分隔出的 每个 dir，储存其 每次出现，所在的 行序数 i
+            if l > 0: # 如果 l>0 则必须 额外条件：前一个 dirs[l-1] 在 line_folder_address 中，才记录
+                if ex_dir_is_in == 1:
+                    if len(item_level_seq) >= l+1:  # 如果长度 足够被取
+                        if level_seq_max[l] < int(item_level_seq[l]): level_seq_max[l] = int(item_level_seq[l])
+                    # print(dirs[l], dirs_line[l])
+                    if dirs[l] == dirs_line[l]:
+                        dir_repeat_times[l] += 1
+                        # dir_repeat_line_i[l].append(i)
+                        level_seq[l] = int(item_level_seq[l])  # 保持 该层的 level 不变
+                        # print(dir_repeat_times,level_seq)
+                        ex_dir_is_in = 1
+                    else:
+                        ex_dir_is_in = 0
+                else:
+                    ex_dir_is_in = 0
+            else:
+                if len(item_level_seq) >= l+1:  # 如果长度 足够被取
+                    if level_seq_max[l] < int(item_level_seq[l]): level_seq_max[l] = int(item_level_seq[l])
+                if dirs[l] == dirs_line[l]:
+                    # print(dir_repeat_times)
+                    dir_repeat_times[l] += 1
+                    # dir_repeat_line_i[l].append(i) # 傻逼 python 会把 dir_repeat_line_i 内的所有 [] 都 append
+                    # print(dir_repeat_times)
+                    level_seq[l] = int(item_level_seq[l])  # 保持 该层的 level 不变
+                    ex_dir_is_in = 1
+                else:
+                    ex_dir_is_in = 0
+            # print(dir_repeat_line_i)
+
+        if trigger == 1:
+            if folder_address in folder_address_line:  # 从上往下，获得 记录中 第一次出现，所在行 的 dir_seq
+                data_seq += 1  # 依据：不会有 2 个 数据，储存在同一个 python 生成的 mat 文件中，txt 倒是可能。。。
+                Data_Seq = attr_get(line, "Data_Seq")
+                dir_seq = Data_Seq.split('.')[0] # 保持 dir_seq 不变
+        # elif data_seq > 0:  # 如果 line 里没有 folder_address，但 data_seq 又 > 0，
+        #     # 说明 曾有过 folder_address 但结束了，所以后续 不会再有了，所以 直接退出。（）
+        #     # 如果 line 里没有 folder_address，但 data_seq 又 = 0，说明还没到，继续 for 循环，不 break
+        #     break # 若 特殊情况，间隔一段 不同后，后续 还有 folder_address 相同，则 for 循环 必须执行到 末尾
+
     Data_Seq = dir_seq + '.' + str(data_seq)  # 更新 Data_Seq
-    return Data_Seq
+
+    # print(level_seq)
+    # print(dir_repeat_line_i)
+    Level_Seq = ''
+    for l in range(level):
+        if dir_repeat_times[l] == 0:  # 如果 dirs[l] 在以前 从没出现过 len(dir_repeat_line_i[l]) == 0
+            if l == 0: #（出现过的话，值已经定好了：保留原值）
+                level_seq[l] = (level_seq_max[l] + 1) if len(lines) > 0 else 0
+            else:
+                level_seq[l] = (level_seq_max[l] + 1) if dir_repeat_times[l-1] > 0 else 0
+        Level_Seq += str(level_seq[l])  # 更新 Level_Seq
+        Level_Seq += ('.' if l != level-1 else '')
+    # print(Level_Seq)
+    return len(lines), Data_Seq, Level_Seq
+
+def gan_attr_line():
+    attr_line = ''
+    for index in range(len(Get("item_attr_value_list_save"))):
+        attr_line += Get("item_attr_value_list_save")[index]
+        attr_line += (Get("attr_separator") if index != len(Get("item_attr_value_list_save")) - 1 else "\n")
+    return attr_line
 
 def U_save(U, U_name, folder_address,
            is_save, is_save_txt, **kwargs, ):
@@ -1898,52 +2024,37 @@ def U_save(U, U_name, folder_address,
     if is_save == 1:
         np.savetxt(U_address, U) if is_save_txt else savemat(U_address, {ugHGU: U})
 
+        z_str = str(kwargs['z']) if 'z' in kwargs else 'z'
+        U_name_no_suffix = U_name.replace(kwargs['suffix'], '') if 'suffix' in kwargs else 'U_name_no_suffix'
+
         txt_address = get_desktop() + "\\" + "data_dir_names.txt"
         with open(txt_address, "a+") as txt:  # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
-            Data_Seq = gan_Data_Seq(txt, folder_address)
-            txt.write(Data_Seq + ' ; ' +
-                      folder_address + ' ; ' + U_address + "\n")
+            data_th, Data_Seq, Level_Seq = gan_Data_Seq(txt, folder_address)
+            attr_Auto_Set(locals()) # 定义完 所有 attr 后，就写入 记录之
+            attr_line = gan_attr_line()
+            txt.write(attr_line)
 
         txt_address = folder_address + "\\" + "data_names.txt"
         with open(txt_address, "a+") as txt: # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
-            # z_str = (' ; ' + str(kwargs['z'])) if 'z' in kwargs else '' # 空容易报错
-            # U_name_no_suffix = (' ; ' + U_name.replace(kwargs['suffix'], '')) if 'suffix' in kwargs else ''
-            z_str = ' ; ' + (str(kwargs['z']) if 'z' in kwargs else 'z')
-            U_name_no_suffix = ' ; ' + (U_name.replace(kwargs['suffix'], '') if 'suffix' in kwargs else 'U_name_no_suffix')
-            txt.write(Data_Seq + ' ; ' +
-                      ugHGU + ' ; ' + U_name + ' ; ' + U_address +
-                      z_str + U_name_no_suffix + "\n")
+            txt.write(attr_line)
 
     return U_address, ugHGU
 
-def get_Data_address(Data_Seq):
+def get_Data_info(Data_Seq):
     txt_address = get_desktop() + "\\" + "data_dir_names.txt"
     with open(txt_address, "r") as txt:
         lines = txt.readlines()  # 注意是 readlines 不是 readline，否则 只读了 一行，而不是 所有行 构成的 列表
         # lines = lines[:-1] # 把 最后一行 的 换行 去掉（不用去了，每个 \n 包含在上一行了）
     Data_Seq = str(Data_Seq) + (("." + "0") if '.' not in str(Data_Seq) else '') # 不加括号 有问题，也是醉了
-    str_list = []
+    attr_list = []
     for line in lines:
         line = line[:-1]
-        # print(Data_Seq, line.split(' ; ')[0])
-        if Data_Seq == line.split(' ; ')[0]:
-            str_list = line.split(' ; ')
+        # print(Data_Seq, attr_get(line, "Data_Seq"))
+        if Data_Seq == attr_get(line, "Data_Seq"):
+            attr_list = line.split(Get("attr_separator"))
             break
-    return str_list
-
-def get_Data_info(Data_Seq):
-    folder_address, U_address = get_Data_address(Data_Seq)
-    txt_address = folder_address + "\\" + "data_names.txt"
-    with open(txt_address, "r") as txt:
-        lines = txt.readlines()
-    Data_Seq = str(Data_Seq) + (("." + "0") if '.' not in str(Data_Seq) else '')
-    str_list = []
-    for line in lines:
-        line = line[:-1]
-        if Data_Seq == line.split(' ; ')[0]:
-            str_list = line.split(' ; ')
-            break
-    return str_list
+    # return attr_list
+    return line
 
 # %%
 
@@ -1993,6 +2104,8 @@ def U_error_energy_plot_save(U, l2, U_name,
                             fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                             # %%
                             z, **kwargs, ):
+    kwargs['p_dir'] = 'GU_error_1d_dk'
+    # %%
     title_suffix = '_distribution_error'
 
     if is_save == 2:
@@ -2052,6 +2165,8 @@ def U_twin_energy_error_plot_save(U, l2, U_name,
                                  fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                                  # %%
                                  z, **kwargs, ):
+    kwargs['p_dir'] = 'GU_energy_error_1d_z'
+    # %%
     if kwargs.get("is_energy_normalized", False) == 1:
         U = U / np.max(U)
         l2 = l2 / np.max(l2)
@@ -2117,6 +2232,8 @@ def U_twin_error_energy_plot_save(U, l2, l3, U_name,
                                  fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                                  # %%
                                  z, **kwargs, ):
+    kwargs['p_dir'] = 'GU_error_1d_z'
+    # %%
     if kwargs.get("is_energy_normalized", False) == 1:
         U = U / np.max(U)
         l2 = l2 / np.max(l2)
@@ -2181,28 +2298,32 @@ def U_twin_error_energy_plot_save(U, l2, l3, U_name,
 # %%
 
 def Info_img(img_full_name):
+
+
     img_name = os.path.splitext(img_full_name)[0]
     img_name_extension = os.path.splitext(img_full_name)[1]
+    img_address = get_cd() + "\\" + img_full_name  # 默认 在 相对路径下 读，只需要 文件名 即可：读于内
 
-    cdir = get_cd()
-    desktop = get_desktop()
+    folder_name = 'img_source'
+    folder_address = U_dir(folder_name, 1, )
 
-    img_address = cdir + "\\" + img_full_name  # 默认 在 相对路径下 读，只需要 文件名 即可：读于内
-    img_squared_address = desktop + "\\" + "1. " + img_name + "_squared" + img_name_extension  # 除 原始文件 以外，生成的文件 均放在桌面：写出于外
-    img_squared_bordered_address = desktop + "\\" + "2. " + img_name + "_squared" + "_bordered" + img_name_extension
+    img_squared_full_name = "1. " + img_name + "_squared" + img_name_extension  # 除 原始文件 以外，生成的文件 均放在桌面：写出于外
+    img_squared_bordered_full_name = "2. " + img_name + "_squared" + "_bordered" + img_name_extension
+    img_squared_address = folder_address + '\\' + img_squared_full_name
+    img_squared_bordered_address = folder_address + '\\' + img_squared_bordered_full_name
 
-    return img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address
+    return img_name, img_name_extension, img_address, folder_address, img_squared_address, img_squared_bordered_address
 
 
 # %%
 
 def img_squared_Read(img_full_name, U_NonZero_size):
-    img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address = Info_img(
-        img_full_name)
+    img_name, img_name_extension, img_address, folder_address, img_squared_address, img_squared_bordered_address \
+        = Info_img(img_full_name)
     img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
     size_PerPixel = U_NonZero_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
 
-    return img_name, img_name_extension, img_address, \
+    return img_name, img_name_extension, img_address, folder_address, \
            img_squared_address, img_squared_bordered_address, \
            img_squared, size_PerPixel
 
@@ -2213,7 +2334,7 @@ def img_squared_Read(img_full_name, U_NonZero_size):
 def img_squared_bordered_Read(img_full_name,
                               U_NonZero_size, dpi,
                               is_phase_only, ):
-    img_name, img_name_extension, img_address, \
+    img_name, img_name_extension, img_address, folder_address, \
     img_squared_address, img_squared_bordered_address, \
     img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size)
 
@@ -2228,6 +2349,9 @@ def img_squared_bordered_Read(img_full_name,
         U = img_squared_bordered.astype(np.complex128)
 
     Set("size_PerPixel", size_PerPixel)
+    Set("size_fig", size_fig)
+    Set("size_fig_x", size_fig * Get("size_fig_x_scale"))
+    Set("size_fig_y", size_fig * Get("size_fig_y_scale"))
 
     return img_name, img_name_extension, img_squared, size_PerPixel, size_fig, Ix, Iy, U
 
@@ -2237,8 +2361,10 @@ def img_squared_bordered_Read(img_full_name,
 def U_read_only(U_name, is_save_txt):
     if len(U_name.split('.')) == 2 and \
             len(find_NOT_nums(U_name.split('.')[0])) == 0 and len(find_NOT_nums(U_name.split('.')[1])) == 0:
-        str_list = get_Data_info(U_name) # 如果 U_name 完全符合 Data_Seq 的 语法规范
-        ugHGU, U_address = str_list[1], str_list[3]
+        # attr_list = get_Data_info(U_name) # 如果 U_name 完全符合 Data_Seq 的 语法规范
+        # ugHGU, U_address = attr_list[1], attr_list[3]
+        attr_line = get_Data_info(U_name)
+        ugHGU, U_address = attr_get(attr_line, "ugHGU"), attr_get(attr_line, "U_address")
     else:
         if ".txt" in U_name or ".mat" in U_name:
             U_full_name = U_name
@@ -2262,10 +2388,13 @@ def U_Read(U_name, img_full_name,
     size_fig = U.shape[0] / dpi
     Ix, Iy = U.shape[0], U.shape[1]
 
-    img_name, img_name_extension, img_address, \
+    img_name, img_name_extension, img_address, folder_address, \
     img_squared_address, img_squared_bordered_address, \
     img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size)
 
     Set("size_PerPixel", size_PerPixel)
+    Set("size_fig", size_fig)
+    Set("size_fig_x", size_fig * Get("size_fig_x_scale"))
+    Set("size_fig_y", size_fig * Get("size_fig_y_scale"))
 
     return img_name, img_name_extension, img_squared, size_PerPixel, size_fig, Ix, Iy, U

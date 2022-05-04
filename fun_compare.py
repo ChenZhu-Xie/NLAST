@@ -32,6 +32,7 @@ def U_compare(U, U_0, U_0_title, z,
               is_colorbar_on = 1, is_energy = 1,
               #%%
               is_relative = 1, is_print = 2, **kwargs, ):
+    kwargs['p_dir'] = 'GU_error_2d'
     #%%
     U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_0_title)
 

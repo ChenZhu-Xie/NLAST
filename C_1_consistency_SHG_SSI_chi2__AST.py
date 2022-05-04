@@ -266,7 +266,6 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
     # %%
     # 对比 fget("G") 与 G2_Z 的 （绝对）误差
 
-    p_dir = "7. GU_error"
     U_compare(fget("G"), fft2(U2_Z), U_key2_Z.replace("U", "G"), Z,
               # %%
               img_name_extension, size_PerPixel, size_fig,
@@ -282,9 +281,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
               # %%S
               is_colorbar_on, is_energy,
               # %%
-              is_relative, is_print,
-              # %%
-              p_dir=p_dir, )
+              is_relative, is_print, )
 
     # %%
     # 对比 U2_Z_Superposition 与 U2_Z 的 （绝对）误差
@@ -306,7 +303,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
               # %%
               is_relative, is_print,
               # %%
-              p_dir=p_dir, is_end=1, )
+              is_end=1, )
 
     # %%
 
@@ -387,7 +384,6 @@ if __name__ == '__main__':
                              # %% 该程序 独有
                              is_NLA=1, is_relative=1,
                              # %% 该程序 作为 主入口时
-                             border_percentage=0.1, is_end=-1,
-                             size_fig_x_scale = 10, size_fig_y_scale = 1, )
+                             border_percentage=0.1, is_end=-1, )
 
 # 注意 colorbar 上的数量级

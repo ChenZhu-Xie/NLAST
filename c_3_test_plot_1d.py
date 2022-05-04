@@ -9,9 +9,9 @@ Created on Sun Dec 26 22:09:04 2021
 
 import numpy as np
 from scipy.io import loadmat
-from fun_os import get_desktop, img_squared_bordered_Read, U_save, get_Data_address, \
+from fun_os import img_squared_bordered_Read, U_save, attr_get, get_Data_info,  \
     U_energy_plot, U_error_energy_plot_save, U_twin_energy_error_plot_save, U_twin_error_energy_plot_save
-from fun_global_var import tree_print
+from fun_global_var import Get, tree_print
 
 
 # %%
@@ -48,14 +48,14 @@ def plot_test(test_target=3, is_energy_normalized=0,
         test_func = "U_twin_error_energy_plot_save"
 
     info = "plot_1d 测试 —— " + test_func
-    is_print and print(tree_print(kwargs.get("is_end", -1), add_level=1) + info)
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=1) + info)
     # 没有 treeprint 会没有 Set("f_f")，导致 z 之后被 format 成 0.0。。。
     kwargs.pop("is_end", None); kwargs.pop("add_level", None) # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # %% 分析 data_dir_names.txt
 
-    str_list = get_Data_address(Data_Seq)
-    folder_address = str_list[1]
+    attr_line = get_Data_info(Data_Seq)
+    folder_address = attr_get(attr_line, "folder_address")
 
     # %% 分析 data_names.txt
 
@@ -70,12 +70,12 @@ def plot_test(test_target=3, is_energy_normalized=0,
         line = lines[i]
         line = line[:-1] # 把 每一行的 换行 去掉
 
-        ugHGU = line.split(' ; ')[1]
-        U_name = line.split(' ; ')[2]
-        U_address = line.split(' ; ')[3]
+        ugHGU = attr_get(attr_line, "ugHGU")
+        U_name = attr_get(attr_line, "U_name")
+        U_address = attr_get(attr_line, "U_address")
         U = np.loadtxt(U_address, dtype=np.float64()) if is_save_txt == 1 else loadmat(U_address)[ugHGU]
-        z = float(line.split(' ; ')[4])
-        U_name_no_suffix = line.split(' ; ')[5]
+        z = float(attr_get(attr_line, "z_str"))
+        U_name_no_suffix = attr_get(attr_line, "U_name_no_suffix")
 
         is_print and print(tree_print(is_end[i]) + "U_name = {}".format(U_name))
 
@@ -94,8 +94,6 @@ def plot_test(test_target=3, is_energy_normalized=0,
                                   U_NonZero_size, dpi,
                                   is_phase_only)
 
-    size_fig_x, size_fig_y = size_fig * kwargs.get("size_fig_x_scale", 10), size_fig * kwargs.get("size_fig_y_scale", 1)
-    p_dir = "7. GU_error"
     if test_func == "U_energy_plot":
         suffix = "_energy"
         U_energy_plot(folder_address,
@@ -103,7 +101,7 @@ def plot_test(test_target=3, is_energy_normalized=0,
                       img_name_extension,
                       # %%
                       U_list[2], sample, size_PerPixel,
-                      is_save, dpi, size_fig_x, size_fig_y,
+                      is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                       color_1d, ticks_num,
                       is_title_on, is_axes_on, is_mm,
                       fontsize, font,
@@ -117,21 +115,19 @@ def plot_test(test_target=3, is_energy_normalized=0,
                                  img_name_extension, is_save_txt,
                                  # %%
                                  U_list[2], U_list[3], sample, size_PerPixel,
-                                 is_save, dpi, size_fig_x, size_fig_y,
+                                 is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                  # %%
                                  color_1d, color_1d2,
                                  ticks_num, is_title_on, is_axes_on, is_mm,
                                  fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                                  # %%
-                                 z,
-                                 # %%
-                                 p_dir=p_dir, **kwargs, )
+                                 z, **kwargs, )
     elif test_func == "U_twin_energy_error_plot_save":
         U_twin_energy_error_plot_save(U_list[0], U_list[1], U_name_no_suffix,
                                       img_name_extension, is_save_txt,
                                       # %%
                                       U_list[2], U_list[3], sample, size_PerPixel,
-                                      is_save, dpi, size_fig_x, size_fig_y,
+                                      is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                       # %%
                                       color_1d, color_1d2,
                                       ticks_num, is_title_on, is_axes_on, is_mm,
@@ -140,13 +136,13 @@ def plot_test(test_target=3, is_energy_normalized=0,
                                       # %%
                                       z,
                                       # %%
-                                      p_dir=p_dir, is_energy_normalized=is_energy_normalized, **kwargs, )
+                                      is_energy_normalized=is_energy_normalized, **kwargs, )
     elif test_func == "U_twin_error_energy_plot_save":
         U_twin_error_energy_plot_save(U_list[0], U_list[1], U_list[2], U_name_no_suffix,
                                       img_name_extension, is_save_txt,
                                       # %%
                                       U_list[3], U_list[4], sample, size_PerPixel,
-                                      is_save, dpi, size_fig_x, size_fig_y,
+                                      is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                       # %%
                                       color_1d, color_1d2,
                                       ticks_num, is_title_on, is_axes_on, is_mm,
@@ -155,11 +151,11 @@ def plot_test(test_target=3, is_energy_normalized=0,
                                       # %%
                                       z,
                                       # %%
-                                      p_dir=p_dir, is_energy_normalized=is_energy_normalized, **kwargs, )
+                                      is_energy_normalized=is_energy_normalized, **kwargs, )
 
 if __name__ == '__main__':
-    plot_test(test_target=0, is_energy_normalized=2,
-              Data_Seq=4,
+    plot_test(test_target=3, is_energy_normalized=2,
+              Data_Seq=22,
               img_full_name="lena1.png",
               is_phase_only=0,
               # %%
@@ -179,5 +175,5 @@ if __name__ == '__main__':
                     'color': 'black',  # 'black','gray','darkred'
                     },
               # %%
-              size_fig_x_scale=10, size_fig_y_scale=1,
+              is_end=-1,
               ax_yscale='linear', )

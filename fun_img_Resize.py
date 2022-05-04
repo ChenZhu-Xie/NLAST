@@ -80,8 +80,8 @@ def image_Add_black_border(img_full_name="Grating.png",
     # %%
     # 预处理 导入图片 为方形，并加边框
 
-    img_name, img_name_extension, img_address, img_squared_address, img_squared_bordered_address = Info_img(
-        img_full_name)
+    img_name, img_name_extension, img_address, folder_address, img_squared_address, img_squared_bordered_address \
+        = Info_img(img_full_name)
 
     img = cv2.imdecode(np.fromfile(img_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
     is_print and print(tree_print() + "img.shape = {}".format(img.shape))
@@ -135,21 +135,24 @@ def if_image_Add_black_border(U_name, img_full_name,
 # %%
 # 需要先将 目标 U_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix_structure, Iy_structure 相同，才能开始 之后的工作
 
-def img_squared_Resize(img_name, img_name_extension, img_squared,
+def img_squared_Resize(img_full_name, img_squared,
                        Ix_structure, Iy_structure, Ix,
                        is_print=1, **kwargs):
+    img_name, img_name_extension, img_address, folder_address, img_squared_address, img_squared_bordered_address \
+        = Info_img(img_full_name)
+
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "图片裁剪")
     kwargs.pop("is_end", 0) # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
-    desktop = get_desktop()
 
     img_squared_resize = cv2.resize(img_squared, (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA)
     img_squared_resize_full_name = "1. " + img_name + "_squared" + "_resize" + img_name_extension
-    img_squared_resize_address = desktop + "\\" + img_squared_resize_full_name
+    img_squared_resize_address = folder_address + "\\" + img_squared_resize_full_name
     # cv2.imwrite(img_squared_resize_address, img_squared_resize) # 保存 img_squared_resize，但不能有 中文路径
     cv2.imencode(img_squared_resize_address, img_squared_resize)[1].tofile(img_squared_resize_address)
     is_print and print(tree_print() + "img_squared_resize.shape = {}".format(img_squared_resize.shape))
 
-    img_squared_resize_bordered_address = desktop + "\\" + "2. " + img_name + "_squared" + "_resize" + "_bordered" + img_name_extension
+    img_squared_resize_bordered_full_name = "2. " + img_name + "_squared" + "_resize" + "_bordered" + img_name_extension
+    img_squared_resize_bordered_address = folder_address + "\\" + img_squared_resize_bordered_full_name
     border_width = (Ix - Ix_structure) // 2
     image_Border(img_squared_resize_address, img_squared_resize_bordered_address, loc='a', width=border_width,
                  color=(0, 0, 0, 255))
