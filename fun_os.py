@@ -229,6 +229,7 @@ def gan_Uz_save_address(U_name, folder_address, is_save_txt,
     U_address = folder_address + "\\" + file_name
     return U_address, ugHGU
 
+# %%
 
 def gan_Uz_dir_address(U_name, **kwargs, ):
     # folder_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, -1,
@@ -239,10 +240,10 @@ def gan_Uz_dir_address(U_name, **kwargs, ):
     if ugHGU in "gHGU":
         folder_name = add___between_ugHGU_and_ray(folder_name, ugHGU, ray)
     if "p_dir" in kwargs:
-        folder_address = get_desktop() + "\\" + kwargs["p_dir"] + "\\" + folder_name
+        folder_address = Get("root_dir") + "\\" + kwargs["p_dir"] + "\\" + folder_name
 
         # %% 自动给 非最末的 每一层 dirs[l] 添加 序数
-        txt_address = get_desktop() + "\\" + "data_dir_names.txt"
+        txt_address = Get("root_dir") + "\\" + "all_data_info.txt"
         with open(txt_address, "a+") as txt:  # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
             data_th, Data_Seq, Level_Seq = gan_Data_Seq(txt, folder_address)
 
@@ -259,21 +260,22 @@ def gan_Uz_dir_address(U_name, **kwargs, ):
             folder_address_relative += dirs[l]
             folder_address_relative += ("\\" if l != level-1 else '')
 
-        folder_address = get_desktop() + "\\" + folder_address_relative
+        folder_address = Get("root_dir") + "\\" + folder_address_relative
         # %%
         if kwargs.get("is_no_data_save", 0) == 1: # 如果 只产生 有父目录的 文件夹 以及 其下的图片，没有数据 存在里面
             # ugHGU, z_str, U_name_no_suffix, U_name, U_address = '', '', '', '', ''
             z_str = str(kwargs['z']) if 'z' in kwargs else 'z'
             U_name_no_suffix = folder_name.replace(kwargs['suffix'], '') if 'suffix' in kwargs else 'U_name_no_suffix'
-            ugHGU, z_str, U_name_no_suffix, U_name, U_address = ugHGU, z_str, U_name_no_suffix, folder_name, ''
+            is_data_saved, root_dir_boot_times, ugHGU, z_str, U_name, U_name_no_suffix, root_dir, U_address = \
+                1, Get("root_dir_boot_times"), ugHGU, z_str, folder_name, U_name_no_suffix, Get("root_dir"), ''
 
-            txt_address = get_desktop() + "\\" + "data_dir_names.txt"
+            txt_address = Get("root_dir") + "\\" + "all_data_info.txt"
             with open(txt_address, "a+") as txt:  # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
                 attr_Auto_Set(locals())  # 定义完 所有 attr 后，就写入 记录之
                 attr_line = auto_gan_attr_line()
                 txt.write(attr_line)
     else:
-        folder_address = get_desktop() + "\\" + folder_name
+        folder_address = Get("root_dir") + "\\" + folder_name
     return folder_address
 
 # %%
@@ -1933,7 +1935,10 @@ def attr_get_from_list(item_attr_name):
 
 def attr_get(line, item_attr_name): # from line
     index = Get("item_attr_name_loc_dict_save")[item_attr_name]
-    return line.split(Get("attr_separator"))[index]
+    if len(line.split(Get("attr_separator"))) >= index+1:
+        return line.split(Get("attr_separator"))[index]
+    else:
+        return None # 等价于 不写 return 即没有 返回值
 
 # %%
 
@@ -1944,7 +1949,6 @@ def gan_Data_Seq(txt, folder_address):
     lines = txt.readlines()
     # txt.seek(2)  # 光标移到 txt 末尾（不必了，其实 已经移到 末尾了）
 
-    level_min = 1 # 把 level 的基数抬升 1：不从 0 开始计。
     trigger = 0
     if folder_address in whole_text:  # 如果 folder_address 在以前的 记录中 出现过
         trigger = 1
@@ -1954,9 +1958,9 @@ def gan_Data_Seq(txt, folder_address):
         dir_seq = Data_Seq.split('.')[0]  # 获取 最后一行 的 dir_seq
         dir_seq = str(int(dir_seq) + 1)  # 把它加 1，作为 序数
     else:
-        dir_seq = str(level_min)  # str(0) 也行
+        dir_seq = str(Get("level_min"))  # str(0) 也行
 
-    folder_address_relative = folder_address.replace(get_desktop() + "\\", "")
+    folder_address_relative = folder_address.replace(Get("root_dir") + "\\", "")
     # 相对路径中，将只剩下 kwargs["p_dir"] + "\\" + folder_name 或 folder_name
     dirs = folder_address_relative.split("\\")
     dirs = [(DIR.replace(DIR.split(' ')[0] + ' ', "") if len(DIR.split(' '))>1 and
@@ -1964,19 +1968,19 @@ def gan_Data_Seq(txt, folder_address):
              for DIR in dirs] # 有空格 则 取第一部分，若其中 非数字只有 '.' 的话，取 第二部分
     level = len(dirs)  # 桌面上的 folder 内的东西 就是 1，内部的 就是 2...诸如此类
     # print(level)
-    level_seq = [level_min] * level  # [0,0,0,...]
-    level_seq_max = [level_min] * level  # [0,0,0,...] 这个 只有 l=0 才有用
+    level_seq = [Get("level_min")] * level  # [0,0,0,...]
+    level_seq_max = [Get("level_min")] * level  # [0,0,0,...] 这个 只有 l=0 才有用
     dir_repeat_times = [0] * level
     # dir_repeat_line_i = [[]] * level  # [[],[],[],...] # dirs[l] 重复时 所对应的 line 行序数 i
     # 这个 只有 l>0 才有用，其实不用记录 line 的 行序数 i，只需 记录 符合条件的 line 数，所以 [] * level 更省内存
-    data_seq = level_min
+    data_seq = Get("level_min")
     for i in range(len(lines)):
         line = lines[i]
         line = line[:-1]
         item_Level_Seq = attr_get(line, "Level_Seq")
         item_level_seq = item_Level_Seq.split('.')
         folder_address_line = attr_get(line, "folder_address")
-        folder_address_line_relative = folder_address_line.replace(get_desktop() + "\\", "")
+        folder_address_line_relative = folder_address_line.replace(Get("root_dir") + "\\", "")
         dirs_line = folder_address_line_relative.split("\\")
         dirs_line = [(DIR_line.replace(DIR_line.split(' ')[0] + ' ', "") if len(DIR_line.split(' '))>1 and
                      set(find_NOT_nums(DIR_line.split(' ')[0]))=={'.'} else DIR_line) 
@@ -2030,13 +2034,13 @@ def gan_Data_Seq(txt, folder_address):
     for l in range(level):
         if dir_repeat_times[l] == 0:  # 如果 dirs[l] 在以前 从没出现过 len(dir_repeat_line_i[l]) == 0
             if l == 0: #（出现过的话，值已经定好了：保留原值）
-                level_seq[l] = (level_seq_max[l] + 1) if len(lines) > 0 else level_min
+                level_seq[l] = (level_seq_max[l] + 1) if len(lines) > 0 else Get("level_min")
             else:
-                level_seq[l] = (level_seq_max[l] + 1) if dir_repeat_times[l-1] > 0 else level_min
+                level_seq[l] = (level_seq_max[l] + 1) if dir_repeat_times[l-1] > 0 else Get("level_min")
         Level_Seq += str(level_seq[l])  # 更新 Level_Seq
         Level_Seq += ('.' if l != level-1 else '')
     # print(Level_Seq)
-    data_th = len(lines) + level_min
+    data_th = len(lines) + Get("level_min")
     return data_th, Data_Seq, Level_Seq
 
 def auto_gan_attr_line():
@@ -2053,28 +2057,33 @@ def U_save(U, U_name, folder_address,
     if is_save == 1:
         np.savetxt(U_address, U) if is_save_txt else savemat(U_address, {ugHGU: U})
 
+        is_data_saved = 1
+        root_dir_boot_times = Get("root_dir_boot_times")
         z_str = str(kwargs['z']) if 'z' in kwargs else 'z'
         U_name_no_suffix = U_name.replace(kwargs['suffix'], '') if 'suffix' in kwargs else 'U_name_no_suffix'
+        root_dir = Get("root_dir")
 
-        txt_address = get_desktop() + "\\" + "data_dir_names.txt"
+        txt_address = Get("root_dir") + "\\" + "all_data_info.txt"
         with open(txt_address, "a+") as txt:  # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
             data_th, Data_Seq, Level_Seq = gan_Data_Seq(txt, folder_address)
             attr_Auto_Set(locals()) # 定义完 所有 attr 后，就写入 记录之
             attr_line = auto_gan_attr_line()
             txt.write(attr_line)
 
-        txt_address = folder_address + "\\" + "data_names.txt"
+        txt_address = folder_address + "\\" + "data_info.txt"
         with open(txt_address, "a+") as txt: # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
             txt.write(attr_line)
 
     return U_address, ugHGU
 
+# %%
+
 def get_Data_info(Data_Seq):
-    txt_address = get_desktop() + "\\" + "data_dir_names.txt"
+    txt_address = Get("root_dir") + "\\" + "all_data_info.txt"
     with open(txt_address, "r") as txt:
         lines = txt.readlines()  # 注意是 readlines 不是 readline，否则 只读了 一行，而不是 所有行 构成的 列表
         # lines = lines[:-1] # 把 最后一行 的 换行 去掉（不用去了，每个 \n 包含在上一行了）
-    Data_Seq = str(Data_Seq) + (("." + "0") if '.' not in str(Data_Seq) else '') # 不加括号 有问题，也是醉了
+    Data_Seq = str(Data_Seq) + (("." + str(Get("level_min"))) if '.' not in str(Data_Seq) else '') # 不加括号 有问题，也是醉了
     attr_list = []
     for line in lines:
         line = line[:-1]
@@ -2083,7 +2092,33 @@ def get_Data_info(Data_Seq):
             attr_list = line.split(Get("attr_separator"))
             break
     # return attr_list
-    return line
+    return line # python 中的 for 循环 的 内部变量 可以 外部调用：break 后还能用
+
+def get_Data_attr(Data_Seq, *attr_names):
+    attr_line = get_Data_info(Data_Seq)
+    attr_values = []
+    for attr_name in attr_names:
+        attr_values.append(attr_get(attr_line, attr_name))
+    return attr_values # attr_values 的顺序 等于 attr_names 的顺序
+    # 也就是 attr_names.index("attr_name") = attr_values.index("attr_value")
+
+def get_Data_new_root_dir(Data_Seq):
+    root_dir, folder_address, U_address = get_Data_attr(Data_Seq, "root_dir", "folder_address", "U_address")
+    folder_new_address = folder_address.replace(root_dir, Get("root_dir")) # 用新的 root_dir 去覆盖 旧的 root_dir
+    U_new_address = U_address.replace(root_dir, Get("root_dir"))  # 用新的 root_dir 去覆盖 旧的 root_dir
+    return Get("root_dir"), folder_new_address, U_new_address
+
+def get_Data_new_attr(Data_Seq, *attr_names):
+    attr_values = get_Data_attr(Data_Seq, *attr_names)
+    if "root_dir" in attr_names:
+        attr_values[attr_names.index("root_dir")] = Get("root_dir") # attr_values 的索引 等于 attr_names 的索引
+    if "folder_address" in attr_names or "U_address" in attr_names:
+        new_root_dir, folder_new_address, U_new_address = get_Data_new_root_dir(Data_Seq)
+        if "folder_address" in attr_names:
+            attr_values[attr_names.index("folder_address")] = folder_new_address
+        if "U_address" in attr_names:
+            attr_values[attr_names.index("U_address")] = U_new_address
+    return attr_values
 
 # %%
 
@@ -2390,16 +2425,14 @@ def img_squared_bordered_Read(img_full_name,
 def U_read_only(U_name, is_save_txt):
     if len(U_name.split('.')) == 2 and \
             len(find_NOT_nums(U_name.split('.')[0])) == 0 and len(find_NOT_nums(U_name.split('.')[1])) == 0:
-        # attr_list = get_Data_info(U_name) # 如果 U_name 完全符合 Data_Seq 的 语法规范
-        # ugHGU, U_address = attr_list[1], attr_list[3]
-        attr_line = get_Data_info(U_name)
-        ugHGU, U_address = attr_get(attr_line, "ugHGU"), attr_get(attr_line, "U_address")
+        # 如果 U_name 完全符合 Data_Seq 的 语法规范
+        ugHGU, U_address = get_Data_new_attr(U_name, "ugHGU", "U_address") # 变量数 不等，右边会 自动解包
     else:
         if ".txt" in U_name or ".mat" in U_name:
             U_full_name = U_name
         else:
             U_full_name = U_name + (is_save_txt and ".txt" or ".mat")
-        U_address = get_desktop() + "\\" + U_full_name
+        U_address = Get("root_dir") + "\\" + U_full_name
         U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_name)
 
     U = np.loadtxt(U_address, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U_full_name)[ugHGU]  # 加载 复振幅场

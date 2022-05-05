@@ -15,37 +15,118 @@ from fun_statistics import U_Drop_n_sigma
 
 # %%
 
-global GLV_init_times
-GLV_init_times = 0
+global GLV_DICT_init_times, GLV_init_times, GLV_kwargs_times
+GLV_DICT_init_times, GLV_init_times, GLV_kwargs_times = 0, 0, 0
 
-def init_GLV():
-    global GLV_init_times
-    if GLV_init_times == 0:  # 只在第一次初始化的时候，才初始化
+# 如果没有 if_image_add_black_border 充当第一条 含 init 的语句，则要加个 init_GLV_DICT(**kwargs)，
+# treeprint 不管事，会在桌面上生成一次 all_data_info.txt，无语
+def init_GLV_DICT(*args, **kwargs): # 不能只是 **kwargs，还得加 *args，哪怕没有 位置参数
+    # 否则 init_GLV_DICT() takes 0 positional arguments but 1 was given
+    global GLV_DICT_init_times
+    if GLV_DICT_init_times == 0:  # 只在第一次初始化的时候，才初始化 DICT，但此时 kwargs 不一定是 第一次初始化 就进来的
         global GLOBALS_DICT
         GLOBALS_DICT = {}
-        # %% 初始化 一些值
-        GLOBALS_DICT["F_E"] = ".2e" # scientific_notation
-        GLOBALS_DICT["F_f"] = ".2f"
-        GLOBALS_DICT["f_f"] = "%.2f" # 小数记数
-        # %% ianls = item_attr_name_list_save, ianlds = item_attr_name_loc_dict_save
-        GLOBALS_DICT["attr_separator"] = ' ; '
-        item_attr_name_list_save = ["data_th", "Data_Seq", "Level_Seq", "ugHGU", "z_str",
-                                 "folder_address", "U_name_no_suffix", "U_name", "U_address", ]
+        # print(2, kwargs)
+    GLV_DICT_init_times += 1
+    init_GLV(**kwargs)  # （比如若 tree_print 是第一次初始化，则 kwargs 还没进来呢）
+
+
+def init_GLV(*args, **kwargs): # 不能只是 **kwargs，还得加 *args，哪怕没有 位置参数
+    global GLV_init_times, GLV_kwargs_times # 只允许一次不带参的初始化，但同时额外 允许一次 带参的初始化
+    if GLV_init_times == 0:  # 原则上，只在第一次 初始化的 时候，才初始化 GLV
+        is_GLV_init = 1
+        if len(kwargs) > 0:  # 如果第一次 初始化，就有 参数 传进来，则之后 哪怕再带参数 init，也无法 init 了
+            GLV_kwargs_times += 1
+    elif len(kwargs) > 0 and GLV_kwargs_times == 0:  # 但 额外 允许一次 带参的初始化
+        is_GLV_init = 1
+        GLV_kwargs_times += 1
+    else:
+        is_GLV_init = 0
+    GLV_init_times += 1
+
+    if is_GLV_init == 1:
+        # print(3, kwargs)
+        # %% float 显示
+        SET("F_E", kwargs.get("F_E", ".2e"))  # scientific_notation
+        SET("F_f", kwargs.get("F_f", ".2f"))
+        SET("f_f", kwargs.get("f_f", "%.2f"))  # 小数记数
+        # %% save 的 data 条目信息
+        SET("level_min", 1)
+        SET("attr_separator", kwargs.get("attr_separator", ' ; '))
+        # %% 不可被 外界改变
+        item_attr_name_list_save = ["is_data_saved", "root_dir_boot_times", "data_th", "Data_Seq", "Level_Seq",
+                                    "ugHGU", "z_str", "U_name", "U_name_no_suffix",
+                                    "root_dir", "folder_address", "U_address", ]
         # 它 不需要是 全局变量，也就意味者：之后顺序 不能改
         # 键值（key） 和 键的位置（索引）
-        GLOBALS_DICT["item_attr_value_list_save"] = [None] * len(item_attr_name_list_save) # 它 得是 全局变量：储存的值
-        GLOBALS_DICT["item_attr_name_loc_dict_save"] = {}
+        SET("item_attr_value_list_save", [None] * len(item_attr_name_list_save))  # 它 得是 全局变量：储存的值
+        SET("item_attr_name_loc_dict_save", {})
         for i in range(len(item_attr_name_list_save)):
-            GLOBALS_DICT["item_attr_name_loc_dict_save"].update({item_attr_name_list_save[i]: i}) # 键值（key）: 键位
+            GET("item_attr_name_loc_dict_save").update({item_attr_name_list_save[i]: i})  # 键值（key）: 键位
         # %%
-        GLOBALS_DICT["size_fig_x_scale"] = 10
-        GLOBALS_DICT["size_fig_y_scale"] = 1
-    GLV_init_times += 1
+        SET("root_dir", gan_root_dir(kwargs.get("root_dir", '')))
+        # print(GET("root_dir"))
+        SET("root_dir_boot_times", gan_root_dir_boot_times())
+        # %%
+        SET("size_fig_x_scale", kwargs.get("size_fig_x_scale", 10))
+        SET("size_fig_y_scale", kwargs.get("size_fig_y_scale", 1))
+
+
+def SET(key, value): # 只有 init_GLV 中才用；且不调用 init_GLV_DICT(), 这样便可 在 init_GLV_DICT() 中存在（不发生 交叉调用）
+    try:  # 为了不与 set 集合 重名
+        GLOBALS_DICT[key] = value
+        return True  # 创建 key-value 成功
+    except KeyError:
+        return False  # 创建 key-value 失败
+
+def GET(key):
+    try:
+        return GLOBALS_DICT[key]  # 取 value 成功，返回 value
+    except KeyError:
+        return False  # 取 value 失败
+
+def attr_GET(line, item_attr_name): # from line，是 fun_os 中的 attr_get 函数 的 一个 copy
+    index = GET("item_attr_name_loc_dict_save")[item_attr_name]
+    # print(line.split(GET("attr_separator")))
+    if len(line.split(GET("attr_separator"))) >= index+1:
+        return line.split(GET("attr_separator"))[index]
+    else:
+        return None # 等价于 不写 return 即没有 返回值
+
+def gan_root_dir(root_dir):
+    import os
+    from fun_os import get_desktop
+    if root_dir == '':
+        root_dir_new = get_desktop()
+    elif root_dir.find('\\') == -1: # 如果 root_dir 既不是 空 也不含 \
+        root_dir_new = get_desktop() + '\\' + root_dir
+    else: # 否则 自定义 路径
+        root_dir_new = root_dir
+    if not os.path.isdir(root_dir_new): # 得保证 先有 folder
+        os.makedirs(root_dir_new) # 否则 即使 a+ 模式 也无法 自动创建 Get("root_dir") + "\\" + "all_data_info.txt"
+    # print(root_dir, root_dir_new)
+    return root_dir_new
+
+def gan_root_dir_boot_times():
+    txt_address = GET("root_dir") + "\\" + "all_data_info.txt"
+    with open(txt_address, "a+") as txt: # r 或 r+ 会在 根目录 没有 该文件时，报错：所以得先生成，再查看之
+        txt.seek(0)  # 光标移到 txt 开头
+        lines = txt.readlines()
+    # print(lines)
+    if len(lines) > 0: # 如果有内容，其实总能读到 ex_root_dir_boot_times 的，不会读出 None...
+        line = lines[-1]  # 读取最后一行
+        line = line[:-1]
+        ex_root_dir_boot_times = attr_GET(line, "root_dir_boot_times")  # 得到最后一行中的 root_dir_boot_times，把它加 1
+        root_dir_boot_times = int(ex_root_dir_boot_times) + 1
+    else:
+        root_dir_boot_times = GET("level_min")  # 把 level 的基数抬升 1：不从 0 开始计。
+    return str(root_dir_boot_times)
 
 # %%
 
 def Set(key, value):  # 第一次设置值的时候用 Set，以后可直接用 Get(key) = ~
-    init_GLV()
+    # init_GLV_DICT() # 取消了这个 耗资源的 “万金油”
+    # 现在的 Set 就是 SET 了，但不保险：需要保证 第一次操作 全局变量前，就初始化好了 全局变量表
     try:  # 为了不与 set 集合 重名
         GLOBALS_DICT[key] = value
         return True  # 创建 key-value 成功
@@ -54,7 +135,7 @@ def Set(key, value):  # 第一次设置值的时候用 Set，以后可直接用 
 
 
 def Get(key):
-    init_GLV()
+    # init_GLV_DICT() # 取消了这个 耗资源的 “保险套”
     try:
         return GLOBALS_DICT[key]  # 取 value 成功，返回 value
     except KeyError:
@@ -99,7 +180,7 @@ def init_GLV_tree_print():
     #     Get("tree_print")[-1].append(Get("tree_print")[0][2] * i + Get("tree_print")[0][-2])  # ["|    " * i + "└── "]
 
     # %%
-    init_GLV()
+    # init_GLV_DICT()
     if "tree_print" not in GLOBALS_DICT:
         Set("tree_print", [])
         Get("tree_print").append(".")  # ["."]
@@ -236,7 +317,7 @@ def init_GLV_rmw(U_name, ray_new, method, way, **kwargs):  # kwargs 里面已经
 # %%
 
 def init_accu(key, init_value=0):  # 设定一个 全局变量累加器（名称、初值 默认为 0），用于不可重入的计数，或只能进行一次的过程。
-    init_GLV()
+    # init_GLV_DICT()
     if key not in GLOBALS_DICT:
         Set(key, init_value)
     else:
@@ -405,6 +486,7 @@ def init_SSI(g_shift, U_0,
     Ix, Iy = U_0.shape
     # Set("Ix", Ix)
     # Set("Iy", Iy)
+    Set("Iz", Iz)
 
     Set("is_energy_evolution_on", is_energy_evolution_on)
     Set("is_stored", is_stored)
@@ -436,10 +518,6 @@ def init_SSI(g_shift, U_0,
         iz_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
         z_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
 
-        sheet_th_stored[sheets_stored_num] = sheets_num
-        iz_stored[sheets_stored_num] = Iz
-        z_stored[sheets_stored_num] = Iz * size_PerPixel
-
         Set("sheet_th_stored", sheet_th_stored)  # 设置成全局变量
         Set("iz_stored", iz_stored)  # 方便之后在这个 py 和 主 py 文件里直接调用
         Set("z_stored", z_stored)  # 懒得搞 返回 和 获取 这仨了
@@ -469,6 +547,7 @@ def init_EVV(g_shift, U_0,
              sheets_num, sheets_stored_num,
              Iz, size_PerPixel, ):
     Ix, Iy = U_0.shape
+    Set("Iz", Iz)
 
     Set("is_energy_evolution_on", is_energy_evolution_on)
     Set("is_stored", is_stored)
@@ -495,10 +574,6 @@ def init_EVV(g_shift, U_0,
         iz_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
         z_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
 
-        sheet_th_stored[sheets_stored_num] = sheets_num
-        iz_stored[sheets_stored_num] = Iz
-        z_stored[sheets_stored_num] = Iz * size_PerPixel
-
         Set("sheet_th_stored", sheet_th_stored)  # 设置成全局变量
         Set("iz_stored", iz_stored)  # 方便之后在这个 py 和 主 py 文件里直接调用
         Set("z_stored", z_stored)  # 懒得搞 返回 和 获取 这仨了
@@ -524,6 +599,8 @@ def fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
 
     if abs(Get("is_stored")) == 1:
         if np.mod(for_th, Get("sheets_num") // Get("sheets_stored_num")) == 0:
+            # print(for_th + 1, '\n') # 一共存了 sheets_stored_num + 1 次，所以 把最后一次 预设值 给覆盖了...之后还得重新设...
+            # print(Get("zj")[for_th + 1])
             # 如果 for_th 是 Get("sheets_num") // Get("sheets_stored_num") 的 整数倍（包括零），则 储存之
             Get("sheet_th_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = for_th + 1
             Get("iz_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = Get("izj")[for_th + 1]
@@ -571,6 +648,8 @@ def Fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
         eget("U")[for_th] = np.sum(np.abs(U_zdz) ** 2)
 
     if abs(Get("is_stored")) == 1:
+        # print(for_th, '\n') # 一共存了 sheets_stored_num + 1 次，所以 把最后一次 预设值 给覆盖了...之后还得重新设...
+        # print(Get("zj")[for_th])
         Get("sheet_th_stored")[for_th] = for_th
         Get("iz_stored")[for_th] = Get("izj")[for_th]
         Get("z_stored")[for_th] = Get("zj")[for_th]
@@ -680,6 +759,9 @@ def fU_SSI_plot(th_f, th_e,
     from fun_os import U_SSI_plot
 
     if abs(Get("is_stored")) == 1:
+        Get("sheet_th_stored")[Get("sheets_stored_num")] = Get("sheets_num")
+        Get("iz_stored")[Get("sheets_stored_num")] = Get("Iz") # 把 sheets_stored_num + 1 这最后一次的值 用 z0 的值 覆盖掉
+        Get("z_stored")[Get("sheets_stored_num")] = Get("Iz") * Get("size_PerPixel")
         sget("G")[:, :, Get("sheets_stored_num")] = fget("G")  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
         sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U_0，而是 U_dz
 
@@ -747,8 +829,13 @@ def fU_EVV_plot(img_name_extension,
                 z, ):
     from fun_os import U_EVV_plot
     if abs(Get("is_stored")) == 1:
+        Get("sheet_th_stored")[Get("sheets_stored_num")] = Get("sheets_num")
+        Get("iz_stored")[Get("sheets_stored_num")] = Get("Iz")  # 把 sheets_stored_num + 1 这最后一次的值 用 z0 的值 覆盖掉
+        Get("z_stored")[Get("sheets_stored_num")] = Get("Iz") * Get("size_PerPixel")
         sget("G")[:, :, Get("sheets_stored_num")] = fget("G")  # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
         sget("U")[:, :, Get("sheets_stored_num")] = fget("U")  # 储存的 第一层，实际上不是 U_0，而是 U_dz
+    # 不能有这个，一方面 因为 EVV 的 zj 自带到 z0：np.linspace(0, z0, sheets_stored_num + 1)
+    # 另一方面，从外部 传了 zj 进 EVV 后，zj 对应的 图都画好了，结果 这里 又把 最后一张图 覆盖了一下...
 
     if Get("is_stored") == 1:
         U_EVV_plot(sget("G"), fkey("G"),

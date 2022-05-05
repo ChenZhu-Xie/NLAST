@@ -266,4 +266,5 @@ if __name__ == '__main__':
                       is_print=1, is_contours=1, n_TzQ=1,
                       Gz_max_Enhance=1, match_mode=1,
                       # %%
+                      root_dir=r'',
                       border_percentage=0.1, is_end=-1, )

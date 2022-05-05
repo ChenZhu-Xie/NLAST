@@ -31,7 +31,7 @@ def U_compare(U, U_0, U_0_title, z,
               #%%
               is_colorbar_on = 1, is_energy = 1,
               #%%
-              is_relative = 1, is_print = 2, **kwargs, ):
+              is_amp_relative = 1, is_print = 2, **kwargs, ):
     kwargs['p_dir'] = 'GU_error_2d'
     #%%
     U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_0_title)
@@ -80,7 +80,7 @@ def U_compare(U, U_0, U_0_title, z,
     if is_save == 2:
         is_save = 1
 
-    if is_relative == 1: # 归一化
+    if is_amp_relative == 1: # 归一化
         U_norm = U/np.max(np.abs(U)) if np.max(np.abs(U)) != 0 else U
         U_0_norm = U_0 / np.max(np.abs(U_0)) if np.max(np.abs(U_0)) != 0 else U_0
 

@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['c_3_test_plot_1d.py', 'c_3_compare_auto_Tz__SHG_NLA__SSI_chi2.py', 'd_3_interference_AST__AST.py', 'fun_compare.py', 'fun_os.py', 'fun_plot.py', 'b_3_SHG_NLA.py', 'fun_global_var.py']
+recent_files = ['c_2_compare_SHG_NLA_EVV__SSI_chi2.py', 'b_3_SHG_NLA_EVV.py', 'c_1_consistency_SHG_NLA__AST.py', 'c_2_compare_SHG_NLA__SSI_chi2.py']
 
 [main]
 version = 0.2.0

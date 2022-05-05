@@ -9,7 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import numpy as np
 from fun_os import img_squared_bordered_Read
-from fun_global_var import tree_print
+from fun_global_var import init_GLV_DICT, tree_print
 from fun_img_Resize import if_image_Add_black_border
 from fun_linear import fft2
 from fun_compare import U_compare
@@ -94,9 +94,11 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                          is_print=1, is_contours=1, n_TzQ=1,
                          Gz_max_Enhance=1, match_mode=1,
                          # %%
-                         is_NLA=1, is_relative=1,
+                         is_NLA=1, is_amp_relative=1,
                          # %%
                          **kwargs, ):
+    init_GLV_DICT(**kwargs)
+    # %%
     info = "利用 SHG 对比：NLA 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
@@ -263,7 +265,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                                      # %%S
                                      is_colorbar_on, is_energy,
                                      # %%
-                                     is_relative, is_print, )
+                                     is_amp_relative, is_print, )
 
     # %%
     # 对比 U2_NLA 与 U2_ssi 的 （绝对）误差
@@ -283,7 +285,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                                      # %%S
                                      is_colorbar_on, is_energy,
                                      # %%
-                                     is_relative, is_print,
+                                     is_amp_relative, is_print,
                                      # %%
                                      is_end=1, )
 
@@ -367,8 +369,10 @@ if __name__ == '__main__':
                          is_print=1, is_contours=0, n_TzQ=1,
                          Gz_max_Enhance=1, match_mode=1,
                          # %%
-                         is_NLA=1, is_relative=1,
+                         is_NLA=1, is_amp_relative=1,
                          # %%
-                         border_percentage=0.1, is_end=-1, )
+                         root_dir=r'',
+                         border_percentage=0.1, is_end=-1,
+                         size_fig_x_scale=10, size_fig_y_scale=1, )
 
 # 注意 colorbar 上的数量级

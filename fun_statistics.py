@@ -6,6 +6,7 @@ Created on Fri Jan 28 00:42:22 2022
 """
 
 import numpy as np
+import math
 from fun_linear import Cal_kz
 
 def U_Drop_n_sigma(U, n, is_energy):
@@ -29,3 +30,11 @@ def find_Kxyz(g, k):
     K_z = np.sum(k_xyz_weight * k_z)
     K_y, K_x = np.sum(k_xyz_weight * mesh_k_x_k_y[:,:,0]), np.sum(k_xyz_weight * mesh_k_x_k_y[:,:,1])
     return K_z, (K_y, K_x)
+
+def find_data_1d_level(data_1d, level_percentage):
+    data_covered_num = math.ceil(len(data_1d) * level_percentage) # 向上取整 以覆盖比 level_percentage 范围 更大的 数据
+    real_level_percentage = data_covered_num / len(data_1d)
+    # print(real_level_percentage)
+    index = data_covered_num - 1
+    level = sorted(data_1d)[index]
+    return level, real_level_percentage

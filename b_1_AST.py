@@ -166,4 +166,5 @@ if __name__ == '__main__':
         # %%
         is_print=1,
         # %%
+        root_dir=r'',
         border_percentage=0.1, ray="1", is_end=-1, )

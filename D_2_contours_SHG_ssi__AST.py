@@ -10,7 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
-from fun_global_var import tree_print, init_GLV_rmw, fset, fget, fkey
+from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, fset, fget, fkey
 from fun_pump import pump_pic_or_U
 from A_3_structure_chi2_Generate_3D import structure_chi2_3D
 from b_1_AST import AST
@@ -96,6 +96,8 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                              is_NLA=1,
                              # %%
                              **kwargs, ):
+    init_GLV_DICT(**kwargs)
+    # %%
     info = "利用 SHG 描边：ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
@@ -398,7 +400,8 @@ if __name__ == '__main__':
                              # %% 该程序 独有
                              is_NLA=1,
                              # %% 该程序 作为 主入口时
+                             root_dir=r'',
                              border_percentage=0.1, is_end=-1,
-                             size_fig_x_scale = 10, size_fig_y_scale = 1, )
+                             size_fig_x_scale=10, size_fig_y_scale=1, )
 
 # 注意 colorbar 上的数量级

@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import UnivariateSpline, interp1d, interp2d, griddata
 from fun_algorithm import find_nearest, remove_elements
-from fun_global_var import Get
+from fun_statistics import find_data_1d_level
 
 
 # plt.rcParams['xtick.direction'] = 'out' # 设置刻度线在坐标轴内
@@ -175,20 +175,20 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         if "zj2" in kwargs:
             index = [find_nearest(ix_new, goal)[0] for goal in ix2_new]
             # print(index)
-            l3_new = np.abs(l2_new - array1D_new[index])  # 花式索引，可以用 list 或 array 作为一个 array 的下标
+            l2_new_error = np.abs(l2_new - array1D_new[index])  # 花式索引，可以用 list 或 array 作为一个 array 的下标
 
         if 'l3' in kwargs:
             if sample > 1: # 我发现 哪怕 sample == 1，也会导致 被 插值作用，导致 原始值 被改变（不是说好了过每个点么...）
                 f = UnivariateSpline(ix, kwargs['l3'], s=0)  # ix 必须是 严格递增的，若 ix 是 zj 的话，zj 也必须是
-                l4_new = f(ix2_new)
+                l3_new = f(ix2_new)
             else:
-                l4_new = kwargs['l3']
-            l4_new = l4_new if is_energy != 1 else np.abs(l4_new) ** 2
+                l3_new = kwargs['l3']
+            l3_new = l3_new if is_energy != 1 else np.abs(l3_new) ** 2
 
             if kwargs.get("ax_yscale", None) != 'linear':
-                l4_new = np.log10(l4_new)
-                # print(l4_new)
-                l4_new = convert_inf_to_min(l4_new)  # 转成数组
+                l3_new = np.log10(l3_new)
+                # print(l3_new)
+                l3_new = convert_inf_to_min(l3_new)  # 转成数组
 
     # %%
 
@@ -224,8 +224,8 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         #     # ax1.semilogy(x, np.log10(y))
 
         if "l2" in kwargs and 'l3' in kwargs: # 如果 要绘制 4 条曲线
-            vmax = kwargs.get("vmax", max(np.max(array1D_new), np.max(l2_new), np.max(l3_new)))
-            vmin = kwargs.get("vmin", min(np.min(array1D_new), np.min(l2_new), np.min(l3_new)))
+            vmax = kwargs.get("vmax", max(np.max(array1D_new), np.max(l2_new), np.max(l2_new_error)))
+            vmin = kwargs.get("vmin", min(np.min(array1D_new), np.min(l2_new), np.min(l2_new_error)))
         elif "l2" in kwargs and 'l3' not in kwargs and "ax2_xticklabel" not in kwargs: # 需要 给 min 补个零，防止 ganticks 的时候，不从 0 开始
             vmax = kwargs.get("vmax", np.max(array1D_new))
             vmin = 0
@@ -248,13 +248,14 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
     # %% 画 第 1 条 曲线
 
     ax1_plot_dict = {"color": color_1d, "label": kwargs.get('label', None)}
-    ax1_plot_dict.update({"alpha": kwargs.get("ax1_alpha", 1),  # 1 即 不透明
+    # 如果有第 2 个 ax 加进来，则提高 第 1 个 ax 的 透明度
+    ax1_plot_dict.update({"alpha": kwargs.get("ax1_alpha", 0.5 if "l2" in kwargs else 1),
                           "linestyle": kwargs.get("ax1_linestyle", '-'),  # 线型
                           "linewidth": kwargs.get("ax1_linewidth", 2), })  # 线宽
     ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", ''),  # 标记点：'+' 'x' '.' '|' ''
                           "markeredgecolor": kwargs.get("ax1_markeredgecolor", color_1d),  # 标记点颜色 ‘green’
                           "markersize": kwargs.get("ax1_markersize", '5'),  # 标记点大小
-                          "markeredgewidth": kwargs.get("ax1_markeredgewidth", 1), })  # 标记点边宽
+                          "markeredgewidth": kwargs.get("ax1_markeredgewidth", 2), })  # 标记点边宽
 
     # ax1.set_yscale(kwargs.get('ax1_yscale', 'linear')) # linear 会覆盖 之前的 set_yticks，如果该语句在 set_yticks 之后的话
 
@@ -304,16 +305,16 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             #     # ax2.semilogy(x, np.log10(y))
 
             if 'l3' in kwargs:
-                vmax2 = kwargs.get("vmax2", np.max(l4_new))
-                vmin2 = kwargs.get("vmin2", np.min(l4_new))
+                vmax2 = kwargs.get("vmax2", np.max(l3_new))
+                vmin2 = kwargs.get("vmin2", np.min(l3_new))
                 # print(vmax2, vmin2)
             else:
                 if kwargs.get("is_energy_normalized", False) == 2: # 如果要画 随 T 的 演化
                     # ax2.set_ylim(ax1.get_ylim())  # ax2 的 y 轴范围 不再自动，而是 强制 ax2 的 y 轴 范围 等于 ax1 的 y 轴范围
                     vmax2, vmin2 = vmax, vmin  # 与 ax2.set_ylim(ax1.get_ylim()) 配合，强制 ax2 的 y 轴 刻度线 等于 ax1 的 刻度线。
                 elif "ax2_xticklabel" not in kwargs: # 如果要画 随 T 的 演化
-                    vmax2 = kwargs.get("vmax2", max(np.max(l2_new), np.max(l3_new)))
-                    # vmin2 = kwargs.get("vmin2", min(np.min(l2_new), np.min(l3_new)))
+                    vmax2 = kwargs.get("vmax2", max(np.max(l2_new), np.max(l2_new_error)))
+                    # vmin2 = kwargs.get("vmin2", min(np.min(l2_new), np.min(l2_new_error)))
                     vmin2 = 0 # 这样才能使 ticks 和 labels 的 第一个元素 是 0
                 else: # 如果 要画 随 dk 的 演化
                     vmax2 = kwargs.get("vmax2", np.max(l2_new))
@@ -339,7 +340,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         ax2_marker_dict = {"marker": kwargs.get("ax2_marker", '|'),  # 标记点
                            "markeredgecolor": kwargs.get("ax2_markeredgecolor", 'green'),  # 标记点颜色
                            "markersize": kwargs.get("ax2_markersize", '20'),  # 标记点大小
-                           "markeredgewidth": kwargs.get("ax2_markeredgewidth", 1), }
+                           "markeredgewidth": kwargs.get("ax2_markeredgewidth", 2), }
         ax2_plot_dict.update(ax2_marker_dict)
 
         if 'l3' in kwargs:
@@ -347,26 +348,39 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
                                   "linestyle": kwargs.get("ax2_linestyle", '--'), })
             ax1_plot_dict.update(ax2_marker_dict)
             l2, = ax1.plot(ix2_new, l2_new, **ax1_plot_dict, )
-
+            # %%
             ax2_plot_dict.update({"label": kwargs.get('label3', None),
-                                  "linestyle": kwargs.get("l3_linestyle", '-.'),
-                                  "marker": kwargs.get("l3_marker", 'x'),
-                                  "markeredgecolor": kwargs.get("l4_markeredgecolor", 'gray'), })
-            l4, = ax2.plot(ix2_new, l4_new, **ax2_plot_dict, )
+                                  "linestyle": kwargs.get("l2_error_linestyle", '-.'),
+                                  "marker": kwargs.get("l2_error_marker", 'x'),
+                                  "markeredgecolor": kwargs.get("l3_markeredgecolor", 'yellow'), })
+            l3, = ax2.plot(ix2_new, l3_new, **ax2_plot_dict, )
+            # %%
+            l3_level, real_level_percentage = find_data_1d_level(l3_new, kwargs.get("l3_level", 0.8))
+            line_plot_dict = {"linestyle": kwargs.get("l2_error_linestyle", '-.'),  # 线型
+                              "color": kwargs.get("l3_markeredgecolor", 'yellow'),
+                              "label": str(real_level_percentage * 100) + ' %' + ' data_covered'}
+            l3_hline = ax2.axhline(y=l3_level, **line_plot_dict)
         else:
             l2, = ax2.plot(ix2_new, l2_new, **ax2_plot_dict, )
+            # %%
+            l2_level, real_level_percentage = find_data_1d_level(l2_new, kwargs.get("l2_level", 0.8))
+            if "zj2" not in kwargs:
+                line_plot_dict = {"linestyle": kwargs.get("ax2_linestyle", '-'),  # 线型
+                                  "color": kwargs.get("ax2_markeredgecolor", 'green'),
+                                  "label": str(real_level_percentage * 100) + ' %' + ' data_covered'}
+                l2_hline = ax2.axhline(y=l2_level, **line_plot_dict)
         # ax2.grid()
 
         if "zj2" in kwargs:
             if 'l3' in kwargs:
                 ax1_plot_dict.update({"label": "energy_error",
-                                      "linestyle": kwargs.get("l3_linestyle", '-.'), })
+                                      "linestyle": kwargs.get("l2_error_linestyle", '-.'), })
 
-                l3, = ax1.plot(ix2_new, l3_new, **ax1_plot_dict, )
+                l2_error, = ax1.plot(ix2_new, l2_new_error, **ax1_plot_dict, )
             else:
                 ax2_plot_dict.update({"label": "energy_error",
-                                      "linestyle": kwargs.get("l3_linestyle", '--'), })
-                l3, = ax2.plot(ix2_new, l3_new, **ax2_plot_dict, )
+                                      "linestyle": kwargs.get("l2_error_linestyle", '--'), })
+                l2_error, = ax2.plot(ix2_new, l2_new_error, **ax2_plot_dict, )
 
         # 要等 ax1 中 所有 曲线 plot 完事 之后，ax1.get_ylim() 获取到的 ax1 的 ylim 才是真实的
         # %% 获取 ax1 的 上下 lim 的 相对位置，和 相对 间隔 大小，为之后 设置 ax2 的 绝对 lim 范围（y 刻度 线性时）
@@ -387,14 +401,16 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         ax2.set_ylim(ax2_down_lim, ax2_up_lim)
         # --------- 搭配 end（y 刻度 线性时）
 
+
         if "label" in kwargs and "label2" in kwargs:
             if "zj2" in kwargs:
                 if 'l3' in kwargs:
-                    plt.legend(handles=[l1, l2, l3, l4], **legend_dict, )
+                    handles = [l1, l2, l2_error, l3, l3_hline, ]
                 else:
-                    plt.legend(handles=[l1, l2, l3], **legend_dict, )
+                    handles = [l1, l2, l2_error, ]
             else:
-                plt.legend(handles=[l1, l2], **legend_dict, )
+                handles = [l1, l2, l2_hline, ]
+            plt.legend(handles=handles, **legend_dict, )
     else:
         if "label" in kwargs:
             plt.legend(**legend_dict, )

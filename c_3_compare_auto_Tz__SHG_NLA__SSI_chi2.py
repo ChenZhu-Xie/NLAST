@@ -9,7 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import math
 import numpy as np
-from fun_global_var import Get, tree_print, GU_error_energy_plot_save
+from fun_global_var import init_GLV_DICT, Get, tree_print, GU_error_energy_plot_save
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST, init_SHG
@@ -93,10 +93,12 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                               is_print=1, is_contours=1, n_TzQ=1,
                               Gz_max_Enhance=1, match_mode=1,
                               # %% 该程序 独有
-                              is_NLA=1, is_relative=1,
+                              is_NLA=1, is_amp_relative=1,
                               num_data_points=3, center_times=40, shift_right=3,
                               # %%
                               **kwargs, ):
+    init_GLV_DICT(**kwargs)
+    # %%
     info = "扫描 Tz，自动对比：NLA 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
@@ -253,7 +255,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                                  is_print, is_contours, n_TzQ,
                                  Gz_max_Enhance, match_mode,
                                  # %%
-                                 is_NLA, is_relative, is_end=0, )
+                                 is_NLA, is_amp_relative, is_end=0, )
 
         G_energy.append(tuple_temp[0][0])
         G_error_energy.append(tuple_temp[0][1])
@@ -370,10 +372,12 @@ if __name__ == '__main__':
                               is_print=1, is_contours=0, n_TzQ=1,
                               Gz_max_Enhance=1, match_mode=1,
                               # %% 该程序 独有
-                              is_NLA=1, is_relative=1,
+                              is_NLA=1, is_amp_relative=1,
                               num_data_points=40, center_times=1.5, shift_right=3,
                               # %% 该程序 作为 主入口时
+                              root_dir=r'',
                               border_percentage=0.1, is_end=-1,
+                              size_fig_x_scale=10, size_fig_y_scale=1,
                               ax_yscale='linear', )
 
 # 注意 colorbar 上的数量级

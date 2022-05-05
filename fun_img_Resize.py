@@ -10,8 +10,8 @@ Created on Tue Oct 26 14:41:11 2021
 import cv2
 import numpy as np
 from PIL import Image
-from fun_os import get_desktop, Info_img
-from fun_global_var import tree_print
+from fun_os import Info_img
+from fun_global_var import tree_print, init_GLV_DICT
 
 Image.MAX_IMAGE_PIXELS = 10E10  # Image 的 默认参数 无法处理那么大的图片
 
@@ -122,15 +122,19 @@ def image_Add_black_border(img_full_name="Grating.png",
 # %%
 
 def if_image_Add_black_border(U_name, img_full_name,
-                              is_name_main, is_print, **kwargs, ):
-    if (type(U_name) != str) or U_name == "" and "U" not in kwargs:
-        if is_name_main:
+                              is_name_main, is_print, **kwargs, ): # 没有 该函数作为起始的 py 文件，需要加 init_GLV_DICT
+
+    if is_name_main: # 等价于：如果是 第一次 进入该程序
+        # %% 开始 加边框
+        # print(1, kwargs)
+        init_GLV_DICT(**kwargs) # 这里初始化的 init_GLV 传了参数进去 —— 没懂为什么得是 **....，不然传进去变成位置参数 args 中的一元素了
+        kwargs.pop("is_end", 0)
+        if (type(U_name) != str) or U_name == "" and "U" not in kwargs:
             border_percentage = kwargs["border_percentage"] if "border_percentage" in kwargs else 0.1
 
             image_Add_black_border(img_full_name,  # 预处理 导入图片 为方形，并加边框
                                    border_percentage,
-                                   is_print, ) # 没把 kwargs 传进来，因此 外面的 is_end = 1 不会进来，也就不会 使加黑边 为 末尾
-
+                                   is_print, )  # 没把 kwargs 传进来，因此 外面的 is_end = 1 不会进来，也就不会 使加黑边 为 末尾
 
 # %%
 # 需要先将 目标 U_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix_structure, Iy_structure 相同，才能开始 之后的工作

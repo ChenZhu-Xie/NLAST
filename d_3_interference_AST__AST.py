@@ -9,7 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import math
 import numpy as np
-from fun_global_var import tree_print, init_GLV_rmw, end_STD, fGHU_plot_save
+from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_STD, fGHU_plot_save
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST
@@ -53,6 +53,8 @@ def interference_AST__AST(img_full_name="Grating.png",
                           is_print=1,
                           # %%
                           **kwargs, ):
+    init_GLV_DICT(**kwargs)
+    # %%
     info = "利用 干涉 描边：AST"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
@@ -214,4 +216,5 @@ if __name__ == '__main__':
                           # %%
                           is_print=1,
                           # %%
+                          root_dir=r'',
                           border_percentage=0.1, is_end=-1, )

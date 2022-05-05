@@ -9,7 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_twin_energy_error_plot_save, U_twin_error_energy_plot_save
-from fun_global_var import tree_print, Get, eget, sget, skey
+from fun_global_var import init_GLV_DICT, tree_print, Get, eget, sget, skey
 from fun_img_Resize import if_image_Add_black_border
 from fun_linear import fft2
 from fun_compare import U_compare
@@ -56,7 +56,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                              is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                              is_reverse_xy=0, is_positive_xy=1,
                              # %%
-                             is_bulk=1, is_no_backgroud=1,
+                             is_bulk=0, is_no_backgroud=1,
                              is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
                              # %%
                              lam1=1.5, is_air_pump=0, is_air=0, T=25,
@@ -94,10 +94,12 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                              is_print=1, is_contours=1, n_TzQ=1,
                              Gz_max_Enhance=1, match_mode=1,
                              # %%
-                             is_NLA=1, is_relative=1,
-                             is_energy_normalized=2, is_output_error_EVV=1,
+                             is_NLA=1, is_amp_relative=1,
+                             is_energy_normalized=2, is_output_error_EVV=0,
                              # %%
                              **kwargs, ):
+    init_GLV_DICT(**kwargs)
+    # %%
     info = "利用 SHG 对比：EVV 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
@@ -251,14 +253,14 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
          is_print, is_contours, n_TzQ,
          Gz_max_Enhance, match_mode, ]
 
-    # print(Get("z_stored")[0])
+    # print(Get("z_stored"))
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SHG_NLA_EVV(*args_EVV, zj=Get("z_stored"), ) if abs(is_stored) == 1 else SHG_NLA_EVV(*args_EVV, )
     # 如果 is_stored == 1 或 -1，则把 SSI 或 ssi 生成的 z_stored 传进 SHG_NLA_EVV 作为 他的 zj，方便 比较。不画图 则传 -1 进去。
 
     if is_energy_evolution_on == 1:  # 截获一下 EVV 的 能量曲线
         zj_EVV = Get("zj")
-        # print(zj_EVV[0])
+        # print(zj_EVV)
         U2_energy_EVV = eget("U")
     if abs(is_stored) == 1:
         U2_stored_EVV, G2_stored_EVV, U2_stored_key_EVV = sget("U"), sget("G"), skey("U")
@@ -290,7 +292,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                   # %%S
                   is_colorbar_on, is_energy,
                   # %%
-                  is_relative, is_print, )
+                  is_amp_relative, is_print, )
 
         # %%
         # 对比 U2_NLA 与 U2_SSI 的 （绝对）误差
@@ -310,7 +312,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                   # %%S
                   is_colorbar_on, is_energy,
                   # %%
-                  is_relative, is_print,
+                  is_amp_relative, is_print,
                   # %%
                   is_end=1, )
 
@@ -360,7 +362,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                              # %%S
                                              is_colorbar_on, is_energy,
                                              # %%
-                                             is_relative, is_print,
+                                             is_amp_relative, is_print,
                                              # %%
                                              is_end=is_end[i], )
 
@@ -388,7 +390,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                              # %%S
                                              is_colorbar_on, is_energy,
                                              # %%
-                                             is_relative, is_print,
+                                             is_amp_relative, is_print,
                                              # %%
                                              is_end=is_end[i], )
 
@@ -525,10 +527,12 @@ if __name__ == '__main__':
                              is_print=1, is_contours=0, n_TzQ=1,
                              Gz_max_Enhance=1, match_mode=1,
                              # %%
-                             is_NLA=1, is_relative=1,
+                             is_NLA=1, is_amp_relative=1,
                              is_energy_normalized=2, is_output_error_EVV=1,
                              # %%
-                             border_percentage=0.1, is_end=-1, 
+                             root_dir=r'',
+                             border_percentage=0.1, is_end=-1,
+                             size_fig_x_scale=10, size_fig_y_scale=2,
                              ax_yscale='linear', )
 
 # 注意 colorbar 上的数量级
