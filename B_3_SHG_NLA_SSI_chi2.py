@@ -16,7 +16,8 @@ from fun_linear import fft2, ifft2
 from fun_nonlinear import Info_find_contours_SHG, G2_z_modulation_NLAST
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, fget, fkey, fGHU_plot_save, fU_SSI_plot
+from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
+    fget, fkey, fGHU_plot_save, fU_SSI_plot
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -330,80 +331,163 @@ def SHG_NLA_SSI(U_name="",
 
 
 if __name__ == '__main__':
-    SHG_NLA_SSI(U_name="",
-                img_full_name="lena1.png",
-                is_phase_only=0,
-                # %%
-                z_pump=0,
-                is_LG=1, is_Gauss=1, is_OAM=0,
-                l=0, p=0,
-                theta_x=0, theta_y=0,
-                # %%
-                is_random_phase=0,
-                is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                # %%
-                # 生成横向结构
-                U_name_Structure='',
-                structure_size_Enlarge=0.1,
-                is_phase_only_Structure=0,
-                # %%
-                w0_Structure=0, z_pump_Structure=0,
-                is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
-                l_Structure=1, p_Structure=0,
-                theta_x_Structure=0, theta_y_Structure=0,
-                # %%
-                is_random_phase_Structure=0,
-                is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
-                # %%
-                U_NonZero_size=0.9, w0=0.1,
-                L0_Crystal=2.66, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
-                sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
-                X=0, Y=0,
-                # %%
-                is_bulk=0, is_no_backgroud=0,
-                is_stored=1, is_show_structure_face=1, is_energy_evolution_on=1,
-                # %%
-                lam1=1, is_air_pump=0, is_air=0, T=25,
-                deff=30,
-                # %%
-                Tx=18.769, Ty=20, Tz=8,
-                mx=1, my=0, mz=1,
-                is_stripe=0, is_NLAST=1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
-                # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
-                # %%
-                # 生成横向结构
-                Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                Depth=2, structure_xy_mode='x',
-                # %%
-                is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
-                is_reverse_xy=0, is_positive_xy=1,
-                # %%
-                is_save=0, is_save_txt=0, dpi=100,
-                # %%
-                color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
-                elev=10, azim=-65, alpha=2,
-                # %%
-                sample=2, ticks_num=6, is_contourf=0,
-                is_title_on=1, is_axes_on=1, is_mm=1,
-                # %%
-                fontsize=9,
-                font={'family': 'serif',
-                      'style': 'normal',  # 'normal', 'italic', 'oblique'
-                      'weight': 'normal',
-                      'color': 'black',  # 'black','gray','darkred'
-                      },
-                # %%
-                is_colorbar_on=1, is_energy=0,
-                # %%
-                plot_group="UGa", is_animated=1,
-                loop=0, duration=0.033, fps=5,
-                # %%
-                is_plot_3d_XYz=0, is_plot_selective=0,
-                is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
-                # %%
-                is_print=1, is_contours=66, n_TzQ=1,
-                Gz_max_Enhance=1, match_mode=1,
-                # %%
-                root_dir=r'',
-                border_percentage=0.1, ray="2", is_end=-1,
-                size_fig_x_scale=10, size_fig_y_scale=1, )
+    kwargs = \
+        {"U_name": "",
+        "img_full_name": "lena1.png",
+        "is_phase_only": 0,
+        # %%
+        "z_pump": 0,
+        "is_LG": 1, "is_Gauss": 1, "is_OAM": 0,
+        "l": 0, "p": 0,
+        "theta_x": 0, "theta_y": 0,
+        # %%
+        "is_random_phase": 0,
+        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+        # %%
+        # 生成横向结构
+        "U_name_Structure": '',
+        "structure_size_Enlarge": 0.1,
+        "is_phase_only_Structure": 0,
+        # %%
+        "w0_Structure": 0, "z_pump_Structure": 0,
+        "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
+        "l_Structure": 1, "p_Structure": 0,
+        "theta_x_Structure": 0, "theta_y_Structure": 0,
+        # %%
+        "is_random_phase_Structure": 0,
+        "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
+        # %%
+        "U_NonZero_size": 0.9, "w0": 0.1,
+        "L0_Crystal": 2.66, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
+        "sheets_stored_num": 10, "z0_section_1_expect": 1, "z0_section_2_expect": 1,
+        "X": 0, "Y": 0,
+        # %%
+        "is_bulk": 0, "is_no_backgroud": 0,
+        "is_stored": 1, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
+        # %%
+        "lam1": 1, "is_air_pump": 0, "is_air": 0, "T": 25,
+        "deff": 30,
+        # %%
+        "Tx": 18.769, "Ty": 20, "Tz": 8,
+        "mx": 1, "my": 0, "mz": 1,
+        "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+        # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
+        # %%
+        # 生成横向结构
+        "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
+        "Depth": 2, "structure_xy_mode": 'x',
+        # %%
+        "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
+        "is_reverse_xy": 0, "is_positive_xy": 1,
+        # %%
+        "is_save": 0, "is_save_txt": 0, "dpi": 100,
+        # %%
+        "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
+        "elev": 10, "azim": -65, "alpha": 2,
+        # %%
+        "sample": 2, "ticks_num": 6, "is_contourf": 0,
+        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+        # %%
+        "fontsize": 9,
+        "font": {'family': 'serif',
+              'style': 'normal',  # 'normal', 'italic', 'oblique'
+              'weight': 'normal',
+              'color': 'black',  # 'black','gray','darkred'
+              },
+        # %%
+        "is_colorbar_on": 1, "is_energy": 0,
+        # %%
+        "plot_group": "UGa", "is_animated": 1,
+        "loop": 0, "duration": 0.033, "fps": 5,
+        # %%
+        "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+        "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
+        # %%
+        "is_print": 1, "is_contours": 66, "n_TzQ": 1,
+        "Gz_max_Enhance": 1, "match_mode": 1,
+        # %%
+        "kwargs_seq": 0, "root_dir": r'',
+        "border_percentage": 0.1, "is_end": -1,
+        "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+        "ray": "2", }
+
+    kwargs = init_GLV_DICT(**kwargs)
+    SHG_NLA_SSI(**kwargs)
+
+    # SHG_NLA_SSI(U_name="",
+    #             img_full_name="lena1.png",
+    #             is_phase_only=0,
+    #             # %%
+    #             z_pump=0,
+    #             is_LG=1, is_Gauss=1, is_OAM=0,
+    #             l=0, p=0,
+    #             theta_x=0, theta_y=0,
+    #             # %%
+    #             is_random_phase=0,
+    #             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+    #             # %%
+    #             # 生成横向结构
+    #             U_name_Structure='',
+    #             structure_size_Enlarge=0.1,
+    #             is_phase_only_Structure=0,
+    #             # %%
+    #             w0_Structure=0, z_pump_Structure=0,
+    #             is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
+    #             l_Structure=1, p_Structure=0,
+    #             theta_x_Structure=0, theta_y_Structure=0,
+    #             # %%
+    #             is_random_phase_Structure=0,
+    #             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+    #             # %%
+    #             U_NonZero_size=0.9, w0=0.1,
+    #             L0_Crystal=2.66, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
+    #             sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
+    #             X=0, Y=0,
+    #             # %%
+    #             is_bulk=0, is_no_backgroud=0,
+    #             is_stored=1, is_show_structure_face=1, is_energy_evolution_on=1,
+    #             # %%
+    #             lam1=1, is_air_pump=0, is_air=0, T=25,
+    #             deff=30,
+    #             # %%
+    #             Tx=18.769, Ty=20, Tz=8,
+    #             mx=1, my=0, mz=1,
+    #             is_stripe=0, is_NLAST=1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+    #             # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
+    #             # %%
+    #             # 生成横向结构
+    #             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+    #             Depth=2, structure_xy_mode='x',
+    #             # %%
+    #             is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+    #             is_reverse_xy=0, is_positive_xy=1,
+    #             # %%
+    #             is_save=0, is_save_txt=0, dpi=100,
+    #             # %%
+    #             color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+    #             elev=10, azim=-65, alpha=2,
+    #             # %%
+    #             sample=2, ticks_num=6, is_contourf=0,
+    #             is_title_on=1, is_axes_on=1, is_mm=1,
+    #             # %%
+    #             fontsize=9,
+    #             font={'family': 'serif',
+    #                   'style': 'normal',  # 'normal', 'italic', 'oblique'
+    #                   'weight': 'normal',
+    #                   'color': 'black',  # 'black','gray','darkred'
+    #                   },
+    #             # %%
+    #             is_colorbar_on=1, is_energy=0,
+    #             # %%
+    #             plot_group="UGa", is_animated=1,
+    #             loop=0, duration=0.033, fps=5,
+    #             # %%
+    #             is_plot_3d_XYz=0, is_plot_selective=0,
+    #             is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+    #             # %%
+    #             is_print=1, is_contours=66, n_TzQ=1,
+    #             Gz_max_Enhance=1, match_mode=1,
+    #             # %%
+    #             root_dir=r'',
+    #             border_percentage=0.1, ray="2", is_end=-1,
+    #             size_fig_x_scale=10, size_fig_y_scale=1, )

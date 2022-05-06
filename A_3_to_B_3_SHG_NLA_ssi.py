@@ -9,6 +9,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
+from fun_global_var import init_GLV_DICT
 from fun_pump import pump_pic_or_U
 from A_3_structure_chi2_Generate_3D import structure_chi2_3D
 from B_3_SHG_NLA_ssi import SHG_NLA_ssi
@@ -94,8 +95,7 @@ def A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                            # %%
                            **kwargs, ):
     is_end, add_level = kwargs.get("is_end", 0), kwargs.get("add_level", 0)  # 将 is_end 拦截 下来，传给最末尾 的 含 print 函数
-    kwargs.pop("is_end", None);
-    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # Image_Add_Black_border
 
@@ -241,79 +241,160 @@ def A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
 
 
 if __name__ == '__main__':
-    A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
-                           is_phase_only_Structure=0,
-                           # %%
-                           z_pump_Structure=0,
-                           is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
-                           l_Structure=1, p_Structure=0,
-                           theta_x_Structure=0, theta_y_Structure=0,
-                           # %%
-                           is_random_phase_Structure=0,
-                           is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
-                           # %%
-                           U_name="",
-                           img_full_name="lena1.png",
-                           is_phase_only=0,
-                           # %%
-                           z_pump=0,
-                           is_LG=0, is_Gauss=1, is_OAM=0,
-                           l=0, p=0,
-                           theta_x=0, theta_y=0,
-                           # %%
-                           is_random_phase=0,
-                           is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                           # %%---------------------------------------------------------------------
-                           # %%
-                           U_NonZero_size=0.9, w0=0.1, w0_Structure=0, structure_size_Enlarge=0.1,
-                           L0_Crystal=2.25, z0_structure_frontface_expect=0, deff_structure_length_expect=0.5,
-                           sheets_stored_num=10,
-                           z0_section_1_expect=0, z0_section_2_expect=0,
-                           X=0, Y=0,
-                           # %%
-                           Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                           structure_xy_mode='x', Depth=2, zoomout_times=5,
-                           # %%
-                           is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
-                           is_reverse_xy=0, is_positive_xy=1,
-                           # %%
-                           is_bulk=0, is_no_backgroud=0,
-                           is_stored=1, is_show_structure_face=0, is_energy_evolution_on=1,
-                           # %%
-                           lam1=1.064, is_air_pump=0, is_air=0, T=25,
-                           deff=30,
-                           Tx=10, Ty=20, Tz=12.319,
-                           mx=1, my=0, mz=0,
-                           is_stripe=0, is_NLAST=1,
-                           # %%
-                           is_save=1, is_save_txt=0, dpi=100,
-                           # %%
-                           color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
-                           elev=10, azim=-65, alpha=2,
-                           # %%
-                           sample=2, ticks_num=6, is_contourf=0,
-                           is_title_on=1, is_axes_on=1, is_mm=1,
-                           # %%
-                           fontsize=9,
-                           font={'family': 'serif',
-                                 'style': 'normal',  # 'normal', 'italic', 'oblique'
-                                 'weight': 'normal',
-                                 'color': 'black',  # 'black','gray','darkred'
-                                 },
-                           # %%
-                           is_colorbar_on=1, is_energy=0,
-                           # %%
-                           plot_group="UGa", is_animated=1,
-                           loop=0, duration=0.033, fps=5,
-                           # %%
-                           is_plot_3d_XYz=0, is_plot_selective=0,
-                           is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
-                           # %%
-                           is_print=1, is_contours=66, n_TzQ=1,
-                           Gz_max_Enhance=1, match_mode=0,
-                           # %%
-                           is_NLA=1,
-                           # %%
-                           root_dir=r'',
-                           border_percentage=0.1, is_end=-1,
-                           size_fig_x_scale=10, size_fig_y_scale=1, )
+    kwargs = \
+        {"U_name_Structure": "",
+           "is_phase_only_Structure": 0,
+           # %%
+           "z_pump_Structure": 0,
+           "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
+           "l_Structure": 1, "p_Structure": 0,
+           "theta_x_Structure": 0, "theta_y_Structure": 0,
+           # %%
+           "is_random_phase_Structure": 0,
+           "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
+           # %%
+           "U_name": "",
+           "img_full_name": "lena1.png",
+           "is_phase_only": 0,
+           # %%
+           "z_pump": 0,
+           "is_LG": 0, "is_Gauss": 1, "is_OAM": 0,
+           "l": 0, "p": 0,
+           "theta_x": 0, "theta_y": 0,
+           # %%
+           "is_random_phase": 0,
+           "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+           # %%---------------------------------------------------------------------
+           # %%
+           "U_NonZero_size": 0.9, "w0": 0.1, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
+           "L0_Crystal": 2.25, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 0.5,
+           "sheets_stored_num": 10,
+           "z0_section_1_expect": 0, "z0_section_2_expect": 0,
+           "X": 0, "Y": 0,
+           # %%
+           "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
+           "structure_xy_mode": 'x', "Depth": 2, "zoomout_times": 5,
+           # %%
+           "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
+           "is_reverse_xy": 0, "is_positive_xy": 1,
+           # %%
+           "is_bulk": 0, "is_no_backgroud": 0,
+           "is_stored": 1, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
+           # %%
+           "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
+           "deff": 30,
+           "Tx": 10, "Ty": 20, "Tz": 12.319,
+           "mx": 1, "my": 0, "mz": 0,
+           "is_stripe": 0, "is_NLAST": 1,
+           # %%
+           "is_save": 1, "is_save_txt": 0, "dpi": 100,
+           # %%
+           "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
+           "elev": 10, "azim": -65, "alpha": 2,
+           # %%
+           "sample": 2, "ticks_num": 6, "is_contourf": 0,
+           "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+           # %%
+           "fontsize": 9,
+           "font": {'family': 'serif',
+                 'style': 'normal',  # 'normal', 'italic', 'oblique'
+                 'weight': 'normal',
+                 'color': 'black',  # 'black','gray','darkred'
+                 },
+           # %%
+           "is_colorbar_on": 1, "is_energy": 0,
+           # %%
+           "plot_group": "UGa", "is_animated": 1,
+           "loop": 0, "duration": 0.033, "fps": 5,
+           # %%
+           "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+           "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
+           # %%
+           "is_print": 1, "is_contours": 66, "n_TzQ": 1,
+           "Gz_max_Enhance": 1, "match_mode": 0,
+           # %%
+           "is_NLA": 1,
+           # %%
+           "kwargs_seq": 0, "root_dir": r'',
+           "border_percentage": 0.1, "is_end": -1,
+           "size_fig_x_scale": 10, "size_fig_y_scale": 1, }
+
+    kwargs = init_GLV_DICT(**kwargs)
+    A_3_to_B_3_SHG_NLA_ssi(**kwargs)
+
+    # A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
+    #                        is_phase_only_Structure=0,
+    #                        # %%
+    #                        z_pump_Structure=0,
+    #                        is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=1,
+    #                        l_Structure=1, p_Structure=0,
+    #                        theta_x_Structure=0, theta_y_Structure=0,
+    #                        # %%
+    #                        is_random_phase_Structure=0,
+    #                        is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+    #                        # %%
+    #                        U_name="",
+    #                        img_full_name="lena1.png",
+    #                        is_phase_only=0,
+    #                        # %%
+    #                        z_pump=0,
+    #                        is_LG=0, is_Gauss=1, is_OAM=0,
+    #                        l=0, p=0,
+    #                        theta_x=0, theta_y=0,
+    #                        # %%
+    #                        is_random_phase=0,
+    #                        is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+    #                        # %%---------------------------------------------------------------------
+    #                        # %%
+    #                        U_NonZero_size=0.9, w0=0.1, w0_Structure=0, structure_size_Enlarge=0.1,
+    #                        L0_Crystal=2.25, z0_structure_frontface_expect=0, deff_structure_length_expect=0.5,
+    #                        sheets_stored_num=10,
+    #                        z0_section_1_expect=0, z0_section_2_expect=0,
+    #                        X=0, Y=0,
+    #                        # %%
+    #                        Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+    #                        structure_xy_mode='x', Depth=2, zoomout_times=5,
+    #                        # %%
+    #                        is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+    #                        is_reverse_xy=0, is_positive_xy=1,
+    #                        # %%
+    #                        is_bulk=0, is_no_backgroud=0,
+    #                        is_stored=1, is_show_structure_face=0, is_energy_evolution_on=1,
+    #                        # %%
+    #                        lam1=1.064, is_air_pump=0, is_air=0, T=25,
+    #                        deff=30,
+    #                        Tx=10, Ty=20, Tz=12.319,
+    #                        mx=1, my=0, mz=0,
+    #                        is_stripe=0, is_NLAST=1,
+    #                        # %%
+    #                        is_save=1, is_save_txt=0, dpi=100,
+    #                        # %%
+    #                        color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+    #                        elev=10, azim=-65, alpha=2,
+    #                        # %%
+    #                        sample=2, ticks_num=6, is_contourf=0,
+    #                        is_title_on=1, is_axes_on=1, is_mm=1,
+    #                        # %%
+    #                        fontsize=9,
+    #                        font={'family': 'serif',
+    #                              'style': 'normal',  # 'normal', 'italic', 'oblique'
+    #                              'weight': 'normal',
+    #                              'color': 'black',  # 'black','gray','darkred'
+    #                              },
+    #                        # %%
+    #                        is_colorbar_on=1, is_energy=0,
+    #                        # %%
+    #                        plot_group="UGa", is_animated=1,
+    #                        loop=0, duration=0.033, fps=5,
+    #                        # %%
+    #                        is_plot_3d_XYz=0, is_plot_selective=0,
+    #                        is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+    #                        # %%
+    #                        is_print=1, is_contours=66, n_TzQ=1,
+    #                        Gz_max_Enhance=1, match_mode=0,
+    #                        # %%
+    #                        is_NLA=1,
+    #                        # %%
+    #                        root_dir=r'',
+    #                        border_percentage=0.1, is_end=-1,
+    #                        size_fig_x_scale=10, size_fig_y_scale=1, )

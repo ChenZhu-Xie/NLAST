@@ -38,7 +38,6 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
                        },
                  # %%
                  **kwargs, ):
-    init_GLV_DICT(**kwargs)  # 没懂为什么得是 **....，不然传进去变成位置参数 args 中的一元素了
     # %%
 
     if test_target == 0:
@@ -163,28 +162,59 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
 
 
 if __name__ == '__main__':
-    plot_1D_test(test_target=3,
-                 Data_Seq=24,
-                 img_full_name="lena1.png",
-                 is_phase_only=0,
-                 # %%
-                 U_NonZero_size=0.9,
-                 # %%
-                 is_save=0, is_save_txt=0, dpi=100,
-                 # %%
-                 color_1d='b', color_1d2='r',
-                 # %%
-                 sample=1, ticks_num=7, is_print=1,
-                 is_title_on=1, is_axes_on=1, is_mm=1,
-                 # %%
-                 fontsize=9,
-                 font={'family': 'serif',
-                       'style': 'normal',  # 'normal', 'italic', 'oblique'
-                       'weight': 'normal',
-                       'color': 'black',  # 'black','gray','darkred'
-                       },
-                 is_energy_normalized=2,
-                 # %%
-                 root_dir=r'', is_end=-1,
-                 size_fig_x_scale=10, size_fig_y_scale=2,
-                 ax_yscale='linear', )
+    kwargs = \
+        {"test_target": 3,
+         "Data_Seq": 24,
+         "img_full_name": "lena1.png",
+         "is_phase_only": 0,
+         # %%
+         "U_NonZero_size": 0.9,
+         # %%
+         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         # %%
+         "color_1d": 'b', "color_1d2": 'r',
+         # %%
+         "sample": 1, "ticks_num": 7, "is_print": 1,
+         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+         # %%
+         "fontsize": 9,
+         "font": {'family': 'serif',
+               'style': 'normal',  # 'normal', 'italic', 'oblique'
+               'weight': 'normal',
+               'color': 'black',  # 'black','gray','darkred'
+               },
+         "is_energy_normalized": 2,
+         # %%
+         "kwargs_seq": 0, "root_dir": r'',
+         "is_end": -1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 2,
+         "ax_yscale": 'linear', }
+
+    kwargs = init_GLV_DICT(**kwargs)
+    plot_1D_test(**kwargs)
+
+    # plot_1D_test(test_target=3,
+    #              Data_Seq=24,
+    #              img_full_name="lena1.png",
+    #              is_phase_only=0,
+    #              # %%
+    #              U_NonZero_size=0.9,
+    #              # %%
+    #              is_save=0, is_save_txt=0, dpi=100,
+    #              # %%
+    #              color_1d='b', color_1d2='r',
+    #              # %%
+    #              sample=1, ticks_num=7, is_print=1,
+    #              is_title_on=1, is_axes_on=1, is_mm=1,
+    #              # %%
+    #              fontsize=9,
+    #              font={'family': 'serif',
+    #                    'style': 'normal',  # 'normal', 'italic', 'oblique'
+    #                    'weight': 'normal',
+    #                    'color': 'black',  # 'black','gray','darkred'
+    #                    },
+    #              is_energy_normalized=2,
+    #              # %%
+    #              root_dir=r'', is_end=-1,
+    #              size_fig_x_scale=10, size_fig_y_scale=2,
+    #              ax_yscale='linear', )

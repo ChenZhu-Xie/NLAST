@@ -127,7 +127,7 @@ def if_image_Add_black_border(U_name, img_full_name,
     if is_name_main: # 等价于：如果是 第一次 进入该程序
         # %% 开始 加边框
         # print(1, kwargs)
-        init_GLV_DICT(**kwargs) # 这里初始化的 init_GLV 传了参数进去 —— 没懂为什么得是 **....，不然传进去变成位置参数 args 中的一元素了
+        # init_GLV_DICT(**kwargs) # 这里初始化的 init_GLV 传了参数进去 —— 没懂为什么得是 **....，不然传进去变成位置参数 args 中的一元素了
         kwargs.pop("is_end", 0)
         if (type(U_name) != str) or U_name == "" and "U" not in kwargs:
             border_percentage = kwargs["border_percentage"] if "border_percentage" in kwargs else 0.1

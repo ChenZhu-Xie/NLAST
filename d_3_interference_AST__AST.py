@@ -53,7 +53,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                           is_print=1,
                           # %%
                           **kwargs, ):
-    init_GLV_DICT(**kwargs)
+
     # %%
     info = "利用 干涉 描边：AST"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -183,38 +183,78 @@ def interference_AST__AST(img_full_name="Grating.png",
 
 
 if __name__ == '__main__':
-    interference_AST__AST(img_full_name="grating.png",
-                          is_phase_only=0,
-                          # %%
-                          z_pump=0,
-                          is_LG=0, is_Gauss=0, is_OAM=0,
-                          l=0, p=0,
-                          theta_x=0, theta_y=0,
-                          is_random_phase=0,
-                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                          # %%
-                          U1_0_NonZero_size=1, w0=0,  # 传递函数 是 等倾干涉图...
-                          z=0, dz_expect=0,  # z 越大，描边能量不变，但会越糊；dz_expect 越大，描边 能量越高，但也越糊
-                          # %%
-                          lam1=1, is_air_pump=0, is_air=0, T=25,
-                          # %%
-                          is_save=0, is_save_txt=0, dpi=100,
-                          # %%
-                          cmap_2d='viridis',
-                          # %%
-                          ticks_num=6, is_contourf=0,
-                          is_title_on=1, is_axes_on=1, is_mm=1,
-                          # %%
-                          fontsize=9,
-                          font={'family': 'serif',
-                                'style': 'normal',  # 'normal', 'italic', 'oblique'
-                                'weight': 'normal',
-                                'color': 'black',  # 'black','gray','darkred'
-                                },
-                          # %%
-                          is_colorbar_on=1, is_energy=1,
-                          # %%
-                          is_print=1,
-                          # %%
-                          root_dir=r'',
-                          border_percentage=0.1, is_end=-1, )
+    kwargs = \
+        {"img_full_name": "grating.png",
+          "is_phase_only": 0,
+          # %%
+          "z_pump": 0,
+          "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+          "l": 0, "p": 0,
+          "theta_x": 0, "theta_y": 0,
+          "is_random_phase": 0,
+          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+          # %%
+          "U1_0_NonZero_size": 1, "w0": 0,  # 传递函数 是 等倾干涉图...
+          "z": 0, "dz_expect": 0,  # z 越大，描边能量不变，但会越糊；dz_expect 越大，描边 能量越高，但也越糊
+          # %%
+          "lam1": 1, "is_air_pump": 0, "is_air": 0, "T": 25,
+          # %%
+          "is_save": 0, "is_save_txt": 0, "dpi": 100,
+          # %%
+          "cmap_2d": 'viridis',
+          # %%
+          "ticks_num": 6, "is_contourf": 0,
+          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+          # %%
+          "fontsize": 9,
+          "font": {'family': 'serif',
+                'style': 'normal',  # 'normal', 'italic', 'oblique'
+                'weight': 'normal',
+                'color': 'black',  # 'black','gray','darkred'
+                },
+          # %%
+          "is_colorbar_on": 1, "is_energy": 1,
+          # %%
+          "is_print": 1,
+          # %%
+          "kwargs_seq": 0, "root_dir": r'',
+          "border_percentage": 0.1, "is_end": -1, }
+
+    kwargs = init_GLV_DICT(**kwargs)
+    interference_AST__AST(**kwargs)
+
+    # interference_AST__AST(img_full_name="grating.png",
+    #                       is_phase_only=0,
+    #                       # %%
+    #                       z_pump=0,
+    #                       is_LG=0, is_Gauss=0, is_OAM=0,
+    #                       l=0, p=0,
+    #                       theta_x=0, theta_y=0,
+    #                       is_random_phase=0,
+    #                       is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+    #                       # %%
+    #                       U1_0_NonZero_size=1, w0=0,  # 传递函数 是 等倾干涉图...
+    #                       z=0, dz_expect=0,  # z 越大，描边能量不变，但会越糊；dz_expect 越大，描边 能量越高，但也越糊
+    #                       # %%
+    #                       lam1=1, is_air_pump=0, is_air=0, T=25,
+    #                       # %%
+    #                       is_save=0, is_save_txt=0, dpi=100,
+    #                       # %%
+    #                       cmap_2d='viridis',
+    #                       # %%
+    #                       ticks_num=6, is_contourf=0,
+    #                       is_title_on=1, is_axes_on=1, is_mm=1,
+    #                       # %%
+    #                       fontsize=9,
+    #                       font={'family': 'serif',
+    #                             'style': 'normal',  # 'normal', 'italic', 'oblique'
+    #                             'weight': 'normal',
+    #                             'color': 'black',  # 'black','gray','darkred'
+    #                             },
+    #                       # %%
+    #                       is_colorbar_on=1, is_energy=1,
+    #                       # %%
+    #                       is_print=1,
+    #                       # %%
+    #                       root_dir=r'',
+    #                       border_percentage=0.1, is_end=-1, )

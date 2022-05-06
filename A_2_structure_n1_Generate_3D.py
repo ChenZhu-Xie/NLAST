@@ -10,7 +10,7 @@ Created on Sun Dec 26 22:09:04 2021
 import numpy as np
 from scipy.io import savemat
 from fun_os import U_dir
-from fun_global_var import tree_print
+from fun_global_var import init_GLV_DICT, tree_print
 from fun_algorithm import gcd_of_float
 from fun_img_Resize import if_image_Add_black_border
 from fun_SSI import slice_structure_ssi
@@ -186,51 +186,104 @@ def structure_n1_3D(U_name="",
 
 
 if __name__ == '__main__':
-    structure_n1_3D(U_name="",
-                    img_full_name="Grating.png",
-                    is_phase_only=0,
-                    # %%
-                    z_pump=0,
-                    is_LG=0, is_Gauss=0, is_OAM=0,
-                    l=0, p=0,
-                    theta_x=0, theta_y=0,
-                    # %%
-                    is_random_phase=0,
-                    is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                    # %%
-                    U_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
-                    deff_structure_length_expect=2,
-                    # %%
-                    Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.2,
-                    structure_xy_mode='x', Depth=1, zoomout_times=5,
-                    # %%
-                    is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
-                    is_reverse_xy=0, is_positive_xy=1,
-                    # %%
-                    lam1=0.8, is_air_pump=0, is_air=0, T=25,
-                    # %%
-                    Tx=10, Ty=10, Tz="2*lc",
-                    mx=0, my=0, mz=1,
-                    is_stripe=0,
-                    # %%
-                    is_save=0, is_save_txt=0, dpi=100,
-                    is_bulk=1,
-                    # %%
-                    cmap_2d='viridis',
-                    # %%
-                    ticks_num=6, is_contourf=0,
-                    is_title_on=1, is_axes_on=1, is_mm=1,
-                    # %%
-                    fontsize=9,
-                    font={'family': 'serif',
-                          'style': 'normal',  # 'normal', 'italic', 'oblique'
-                          'weight': 'normal',
-                          'color': 'black',  # 'black','gray','darkred'
-                          },
-                    # %%
-                    is_colorbar_on=1, is_energy=0,
-                    # %%
-                    is_print=1,
-                    # %%
-                    root_dir=r'',
-                    border_percentage=0.1, is_end=-1, )
+    kwargs = \
+        {"U_name": "",
+        "img_full_name": "Grating.png",
+        "is_phase_only": 0,
+        # %%
+        "z_pump": 0,
+        "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+        "l": 0, "p": 0,
+        "theta_x": 0, "theta_y": 0,
+        # %%
+        "is_random_phase": 0,
+        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+        # %%
+        "U_NonZero_size": 1, "w0": 0.3, "structure_size_Enlarge": 0.1,
+        "deff_structure_length_expect": 2,
+        # %%
+        "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.2,
+        "structure_xy_mode": 'x', "Depth": 1, "zoomout_times": 5,
+        # %%
+        "is_continuous": 1, "is_target_far_field": 1, "is_transverse_xy": 0,
+        "is_reverse_xy": 0, "is_positive_xy": 1,
+        # %%
+        "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+        # %%
+        "Tx": 10, "Ty": 10, "Tz": "2*lc",
+        "mx": 0, "my": 0, "mz": 1,
+        "is_stripe": 0,
+        # %%
+        "is_save": 0, "is_save_txt": 0, "dpi": 100,
+        "is_bulk": 1,
+        # %%
+        "cmap_2d": 'viridis',
+        # %%
+        "ticks_num": 6, "is_contourf": 0,
+        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+        # %%
+        "fontsize": 9,
+        "font": {'family': 'serif',
+              'style': 'normal',  # 'normal', 'italic', 'oblique'
+              'weight': 'normal',
+              'color': 'black',  # 'black','gray','darkred'
+              },
+        # %%
+        "is_colorbar_on": 1, "is_energy": 0,
+        # %%
+        "is_print": 1,
+        # %%
+        "kwargs_seq": 0, "root_dir": r'',
+        "border_percentage": 0.1, "is_end": -1, }
+
+    kwargs = init_GLV_DICT(**kwargs)
+    structure_n1_3D(**kwargs)
+
+    # structure_n1_3D(U_name="",
+    #                 img_full_name="Grating.png",
+    #                 is_phase_only=0,
+    #                 # %%
+    #                 z_pump=0,
+    #                 is_LG=0, is_Gauss=0, is_OAM=0,
+    #                 l=0, p=0,
+    #                 theta_x=0, theta_y=0,
+    #                 # %%
+    #                 is_random_phase=0,
+    #                 is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+    #                 # %%
+    #                 U_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+    #                 deff_structure_length_expect=2,
+    #                 # %%
+    #                 Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.2,
+    #                 structure_xy_mode='x', Depth=1, zoomout_times=5,
+    #                 # %%
+    #                 is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
+    #                 is_reverse_xy=0, is_positive_xy=1,
+    #                 # %%
+    #                 lam1=0.8, is_air_pump=0, is_air=0, T=25,
+    #                 # %%
+    #                 Tx=10, Ty=10, Tz="2*lc",
+    #                 mx=0, my=0, mz=1,
+    #                 is_stripe=0,
+    #                 # %%
+    #                 is_save=0, is_save_txt=0, dpi=100,
+    #                 is_bulk=1,
+    #                 # %%
+    #                 cmap_2d='viridis',
+    #                 # %%
+    #                 ticks_num=6, is_contourf=0,
+    #                 is_title_on=1, is_axes_on=1, is_mm=1,
+    #                 # %%
+    #                 fontsize=9,
+    #                 font={'family': 'serif',
+    #                       'style': 'normal',  # 'normal', 'italic', 'oblique'
+    #                       'weight': 'normal',
+    #                       'color': 'black',  # 'black','gray','darkred'
+    #                       },
+    #                 # %%
+    #                 is_colorbar_on=1, is_energy=0,
+    #                 # %%
+    #                 is_print=1,
+    #                 # %%
+    #                 root_dir=r'',
+    #                 border_percentage=0.1, is_end=-1, )

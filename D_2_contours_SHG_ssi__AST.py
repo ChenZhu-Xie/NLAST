@@ -96,7 +96,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                              is_NLA=1,
                              # %%
                              **kwargs, ):
-    init_GLV_DICT(**kwargs)
+
     # %%
     info = "利用 SHG 描边：ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -325,83 +325,166 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
 
 
 if __name__ == '__main__':
-    consistency_SHG_ssi__AST(img_full_name="Grating.png",
-                             is_phase_only=0,
-                             # %%
-                             z_pump=0,
-                             is_LG=0, is_Gauss=0, is_OAM=0,
-                             l=0, p=0,
-                             theta_x=0, theta_y=0,
-                             # %%
-                             is_random_phase=0,
-                             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                             # %% 生成横向结构
-                             U_name_Structure='',
-                             structure_size_Enlarge=0.1,
-                             is_phase_only_Structure=0,
-                             # %%
-                             w0_Structure=0, z_pump_Structure=0,
-                             is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
-                             l_Structure=0, p_Structure=0,
-                             theta_x_Structure=0, theta_y_Structure=0,
-                             # %%
-                             is_random_phase_Structure=0,
-                             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
-                             # %%
-                             U_NonZero_size=1, w0=0.3,
-                             z_AST=1, z_ssi=2,
-                             # %% 不关心
-                             z0_structure_frontface_expect=0, deff_structure_length_expect=10,
-                             sheets_stored_num=10, z0_section_1_expect=0, z0_section_2_expect=0,
-                             X=0, Y=0,
-                             # %% 不关心
-                             is_bulk=1, is_no_backgroud=0,
-                             is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
-                             # %%
-                             lam1=0.8, is_air_pump=0, is_air=0, T=25,
-                             deff=30,
-                             # %%
-                             Tx=10, Ty=10, Tz="2*lc",
-                             mx=0, my=0, mz=0,
-                             is_stripe=0, is_NLAST=1,  # 不关心 is_stripe
-                             # %% 生成横向结构
-                             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                             Depth=2, zoomout_times=5, structure_xy_mode='x',
-                             # %%
-                             is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
-                             is_reverse_xy=0, is_positive_xy=1,
-                             # %%
-                             is_save=0, is_save_txt=0, dpi=100,
-                             # %%
-                             color_1d='b', cmap_2d='viridis',
-                             # %% 不关心
-                             cmap_3d='rainbow', elev=10, azim=-65, alpha=2,
-                             # %%
-                             sample=2, ticks_num=6, is_contourf=0,
-                             is_title_on=1, is_axes_on=1, is_mm=1,
-                             # %%
-                             fontsize=9,
-                             font={'family': 'serif',
-                                   'style': 'normal',  # 'normal', 'italic', 'oblique'
-                                   'weight': 'normal',
-                                   'color': 'black',  # 'black','gray','darkred'
-                                   },
-                             # %%
-                             is_colorbar_on=1, is_energy=1,
-                             # %% 不关心
-                             plot_group="UGa", is_animated=1,
-                             loop=0, duration=0.033, fps=5,
-                             # %% 不关心
-                             is_plot_3d_XYz=0, is_plot_selective=0,
-                             is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
-                             # %%
-                             is_print=1, is_contours=66, n_TzQ=1,
-                             Gz_max_Enhance=1, match_mode=1,
-                             # %% 该程序 独有
-                             is_NLA=1,
-                             # %% 该程序 作为 主入口时
-                             root_dir=r'',
-                             border_percentage=0.1, is_end=-1,
-                             size_fig_x_scale=10, size_fig_y_scale=1, )
+    kwargs = \
+        {"img_full_name": "Grating.png",
+         "is_phase_only": 0,
+         # %%
+         "z_pump": 0,
+         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+         "l": 0, "p": 0,
+         "theta_x": 0, "theta_y": 0,
+         # %%
+         "is_random_phase": 0,
+         "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+         # %% 生成横向结构
+         "U_name_Structure": '',
+         "structure_size_Enlarge": 0.1,
+         "is_phase_only_Structure": 0,
+         # %%
+         "w0_Structure": 0, "z_pump_Structure": 0,
+         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 0,
+         "l_Structure": 0, "p_Structure": 0,
+         "theta_x_Structure": 0, "theta_y_Structure": 0,
+         # %%
+         "is_random_phase_Structure": 0,
+         "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
+         # %%
+         "U_NonZero_size": 1, "w0": 0.3,
+         "z_AST": 1, "z_ssi": 2,
+         # %% 不关心
+         "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 10,
+         "sheets_stored_num": 10, "z0_section_1_expect": 0, "z0_section_2_expect": 0,
+         "X": 0, "Y": 0,
+         # %% 不关心
+         "is_bulk": 1, "is_no_backgroud": 0,
+         "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
+         # %%
+         "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "deff": 30,
+         # %%
+         "Tx": 10, "Ty": 10, "Tz": "2*lc",
+         "mx": 0, "my": 0, "mz": 0,
+         "is_stripe": 0, "is_NLAST": 1,  # 不关心 is_stripe
+         # %% 生成横向结构
+         "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
+         "Depth": 2, "zoomout_times": 5, "structure_xy_mode": 'x',
+         # %%
+         "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
+         "is_reverse_xy": 0, "is_positive_xy": 1,
+         # %%
+         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         # %%
+         "color_1d": 'b', "cmap_2d": 'viridis',
+         # %% 不关心
+         "cmap_3d": 'rainbow', "elev": 10, "azim": -65, "alpha": 2,
+         # %%
+         "sample": 2, "ticks_num": 6, "is_contourf": 0,
+         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+         # %%
+         "fontsize": 9,
+         "font": {'family': 'serif',
+               'style': 'normal',  # 'normal', 'italic', 'oblique'
+               'weight': 'normal',
+               'color': 'black',  # 'black','gray','darkred'
+               },
+         # %%
+         "is_colorbar_on": 1, "is_energy": 1,
+         # %% 不关心
+         "plot_group": "UGa", "is_animated": 1,
+         "loop": 0, "duration": 0.033, "fps": 5,
+         # %% 不关心
+         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
+         # %%
+         "is_print": 1, "is_contours": 66, "n_TzQ": 1,
+         "Gz_max_Enhance": 1, "match_mode": 1,
+         # %% 该程序 独有
+         "is_NLA": 1,
+         # %% 该程序 作为 主入口时
+         "kwargs_seq": 0, "root_dir": r'',
+         "border_percentage": 0.1, "is_end": -1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1, }
+
+    kwargs = init_GLV_DICT(**kwargs)
+    consistency_SHG_ssi__AST(**kwargs)
+
+    # consistency_SHG_ssi__AST(img_full_name="Grating.png",
+    #                          is_phase_only=0,
+    #                          # %%
+    #                          z_pump=0,
+    #                          is_LG=0, is_Gauss=0, is_OAM=0,
+    #                          l=0, p=0,
+    #                          theta_x=0, theta_y=0,
+    #                          # %%
+    #                          is_random_phase=0,
+    #                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+    #                          # %% 生成横向结构
+    #                          U_name_Structure='',
+    #                          structure_size_Enlarge=0.1,
+    #                          is_phase_only_Structure=0,
+    #                          # %%
+    #                          w0_Structure=0, z_pump_Structure=0,
+    #                          is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
+    #                          l_Structure=0, p_Structure=0,
+    #                          theta_x_Structure=0, theta_y_Structure=0,
+    #                          # %%
+    #                          is_random_phase_Structure=0,
+    #                          is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+    #                          # %%
+    #                          U_NonZero_size=1, w0=0.3,
+    #                          z_AST=1, z_ssi=2,
+    #                          # %% 不关心
+    #                          z0_structure_frontface_expect=0, deff_structure_length_expect=10,
+    #                          sheets_stored_num=10, z0_section_1_expect=0, z0_section_2_expect=0,
+    #                          X=0, Y=0,
+    #                          # %% 不关心
+    #                          is_bulk=1, is_no_backgroud=0,
+    #                          is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
+    #                          # %%
+    #                          lam1=0.8, is_air_pump=0, is_air=0, T=25,
+    #                          deff=30,
+    #                          # %%
+    #                          Tx=10, Ty=10, Tz="2*lc",
+    #                          mx=0, my=0, mz=0,
+    #                          is_stripe=0, is_NLAST=1,  # 不关心 is_stripe
+    #                          # %% 生成横向结构
+    #                          Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+    #                          Depth=2, zoomout_times=5, structure_xy_mode='x',
+    #                          # %%
+    #                          is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+    #                          is_reverse_xy=0, is_positive_xy=1,
+    #                          # %%
+    #                          is_save=0, is_save_txt=0, dpi=100,
+    #                          # %%
+    #                          color_1d='b', cmap_2d='viridis',
+    #                          # %% 不关心
+    #                          cmap_3d='rainbow', elev=10, azim=-65, alpha=2,
+    #                          # %%
+    #                          sample=2, ticks_num=6, is_contourf=0,
+    #                          is_title_on=1, is_axes_on=1, is_mm=1,
+    #                          # %%
+    #                          fontsize=9,
+    #                          font={'family': 'serif',
+    #                                'style': 'normal',  # 'normal', 'italic', 'oblique'
+    #                                'weight': 'normal',
+    #                                'color': 'black',  # 'black','gray','darkred'
+    #                                },
+    #                          # %%
+    #                          is_colorbar_on=1, is_energy=1,
+    #                          # %% 不关心
+    #                          plot_group="UGa", is_animated=1,
+    #                          loop=0, duration=0.033, fps=5,
+    #                          # %% 不关心
+    #                          is_plot_3d_XYz=0, is_plot_selective=0,
+    #                          is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+    #                          # %%
+    #                          is_print=1, is_contours=66, n_TzQ=1,
+    #                          Gz_max_Enhance=1, match_mode=1,
+    #                          # %% 该程序 独有
+    #                          is_NLA=1,
+    #                          # %% 该程序 作为 主入口时
+    #                          root_dir=r'',
+    #                          border_percentage=0.1, is_end=-1,
+    #                          size_fig_x_scale=10, size_fig_y_scale=1, )
 
 # 注意 colorbar 上的数量级

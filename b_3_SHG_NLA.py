@@ -17,73 +17,73 @@ from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, \
     G2_z_modulation_NLAST, G2_z_modulation_3D_NLAST, G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import tree_print, init_GLV_rmw, end_SSI, Get, dset, dget, fget, fkey, fGHU_plot_save
+from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_SSI, Get, dset, dget, fget, fkey, fGHU_plot_save
 np.seterr(divide='ignore', invalid='ignore')
 # %%
 
 def SHG_NLA(U_name="",
-        img_full_name="Grating.png",
-        is_phase_only=0,
-        # %%
-        z_pump=0,
-        is_LG=0, is_Gauss=0, is_OAM=0,
-        l=0, p=0,
-        theta_x=0, theta_y=0,
-        #%%
-        is_random_phase=0,
-        is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-        # %%
-        # 生成横向结构
-        U_name_Structure = '',
-        structure_size_Enlarge = 0.1,
-        is_phase_only_Structure = 0,
-        # %%
-        w0_Structure = 0, z_pump_Structure = 0,
-        is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0, 
-        l_Structure = 0, p_Structure = 0, 
-        theta_x_Structure = 0, theta_y_Structure = 0,
-        # %%
-        is_random_phase_Structure = 0, 
-        is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0, 
-        # %%
-        U_NonZero_size=1, w0=0.3,
-        z0=1,
-        # %%
-        lam1=0.8, is_air_pump=0, is_air=0, T=25,
-        deff=30, is_fft = 1, fft_mode = 0,
-        is_sum_Gm=0, mG=0,
-        is_linear_convolution = 0,
-        #%%
-        Tx=10, Ty=10, Tz="2*lc",
-        mx=0, my=0, mz=0,
-        # %%
-        # 生成横向结构
-        Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
-        Depth = 2, structure_xy_mode = 'x',
-        #%%
-        is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
-        is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
-        # %%
-        is_save=0, is_save_txt=0, dpi=100,
-        # %%
-        cmap_2d='viridis',
-        # %%
-        ticks_num=6, is_contourf=0,
-        is_title_on=1, is_axes_on=1, is_mm=1,
-        # %%
-        fontsize=9,
-        font={'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        is_colorbar_on=1, is_energy=0,
-        # %%
-        is_print=1, is_contours=1, n_TzQ=1, 
-        Gz_max_Enhance=1, match_mode=1,
-        # %%
-        **kwargs, ):
+            img_full_name="Grating.png",
+            is_phase_only=0,
+            # %%
+            z_pump=0,
+            is_LG=0, is_Gauss=0, is_OAM=0,
+            l=0, p=0,
+            theta_x=0, theta_y=0,
+            #%%
+            is_random_phase=0,
+            is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+            # %%
+            # 生成横向结构
+            U_name_Structure = '',
+            structure_size_Enlarge = 0.1,
+            is_phase_only_Structure = 0,
+            # %%
+            w0_Structure = 0, z_pump_Structure = 0,
+            is_LG_Structure = 0, is_Gauss_Structure = 0, is_OAM_Structure = 0,
+            l_Structure = 0, p_Structure = 0,
+            theta_x_Structure = 0, theta_y_Structure = 0,
+            # %%
+            is_random_phase_Structure = 0,
+            is_H_l_Structure = 0, is_H_theta_Structure = 0, is_H_random_phase_Structure = 0,
+            # %%
+            U_NonZero_size=1, w0=0.3,
+            z0=1,
+            # %%
+            lam1=0.8, is_air_pump=0, is_air=0, T=25,
+            deff=30, is_fft = 1, fft_mode = 0,
+            is_sum_Gm=0, mG=0,
+            is_linear_convolution = 0,
+            #%%
+            Tx=10, Ty=10, Tz="2*lc",
+            mx=0, my=0, mz=0,
+            # %%
+            # 生成横向结构
+            Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
+            Depth = 2, structure_xy_mode = 'x',
+            #%%
+            is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0,
+            is_reverse_xy = 0, is_positive_xy = 1, is_no_backgroud = 0,
+            # %%
+            is_save=0, is_save_txt=0, dpi=100,
+            # %%
+            cmap_2d='viridis',
+            # %%
+            ticks_num=6, is_contourf=0,
+            is_title_on=1, is_axes_on=1, is_mm=1,
+            # %%
+            fontsize=9,
+            font={'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+            # %%
+            is_colorbar_on=1, is_energy=0,
+            # %%
+            is_print=1, is_contours=1, n_TzQ=1,
+            Gz_max_Enhance=1, match_mode=1,
+            # %%
+            **kwargs, ):
 
     # %%
 
@@ -337,68 +337,142 @@ def SHG_NLA(U_name="",
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 if __name__ == '__main__':
+    
+    kwargs = \
+        {"U_name": "", # 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray
+        "img_full_name": "lena1.png",
+        "is_phase_only": 0,
+        # %%
+        "z_pump": 0,
+        "is_LG": 0, "is_Gauss": 1, "is_OAM": 0,
+        "l": 0, "p": 0,
+        "theta_x": 0, "theta_y": 0,
+        # %%
+        "is_random_phase": 0,
+        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+        # %%
+        # 生成横向结构
+        "U_name_Structure": '',
+        "structure_size_Enlarge": 0.1,
+        "is_phase_only_Structure": 0,
+        # %%
+        "w0_Structure": 0, "z_pump_Structure": 0,
+        "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 0,
+        "l_Structure": 0, "p_Structure": 0,
+        "theta_x_Structure": 0, "theta_y_Structure": 0,
+        # %%
+        "is_random_phase_Structure": 0,
+        "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
+        # %%
+        "U_NonZero_size": 0.9, "w0": 0.1,
+        "z0": 10,
+        # %%
+        "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
+        "deff": 30, "is_fft": 1, "fft_mode": 0,
+        "is_sum_Gm": 0, "mG": 0,
+        "is_linear_convolution": 0,
+        # %%
+        "Tx": 10, "Ty": 10, "Tz": 3,
+        "mx": 1, "my": 0, "mz": 0,
+        # %%
+        # 生成横向结构
+        "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
+        "Depth": 2, "structure_xy_mode": 'x',
+        # %%
+        "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
+        "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
+        # %%
+        "is_save": 1, "is_save_txt": 0, "dpi": 100,
+        # %%
+        "cmap_2d": 'viridis',
+        # %%
+        "ticks_num": 6, "is_contourf": 0,
+        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+        # %%
+        "fontsize": 9,
+        "font": {'family': 'serif',
+              'style': 'normal',  # 'normal', 'italic', 'oblique'
+              'weight': 'normal',
+              'color': 'black',  # 'black','gray','darkred'
+              },
+        # %%
+        "is_colorbar_on": 1, "is_energy": 0,
+        # %%
+        "is_print": 1, "is_contours": 0, "n_TzQ": 1,
+        "Gz_max_Enhance": 1, "match_mode": 1,
+        # %%
+        "kwargs_seq": 0, "root_dir": r'af',
+        "border_percentage": 0.1, "is_end": -1,
+        "ray": "2", }
+        
+        # 要不要把 “要不要（是否）使用 上一次使用 的 参数”
+        # or “这次 使用了 哪一次 使用的 参数” 传进去记录呢？—— 也不是不行。
 
-    SHG_NLA(U_name="", # 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray
-            img_full_name="lena1.png",
-            is_phase_only=0,
-            # %%
-            z_pump=0,
-            is_LG=0, is_Gauss=1, is_OAM=0,
-            l=0, p=0,
-            theta_x=0, theta_y=0,
-            # %%
-            is_random_phase=0,
-            is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-            # %%
-            # 生成横向结构
-            U_name_Structure='',
-            structure_size_Enlarge=0.1,
-            is_phase_only_Structure=0,
-            # %%
-            w0_Structure=0, z_pump_Structure=0,
-            is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
-            l_Structure=0, p_Structure=0,
-            theta_x_Structure=0, theta_y_Structure=0,
-            # %%
-            is_random_phase_Structure=0,
-            is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
-            # %%
-            U_NonZero_size=0.9, w0=0.1,
-            z0=10,
-            # %%
-            lam1=1.064, is_air_pump=0, is_air=0, T=25,
-            deff=30, is_fft=1, fft_mode=0,
-            is_sum_Gm=0, mG=0,
-            is_linear_convolution=0,
-            # %%
-            Tx=10, Ty=10, Tz=3,
-            mx=1, my=0, mz=0,
-            # %%
-            # 生成横向结构
-            Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-            Depth=2, structure_xy_mode='x',
-            # %%
-            is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
-            is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
-            # %%
-            is_save=1, is_save_txt=0, dpi=100,
-            # %%
-            cmap_2d='viridis',
-            # %%
-            ticks_num=6, is_contourf=0,
-            is_title_on=1, is_axes_on=1, is_mm=1,
-            # %%
-            fontsize=9,
-            font={'family': 'serif',
-                  'style': 'normal',  # 'normal', 'italic', 'oblique'
-                  'weight': 'normal',
-                  'color': 'black',  # 'black','gray','darkred'
-                  },
-            # %%
-            is_colorbar_on=1, is_energy=0,
-            # %%
-            is_print=1, is_contours=0, n_TzQ=1,
-            Gz_max_Enhance=1, match_mode=1,
-            # %%
-            root_dir=r'af', ray="2", 
-            border_percentage=0.1, is_end=-1, )
+    # kwargs.update(init_GLV_DICT(**kwargs))
+    kwargs = init_GLV_DICT(**kwargs)
+    SHG_NLA(**kwargs)
+
+    # SHG_NLA(U_name="", # 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray
+    #         img_full_name="lena1.png",
+    #         is_phase_only=0,
+    #         # %%
+    #         z_pump=0,
+    #         is_LG=0, is_Gauss=1, is_OAM=0,
+    #         l=0, p=0,
+    #         theta_x=0, theta_y=0,
+    #         # %%
+    #         is_random_phase=0,
+    #         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+    #         # %%
+    #         # 生成横向结构
+    #         U_name_Structure='',
+    #         structure_size_Enlarge=0.1,
+    #         is_phase_only_Structure=0,
+    #         # %%
+    #         w0_Structure=0, z_pump_Structure=0,
+    #         is_LG_Structure=0, is_Gauss_Structure=1, is_OAM_Structure=0,
+    #         l_Structure=0, p_Structure=0,
+    #         theta_x_Structure=0, theta_y_Structure=0,
+    #         # %%
+    #         is_random_phase_Structure=0,
+    #         is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+    #         # %%
+    #         U_NonZero_size=0.9, w0=0.1,
+    #         z0=10,
+    #         # %%
+    #         lam1=1.064, is_air_pump=0, is_air=0, T=25,
+    #         deff=30, is_fft=1, fft_mode=0,
+    #         is_sum_Gm=0, mG=0,
+    #         is_linear_convolution=0,
+    #         # %%
+    #         Tx=10, Ty=10, Tz=3,
+    #         mx=1, my=0, mz=0,
+    #         # %%
+    #         # 生成横向结构
+    #         Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+    #         Depth=2, structure_xy_mode='x',
+    #         # %%
+    #         is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+    #         is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
+    #         # %%
+    #         is_save=1, is_save_txt=0, dpi=100,
+    #         # %%
+    #         cmap_2d='viridis',
+    #         # %%
+    #         ticks_num=6, is_contourf=0,
+    #         is_title_on=1, is_axes_on=1, is_mm=1,
+    #         # %%
+    #         fontsize=9,
+    #         font={'family': 'serif',
+    #               'style': 'normal',  # 'normal', 'italic', 'oblique'
+    #               'weight': 'normal',
+    #               'color': 'black',  # 'black','gray','darkred'
+    #               },
+    #         # %%
+    #         is_colorbar_on=1, is_energy=0,
+    #         # %%
+    #         is_print=1, is_contours=0, n_TzQ=1,
+    #         Gz_max_Enhance=1, match_mode=1,
+    #         # %%
+    #         root_dir=r'af', ray="2", 
+    #         border_percentage=0.1, is_end=-1, )

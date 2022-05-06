@@ -16,6 +16,20 @@ from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_gif_video import imgs2gif_imgio, imgs2gif_PIL, imgs2gif_art
 
 
+#%%
+
+def try_to_call_me(): # 获取引用 该函数 的 函数，所在 的 py 文件名（而不是 函数名）
+    import os
+    print(1, os.path.basename(__file__).split('.')[0])
+    import sys
+    print(2, sys.argv)
+    print(3, sys.argv[0].split('\\')[-1].split('.')[0])
+    import inspect
+    print(4, inspect.stack()[1][0])
+    print(5, inspect.stack()[1][3])
+
+
+
 # %%
 # 获取 桌面路径（C 盘 原生）
 
@@ -266,8 +280,10 @@ def gan_Uz_dir_address(U_name, **kwargs, ):
             # ugHGU, z_str, U_name_no_suffix, U_name, U_address = '', '', '', '', ''
             z_str = str(kwargs['z']) if 'z' in kwargs else 'z'
             U_name_no_suffix = folder_name.replace(kwargs['suffix'], '') if 'suffix' in kwargs else 'U_name_no_suffix'
-            is_data_saved, root_dir_boot_times, ugHGU, z_str, U_name, U_name_no_suffix, root_dir, U_address = \
-                1, Get("root_dir_boot_times"), ugHGU, z_str, folder_name, U_name_no_suffix, Get("root_dir"), ''
+            is_data_saved, kwargs_seq, root_dir_boot_times, \
+            ugHGU, z_str, U_name, U_name_no_suffix, root_dir, U_address = \
+                1, Get("kwargs_seq"), Get("root_dir_boot_times"), \
+                ugHGU, z_str, folder_name, U_name_no_suffix, Get("root_dir"), ''
 
             txt_address = Get("root_dir") + "\\" + "all_data_info.txt"
             with open(txt_address, "a+") as txt:  # 追加模式；如果没有 该文件，则 创建之；+ 表示 除了 写 之外，还可 读
@@ -1923,7 +1939,7 @@ def attr_Auto_Set(locals):
     for item_attr_name in Get("item_attr_name_loc_dict_save"):
         # print(locals[item_attr_name])
         index = Get("item_attr_name_loc_dict_save")[item_attr_name]
-        Get("item_attr_value_list_save")[index] = str(locals[item_attr_name])
+        Get("item_attr_value_list_save")[index] = str(locals[item_attr_name]) # 储存的 全转为 字符串了，所以之前没转 也没问题
         # print(locals[item_attr_name])
         # Get("item_attr_value_list_save")[index] = globals()[item_attr_name]
         # 这个 写这才有用：globals() 只能获取 当前 py 文件下的，调用这里的这个的话，只能得到 这个 py 文件中的 globals
@@ -2058,6 +2074,7 @@ def U_save(U, U_name, folder_address,
         np.savetxt(U_address, U) if is_save_txt else savemat(U_address, {ugHGU: U})
 
         is_data_saved = 1
+        kwargs_seq = Get("kwargs_seq")
         root_dir_boot_times = Get("root_dir_boot_times")
         z_str = str(kwargs['z']) if 'z' in kwargs else 'z'
         U_name_no_suffix = U_name.replace(kwargs['suffix'], '') if 'suffix' in kwargs else 'U_name_no_suffix'

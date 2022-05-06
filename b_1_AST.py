@@ -9,7 +9,7 @@ Created on Sun Dec 26 22:09:04 2021
 
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
-from fun_global_var import tree_print, init_GLV_rmw, end_AST, Get, fget, fkey, fGHU_plot_save
+from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_AST, Get, fget, fkey, fGHU_plot_save
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST
 np.seterr(divide='ignore', invalid='ignore')
@@ -131,40 +131,83 @@ def AST(U_name="",
 
 
 if __name__ == '__main__':
-    AST(U_name="",
-        img_full_name="Grating.png",
-        is_phase_only=0,
+    kwargs = \
+        {"U_name": "",
+        "img_full_name": "Grating.png",
+        "is_phase_only": 0,
         # %%
-        z_pump=0,
-        is_LG=0, is_Gauss=0, is_OAM=0,
-        l=0, p=0,
-        theta_x=0, theta_y=0,
+        "z_pump": 0,
+        "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+        "l": 0, "p": 0,
+        "theta_x": 0, "theta_y": 0,
         # %%
-        is_random_phase=0,
-        is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+        "is_random_phase": 0,
+        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
         # %%
-        U_NonZero_size=1, w0=0.1,
-        z0=1,
+        "U_NonZero_size": 1, "w0": 0.1,
+        "z0": 1,
         # %%
-        lam1=0.8, is_air_pump=0, is_air=0, T=25,
+        "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
         # %%
-        is_save=1, is_save_txt=0, dpi=100,
+        "is_save": 1, "is_save_txt": 0, "dpi": 100,
         # %%
-        cmap_2d='viridis',
+        "cmap_2d": 'viridis',
         # %%
-        ticks_num=6, is_contourf=0,
-        is_title_on=1, is_axes_on=1, is_mm=1,
+        "ticks_num": 6, "is_contourf": 0,
+        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
         # %%
-        fontsize=9,
-        font={'family': 'serif',
+        "fontsize": 9,
+        "font": {'family': 'serif',
               'style': 'normal',  # 'normal', 'italic', 'oblique'
               'weight': 'normal',
               'color': 'black',  # 'black','gray','darkred'
               },
         # %%
-        is_colorbar_on=1, is_energy=0,
+        "is_colorbar_on": 1, "is_energy": 0,
         # %%
-        is_print=1,
+        "is_print": 1,
         # %%
-        root_dir=r'',
-        border_percentage=0.1, ray="1", is_end=-1, )
+        "kwargs_seq": 0, "root_dir": r'',
+        "border_percentage": 0.1, "is_end": -1,
+        "ray": "1", }
+
+    kwargs = init_GLV_DICT(**kwargs)
+    AST(**kwargs)
+
+    # AST(U_name="",
+    #     img_full_name="Grating.png",
+    #     is_phase_only=0,
+    #     # %%
+    #     z_pump=0,
+    #     is_LG=0, is_Gauss=0, is_OAM=0,
+    #     l=0, p=0,
+    #     theta_x=0, theta_y=0,
+    #     # %%
+    #     is_random_phase=0,
+    #     is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+    #     # %%
+    #     U_NonZero_size=1, w0=0.1,
+    #     z0=1,
+    #     # %%
+    #     lam1=0.8, is_air_pump=0, is_air=0, T=25,
+    #     # %%
+    #     is_save=1, is_save_txt=0, dpi=100,
+    #     # %%
+    #     cmap_2d='viridis',
+    #     # %%
+    #     ticks_num=6, is_contourf=0,
+    #     is_title_on=1, is_axes_on=1, is_mm=1,
+    #     # %%
+    #     fontsize=9,
+    #     font={'family': 'serif',
+    #           'style': 'normal',  # 'normal', 'italic', 'oblique'
+    #           'weight': 'normal',
+    #           'color': 'black',  # 'black','gray','darkred'
+    #           },
+    #     # %%
+    #     is_colorbar_on=1, is_energy=0,
+    #     # %%
+    #     is_print=1,
+    #     # %%
+    #     root_dir=r'',
+    #     border_percentage=0.1, ray="1", is_end=-1, )

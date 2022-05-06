@@ -28,7 +28,7 @@ def init_GLV_DICT(*args, **kwargs): # 不能只是 **kwargs，还得加 *args，
         GLOBALS_DICT = {}
         # print(2, kwargs)
     GLV_DICT_init_times += 1
-    init_GLV(**kwargs)  # （比如若 tree_print 是第一次初始化，则 kwargs 还没进来呢）
+    return init_GLV(**kwargs)  # （比如若 tree_print 是第一次初始化，则 kwargs 还没进来呢）
 
 
 def init_GLV(*args, **kwargs): # 不能只是 **kwargs，还得加 *args，哪怕没有 位置参数
@@ -46,17 +46,14 @@ def init_GLV(*args, **kwargs): # 不能只是 **kwargs，还得加 *args，哪�
 
     if is_GLV_init == 1:
         # print(3, kwargs)
-        # %% float 显示
-        SET("F_E", kwargs.get("F_E", ".2e"))  # scientific_notation
-        SET("F_f", kwargs.get("F_f", ".2f"))
-        SET("f_f", kwargs.get("f_f", "%.2f"))  # 小数记数
         # %% save 的 data 条目信息
         SET("level_min", 1)
         SET("attr_separator", kwargs.get("attr_separator", ' ; '))
         # %% 不可被 外界改变
-        item_attr_name_list_save = ["is_data_saved", "root_dir_boot_times", "data_th", "Data_Seq", "Level_Seq",
-                                    "ugHGU", "z_str", "U_name", "U_name_no_suffix",
-                                    "root_dir", "folder_address", "U_address", ]
+        item_attr_name_list_save = ["is_data_saved", "kwargs_seq", "root_dir_boot_times",
+                                    "ugHGU", "data_th", "Data_Seq", "Level_Seq",
+                                    "U_name", "z_str", "U_name_no_suffix",
+                                    "root_dir", "folder_address", "U_address", ] # "current_py_name",
         # 它 不需要是 全局变量，也就意味者：之后顺序 不能改
         # 键值（key） 和 键的位置（索引）
         SET("item_attr_value_list_save", [None] * len(item_attr_name_list_save))  # 它 得是 全局变量：储存的值
@@ -68,9 +65,19 @@ def init_GLV(*args, **kwargs): # 不能只是 **kwargs，还得加 *args，哪�
         # print(GET("root_dir"))
         SET("root_dir_boot_times", gan_root_dir_boot_times())
         # %%
+        SET("kwargs_dir", gan_kwargs_dir())
+        kwargs_seq, kwargs = gan_kwargs_seq(**kwargs) # 更新后的 kwargs 会 被下面的 读取
+        # 所以尽量把 该行 往上面放；要读其他 非关键参数 的 往下面放
+        # 关键参数 即在 kwargs 被覆盖之前 就需要读取的 5 个参数：level_min, attr_separator, root_dir, kwargs_dir, kwargs_seq
+        SET("kwargs_seq", kwargs_seq)
+        # %% float 显示
+        SET("F_E", kwargs.get("F_E", ".2e"))  # scientific_notation
+        SET("F_f", kwargs.get("F_f", ".2f"))
+        SET("f_f", kwargs.get("f_f", "%.2f"))  # 小数记数
+        # %%
         SET("size_fig_x_scale", kwargs.get("size_fig_x_scale", 10))
         SET("size_fig_y_scale", kwargs.get("size_fig_y_scale", 1))
-
+    return kwargs
 
 def SET(key, value): # 只有 init_GLV 中才用；且不调用 init_GLV_DICT(), 这样便可 在 init_GLV_DICT() 中存在（不发生 交叉调用）
     try:  # 为了不与 set 集合 重名
@@ -107,6 +114,13 @@ def gan_root_dir(root_dir):
     # print(root_dir, root_dir_new)
     return root_dir_new
 
+def gan_kwargs_dir():
+    import os
+    save_kwargs_dir = GET("root_dir") + '\\' + "ENVs - kwargs_used"
+    if not os.path.isdir(save_kwargs_dir): # 得保证 先有 folder
+        os.makedirs(save_kwargs_dir) # 否则 即使 a+ 模式 也无法 自动创建 Get("root_dir") + "\\" + "all_data_info.txt"
+    return save_kwargs_dir
+
 def gan_root_dir_boot_times():
     txt_address = GET("root_dir") + "\\" + "all_data_info.txt"
     with open(txt_address, "a+") as txt: # r 或 r+ 会在 根目录 没有 该文件时，报错：所以得先生成，再查看之
@@ -120,7 +134,31 @@ def gan_root_dir_boot_times():
         root_dir_boot_times = int(ex_root_dir_boot_times) + 1
     else:
         root_dir_boot_times = GET("level_min")  # 把 level 的基数抬升 1：不从 0 开始计。
-    return str(root_dir_boot_times)
+    return root_dir_boot_times # 不转成 str 也行，之后 fun_os 中的 attr_Auto_Set 会自动转
+
+def gan_kwargs_seq(*args, **kwargs):
+    import json
+    kwargs_seq = kwargs.get("kwargs_seq", GET("level_min") - 1)
+    kwargs_seq = kwargs_seq if type(kwargs_seq) == int else GET("level_min")-1
+    # 还需要 检查文件夹 里，有没有 相应序号 的 储存的 变量列表，不然也返回 GET("level_min")-1，代表 不读取 历史记录中的 json 参数
+    if kwargs_seq >= Get("root_dir_boot_times") or kwargs_seq < GET("level_min"):
+        # 记录的 root_dir_boot_times 里，最低是 GET("level_min")，最高是 Get("root_dir_boot_times") - 1
+        # 可能并不满足：所选的 kwargs_seq 在记录的 root_dir_boot_times 们中，而是 kwargs_seq 超出了 旧有记录 范围
+        # 包括 kwargs_seq 虽 <= Get("root_dir_boot_times")，但 < GET("level_min")，以至于 也没有 在记录范围内
+        kwargs_seq = Get("root_dir_boot_times") # 代表 不读取 历史记录中的 json 参数，等价于用自己的参数
+        # GET("level_min")-1 等价于 Get("root_dir_boot_times")，等价于 用自己的参数
+        kwargs_dict = {} # 返回一个空字典 or set 集合，类似返回 False，配合 if 的话。
+        kwargs_address = GET("kwargs_dir") + "\\" + str(kwargs_seq) + ".json"
+    else:
+        kwargs_address = GET("kwargs_dir") + "\\" + str(kwargs_seq) + ".json"
+        file_json = open(kwargs_address, 'r')
+        kwargs_dict = json.load(file_json)
+    #%% 开始 储存：这次 跑的程序 所用的 参数
+    kwargs.update(kwargs_dict) # 这次 跑的程序 所用的 参数
+    kwargs_json = json.dumps(kwargs, sort_keys=False, indent=4, separators=(',', ':')) # dict 转为 json 内 将储存的 str
+    file_json = open(kwargs_address, 'w') # 创建一个 json 文件
+    file_json.write(kwargs_json) # 向里面 写入 kwargs 的 json 版 str 内容
+    return kwargs_seq, kwargs
 
 # %%
 
