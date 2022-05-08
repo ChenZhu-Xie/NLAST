@@ -49,6 +49,7 @@ def U_compare(U, U_0, U_0_title, z,
     U_plot("",
            U_0, U_0_title,
            img_name_extension,
+           is_save_txt,
            # %%
            1, size_PerPixel, # 自己 colorbar
            0, dpi, size_fig, # 不 save
@@ -57,7 +58,7 @@ def U_compare(U, U_0, U_0_title, z,
            fontsize, font,
            is_colorbar_on, is_energy,
            # %%
-           z=z, )
+           z=z, is_no_data_save=1, )
 
     U_energy_print(U, fkey(ugHGU), is_print,
                    z=z, )
@@ -65,6 +66,7 @@ def U_compare(U, U_0, U_0_title, z,
     U_plot("",
            U, fkey(ugHGU),
            img_name_extension,
+           is_save_txt,
            # %%
            1, size_PerPixel, # 自己 colorbar
            0, dpi, size_fig, # 不 save
@@ -73,7 +75,7 @@ def U_compare(U, U_0, U_0_title, z,
            fontsize, font,
            is_colorbar_on, is_energy,
            # %%
-           z=z, )
+           z=z, is_no_data_save=1, )
 
     # %% 归一化，查看 相对分布 的 大小
 

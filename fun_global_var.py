@@ -50,10 +50,10 @@ def init_GLV(*args, **kwargs): # 不能只是 **kwargs，还得加 *args，哪�
         SET("level_min", 1)
         SET("attr_separator", kwargs.get("attr_separator", ' ; '))
         # %% 不可被 外界改变
-        item_attr_name_list_save = ["is_data_saved", "kwargs_seq", "root_dir_boot_times",
+        item_attr_name_list_save = ["main_py_name", "is_data_saved", "kwargs_seq", "root_dir_boot_times",
                                     "ugHGU", "data_th", "Data_Seq", "Level_Seq",
-                                    "U_name", "z_str", "U_name_no_suffix",
-                                    "root_dir", "folder_address", "U_address", ] # "current_py_name",
+                                    "saver_name", "U_name", "z_str", "U_name_no_suffix",
+                                    "root_dir", "folder_address", "U_address", ]
         # 它 不需要是 全局变量，也就意味者：之后顺序 不能改
         # 键值（key） 和 键的位置（索引）
         SET("item_attr_value_list_save", [None] * len(item_attr_name_list_save))  # 它 得是 全局变量：储存的值
@@ -70,6 +70,9 @@ def init_GLV(*args, **kwargs): # 不能只是 **kwargs，还得加 *args，哪�
         # 所以尽量把 该行 往上面放；要读其他 非关键参数 的 往下面放
         # 关键参数 即在 kwargs 被覆盖之前 就需要读取的 5 个参数：level_min, attr_separator, root_dir, kwargs_dir, kwargs_seq
         SET("kwargs_seq", kwargs_seq)
+        # %%
+        from fun_os import get_main_py_name
+        SET("main_py_name", get_main_py_name())
         # %% float 显示
         SET("F_E", kwargs.get("F_E", ".2e"))  # scientific_notation
         SET("F_f", kwargs.get("F_f", ".2f"))
@@ -296,8 +299,8 @@ def tree_print(is_end=0, add_level=0):  # 默认 is_end = 0 ，即 默认 该层
         # 这似乎需要 上上级 dir 给出暗示，那反正都要 传参的，不如将就这里的传 is_end，工作量 是一样的。
         # 每个 def 里，第一个 tree_print 的 is_end 是否为 1，需要给。
         # 如果 def 里只有 1 个 tree_print，那这个 tree_print 肯定 is_end = 1，但可能有子分支，因而可能往下走，所以往下走 的 is_end 不一定为 0。
-    elif Get(
-            "ex_is_end") != 0:  # 如果 新路径 不再包含 旧路径（有交集 但有 非交集：即 分叉了） 且 上一个 tree_print 的 is_end 不是 0：若是 0 则还有同级，则 level 不变，啥也不做。
+    elif Get("ex_is_end") != 0:
+        # 如果 新路径 不再包含 旧路径（有交集 但有 非交集：即 分叉了） 且 上一个 tree_print 的 is_end 不是 0：若是 0 则还有同级，则 level 不变，啥也不做。
         # if len(Get("dirs" + suffix_2)[-1]) > 0: # 上一个 tree_print 的 is_end 不是 0，则肯定 len(Get("dirs" + suffix_2)) 不为零
         # 且 上一个 print 说后面 没有 同级 peer_levels（ 上一个 print 的 is_end > 0）；这个判断其实可以没有，如果 is_end 只取 0 或 1 的话。
         # print(len(Get("dirs" + suffix_2)[-1])) # 多缩进了的话，启用这个
@@ -774,6 +777,7 @@ def fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
 
 def fU_SSI_plot(th_f, th_e,
                 img_name_extension,
+                is_no_data_save, is_save_txt,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -822,6 +826,7 @@ def fU_SSI_plot(th_f, th_e,
                    Get("sheet_th_sec1"), Get("sheet_th_sec2"),
                    th_f, th_e,
                    img_name_extension,
+                   is_no_data_save, is_save_txt,
                    # %%
                    sample, size_PerPixel,
                    is_save, dpi, size_fig,
@@ -847,6 +852,7 @@ def fU_SSI_plot(th_f, th_e,
 
 
 def fU_EVV_plot(img_name_extension,
+                is_save_txt, is_no_data_save,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -879,6 +885,7 @@ def fU_EVV_plot(img_name_extension,
         U_EVV_plot(sget("G"), fkey("G"),
                    sget("U"), fkey("U"),
                    img_name_extension,
+                   is_save_txt,
                    # %%
                    sample, size_PerPixel,
                    is_save, dpi, size_fig,
@@ -896,7 +903,8 @@ def fU_EVV_plot(img_name_extension,
                    # %%
                    is_plot_3d_XYz,
                    # %%
-                   Get("zj"), Get("z_stored"), z, )
+                   Get("zj"), Get("z_stored"), z,
+                   is_no_data_save=is_no_data_save, )
 
 
 def GU_error_energy_plot_save(G_energy, G_error_energy, U_energy, U_error_energy,

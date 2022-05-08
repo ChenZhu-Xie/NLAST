@@ -306,6 +306,7 @@ def SHG_NLA_SSI(U_name="",
 
     fU_SSI_plot(sheets_num_frontface, sheets_num_endface,
                 img_name_extension,
+                kwargs.get("is_no_data_save", 0), is_save_txt,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -380,12 +381,12 @@ if __name__ == '__main__':
         "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
         "is_reverse_xy": 0, "is_positive_xy": 1,
         # %%
-        "is_save": 0, "is_save_txt": 0, "dpi": 100,
+        "is_save": 1, "is_save_txt": 0, "dpi": 100,
         # %%
         "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
         "elev": 10, "azim": -65, "alpha": 2,
         # %%
-        "sample": 2, "ticks_num": 6, "is_contourf": 0,
+        "sample": 1, "ticks_num": 6, "is_contourf": 0,
         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
         # %%
         "fontsize": 9,
@@ -397,16 +398,16 @@ if __name__ == '__main__':
         # %%
         "is_colorbar_on": 1, "is_energy": 0,
         # %%
-        "plot_group": "UGa", "is_animated": 1,
+        "plot_group": "UGap", "is_animated": 1,
         "loop": 0, "duration": 0.033, "fps": 5,
         # %%
-        "is_plot_3d_XYz": 0, "is_plot_selective": 0,
-        "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
+        "is_plot_3d_XYz": 1, "is_plot_selective": 1,
+        "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,
         # %%
         "is_print": 1, "is_contours": 66, "n_TzQ": 1,
         "Gz_max_Enhance": 1, "match_mode": 1,
         # %%
-        "kwargs_seq": 0, "root_dir": r'',
+        "kwargs_seq": 0, "root_dir": r'1',
         "border_percentage": 0.1, "is_end": -1,
         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
         "ray": "2", }

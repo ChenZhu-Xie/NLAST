@@ -11,7 +11,7 @@ import math
 import numpy as np
 import scipy.stats
 import inspect
-from fun_os import img_squared_bordered_Read, U_Read, U_read_only, U_dir, U_energy_print, U_plot, U_save
+from fun_os import img_squared_bordered_Read, U_Read, U_read_only, U_dir, U_plot_save
 from fun_global_var import init_accu, tree_print
 from fun_img_Resize import img_squared_Resize
 from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase
@@ -365,6 +365,8 @@ def pump(file_full_name="Grating.png",
     # %%
     # 绘图：g_0_amp
 
+    method = "PUMP"
+
     # ray = kwargs['ray'] + "0" if "ray" in kwargs else "0"
     if inspect.stack()[1][3] == "pump_pic_or_U": # 如果 调用该 pump 的 函数，名为 这个
         ray = kwargs['ray'] + "p" if "ray" in kwargs else "p"
@@ -373,59 +375,45 @@ def pump(file_full_name="Grating.png",
     else:
         ray = "p"
     # ray = kwargs['ray'] + "_p" if "ray" in kwargs else "_p"
-    method = "PUMP"
 
     name = "G" + ray
     title = method + " - " + name
-    folder_address = U_dir(title, is_save,
-                           z=z, **kwargs, )
 
-
-    U_amp_plot_address, U_phase_plot_address = U_plot(folder_address,
-                                                      G_z0_shift, title,
-                                                      img_name_extension,
-                                                      # %%
-                                                      1, size_PerPixel,
-                                                      is_save, dpi, size_fig,
-                                                      # %%
-                                                      cmap_2d, ticks_num, is_contourf,
-                                                      is_title_on, is_axes_on, is_mm,
-                                                      # %%
-                                                      fontsize, font,
-                                                      is_colorbar_on, is_energy,
-                                                      # %%
-                                                      z=z, )
-
-    U_address, ugHGU = U_save(G_z0_shift, title, folder_address,
-                                is_save, is_save_txt, z=z, )
+    U_plot_save(G_z0_shift, title, 0,
+                img_name_extension,
+                # %%
+                size_PerPixel,
+                is_save, is_save_txt, dpi, size_fig,
+                # %%
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm,
+                fontsize, font,
+                # %%
+                is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                # %%                          何况 一般默认 is_self_colorbar = 1...
+                z=z, **kwargs, )
 
     # %%
 
     name = "U" + ray
     title = method + " - " + name
+
+    U_plot_save(U_z0, title, 1,
+                img_name_extension,
+                # %%
+                size_PerPixel,
+                is_save, is_save_txt, dpi, size_fig,
+                # %%
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm,
+                fontsize, font,
+                # %%
+                is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                # %%                          何况 一般默认 is_self_colorbar = 1...
+                z=z, **kwargs, )
+
     folder_address = U_dir(title, is_save,
                            z=z, **kwargs, )
-
-    U_energy_print(U_z0, title, is_print, **kwargs)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
-
-    U_amp_plot_address, U_phase_plot_address = U_plot(folder_address,
-                                                      U_z0, title,
-                                                      img_name_extension,
-                                                      # %%
-                                                      1, size_PerPixel,
-                                                      is_save, dpi, size_fig,
-                                                      # %%
-                                                      cmap_2d, ticks_num, is_contourf,
-                                                      is_title_on, is_axes_on, is_mm,
-                                                      # %%
-                                                      fontsize, font,
-                                                      is_colorbar_on, is_energy,
-                                                      # %%
-                                                      z=z, )
-
-    U_address, ugHGU = U_save(U_z0, title, folder_address,
-                                is_save, is_save_txt, z=z, )
 
     return U_z0, G_z0_shift
 
@@ -464,7 +452,7 @@ def pump_pic_or_U(U_name="",
                   is_print=1,
                   # %%
                   **kwargs, ):
-    kwargs['p_dir'] = 'pump'
+    kwargs['p_dir'] = 'PUMP'
     # %%
     if (type(U_name) != str) or U_name == "":
 
@@ -555,7 +543,7 @@ def pump_pic_or_U_structure(U_structure_name="",
                             is_print=1,
                             # %%
                             **kwargs, ):
-    kwargs['p_dir'] = 'pump_mod'
+    kwargs['p_dir'] = 'PUMP - for_modulation'
     # %%
     info = "pump_pic_or_U_structure"
     is_first = int(init_accu(info, 1) == 1)  # 若第一次调用 pump_pic_or_U_structure，则 is_first 为 1，否则为 0

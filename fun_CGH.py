@@ -9,7 +9,7 @@ Created on Tue Oct 26 14:41:11 2021
 
 import math
 import numpy as np
-from fun_os import U_dir
+from fun_os import U_dir, U_amp_plot_save
 from fun_global_var import Get, tree_print
 from fun_plot import plot_2d
 from fun_pump import pump_pic_or_U_structure
@@ -280,15 +280,24 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     # name = "χ2_structure"
     # full_name = method + " - " + name
-    # title = full_name.replace("χ2", "$\chi_2$")
-    # address = folder_address + "\\" + full_name + img_name_extension
-    # plot_2d([], 1, size_PerPixel,
-    #         structure, address, title,
-    #         1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
-    #         cmap_2d, ticks_num, is_contourf,
-    #         is_title_on, is_axes_on, is_mm, 0,
-    #         fontsize, font,
-    #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
+    # U_amp_plot_save(folder_address,
+    #                 # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+    #                 structure, full_name,
+    #                 img_name_extension,
+    #                 is_save_txt,
+    #                 # %%
+    #                 [], 1, size_PerPixel,
+    #                 1 - is_bulk, dpi, size_fig,
+    #                 # %%
+    #                 cmap_2d, ticks_num, is_contourf,
+    #                 is_title_on, is_axes_on, is_mm, 0,
+    #                 fontsize, font,
+    #                 # %%
+    #                 0, is_colorbar_on, 0,
+    #                 vmax=vmax_structure, vmin=vmin_structure,
+    #                 # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+    #                 # %%
+    #                 suffix="", **kwargs, )
 
     modulation = 1 - is_no_backgroud - Depth * structure
     modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant',
@@ -296,17 +305,24 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     name = "χ2_modulation_squared"
     full_name = method + " - " + name
-    title = full_name.replace("χ2", "$\chi_2$")
-    address = folder_address + "\\" + full_name + img_name_extension
-    plot_2d([], 1, size_PerPixel,
-            modulation_squared, address, title,
-            1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
-            cmap_2d, ticks_num, is_contourf,
-            is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            0, is_colorbar_on, 0,
-            # %%
-            vmax = vmax_modulation, vmin = vmin_modulation)
+    U_amp_plot_save(folder_address,
+                    # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                    modulation_squared, full_name,
+                    img_name_extension,
+                    is_save_txt,
+                    # %%
+                    [], 1, size_PerPixel,
+                    1 - is_bulk, dpi, size_fig,
+                    # %%
+                    cmap_2d, ticks_num, is_contourf,
+                    is_title_on, is_axes_on, is_mm, 0,
+                    fontsize, font,
+                    # %%
+                    0, is_colorbar_on, 0,
+                    vmax=vmax_modulation, vmin=vmin_modulation,
+                    # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                    # %%
+                    suffix="", **kwargs, )
 
     # %%
 
@@ -317,15 +333,24 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     # name = "χ2_structure_opposite"
     # full_name = method + " - " + name
-    # title = full_name.replace("χ2", "$\chi_2$")
-    # address = folder_address + "\\" + full_name + img_name_extension
-    # plot_2d([], 1, size_PerPixel,  
-    #         structure_opposite, address, title,
-    #         1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
-    #         cmap_2d, ticks_num, is_contourf,
-    #         is_title_on, is_axes_on, is_mm, 0,
-    #         fontsize, font,
-    #         0, is_colorbar_on, 0, vmax_structure, vmin_structure)
+    # U_amp_plot_save(folder_address,
+    #                 # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+    #                 structure_opposite, full_name,
+    #                 img_name_extension,
+    #                 is_save_txt,
+    #                 # %%
+    #                 [], 1, size_PerPixel,
+    #                 1 - is_bulk, dpi, size_fig,
+    #                 # %%
+    #                 cmap_2d, ticks_num, is_contourf,
+    #                 is_title_on, is_axes_on, is_mm, 0,
+    #                 fontsize, font,
+    #                 # %%
+    #                 0, is_colorbar_on, 0,
+    #                 vmax=vmax_structure, vmin=vmin_structure,
+    #                 # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+    #                 # %%
+    #                 suffix="", **kwargs, )
 
     modulation_opposite = 1 - is_no_backgroud - Depth * structure_opposite
     modulation_opposite_squared = np.pad(modulation_opposite,
@@ -334,17 +359,24 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     name = "χ2_modulation_opposite_squared"
     full_name = method + " - " + name
-    title = full_name.replace("χ2", "$\chi_2$")
-    address = folder_address + "\\" + full_name + img_name_extension
-    plot_2d([], 1, size_PerPixel,
-            modulation_opposite_squared, address, title,
-            1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
-            cmap_2d, ticks_num, is_contourf,
-            is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            0, is_colorbar_on, 0,
-            # %%
-            vmax = vmax_modulation, vmin = vmin_modulation, )
+    U_amp_plot_save(folder_address,
+                    # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                    modulation_opposite_squared, full_name,
+                    img_name_extension,
+                    is_save_txt,
+                    # %%
+                    [], 1, size_PerPixel,
+                    1 - is_bulk, dpi, size_fig,
+                    # %%
+                    cmap_2d, ticks_num, is_contourf,
+                    is_title_on, is_axes_on, is_mm, 0,
+                    fontsize, font,
+                    # %%
+                    0, is_colorbar_on, 0,
+                    vmax=vmax_modulation, vmin=vmin_modulation,
+                    # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                    # %%
+                    suffix="", **kwargs, )
 
     return n1, k1, k1_z, lam2, n2, k2, k2_z, \
            dk, lc, Tz, Gx, Gy, Gz, \
@@ -482,33 +514,50 @@ def structure_n1_Generate_2D(U_structure_name="",
     vmax_modulation, vmin_modulation = n1, n1 - Depth
 
     # name = "n1_structure"
-    # title = method + " - " + name.replace("1", "$_1$")
-    # address = folder_address + "\\" + name + img_name_extension
-    # plot_2d([], 1, size_PerPixel,  
-    #         structure, address, title,
-    #         1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
-    #         cmap_2d, ticks_num, is_contourf,
-    #         is_title_on, is_axes_on, is_mm, 0,
-    #         fontsize, font,
-    #         0, is_colorbar_on,
-    #         0, vmax_structure, vmin_structure)
+    # full_name = method + " - " + name
+    # U_amp_plot_save(folder_address,
+    #                 # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+    #                 structure, full_name,
+    #                 img_name_extension,
+    #                 is_save_txt,
+    #                 # %%
+    #                 [], 1, size_PerPixel,
+    #                 1 - is_bulk, dpi, size_fig,
+    #                 # %%
+    #                 cmap_2d, ticks_num, is_contourf,
+    #                 is_title_on, is_axes_on, is_mm, 0,
+    #                 fontsize, font,
+    #                 # %%
+    #                 0, is_colorbar_on, 0,
+    #                 vmax=vmax_structure, vmin=vmin_structure,
+    #                 # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+    #                 # %%
+    #                 suffix="", **kwargs, )
 
     modulation = n1 - Depth * structure
     modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant',
                                 constant_values=(n1, n1))
 
     name = "n1_modulation_squared"
-    title = method + " - " + name.replace("1", "$_1$")
-    address = folder_address + "\\" + name + img_name_extension
-    plot_2d([], 1, size_PerPixel,
-            modulation_squared, address, title,
-            1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
-            cmap_2d, ticks_num, is_contourf,
-            is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            0, is_colorbar_on, 0,
-            # %%
-            vmax=vmax_modulation, vmin=vmin_modulation)
+    full_name = method + " - " + name
+    U_amp_plot_save(folder_address,
+                    # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                    modulation_squared, full_name,
+                    img_name_extension,
+                    is_save_txt,
+                    # %%
+                    [], 1, size_PerPixel,
+                    1 - is_bulk, dpi, size_fig,
+                    # %%
+                    cmap_2d, ticks_num, is_contourf,
+                    is_title_on, is_axes_on, is_mm, 0,
+                    fontsize, font,
+                    # %%
+                    0, is_colorbar_on, 0,
+                    vmax=vmax_modulation, vmin=vmin_modulation,
+                    # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                    # %%
+                    suffix="", **kwargs, )
 
     # %%
 
@@ -518,16 +567,25 @@ def structure_n1_Generate_2D(U_structure_name="",
         structure_opposite = structure
 
     # name = "n1_structure_opposite"
-    # title = method + " - " + name.replace("1", "$_1$")
-    # address = folder_address + "\\" + name + img_name_extension
-    # plot_2d([], 1, size_PerPixel,  
-    #         structure_opposite, address, title,
-    #         1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
-    #         cmap_2d, ticks_num, is_contourf,
-    #         is_title_on, is_axes_on, is_mm, 0,
-    #         fontsize, font,
-    #         0, is_colorbar_on,
-    #         0, vmax_structure, vmin_structure)
+    # full_name = method + " - " + name
+    # U_amp_plot_save(folder_address,
+    #                 # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+    #                 structure_opposite, full_name,
+    #                 img_name_extension,
+    #                 is_save_txt,
+    #                 # %%
+    #                 [], 1, size_PerPixel,
+    #                 1 - is_bulk, dpi, size_fig,
+    #                 # %%
+    #                 cmap_2d, ticks_num, is_contourf,
+    #                 is_title_on, is_axes_on, is_mm, 0,
+    #                 fontsize, font,
+    #                 # %%
+    #                 0, is_colorbar_on, 0,
+    #                 vmax=vmax_structure, vmin=vmin_structure,
+    #                 # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+    #                 # %%
+    #                 suffix="", **kwargs, )
 
     modulation_opposite = n1 - Depth * structure_opposite
     modulation_opposite_squared = np.pad(modulation_opposite,
@@ -535,17 +593,25 @@ def structure_n1_Generate_2D(U_structure_name="",
                                          constant_values=(n1, n1))
 
     name = "n1_modulation_opposite_squared"
-    title = method + " - " + name.replace("1", "$_1$")
-    address = folder_address + "\\" + name + img_name_extension
-    plot_2d([], 1, size_PerPixel,
-            modulation_opposite_squared, address, title,
-            1 - is_bulk, dpi, size_fig, # is_save - 0.5 * is_bulk
-            cmap_2d, ticks_num, is_contourf,
-            is_title_on, is_axes_on, is_mm, 0,
-            fontsize, font,
-            0, is_colorbar_on, 0,
-            # %%
-            vmax=vmax_modulation, vmin=vmin_modulation)
+    full_name = method + " - " + name
+    U_amp_plot_save(folder_address,
+                    # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                    modulation_opposite_squared, full_name,
+                    img_name_extension,
+                    is_save_txt,
+                    # %%
+                    [], 1, size_PerPixel,
+                    1 - is_bulk, dpi, size_fig,
+                    # %%
+                    cmap_2d, ticks_num, is_contourf,
+                    is_title_on, is_axes_on, is_mm, 0,
+                    fontsize, font,
+                    # %%
+                    0, is_colorbar_on, 0,
+                    vmax=vmax_modulation, vmin=vmin_modulation,
+                    # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                    # %%
+                    suffix="", **kwargs, )
 
     return n1, k1, k1_z, lam2, n2, k2, k2_z, \
            dk, lc, Tz, Gx, Gy, Gz, \

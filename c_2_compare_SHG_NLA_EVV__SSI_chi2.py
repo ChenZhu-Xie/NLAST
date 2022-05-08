@@ -531,7 +531,7 @@ if __name__ == '__main__':
          "is_NLA": 1, "is_amp_relative": 1,
          "is_energy_normalized": 2, "is_output_error_EVV": 1,
          # %%
-         "kwargs_seq": 0, "root_dir": r'',
+         "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          "ax_yscale": 'linear', }

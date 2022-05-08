@@ -368,6 +368,7 @@ def SHG_SSF_SSI(U_name="",
 
     fU_SSI_plot(sheets_num_frontface, sheets_num_endface,
                 img_name_extension,
+                kwargs.get("is_no_data_save", 0), is_save_txt,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -466,7 +467,7 @@ if __name__ == '__main__':
         "is_print": 1, "is_contours": 1, "n_TzQ": 1,
         "Gz_max_Enhance": 1, "match_mode": 1,
         # %%
-        "kwargs_seq": 0, "root_dir": r'',
+        "kwargs_seq": 0, "root_dir": r'1',
         "border_percentage": 0.1, "is_end": -1,
         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
         "ray": "2", }

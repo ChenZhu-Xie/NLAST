@@ -31,3 +31,10 @@ def get_var_name(var):
 # b = 45
 # a = 45
 # print(get_var_name(a))
+
+def str_to_float(Str):
+    try:
+        float(Str)
+        return float(Str)
+    except:
+        return Str

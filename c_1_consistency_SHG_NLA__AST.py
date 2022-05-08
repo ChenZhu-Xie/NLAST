@@ -345,7 +345,7 @@ if __name__ == '__main__':
          # %%
          "is_amp_relative": 1,
          # %%
-         "kwargs_seq": 0, "root_dir": r'',
+         "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1, }
 
     kwargs = init_GLV_DICT(**kwargs)
