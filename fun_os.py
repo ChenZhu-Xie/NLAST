@@ -440,7 +440,7 @@ def U_amp_plot_save(folder_address,
                     img_name_extension,
                     is_save_txt,
                     # %%
-                    zj, sample, size_PerPixel,
+                    zj_plot_2d, sample, size_PerPixel,
                     is_save, dpi, size_fig,
                     # %%
                     cmap_2d, ticks_num, is_contourf,
@@ -455,7 +455,7 @@ def U_amp_plot_save(folder_address,
                                                                    **kwargs, )
     # %%
 
-    plot_2d(zj, sample, size_PerPixel,
+    plot_2d(zj_plot_2d, sample, size_PerPixel, # 防止 kwargs 里 出现 关键字 zj 后重名
             U, U_amp_plot_address, U_amp_title,
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf,
@@ -514,7 +514,7 @@ def U_phase_plot_save(folder_address,
                       img_name_extension,
                       is_save_txt,
                       # %%
-                      zj, sample, size_PerPixel,
+                      zj_plot_2d, sample, size_PerPixel,
                       is_save, dpi, size_fig,
                       # %%
                       cmap_2d, ticks_num, is_contourf,
@@ -529,7 +529,7 @@ def U_phase_plot_save(folder_address,
                                                                          **kwargs, )
     # %%
 
-    plot_2d(zj, sample, size_PerPixel,
+    plot_2d(zj_plot_2d, sample, size_PerPixel, # 防止 kwargs 里 出现 关键字 zj 后重名
             U, U_phase_plot_address, U_phase_title,
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf,
@@ -2802,7 +2802,7 @@ def U_read_only(U_name, is_save_txt):
         U_address = Get("root_dir") + "\\" + U_full_name
         U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_name)
 
-    U = np.loadtxt(U_address, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U_full_name)[ugHGU]  # 加载 复振幅场
+    U = np.loadtxt(U_address, dtype=np.complex128()) if is_save_txt == 1 else loadmat(U_address)[ugHGU]  # 加载 复振幅场
 
     return U
 

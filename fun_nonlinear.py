@@ -214,8 +214,8 @@ def G2_z_modulation_NLAST(k1, k2, Gz,
     k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
     k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
 
-    Big_version = 1
-    Cal_version = 1
+    Big_version = 3
+    Cal_version = 4
     Res_version = 1
 
     # 3.4 > 3.2 > 1.3    match OK

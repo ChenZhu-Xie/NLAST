@@ -559,6 +559,8 @@ def init_SSI(g_shift, U_0,
         iz_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
         z_stored = np.zeros(int(sheets_stored_num + 1), dtype=np.float64())
 
+        Set("for_th_stored", list(np.int64(np.round(np.linspace(0, Get("sheets_num"), Get("sheets_stored_num") + 1)))))
+
         Set("sheet_th_stored", sheet_th_stored)  # 设置成全局变量
         Set("iz_stored", iz_stored)  # 方便之后在这个 py 和 主 py 文件里直接调用
         Set("z_stored", z_stored)  # 懒得搞 返回 和 获取 这仨了
@@ -639,16 +641,17 @@ def fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
         # print(eget("U")[for_th + 1])
 
     if abs(Get("is_stored")) == 1:
-        if np.mod(for_th, Get("sheets_num") // Get("sheets_stored_num")) == 0:
+
+        if for_th in Get("for_th_stored"):
             # print(for_th + 1, '\n') # 一共存了 sheets_stored_num + 1 次，所以 把最后一次 预设值 给覆盖了...之后还得重新设...
             # print(Get("zj")[for_th + 1])
             # 如果 for_th 是 Get("sheets_num") // Get("sheets_stored_num") 的 整数倍（包括零），则 储存之
-            Get("sheet_th_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = for_th + 1
-            Get("iz_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = Get("izj")[for_th + 1]
-            Get("z_stored")[int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = Get("zj")[for_th + 1]
-            sget("G")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = G_zdz
+            Get("sheet_th_stored")[Get("for_th_stored").index(for_th)] = for_th + 1
+            Get("iz_stored")[Get("for_th_stored").index(for_th)] = Get("izj")[for_th + 1]
+            Get("z_stored")[Get("for_th_stored").index(for_th)] = Get("zj")[for_th + 1]
+            sget("G")[:, :, Get("for_th_stored").index(for_th)] = G_zdz
             # 储存的 第一层，实际上不是 G1_0，而是 G1_dz
-            sget("U")[:, :, int(for_th // (Get("sheets_num") // Get("sheets_stored_num")))] = U_zdz
+            sget("U")[:, :, Get("for_th_stored").index(for_th)] = U_zdz
             # 储存的 第一层，实际上不是 U_0，而是 U_dz
 
     if Get("is_stored") == 1:

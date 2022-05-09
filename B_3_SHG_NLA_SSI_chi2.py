@@ -401,8 +401,8 @@ if __name__ == '__main__':
         "plot_group": "UGap", "is_animated": 1,
         "loop": 0, "duration": 0.033, "fps": 5,
         # %%
-        "is_plot_3d_XYz": 1, "is_plot_selective": 1,
-        "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,
+        "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+        "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
         # %%
         "is_print": 1, "is_contours": 66, "n_TzQ": 1,
         "Gz_max_Enhance": 1, "match_mode": 1,

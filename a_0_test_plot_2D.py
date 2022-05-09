@@ -133,22 +133,22 @@ def plot_2D_test(test_target=3,
                             is_no_data_save=kwargs.get("is_no_data_save", 0), )
     elif test_func == "U_amps_z_plot_save":
         U_amps_z_plot_save(folder_new_address,
-                      U_list[index+0], U_name_list[index+0], # 这个倒是可以用 U_name_no_suffix
-                      img_name_extension,
-                      is_save_txt,
-                      # %%
-                      sample, size_PerPixel,
-                      is_save, dpi, size_fig,
-                      # %%
-                      cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm,
-                      fontsize, font,
-                      # %%
-                      is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                      # %%                          何况 一般默认 is_self_colorbar = 1...
-                      U_list[index+1], is_animated,
-                      duration, fps, loop,
-                      z_list[index+0], **kwargs, )  # 传 z 是为了 储存时，给 G_stored 命名
+                          U_list[index+0], U_name_list[index+0], # 这个倒是可以用 U_name_no_suffix
+                          img_name_extension,
+                          is_save_txt,
+                          # %%
+                          sample, size_PerPixel,
+                          is_save, dpi, size_fig,
+                          # %%
+                          cmap_2d, ticks_num, is_contourf,
+                          is_title_on, is_axes_on, is_mm,
+                          fontsize, font,
+                          # %%
+                          is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                          # %%                          何况 一般默认 is_self_colorbar = 1...
+                          U_list[index+1], is_animated,
+                          duration, fps, loop,
+                          z_list[index+0], **kwargs, )  # 传 z 是为了 储存时，给 G_stored 命名
     elif test_func == "U_phases_z_plot_save":
         U_phases_z_plot_save(folder_new_address,
                             U_list[index+0], U_name_list[index+0], # 这个倒是可以用 U_name_no_suffix
@@ -191,13 +191,13 @@ def plot_2D_test(test_target=3,
 if __name__ == '__main__':
     kwargs = \
         {"test_target": -1, # 自动化了，不用填这个参数了
-         "Data_Seq": 9,
+         "Data_Seq": 16,
          "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
          "U_NonZero_size": 0.9,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 1, "is_save_txt": 0, "dpi": 100,
          "is_show_structure_face": 1, "is_print": 1,
          # %%
          "cmap_2d": 'viridis',
@@ -214,7 +214,7 @@ if __name__ == '__main__':
          # %%
          "is_colorbar_on": 1, "is_energy": 0,
          # %%
-         "is_animated": 1,
+         "is_animated": -1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %%
          "kwargs_seq": 0, "root_dir": r'1',

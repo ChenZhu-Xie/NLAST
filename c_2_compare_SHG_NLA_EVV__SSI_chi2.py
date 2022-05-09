@@ -255,7 +255,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
 
     # print(Get("z_stored"))
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
-        SHG_NLA_EVV(*args_EVV, zj=Get("z_stored"), ) if abs(is_stored) == 1 else SHG_NLA_EVV(*args_EVV, )
+        SHG_NLA_EVV(*args_EVV, zj_EVV=Get("z_stored"), ) if abs(is_stored) == 1 else SHG_NLA_EVV(*args_EVV, )
     # 如果 is_stored == 1 或 -1，则把 SSI 或 ssi 生成的 z_stored 传进 SHG_NLA_EVV 作为 他的 zj，方便 比较。不画图 则传 -1 进去。
 
     if is_energy_evolution_on == 1:  # 截获一下 EVV 的 能量曲线
@@ -479,7 +479,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 2.66, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -498,8 +498,8 @@ if __name__ == '__main__':
          "is_sum_Gm": 0, "mG": 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 5.9,
-         "mx": 1, "my": 0, "mz": 0,
+         "Tx": 18.769, "Ty": 20, "Tz": 0,
+         "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
          "is_save": 2, "is_save_txt": 0, "dpi": 100,

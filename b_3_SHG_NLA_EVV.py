@@ -218,7 +218,8 @@ def SHG_NLA_EVV(U_name="",
     iz = z0 / size_PerPixel
     # zj = kwargs.get("zj", np.linspace(0, z0, sheets_stored_num + 1)) \
     #     if is_stored==1 else np.linspace(0, z0, sheets_stored_num + 1)
-    zj = kwargs.get("zj", np.linspace(0, z0, sheets_stored_num + 1))
+    zj = kwargs.get("zj_EVV", np.linspace(0, z0, sheets_stored_num + 1)) # 防止 后续函数 接收的 kwargs 里 出现 关键字 zj 后重名
+    # kwargs.pop("zj", None) # 防止 后续函数 接收的 kwargs 里 出现 关键字 zj 后重名
     izj = zj / size_PerPixel
     Set("zj", zj)
     Set("izj", izj)
@@ -455,14 +456,14 @@ if __name__ == '__main__':
         # %%
         "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
         "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
-        "is_stored": 0, "is_energy_evolution_on": 1,
+        "is_stored": 1, "is_energy_evolution_on": 1,
         # %%
-        "is_save": 0, "is_save_txt": 0, "dpi": 100,
+        "is_save": 1, "is_save_txt": 0, "dpi": 100,
         # %%
         "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
         "elev": 10, "azim": -65, "alpha": 2,
         # %%
-        "sample": 2, "ticks_num": 6, "is_contourf": 0,
+        "sample": 1, "ticks_num": 6, "is_contourf": 0,
         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
         # %%
         "fontsize": 9,
