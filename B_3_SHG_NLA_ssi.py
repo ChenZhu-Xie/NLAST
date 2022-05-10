@@ -205,7 +205,9 @@ def SHG_NLA_ssi(U_name="",
             modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
 
         if is_NLAST == 1:
-            dG2_zdz = G2_z_modulation_NLAST(k1, k2, 0, modulation_squared_z, U_z, dizj[for_th], const, )
+            dG2_zdz = G2_z_modulation_NLAST(k1, k2,
+                                            modulation_squared_z, U_z, dizj[for_th], const,
+                                            Gz=0, )
 
         else:
             Q2_z = fft2(modulation_squared_z * U_z ** 2)

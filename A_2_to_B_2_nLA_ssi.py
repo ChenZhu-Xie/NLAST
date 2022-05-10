@@ -186,7 +186,9 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure = "",
         #%%
         is_print, ]
 
-    return nLA_ssi(*args_nLA_ssi, is_end=is_end, )
+    kwargs_ssi = kwargs
+    kwargs_ssi.update({"is_end": is_end, })
+    return nLA_ssi(*args_nLA_ssi, **kwargs_ssi, )
 
 if __name__ == '__main__':
     kwargs = \

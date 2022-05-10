@@ -251,8 +251,10 @@ def SHG_NLA(U_name="",
                                              **kwargs, )
 
             if is_sum_Gm == 0:
-                dset("G", G2_z_modulation_NLAST(k1, k2, Gz,
-                                                modulation_squared, U_0, iz, Const, ))
+                addition_dict = {"Tz": Tz if kwargs.get("is_NLAST_sum", 0) else None} # 若 is_NLAST_sum 有且非 0，则 Tz
+                dset("G", G2_z_modulation_NLAST(k1, k2,
+                                                modulation_squared, U_0, iz, Const,
+                                                Gz=Gz, **addition_dict, ))
             elif is_sum_Gm == 1:
                 def fun1(for_th, fors_num, *args, **kwargs, ):
                     m_z = for_th - mG
@@ -261,9 +263,9 @@ def SHG_NLA(U_name="",
 
                     # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
                     Const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
-                    G2_z0_Gm = G2_z_modulation_NLAST(k1, k2, Gz_m,
-                                                     modulation_squared, U_0, iz,
-                                                     Const, ) if m_z != 0 else 0
+                    G2_z0_Gm = G2_z_modulation_NLAST(k1, k2,
+                                                     modulation_squared, U_0, iz, Const,
+                                                     Gz=Gz_m, ) if m_z != 0 else 0
                     return G2_z0_Gm
 
                 def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
@@ -276,10 +278,9 @@ def SHG_NLA(U_name="",
                           fun1, fun2, noop,
                           is_ordered=1, is_print=is_print, )
             else:
-                Tz_unit = (Tz / 1000) / size_PerPixel
-
-                dset("G", G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
-                                                modulation_squared, U_0, iz, Const, ))
+                dset("G", G2_z_modulation_3D_NLAST(k1, k2,
+                                                   modulation_squared, U_0, iz, Const,
+                                                   Tz=Tz, ))
 
         elif fft_mode == 1:
             if is_sum_Gm == 0:
@@ -369,7 +370,7 @@ if __name__ == '__main__':
         # %%
         "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
         "deff": 30, "is_fft": 1, "fft_mode": 0,
-        "is_sum_Gm": 0, "mG": 0,
+        "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1, 
         "is_linear_convolution": 0,
         # %%
         "Tx": 10, "Ty": 10, "Tz": 3,

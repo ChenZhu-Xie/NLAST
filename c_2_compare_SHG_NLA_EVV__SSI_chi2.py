@@ -179,9 +179,11 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
          is_print, is_contours, n_TzQ,
          Gz_max_Enhance, match_mode, ]
 
+    kwargs_SSI = kwargs
+    kwargs_SSI.update({"ray": "2", })
     U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
-        SHG_NLA_SSI(*args_SSI, ) if is_NLA == 1 else \
-            SHG_SSF_SSI(*args_SSI, )
+        SHG_NLA_SSI(*args_SSI, **kwargs_SSI, ) if is_NLA == 1 else \
+            SHG_SSF_SSI(*args_SSI, **kwargs_SSI, )
 
     if is_energy_evolution_on == 1:  # 截获一下 SSI 的 能量曲线
         zj_SSI = Get("zj")
@@ -254,8 +256,13 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
          Gz_max_Enhance, match_mode, ]
 
     # print(Get("z_stored"))
+    kwargs_EVV = kwargs
+    if abs(is_stored) == 1:
+        kwargs_EVV.update({"ray": "2", "zj_EVV": Get("z_stored"), })
+    else:
+        kwargs_EVV.update({"ray": "2", })
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
-        SHG_NLA_EVV(*args_EVV, zj_EVV=Get("z_stored"), ) if abs(is_stored) == 1 else SHG_NLA_EVV(*args_EVV, )
+        SHG_NLA_EVV(*args_EVV, **kwargs_EVV, )
     # 如果 is_stored == 1 或 -1，则把 SSI 或 ssi 生成的 z_stored 传进 SHG_NLA_EVV 作为 他的 zj，方便 比较。不画图 则传 -1 进去。
 
     if is_energy_evolution_on == 1:  # 截获一下 EVV 的 能量曲线
@@ -479,7 +486,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "L0_Crystal": 0.1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -495,7 +502,7 @@ if __name__ == '__main__':
          # %%
          "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
-         "is_sum_Gm": 0, "mG": 0,
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1, 
          "is_linear_convolution": 0,
          # %%
          "Tx": 18.769, "Ty": 20, "Tz": 0,

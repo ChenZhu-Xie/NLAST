@@ -107,6 +107,8 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
 
     # %%
 
+    kwargs_ssi = kwargs
+    kwargs_ssi.update({"ray": "2", })
     U2_ssi, G2_ssi, ray2_ssi, method_and_way2_ssi, U_key2_ssi = \
         A_3_to_B_3_SHG_NLA_ssi(U_name_Structure,
                                 is_phase_only_Structure,
@@ -174,8 +176,12 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
                                 is_print, is_contours, n_TzQ,
                                 Gz_max_Enhance, match_mode,
                                 # %%
-                                is_NLA, )
+                                is_NLA,
+                                # %%
+                                **kwargs_ssi, )
 
+    kwargs_NLA = kwargs
+    kwargs_NLA.update({"ray": "2", })
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SHG_NLA(U_name,
                 img_full_name,
@@ -232,7 +238,9 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
                 is_colorbar_on, is_energy,
                 # %%
                 is_print, is_contours, n_TzQ,
-                Gz_max_Enhance, match_mode, )
+                Gz_max_Enhance, match_mode,
+                # %%
+                **kwargs_NLA, )
 
     # %%
 
@@ -329,7 +337,7 @@ if __name__ == '__main__':
          # %%
          "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
-         "is_sum_Gm": 0, "mG": 0,
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1, 
          "is_linear_convolution": 0,
          # %%
          "Tx": 10.769, "Ty": 20, "Tz": 6.9,

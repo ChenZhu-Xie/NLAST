@@ -143,21 +143,31 @@ def Cal_roll_xy(Gx, Gy,
     return roll_x, roll_y
 
 
-def G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
-                             modulation, U1_0, iz, const, ):
+def G2_z_modulation_3D_NLAST(k1, k2,
+                             modulation, U1_0, iz, const,
+                             Tz=10, ):
     k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
     k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
 
-    Big_version = 0
+    Big_version = 2
     Cal_version = 1
+
+    # 1 对应 1.1 - 不匹配
+    # 2 对应 第一性原理：非线性卷积
+    # 3.1 对应 3.4 - 匹配
+    # 3.2 对应 bulk 且 匹配
+
+    print(Tz)
+    Tz_unit = (Tz / 1000) / Get("size_PerPixel")
+    dz = Tz_unit / 2
+    # print(dz, iz)
+    J = int(iz / dz - 1)
+    # J = iz / dz - 1
+    # J = iz / dz
 
     if Big_version == 0:
         kiiz = k1 + k1_z
         dkiiz = kiiz - k2
-        dz = Tz_unit / 2
-        J = int(iz / dz - 1)
-        # J = iz / dz - 1
-        # J = iz / dz
 
         # print(J, (-1)**J)
 
@@ -205,259 +215,306 @@ def G2_z_modulation_3D_NLAST(k1, k2, Tz_unit,
                                     + g_U1_0_Squared_modulated_1 * math.e ** (k2_z * iz * 1j)
                                     - g_U1_0_Squared_modulated_2 * math.e ** (k2_z * iz * 1j))
 
+    else:
+        g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
+        G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
+
+        K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
+        kiiz = 2 * K1_z
+        dkiiz = kiiz - k2_z
+        if Big_version < 3:
+            denominator = kiiz ** 2 - k2_z ** 2
+        else:
+            denominator = kiiz + k2_z
+            inside_sinc = dkiiz * dz / 2
+            # print(np.max(np.abs(inside_sinc)))
+
+        if Big_version == 1:
+            factor = 1/(1 + math.e ** (- 1j * dkiiz * dz)) - \
+                     1/(1 + math.e ** (1j * dkiiz * dz))
+            G2_z = const / denominator * factor * \
+                   (g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j) +
+                    G1_Uz_Squared_modulated * (-1) ** J)
+        elif Big_version == 2:
+            factor_1 = 1 / (1 + math.e ** (- 1j * kiiz * dz)) - \
+                       1 / (1 + math.e ** (1j * dkiiz * dz))
+            factor_2 = 1 / (1 + math.e ** (- 1j * kiiz * dz)) * math.e ** (1j * k2_z * iz) - \
+                       1 / (1 + math.e ** (1j * dkiiz * dz))
+            G2_z = const / denominator * \
+                   (factor_1 * g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j) +
+                    factor_2 * G1_Uz_Squared_modulated * (-1) ** J)
+        elif Big_version == 3:
+            factor = np.sinc(inside_sinc / np.pi) * 1j * dz / \
+                     np.cos(inside_sinc)
+            # print(np.max(np.abs(np.cos(inside_sinc))))
+            if Cal_version == 1:
+                G2_z = const / denominator * factor * \
+                       (g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j) +
+                        G1_Uz_Squared_modulated * (-1) ** J)
+            elif Cal_version == 2:
+                G2_z = const / denominator * factor * \
+                       (G1_Uz_Squared_modulated -
+                        g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j))
+
     return G2_z * Get("size_PerPixel")**2
 
 # %%
 
-def G2_z_modulation_NLAST(k1, k2, Gz,
-                          modulation, U1_0, iz, const, ):
-    k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
-    k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
+def G2_z_modulation_NLAST(k1, k2,
+                          modulation, U1_0, iz, const,
+                          Gz=1, **kwargs, ):
+    if kwargs.get("Tz", None) != None:
+        return G2_z_modulation_3D_NLAST(k1, k2,
+                                        modulation, U1_0, iz, const,
+                                        Tz=kwargs["Tz"], )
+    else:
+        k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
+        k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
 
-    Big_version = 3
-    Cal_version = 4
-    Res_version = 1
+        Big_version = 1
+        Cal_version = 1
+        Res_version = 1
 
-    # 3.4 > 3.2 > 1.3    match OK
-    # 3.5 wrong
-    # 3.6 = 1.1 > 2      dismatch OK
-    # 4.0 e 指数太大，溢出
-    # 5.0 = 3.4 + 1.1    dismatch + match OK
+        # 3.4 > 3.2 > 1.3    match OK
+        # 3.5 wrong
+        # 3.6 = 1.1 > 2      dismatch OK
+        # 4.0 e 指数太大，溢出
+        # 5.0 = 3.4 + 1.1    dismatch + match OK
 
-    if Big_version == 0 or Big_version == 2:
+        if Big_version == 0 or Big_version == 2:
 
-        if Big_version == 0:
-            # kiiz = k1 + k2_z + Gz # 草，倍频是加 k1_z，和频才是加 k2_z（而非 k3_z）
-            kiizQ = k1 + k1_z + Gz
+            if Big_version == 0:
+                # kiiz = k1 + k2_z + Gz # 草，倍频是加 k1_z，和频才是加 k2_z（而非 k3_z）
+                kiizQ = k1 + k1_z + Gz
 
-            if Cal_version == 1:
-                # %% == version 1（更自洽）
-                G1_Uz_Squared_modulated = fft2(
-                    ifft2(fft2(modulation) / (kiizQ ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
-                # print(np.min(np.abs((kiiz ** 2 - k2 ** 2))))
-                g1_U0_Squared_modulated = fft2(
-                    ifft2(fft2(modulation) / (kiizQ ** 2 - k2 ** 2)) * U1_0 ** 2)
+                if Cal_version == 1:
+                    # %% == version 1（更自洽）
+                    G1_Uz_Squared_modulated = fft2(
+                        ifft2(fft2(modulation) / (kiizQ ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
+                    # print(np.min(np.abs((kiiz ** 2 - k2 ** 2))))
+                    g1_U0_Squared_modulated = fft2(
+                        ifft2(fft2(modulation) / (kiizQ ** 2 - k2 ** 2)) * U1_0 ** 2)
 
-            elif Cal_version == 2:
-                # %% == version 1.1
-                G1_Uz_Squared_modulated = fft2(
-                    ifft2(fft2(modulation) / (kiizQ ** 2 - k2_z ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
-                g1_U0_Squared_modulated = fft2(
-                    ifft2(fft2(modulation) / (kiizQ ** 2 - k2_z ** 2)) * U1_0 ** 2)
+                elif Cal_version == 2:
+                    # %% == version 1.1
+                    G1_Uz_Squared_modulated = fft2(
+                        ifft2(fft2(modulation) / (kiizQ ** 2 - k2_z ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
+                    g1_U0_Squared_modulated = fft2(
+                        ifft2(fft2(modulation) / (kiizQ ** 2 - k2_z ** 2)) * U1_0 ** 2)
 
-            elif Cal_version == 3:
-                # %% == version 2（少近似）
-                G1_Uz_Squared_modulated = fft2(
-                    modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ ** 2 - k2_z ** 2)))
+                elif Cal_version == 3:
+                    # %% == version 2（少近似）
+                    G1_Uz_Squared_modulated = fft2(
+                        modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ ** 2 - k2_z ** 2)))
 
-                g1_U0_Squared_modulated = fft2(
-                    modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k2_z ** 2)))
+                    g1_U0_Squared_modulated = fft2(
+                        modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k2_z ** 2)))
 
-            elif Cal_version == 4:
-                # %% == version 2.1
-                G1_Uz_Squared_modulated = fft2(
-                    modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ ** 2 - k2 ** 2)))
+                elif Cal_version == 4:
+                    # %% == version 2.1
+                    G1_Uz_Squared_modulated = fft2(
+                        modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ ** 2 - k2 ** 2)))
 
-                g1_U0_Squared_modulated = fft2(
-                    modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k2 ** 2)))
+                    g1_U0_Squared_modulated = fft2(
+                        modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k2 ** 2)))
 
-        elif Big_version == 2:
-            K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-            kiizQ = 2 * K1_z + Gz
-            kii2z = (k2 ** 2 - (2 * K1_xy[0] + mesh_k2_x_k2_y[:, :, 0]) ** 2 - (
-                    2 * K1_xy[1] + mesh_k2_x_k2_y[:, :, 1]) ** 2 + 0j) ** 0.5
-            denominator = kiizQ ** 2 - kii2z ** 2
-
-            G1_Uz_Squared_modulated = fft2(
-                ifft2(fft2(modulation) / denominator) * Uz_AST(U1_0, k1, iz) ** 2)
-            # print(np.min(np.abs((kiiz ** 2 - k2 ** 2))))
-            g1_U0_Squared_modulated = fft2(
-                ifft2(fft2(modulation) / denominator) * U1_0 ** 2)
-
-        if Res_version == 1:
-            # 不加 负号，U 的相位 会差个 π，我也不知道 为什么
-            G2_z = const * (G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
-                                    - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j))
-        elif Res_version == 2:
-            G2_z = const * G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
-
-        elif Res_version == 3:
-            G2_z = - const * g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
-
-    elif Big_version == 1:
-        G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2) * math.e ** (Gz * iz * 1j)
-        g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2) * math.e ** (k2_z * iz * 1j)
-        molecule = G1_Uz_Squared_modulated - g1_U0_Squared_modulated
-
-
-        if Cal_version != 2:
-            K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-            kiizQ = 2 * K1_z + Gz
-        if Cal_version >= 3:
-            dkiizQ = kiizQ - k2_z
-            inside_sinc = dkiizQ * iz / 2
-            dkiizQ = 1 / (np.sinc(inside_sinc / np.pi) * iz / 2)
-
-        if Cal_version == 1:
-            denominator = kiizQ ** 2 - k2_z ** 2
-        elif Cal_version == 2:
-            kiizQ = 2 * k1_z + Gz
-            denominator = kiizQ ** 2 - k2_z ** 2
-        elif Cal_version == 3:
-            denominator = (kiizQ + k2_z) * dkiizQ
-        elif Cal_version == 4:
-            denominator = (dkiizQ + 2 * k2_z) * dkiizQ
-        elif Cal_version == 5:
-            denominator = (dkiizQ + 2 * k2_z) * (kiizQ - k2_z)
-
-        # print(np.max(np.abs(dkiizQ)), np.max(np.abs(kiizQ - k2_z)))
-        # print(np.min(np.abs(dkiizQ)), np.min(np.abs(kiizQ - k2_z)))
-
-        if Res_version == 1:
-            G2_z = const * molecule / denominator
-        elif Res_version == 2:
-            G2_z = const * G1_Uz_Squared_modulated / denominator
-        elif Res_version == 3:
-            G2_z = const * g1_U0_Squared_modulated / denominator
-
-    elif Big_version == 3:
-        G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz/2) ** 2)
-        if Cal_version == 1:
-            molecule = G1_U_half_z_Squared_modulated \
-                       * math.e ** (Gz * iz * 1j) \
-                       * math.e ** (k2_z * iz/2 * 1j) \
-                       * (1j * iz)
-
-            denominator = k2_z
-        elif Cal_version >= 2:
-            if Cal_version != 5:
+            elif Big_version == 2:
                 K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
                 kiizQ = 2 * K1_z + Gz
-                if Cal_version < 4:
-                    kii2z = (k2 ** 2 - (2 * K1_xy[0] + mesh_k2_x_k2_y[:, :, 0]) ** 2 - (
-                            2 * K1_xy[1] + mesh_k2_x_k2_y[:, :, 1]) ** 2 + 0j) ** 0.5
-                    dkiizQ = kiizQ - kii2z
-                else:
-                    dkiizQ = kiizQ - k2_z
-                inside_sinc = dkiizQ / 2 * iz
-            elif Cal_version == 5:
-                G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
-                g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
-                exp_dk_factor = math.e ** (1j * (Gz - k2_z) / 2 * iz)
-                i_dkiizQ_z_1 = np.log(G1_Uz_Squared_modulated / G1_U_half_z_Squared_modulated * exp_dk_factor)
-                i_dkiizQ_z_2 = np.log(g1_U0_Squared_modulated / G1_U_half_z_Squared_modulated / exp_dk_factor)
-                i_dkiizQ_z = i_dkiizQ_z_1 - i_dkiizQ_z_2
-                dkiizQ = i_dkiizQ_z / (1j * iz)
-                # print(np.max(np.abs(dkiizQ)))
-                kiizQ = dkiizQ + k2_z
-                # print(np.max(np.abs(kiizQ)))
-                inside_sinc = dkiizQ / 2 * iz
-            if Cal_version == 6:
-                G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
-                g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
-                exp_dk_factor = math.e ** (1j * (Gz - k2_z) / 2 * iz)
-                sin_molecule_1 = G1_Uz_Squared_modulated * exp_dk_factor
-                sin_molecule_2 = g1_U0_Squared_modulated / exp_dk_factor
-                sin_molecule = sin_molecule_1 - sin_molecule_2
-                sin_denominator = 2*1j*G1_U_half_z_Squared_modulated
+                kii2z = (k2 ** 2 - (2 * K1_xy[0] + mesh_k2_x_k2_y[:, :, 0]) ** 2 - (
+                        2 * K1_xy[1] + mesh_k2_x_k2_y[:, :, 1]) ** 2 + 0j) ** 0.5
+                denominator = kiizQ ** 2 - kii2z ** 2
 
-                sin_real = np.real(sin_molecule / sin_denominator)
-                # sin_im = np.imag(sin_molecule / sin_denominator)
-                # sin_amp = np.abs(sin_molecule / sin_denominator)
-                print(np.max(np.abs(sin_real)))
-                # print(np.max(np.abs(sin_im)))
-                # print(np.max(sin_amp))
+                G1_Uz_Squared_modulated = fft2(
+                    ifft2(fft2(modulation) / denominator) * Uz_AST(U1_0, k1, iz) ** 2)
+                # print(np.min(np.abs((kiiz ** 2 - k2 ** 2))))
+                g1_U0_Squared_modulated = fft2(
+                    ifft2(fft2(modulation) / denominator) * U1_0 ** 2)
 
-                # print(np.sin(inside_sinc))
-                correction_factor = (sin_molecule / sin_denominator) / np.sin(inside_sinc)
-                # print(correction_factor)
+            if Res_version == 1:
+                # 不加 负号，U 的相位 会差个 π，我也不知道 为什么
+                G2_z = const * (G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
+                                        - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j))
+            elif Res_version == 2:
+                G2_z = const * G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
 
-            if Cal_version == 2:
-                sinc_denominator = (kiizQ + kii2z) / 2
-                modulation_modified = ifft2(fft2(modulation) * np.sinc(inside_sinc / np.pi) / sinc_denominator)
-                G1_U_half_z_Squared_modulated = fft2(modulation_modified * Uz_AST(U1_0, k1, iz / 2) ** 2)
-                molecule = G1_U_half_z_Squared_modulated \
-                           * math.e ** (Gz * iz * 1j) \
-                           * math.e ** (k2_z * iz / 2 * 1j) \
-                           * (1j * iz)
+            elif Res_version == 3:
+                G2_z = - const * g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
 
-                denominator = 1
+        elif Big_version == 1:
+            G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2) * math.e ** (Gz * iz * 1j)
+            g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2) * math.e ** (k2_z * iz * 1j)
+            molecule = G1_Uz_Squared_modulated - g1_U0_Squared_modulated
+
+
+            if Cal_version != 2:
+                K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
+                kiizQ = 2 * K1_z + Gz
+            if Cal_version >= 3:
+                dkiizQ = kiizQ - k2_z
+                inside_sinc = dkiizQ * iz / 2
+                dkiizQ = 1 / (np.sinc(inside_sinc / np.pi) * iz / 2)
+
+            if Cal_version == 1:
+                denominator = kiizQ ** 2 - k2_z ** 2
+            elif Cal_version == 2:
+                kiizQ = 2 * k1_z + Gz
+                denominator = kiizQ ** 2 - k2_z ** 2
             elif Cal_version == 3:
-                modulation_modified = ifft2(fft2(modulation) * np.sinc(inside_sinc / np.pi))
-                G1_U_half_z_Squared_modulated = fft2(modulation_modified * Uz_AST(U1_0, k1, iz / 2) ** 2)
+                denominator = (kiizQ + k2_z) * dkiizQ
+            elif Cal_version == 4:
+                denominator = (dkiizQ + 2 * k2_z) * dkiizQ
+            elif Cal_version == 5:
+                denominator = (dkiizQ + 2 * k2_z) * (kiizQ - k2_z)
+
+            # print(np.max(np.abs(dkiizQ)), np.max(np.abs(kiizQ - k2_z)))
+            # print(np.min(np.abs(dkiizQ)), np.min(np.abs(kiizQ - k2_z)))
+
+            if Res_version == 1:
+                G2_z = const * molecule / denominator
+            elif Res_version == 2:
+                G2_z = const * G1_Uz_Squared_modulated / denominator
+            elif Res_version == 3:
+                G2_z = const * g1_U0_Squared_modulated / denominator
+
+        elif Big_version == 3:
+            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz/2) ** 2)
+            if Cal_version == 1:
                 molecule = G1_U_half_z_Squared_modulated \
                            * math.e ** (Gz * iz * 1j) \
-                           * math.e ** (k2_z * iz / 2 * 1j) \
+                           * math.e ** (k2_z * iz/2 * 1j) \
                            * (1j * iz)
+
                 denominator = k2_z
-            elif Cal_version >= 4:
-                sinc_denominator = (kiizQ + k2_z) / 2
-                molecule = G1_U_half_z_Squared_modulated \
-                           * np.sinc(inside_sinc / np.pi) / sinc_denominator \
-                           * math.e ** (Gz * iz * 1j) \
-                           * math.e ** (k2_z * iz / 2 * 1j) \
-                           * (1j * iz)
-                denominator = 1
-            if Cal_version == 6:
-                molecule *= correction_factor
-        G2_z = const * molecule / denominator
+            elif Cal_version >= 2:
+                if Cal_version != 5:
+                    K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
+                    kiizQ = 2 * K1_z + Gz
+                    if Cal_version < 4:
+                        kii2z = (k2 ** 2 - (2 * K1_xy[0] + mesh_k2_x_k2_y[:, :, 0]) ** 2 - (
+                                2 * K1_xy[1] + mesh_k2_x_k2_y[:, :, 1]) ** 2 + 0j) ** 0.5
+                        dkiizQ = kiizQ - kii2z
+                    else:
+                        dkiizQ = kiizQ - k2_z
+                    inside_sinc = dkiizQ / 2 * iz
+                elif Cal_version == 5:
+                    G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
+                    g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
+                    exp_dk_factor = math.e ** (1j * (Gz - k2_z) / 2 * iz)
+                    i_dkiizQ_z_1 = np.log(G1_Uz_Squared_modulated / G1_U_half_z_Squared_modulated * exp_dk_factor)
+                    i_dkiizQ_z_2 = np.log(g1_U0_Squared_modulated / G1_U_half_z_Squared_modulated / exp_dk_factor)
+                    i_dkiizQ_z = i_dkiizQ_z_1 - i_dkiizQ_z_2
+                    dkiizQ = i_dkiizQ_z / (1j * iz)
+                    # print(np.max(np.abs(dkiizQ)))
+                    kiizQ = dkiizQ + k2_z
+                    # print(np.max(np.abs(kiizQ)))
+                    inside_sinc = dkiizQ / 2 * iz
+                if Cal_version == 6:
+                    G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
+                    g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
+                    exp_dk_factor = math.e ** (1j * (Gz - k2_z) / 2 * iz)
+                    sin_molecule_1 = G1_Uz_Squared_modulated * exp_dk_factor
+                    sin_molecule_2 = g1_U0_Squared_modulated / exp_dk_factor
+                    sin_molecule = sin_molecule_1 - sin_molecule_2
+                    sin_denominator = 2*1j*G1_U_half_z_Squared_modulated
 
-    elif Big_version == 4:
-        K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-        kiizQ = 2 * K1_z + Gz
-        dkiizQ = kiizQ - k2_z
-        denominator = (kiizQ + k2_z) / 2
-        e_index = -(k1_z**2 + 2*k1_z*Gz) * iz**2 / 24
-        # print(np.max(np.abs(e_index)))
-        G1_U_half_z_Squared_modulated = fft2(modulation * ifft2(
-            fft2(Uz_AST(U1_0, k1, iz/2)) * math.e ** e_index) ** 2)
-        # print(np.max(np.abs(-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12)))
-        # G2_z = const * G1_U_half_z_Squared_modulated \
-        #        * math.e ** (-(k2_z-Gz)**2 * iz**2 / 24) / denominator \
-        #        * math.e ** (Gz * iz * 1j) \
-        #        * math.e ** (k2_z * iz / 2 * 1j) \
-        #        * math.e ** (-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12) \
-        #        * (1j * iz)
-        A = -(k2_z - Gz) ** 2 * iz ** 2 / 24
-        B = Gz * iz * 1j
-        C = k2_z * iz / 2 * 1j
-        D = -(K1_z ** 2 - 2 * K1_z * k2_z) * iz ** 2 / 12
-        E = A+B+C+D
-        # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)))
-        # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)), np.max(np.abs(A)), np.max(np.abs(D)))
-        # print(np.max(np.real(e_index)) * 2, np.max(np.real(E)), np.max(np.real(A)), np.max(np.abs(D)))
-        # print(np.max(np.abs(dkiizQ))**2 * iz**2)
-        G2_z = const * G1_U_half_z_Squared_modulated \
-               * math.e ** E / denominator \
-               * (1j * iz)
+                    sin_real = np.real(sin_molecule / sin_denominator)
+                    # sin_im = np.imag(sin_molecule / sin_denominator)
+                    # sin_amp = np.abs(sin_molecule / sin_denominator)
+                    print(np.max(np.abs(sin_real)))
+                    # print(np.max(np.abs(sin_im)))
+                    # print(np.max(sin_amp))
 
-    elif Big_version == 5:
-        G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
-        g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
-        molecule = G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)\
-                   - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
-        K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-        kiizQ = 2 * K1_z + Gz
-        denominator = kiizQ ** 2 - k2_z ** 2
-        dismatch = const * molecule / denominator
+                    # print(np.sin(inside_sinc))
+                    correction_factor = (sin_molecule / sin_denominator) / np.sin(inside_sinc)
+                    # print(correction_factor)
+
+                if Cal_version == 2:
+                    sinc_denominator = (kiizQ + kii2z) / 2
+                    modulation_modified = ifft2(fft2(modulation) * np.sinc(inside_sinc / np.pi) / sinc_denominator)
+                    G1_U_half_z_Squared_modulated = fft2(modulation_modified * Uz_AST(U1_0, k1, iz / 2) ** 2)
+                    molecule = G1_U_half_z_Squared_modulated \
+                               * math.e ** (Gz * iz * 1j) \
+                               * math.e ** (k2_z * iz / 2 * 1j) \
+                               * (1j * iz)
+
+                    denominator = 1
+                elif Cal_version == 3:
+                    modulation_modified = ifft2(fft2(modulation) * np.sinc(inside_sinc / np.pi))
+                    G1_U_half_z_Squared_modulated = fft2(modulation_modified * Uz_AST(U1_0, k1, iz / 2) ** 2)
+                    molecule = G1_U_half_z_Squared_modulated \
+                               * math.e ** (Gz * iz * 1j) \
+                               * math.e ** (k2_z * iz / 2 * 1j) \
+                               * (1j * iz)
+                    denominator = k2_z
+                elif Cal_version >= 4:
+                    sinc_denominator = (kiizQ + k2_z) / 2
+                    molecule = G1_U_half_z_Squared_modulated \
+                               * np.sinc(inside_sinc / np.pi) / sinc_denominator \
+                               * math.e ** (Gz * iz * 1j) \
+                               * math.e ** (k2_z * iz / 2 * 1j) \
+                               * (1j * iz)
+                    denominator = 1
+                if Cal_version == 6:
+                    molecule *= correction_factor
+            G2_z = const * molecule / denominator
+
+        elif Big_version == 4:
+            K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
+            kiizQ = 2 * K1_z + Gz
+            dkiizQ = kiizQ - k2_z
+            denominator = (kiizQ + k2_z) / 2
+            e_index = -(k1_z**2 + 2*k1_z*Gz) * iz**2 / 24
+            # print(np.max(np.abs(e_index)))
+            G1_U_half_z_Squared_modulated = fft2(modulation * ifft2(
+                fft2(Uz_AST(U1_0, k1, iz/2)) * math.e ** e_index) ** 2)
+            # print(np.max(np.abs(-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12)))
+            # G2_z = const * G1_U_half_z_Squared_modulated \
+            #        * math.e ** (-(k2_z-Gz)**2 * iz**2 / 24) / denominator \
+            #        * math.e ** (Gz * iz * 1j) \
+            #        * math.e ** (k2_z * iz / 2 * 1j) \
+            #        * math.e ** (-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12) \
+            #        * (1j * iz)
+            A = -(k2_z - Gz) ** 2 * iz ** 2 / 24
+            B = Gz * iz * 1j
+            C = k2_z * iz / 2 * 1j
+            D = -(K1_z ** 2 - 2 * K1_z * k2_z) * iz ** 2 / 12
+            E = A+B+C+D
+            # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)))
+            # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)), np.max(np.abs(A)), np.max(np.abs(D)))
+            # print(np.max(np.real(e_index)) * 2, np.max(np.real(E)), np.max(np.real(A)), np.max(np.abs(D)))
+            # print(np.max(np.abs(dkiizQ))**2 * iz**2)
+            G2_z = const * G1_U_half_z_Squared_modulated \
+                   * math.e ** E / denominator \
+                   * (1j * iz)
+
+        elif Big_version == 5:
+            G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
+            g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
+            molecule = G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)\
+                       - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
+            K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
+            kiizQ = 2 * K1_z + Gz
+            denominator = kiizQ ** 2 - k2_z ** 2
+            dismatch = const * molecule / denominator
 
 
-        G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) ** 2)
-        dkiizQ = kiizQ - k2_z
-        inside_sinc = dkiizQ / 2 * iz
-        sinc_denominator = (kiizQ + k2_z) / 2
-        match = const * G1_U_half_z_Squared_modulated \
-               * np.sinc(inside_sinc / np.pi) / sinc_denominator \
-               * math.e ** (Gz * iz * 1j) \
-               * math.e ** (k2_z * iz / 2 * 1j) \
-               * (1j * iz)
+            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) ** 2)
+            dkiizQ = kiizQ - k2_z
+            inside_sinc = dkiizQ / 2 * iz
+            sinc_denominator = (kiizQ + k2_z) / 2
+            match = const * G1_U_half_z_Squared_modulated \
+                   * np.sinc(inside_sinc / np.pi) / sinc_denominator \
+                   * math.e ** (Gz * iz * 1j) \
+                   * math.e ** (k2_z * iz / 2 * 1j) \
+                   * (1j * iz)
 
-        match_factor = math.e ** (- inside_sinc ** 2 / 6)
-        dismatch_factor = 1 - match_factor
+            match_factor = math.e ** (- inside_sinc ** 2 / 6)
+            dismatch_factor = 1 - match_factor
 
-        G2_z = dismatch_factor * dismatch + match_factor * match
+            G2_z = dismatch_factor * dismatch + match_factor * match
 
-    return G2_z * Get("size_PerPixel")**2
+        return G2_z * Get("size_PerPixel")**2
 
 
 def G2_z_NLAST(k1, k2, Gx, Gy, Gz,

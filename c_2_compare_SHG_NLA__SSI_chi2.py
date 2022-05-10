@@ -177,10 +177,14 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
          is_print, is_contours, n_TzQ,
          Gz_max_Enhance, match_mode, ]
 
+    kwargs_SSI = kwargs
+    kwargs_SSI.update({"ray": "2", })
     U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
         SHG_NLA_SSI(*args_SSI, ) if is_NLA == 1 else \
-            SHG_SSF_SSI(*args_SSI, )
+            SHG_SSF_SSI(*args_SSI, **kwargs_SSI, )
 
+    kwargs_NLA = kwargs
+    kwargs_NLA.update({"ray": "2", })
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SHG_NLA(U_name,
                 img_full_name,
@@ -237,7 +241,8 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                 is_colorbar_on, is_energy,
                 # %%
                 is_print, is_contours, n_TzQ,
-                Gz_max_Enhance, match_mode, )
+                Gz_max_Enhance, match_mode,
+                **kwargs_NLA, )
 
     # %%
 
@@ -337,10 +342,10 @@ if __name__ == '__main__':
          # %%
          "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
-         "is_sum_Gm": 0, "mG": 0,
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0, 
          "is_linear_convolution": 0,
          # %%
-         "Tx": 10, "Ty": 20, "Tz": 10,
+         "Tx": 10, "Ty": 20, "Tz": 3,
          "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%

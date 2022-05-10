@@ -234,10 +234,12 @@ def A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
          is_print, is_contours, n_TzQ,
          Gz_max_Enhance, match_mode, ]
 
+    kwargs_ssi = kwargs
+    kwargs_ssi.update({"is_end": is_end})
     if is_NLA == 1:
-        return SHG_NLA_ssi(*args_SHG_ssi, is_end=is_end, )
+        return SHG_NLA_ssi(*args_SHG_ssi, **kwargs_ssi, )
     else:
-        return SHG_SSF_ssi(*args_SHG_ssi, is_end=is_end, )
+        return SHG_SSF_ssi(*args_SHG_ssi, **kwargs_ssi, )
 
 
 if __name__ == '__main__':

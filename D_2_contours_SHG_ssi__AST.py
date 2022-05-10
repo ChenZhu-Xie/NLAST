@@ -272,22 +272,30 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                 is_print, is_contours, n_TzQ,
                 Gz_max_Enhance, match_mode, ]
 
+    kwargs_AST = kwargs
+    kwargs_AST.update({"ray": "1", })
     U1_z_AST, G1_z_AST, ray1_z_AST, method_and_way1_z_AST, U_key1_z_AST = \
-        AST(*args_AST(z_AST), )
+        AST(*args_AST(z_AST), **kwargs_AST, )
 
+    kwargs_ssi = kwargs
+    kwargs_ssi.update({"U": U1_z_AST, "ray": ray1_z_AST, })
     U1_z_ssi, G1_z_ssi, ray1_z_ssi, method_and_way1_z_ssi, U_key1_z_ssi = \
-        SHG_NLA_ssi(*args_ssi(z_ssi), U=U1_z_AST, ray=ray1_z_AST) if is_NLA == 1 else \
-            SHG_SSF_ssi(*args_ssi(z_ssi), U=U1_z_AST, ray=ray1_z_AST)
+        SHG_NLA_ssi(*args_ssi(z_ssi), **kwargs_ssi, ) if is_NLA == 1 else \
+            SHG_SSF_ssi(*args_ssi(z_ssi), **kwargs_ssi, )
 
     # %%
     # 先倍频 z_AST 后衍射 z_ssi
 
+    kwargs_ssi = kwargs
+    kwargs_ssi.update({"ray": "2", })
     U2_z_ssi, G2_z_ssi, ray2_z_ssi, method_and_way2_z_ssi, U_key2_z_ssi = \
         SHG_NLA_ssi(*args_ssi(z_ssi), ) if is_NLA == 1 else \
-            SHG_SSF_ssi(*args_ssi(z_ssi), )
+            SHG_SSF_ssi(*args_ssi(z_ssi), **kwargs_ssi, )
 
+    kwargs_AST = kwargs
+    kwargs_AST.update({"U": U2_z_ssi, "ray": ray2_z_ssi})
     U2_z_AST, G2_z_AST, ray2_z_AST, method_and_way2_z_AST, U_key2_z_AST = \
-        AST(*args_AST(z_AST), U=U2_z_ssi, ray=ray2_z_ssi)
+        AST(*args_AST(z_AST), **kwargs_AST, )
 
     # %%
     # 直接倍频 Z = z_AST + z_ssi

@@ -182,20 +182,28 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                     is_print, is_contours, n_TzQ,
                     Gz_max_Enhance, match_mode, ]
 
+    kwargs_AST = kwargs
+    kwargs_AST.update({"ray": "1", })
     U1_z_AST, G1_z_AST, ray1_z_AST, method_and_way1_z_AST, U_key1_z_AST = \
-        AST(*args_AST(z_AST), )
+        AST(*args_AST(z_AST), **kwargs_AST, )
 
+    kwargs_NLA = kwargs
+    kwargs_NLA.update({"U": U1_z_AST, "ray": ray1_z_AST, })
     U1_z_NLA, G1_z_NLA, ray1_z_NLA, method_and_way1_z_NLA, U_key1_z_NLA = \
-        SHG_NLA(*args_NLA(z_NLA), U=U1_z_AST, ray=ray1_z_AST)
+        SHG_NLA(*args_NLA(z_NLA), **kwargs_NLA, )
 
     # %%
     # 先倍频 z_AST 后衍射 z_NLA
 
+    kwargs_NLA = kwargs
+    kwargs_NLA.update({"ray": "2", })
     U2_z_NLA, G2_z_NLA, ray2_z_NLA, method_and_way2_z_NLA, U_key2_z_NLA = \
-        SHG_NLA(*args_NLA(z_NLA), )
+        SHG_NLA(*args_NLA(z_NLA), **kwargs_NLA, )
 
+    kwargs_AST = kwargs
+    kwargs_AST.update({"U": U2_z_NLA, "ray": ray2_z_NLA, })
     U2_z_AST, G2_z_AST, ray2_z_AST, method_and_way2_z_AST, U_key2_z_AST = \
-        AST(*args_AST(z_AST), U=U2_z_NLA, ray=ray2_z_NLA)
+        AST(*args_AST(z_AST), **kwargs_AST, )
 
     # %%
     # 直接倍频 Z = z_AST + z_NLA
@@ -262,7 +270,7 @@ if __name__ == '__main__':
           # %%
           "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
           "deff": 30, "is_fft": 1, "fft_mode": 0,
-          "is_sum_Gm": 0, "mG": 0,
+          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1, 
           "is_linear_convolution": 0,
           # %%
           "Tx": 10, "Ty": 10, "Tz": "2*lc",

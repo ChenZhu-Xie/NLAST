@@ -340,7 +340,7 @@ if __name__ == '__main__':
           # %%
           "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
           "deff": 30, "is_fft": 1, "fft_mode": 0,
-          "is_sum_Gm": 0, "mG": 0,
+          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1, 
           "is_linear_convolution": 0,
           # %%
           "Tx": 14.769, "Ty": 20, "Tz": 0,

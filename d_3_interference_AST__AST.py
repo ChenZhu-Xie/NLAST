@@ -97,8 +97,10 @@ def interference_AST__AST(img_full_name="Grating.png",
                 # %%
                 is_print, ]
 
+    kwargs_AST = kwargs
+    kwargs_AST.update({"ray": "1", })
     U_z, G_z, ray_z, method_and_way_z, U_key_z = \
-        AST(*args_AST(z), )
+        AST(*args_AST(z), **kwargs_AST, )
 
     # %%
     # 获取 size_PerPixel，方便 后续计算 n1, k1，以及 为了生成 U1_0 和 g1_shift
@@ -154,8 +156,10 @@ def interference_AST__AST(img_full_name="Grating.png",
 
     # %%
 
+    kwargs_AST = kwargs
+    kwargs_AST.update({"ray": "1", })
     U_Z, G_Z, ray_Z, method_and_way_Z, U_key_Z = \
-        AST(*args_AST(Z), )
+        AST(*args_AST(Z), **kwargs_AST, )
 
     # %%
 

@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['b_3_SHG_NLA.py', 'fun_global_var.py', 'B_3_SHG_NLA_SSI_chi2.py', 'fun_pump.py', 'fun_built_in.py', 'a_0_test_plot_2D.py', 'fun_os.py', 'a_0_test_plot_3D.py', 'b_3_SHG_NLA_EVV.py']
+recent_files = ['b_3_SHG_NLA.py', 'fun_global_var.py', 'B_3_SHG_NLA_SSI_chi2.py', 'fun_pump.py', 'fun_built_in.py', 'a_0_test_plot_2D.py', 'fun_os.py', 'a_0_test_plot_3D.py', 'b_3_SHG_NLA_EVV.py', 'c_2_compare_SHG_NLA_EVV__SSI_chi2.py']
 
 [main]
 version = 0.2.0
