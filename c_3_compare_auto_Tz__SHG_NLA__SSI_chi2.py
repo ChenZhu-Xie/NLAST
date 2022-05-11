@@ -179,9 +179,12 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
     # print(array_dkQ)
     # print(array_Tz)
 
+
     G_energy = []
+    G0_energy = []
     G_error_energy = []
     U_energy = []
+    U0_energy = []
     U_error_energy = []
 
     for i in range(ticks_Num):
@@ -258,13 +261,17 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                                  is_NLA, is_amp_relative, is_end=0, )
 
         G_energy.append(tuple_temp[0][0])
-        G_error_energy.append(tuple_temp[0][1])
+        G0_energy.append(tuple_temp[0][1])
+        G_error_energy.append(tuple_temp[0][2])
         U_energy.append(tuple_temp[1][0])
-        U_error_energy.append(tuple_temp[1][1])
+        U0_energy.append(tuple_temp[1][1])
+        U_error_energy.append(tuple_temp[1][2])
 
     G_energy = np.array(G_energy)  # 需要把 list 转换为 array
+    G0_energy = np.array(G0_energy)
     G_error_energy = np.array(G_error_energy)
     U_energy = np.array(U_energy)
+    U0_energy = np.array(U0_energy)
     U_error_energy = np.array(U_error_energy)
 
     is_end = [0] * (ticks_Num - 1)
@@ -274,15 +281,16 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
     for i in range(ticks_Num):
         is_print and print(tree_print(is_end[i]) + "Tz, G_error, dkQ, G_energy = {}, {}, {}, {}"
                            .format(format(array_Tz[i], Get("F_f")), format(G_error_energy[i], Get("F_E")),
-                                   format(array_dkQ[i], Get("F_E")), format(G_energy[i], Get("F_E")), ))
+                                   format(array_dkQ[i], Get("F_E")), format(G0_energy[i], Get("F_E")), ))
 
     is_print and print(tree_print(is_end=1, add_level=1) + "U_energy 和 U_error")
     for i in range(ticks_Num):
         is_print and print(tree_print(is_end[i]) + "Tz, U_error, dkQ, U_energy = {}, {}, {}, {}"
                            .format(format(array_Tz[i], Get("F_f")), format(U_error_energy[i], Get("F_E")),
-                                   format(array_dkQ[i], Get("F_E")), format(U_energy[i], Get("F_E")), ))
+                                   format(array_dkQ[i], Get("F_E")), format(U0_energy[i], Get("F_E")), ))
 
-    GU_error_energy_plot_save(G_energy, G_error_energy, U_energy, U_error_energy,
+    GU_error_energy_plot_save(G0_energy, G_energy, G_error_energy,
+                              U0_energy, U_energy, U_error_energy,
                               img_name_extension, is_save_txt,
                               # %%
                               array_dkQ, array_Tz, sample, size_PerPixel,

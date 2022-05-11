@@ -2219,17 +2219,6 @@ def gan_Data_Seq(txt, folder_address):
     lines = txt.readlines()
     # txt.seek(2)  # 光标移到 txt 末尾（不必了，其实 已经移到 末尾了）
 
-    trigger = 0
-    if folder_address in whole_text:  # 如果 folder_address 在以前的 记录中 出现过
-        trigger = 1
-    elif len(lines) > 0:  # 如果 folder_address 在以前的 记录中 没出现过，但已经有数据记录
-        line = lines[-1]
-        Data_Seq = attr_get(line, "Data_Seq")
-        dir_seq = Data_Seq.split('.')[0]  # 获取 最后一行 的 dir_seq
-        dir_seq = str(int(dir_seq) + 1)  # 把它加 1，作为 序数
-    else:
-        dir_seq = str(Get("level_min"))  # str(0) 也行
-
     folder_address_relative = folder_address.replace(Get("root_dir") + "\\", "")
     # 相对路径中，将只剩下 kwargs["p_dir"] + "\\" + folder_name 或 folder_name
     dirs = folder_address_relative.split("\\")
@@ -2244,6 +2233,7 @@ def gan_Data_Seq(txt, folder_address):
     # dir_repeat_line_i = [[]] * level  # [[],[],[],...] # dirs[l] 重复时 所对应的 line 行序数 i
     # 这个 只有 l>0 才有用，其实不用记录 line 的 行序数 i，只需 记录 符合条件的 line 数，所以 [] * level 更省内存
     data_seq = Get("level_min")
+    dir_seq_max = Get("level_min")
     for i in range(len(lines)):
         line = lines[i]
         line = line[:-1]
@@ -2288,16 +2278,22 @@ def gan_Data_Seq(txt, folder_address):
                     ex_dir_is_in = 0
             # print(dir_repeat_line_i)
 
-        if trigger == 1:
-            if folder_address in folder_address_line:  # 从上往下，获得 记录中 第一次出现，所在行 的 dir_seq
-                data_seq += 1  # 依据：不会有 2 个 数据，储存在同一个 python 生成的 mat 文件中，txt 倒是可能。。。
-                Data_Seq = attr_get(line, "Data_Seq")
-                dir_seq = Data_Seq.split('.')[0]  # 保持 dir_seq 不变
+        Data_Seq = attr_get(line, "Data_Seq")
+        dir_seq_line = Data_Seq.split('.')[0]
+        if dir_seq_max < int(dir_seq_line): dir_seq_max = int(dir_seq_line)
+        if folder_address in folder_address_line:  # 从上往下，获得 记录中 第一次出现，所在行 的 dir_seq
+            data_seq += 1  # 依据：不会有 2 个 数据，储存在同一个 python 生成的 mat 文件中，txt 倒是可能。。。
+            dir_seq = dir_seq_line  # 保持 dir_seq 不变
         # elif data_seq > 0:  # 如果 line 里没有 folder_address，但 data_seq 又 > 0，
         #     # 说明 曾有过 folder_address 但结束了，所以后续 不会再有了，所以 直接退出。（）
         #     # 如果 line 里没有 folder_address，但 data_seq 又 = 0，说明还没到，继续 for 循环，不 break
         #     break # 若 特殊情况，间隔一段 不同后，后续 还有 folder_address 相同，则 for 循环 必须执行到 末尾
 
+    if data_seq == Get("level_min"):  # 如果 folder_address 在以前的 记录中 没出现过
+        if len(lines) > 0:  # 如果 folder_address 在以前的 记录中 没出现过，但已经有数据记录
+            dir_seq = str(int(dir_seq_max) + 1)  # 把 dir_seq_max 加 1，作为 序数
+        else:
+            dir_seq = str(Get("level_min"))  # str(0) 也行
     Data_Seq = dir_seq + '.' + str(data_seq)  # 更新 Data_Seq
 
     # print(level_seq)
@@ -2528,7 +2524,7 @@ def U_energy_plot_save(U, U_name,
 
 # %%
 
-def U_error_energy_plot_save(U, l2, U_name,
+def U_error_energy_plot_save(U, l2, l3, U_name,
                              img_name_extension, is_save_txt,
                              # %%
                              zj, ax2_xticklabel, sample, size_PerPixel,
@@ -2548,8 +2544,9 @@ def U_error_energy_plot_save(U, l2, U_name,
     folder_address = U_dir(U_name + title_suffix, is_save,
                            z=z, **kwargs, )
 
-    label1 = "energy"
-    label2 = "distribution_error"
+    label1 = "SSI_energy"
+    label2 = "NLA_energy"
+    label3 = "distribution_error"
     U_energy_plot(folder_address,
                   U, U_name,
                   img_name_extension,
@@ -2562,9 +2559,10 @@ def U_error_energy_plot_save(U, l2, U_name,
                   # %%
                   z=z, suffix=title_suffix,
                   # %%
-                  l2=l2, color_1d2=color_1d2,
+                  l2=l2, label2=label2,
+                  l3=l3, color_1d2=color_1d2,
                   label=label1, ax1_xticklabel=zj,  # 强迫 ax1 的 x 轴标签 保持原样
-                  label2=label2, ax2_xticklabel=ax2_xticklabel, **kwargs, )
+                  label3=label3, ax2_xticklabel=ax2_xticklabel, **kwargs, )
 
     suffix = "_" + label1
     U_address, ugHGU = U_save(U, U_name + suffix, folder_address,
@@ -2573,6 +2571,11 @@ def U_error_energy_plot_save(U, l2, U_name,
 
     suffix = "_" + label2
     U_address, ugHGU = U_save(l2, U_name + suffix, folder_address,
+                              is_save, is_save_txt,
+                              z=z, suffix=suffix, **kwargs, )
+
+    suffix = "_" + label3
+    U_address, ugHGU = U_save(l3, U_name + suffix, folder_address,
                               is_save, is_save_txt,
                               z=z, suffix=suffix, **kwargs, )
 

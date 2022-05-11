@@ -50,7 +50,7 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
         test_func = get_Data_new_attr(Data_Seq, "saver_name")[0]
 
     info = "plot_1d 测试 —— " + test_func
-    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=1) + info)
+    is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     # 没有 treeprint 会没有 Set("f_f")，导致 z 之后被 format 成 0.0。。。
     kwargs.pop("is_end", None);
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
@@ -80,10 +80,10 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
                            # %%
                            z_list[index+0], **kwargs, )
     elif test_func == "U_error_energy_plot_save":
-        U_error_energy_plot_save(U_list[index+0], U_list[index+1], U_name_no_suffix_list[index+0],
+        U_error_energy_plot_save(U_list[index+0], U_list[index+1], U_list[index+2], U_name_no_suffix_list[index+0],
                                  img_name_extension, is_save_txt,
                                  # %%
-                                 U_list[index+2], U_list[index+3], sample, size_PerPixel,
+                                 U_list[index+3], U_list[index+4], sample, size_PerPixel,
                                  is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                  # %%
                                  color_1d, color_1d2,
@@ -125,7 +125,7 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
 if __name__ == '__main__':
     kwargs = \
         {"test_target": -1, # 自动化了，不用填这个参数了
-         "Data_Seq": 9,
+         "Data_Seq": 97,
          "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
@@ -149,7 +149,7 @@ if __name__ == '__main__':
          # %%
          "kwargs_seq": 0, "root_dir": r'1',
          "is_end": -1,
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 3,
          "ax_yscale": 'linear', }
 
     kwargs = init_GLV_DICT(**kwargs)

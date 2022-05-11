@@ -144,7 +144,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         array1D_new = array1D
     array1D_new = array1D_new if is_energy != 1 else np.abs(array1D_new) ** 2
 
-    if 'ax1_xticklabel' in kwargs:
+    if 'ax1_xticklabel' in kwargs:  # 如果 强迫 ax1 的 x 轴标签 保持原样（则看的是 随 dk 的 演化，则 能量 也得 log）
         if kwargs.get("ax_yscale", None) != 'linear':
             array1D_new = np.log10(array1D_new)
             array1D_new = convert_inf_to_min(array1D_new) # 转成数组
@@ -166,16 +166,16 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             l2_new = kwargs['l2']
         l2_new = l2_new if is_energy != 1 else np.abs(l2_new) ** 2
 
-        if 'ax1_xticklabel' in kwargs:
+        index = [find_nearest(ix_new, goal)[0] for goal in ix2_new]
+        # print(index)
+        l2_new_error = np.abs(l2_new - array1D_new[index])  # 花式索引，可以用 list 或 array 作为一个 array 的下标
+
+        if 'ax1_xticklabel' in kwargs:  # 如果 强迫 ax1 的 x 轴标签 保持原样（则看的是 随 dk 的 演化，则 能量 也得 log）
             if kwargs.get("ax_yscale", None) != 'linear':
                 l2_new = np.log10(l2_new)
                 l2_new = convert_inf_to_min(l2_new)  # 转成数组
-        # print(l2_new)
-
-        if "zj2" in kwargs:
-            index = [find_nearest(ix_new, goal)[0] for goal in ix2_new]
-            # print(index)
-            l2_new_error = np.abs(l2_new - array1D_new[index])  # 花式索引，可以用 list 或 array 作为一个 array 的下标
+                l2_new_error = np.log10(l2_new_error)
+                l2_new_error = convert_inf_to_min(l2_new_error)  # 转成数组
 
         if 'l3' in kwargs:
             if sample > 1: # 我发现 哪怕 sample == 1，也会导致 被 插值作用，导致 原始值 被改变（不是说好了过每个点么...）
@@ -185,7 +185,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
                 l3_new = kwargs['l3']
             l3_new = l3_new if is_energy != 1 else np.abs(l3_new) ** 2
 
-            if kwargs.get("ax_yscale", None) != 'linear':
+            if kwargs.get("ax_yscale", None) != 'linear': # 无论如何， 第 2 个 坐标系 上的 第 3 条 误差曲线，都默认取 log
                 l3_new = np.log10(l3_new)
                 # print(l3_new)
                 l3_new = convert_inf_to_min(l3_new)  # 转成数组
@@ -223,10 +223,10 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         #     # ax1.set_yscale(kwargs.get('ax1_yscale', 'log'))
         #     # ax1.semilogy(x, np.log10(y))
 
-        if "l2" in kwargs and 'l3' in kwargs: # 如果 要绘制 4 条曲线
+        if "l2" in kwargs and 'l3' in kwargs: # 如果 ax1 上要绘制 3 条曲线
             vmax = kwargs.get("vmax", max(np.max(array1D_new), np.max(l2_new), np.max(l2_new_error)))
             vmin = kwargs.get("vmin", min(np.min(array1D_new), np.min(l2_new), np.min(l2_new_error)))
-        elif "l2" in kwargs and 'l3' not in kwargs and "ax2_xticklabel" not in kwargs: # 需要 给 min 补个零，防止 ganticks 的时候，不从 0 开始
+        elif "l2" in kwargs and 'l3' not in kwargs: # 如果 ax1 上 只画 2 条 能量曲线 时，需要 给 min 补个零，防止 ganticks 的时候，不从 0 开始
             vmax = kwargs.get("vmax", np.max(array1D_new))
             vmin = 0
         else:
@@ -237,10 +237,11 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         ax1.set_yticks(ax1_yticks)
         ax1.set_yticklabels(ax1_yticklabels, fontsize=fontsize, fontdict=font)
 
-        if 'ax1_xticklabel' in kwargs:
-            # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
-            # ax1.yaxis.set_major_formatter(logfmt)
-            ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter))
+        if 'ax1_xticklabel' in kwargs:  # 如果 强迫 ax1 的 x 轴标签 保持原样（则看的是 随 dk 的 演化，则 能量 也得 log）
+            if kwargs.get("ax_yscale", None) != 'linear':
+                # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
+                # ax1.yaxis.set_major_formatter(logfmt)
+                ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter))
 
         ax1.set_xlabel(xlabel, fontsize=fontsize, fontdict=font)  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         ax1.set_ylabel(ylabel, fontsize=fontsize, fontdict=font)  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
@@ -306,25 +307,23 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
 
             if 'l3' in kwargs:
                 vmax2 = kwargs.get("vmax2", np.max(l3_new))
-                vmin2 = kwargs.get("vmin2", np.min(l3_new))
+                # vmin2 = kwargs.get("vmin2", np.min(l3_new))
                 # print(vmax2, vmin2)
+                vmin2 = 0
             else:
                 if kwargs.get("is_energy_normalized", False) == 2: # 如果要画 随 T 的 演化
                     # ax2.set_ylim(ax1.get_ylim())  # ax2 的 y 轴范围 不再自动，而是 强制 ax2 的 y 轴 范围 等于 ax1 的 y 轴范围
                     vmax2, vmin2 = vmax, vmin  # 与 ax2.set_ylim(ax1.get_ylim()) 配合，强制 ax2 的 y 轴 刻度线 等于 ax1 的 刻度线。
-                elif "ax2_xticklabel" not in kwargs: # 如果要画 随 T 的 演化
+                else: # 如果要画 随 T 的 演化
                     vmax2 = kwargs.get("vmax2", max(np.max(l2_new), np.max(l2_new_error)))
                     # vmin2 = kwargs.get("vmin2", min(np.min(l2_new), np.min(l2_new_error)))
                     vmin2 = 0 # 这样才能使 ticks 和 labels 的 第一个元素 是 0
-                else: # 如果 要画 随 dk 的 演化
-                    vmax2 = kwargs.get("vmax2", np.max(l2_new))
-                    vmin2 = kwargs.get("vmin2", np.min(l2_new))
 
             ax2_yticks, ax2_yticklabels = gan_ticks(vmax2, ticks_num, Min=vmin2)
             ax2.set_yticks(ax2_yticks)
             ax2.set_yticklabels(ax2_yticklabels, fontsize=fontsize, fontdict=font)
 
-            if 'ax1_xticklabel' in kwargs or 'l3' in kwargs:
+            if 'l3' in kwargs:
                 if kwargs.get("ax_yscale", None) != 'linear':
                     # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
                     # ax2.yaxis.set_major_formatter(logfmt)
@@ -343,44 +342,34 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
                            "markeredgewidth": kwargs.get("ax2_markeredgewidth", 2), }
         ax2_plot_dict.update(ax2_marker_dict)
 
+        # %% ax1
+        ax1_plot_dict.update({"label": kwargs.get('label2', None),
+                              "linestyle": kwargs.get("ax2_linestyle", '--'), })
+        ax1_plot_dict.update(ax2_marker_dict)
+        l2, = ax1.plot(ix2_new, l2_new, **ax1_plot_dict, )
         if 'l3' in kwargs:
-            ax1_plot_dict.update({"label": kwargs.get('label2', None),
-                                  "linestyle": kwargs.get("ax2_linestyle", '--'), })
-            ax1_plot_dict.update(ax2_marker_dict)
-            l2, = ax1.plot(ix2_new, l2_new, **ax1_plot_dict, )
             # %%
+            ax1_plot_dict.update({"label": "energy_error",
+                                  "linestyle": kwargs.get("l2_error_linestyle", '-.'), })
+
+            l2_error, = ax1.plot(ix2_new, l2_new_error, **ax1_plot_dict, )
+            # %% ax2
             ax2_plot_dict.update({"label": kwargs.get('label3', None),
                                   "linestyle": kwargs.get("l2_error_linestyle", '-.'),
                                   "marker": kwargs.get("l2_error_marker", 'x'),
-                                  "markeredgecolor": kwargs.get("l3_markeredgecolor", 'yellow'), })
+                                  "markeredgecolor": kwargs.get("l3_markeredgecolor", 'orange'), })
             l3, = ax2.plot(ix2_new, l3_new, **ax2_plot_dict, )
             # %%
             l3_level, real_level_percentage = find_data_1d_level(l3_new, kwargs.get("l3_level", 0.8))
             line_plot_dict = {"linestyle": kwargs.get("l2_error_linestyle", '-.'),  # 线型
-                              "color": kwargs.get("l3_markeredgecolor", 'yellow'),
-                              "label": str(real_level_percentage * 100) + ' %' + ' data_covered'}
+                              "color": kwargs.get("l3_markeredgecolor", 'orange'),
+                              "label": str(format(real_level_percentage * 100, '.2f')) + ' %' + ' data_covered'}
             l3_hline = ax2.axhline(y=l3_level, **line_plot_dict)
         else:
-            l2, = ax2.plot(ix2_new, l2_new, **ax2_plot_dict, )
-            # %%
-            l2_level, real_level_percentage = find_data_1d_level(l2_new, kwargs.get("l2_level", 0.8))
-            if "zj2" not in kwargs:
-                line_plot_dict = {"linestyle": kwargs.get("ax2_linestyle", '-'),  # 线型
-                                  "color": kwargs.get("ax2_markeredgecolor", 'green'),
-                                  "label": str(real_level_percentage * 100) + ' %' + ' data_covered'}
-                l2_hline = ax2.axhline(y=l2_level, **line_plot_dict)
+            ax2_plot_dict.update({"label": "energy_error",
+                                  "linestyle": kwargs.get("l2_error_linestyle", '--'), })
+            l2_error, = ax2.plot(ix2_new, l2_new_error, **ax2_plot_dict, )
         # ax2.grid()
-
-        if "zj2" in kwargs:
-            if 'l3' in kwargs:
-                ax1_plot_dict.update({"label": "energy_error",
-                                      "linestyle": kwargs.get("l2_error_linestyle", '-.'), })
-
-                l2_error, = ax1.plot(ix2_new, l2_new_error, **ax1_plot_dict, )
-            else:
-                ax2_plot_dict.update({"label": "energy_error",
-                                      "linestyle": kwargs.get("l2_error_linestyle", '--'), })
-                l2_error, = ax2.plot(ix2_new, l2_new_error, **ax2_plot_dict, )
 
         # 要等 ax1 中 所有 曲线 plot 完事 之后，ax1.get_ylim() 获取到的 ax1 的 ylim 才是真实的
         # %% 获取 ax1 的 上下 lim 的 相对位置，和 相对 间隔 大小，为之后 设置 ax2 的 绝对 lim 范围（y 刻度 线性时）
@@ -401,15 +390,11 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         ax2.set_ylim(ax2_down_lim, ax2_up_lim)
         # --------- 搭配 end（y 刻度 线性时）
 
-
         if "label" in kwargs and "label2" in kwargs:
-            if "zj2" in kwargs:
-                if 'l3' in kwargs:
-                    handles = [l1, l2, l2_error, l3, l3_hline, ]
-                else:
-                    handles = [l1, l2, l2_error, ]
+            if 'l3' in kwargs:
+                handles = [l1, l2, l2_error, l3, l3_hline, ]
             else:
-                handles = [l1, l2, l2_hline, ]
+                handles = [l1, l2, l2_error, ]
             plt.legend(handles=handles, **legend_dict, )
     else:
         if "label" in kwargs:

@@ -910,7 +910,8 @@ def fU_EVV_plot(img_name_extension,
                    is_no_data_save=is_no_data_save, )
 
 
-def GU_error_energy_plot_save(G_energy, G_error_energy, U_energy, U_error_energy,
+def GU_error_energy_plot_save(G0_energy, G_energy, G_error_energy,
+                              U0_energy, U_energy, U_error_energy,
                               img_name_extension, is_save_txt,
                               # %%
                               array_dkQ, array_Tz, sample, size_PerPixel,
@@ -922,7 +923,7 @@ def GU_error_energy_plot_save(G_energy, G_error_energy, U_energy, U_error_energy
                               # %%
                               L0_Crystal, **kwargs, ):
     from fun_os import U_error_energy_plot_save
-    U_error_energy_plot_save(G_energy, G_error_energy, fkey("G"),
+    U_error_energy_plot_save(G0_energy, G_energy, G_error_energy, fkey("G"),
                              img_name_extension, is_save_txt,
                              # %%
                              array_dkQ, array_Tz, sample, size_PerPixel,
@@ -934,7 +935,7 @@ def GU_error_energy_plot_save(G_energy, G_error_energy, U_energy, U_error_energy
                              # %%
                              L0_Crystal, **kwargs, )
 
-    U_error_energy_plot_save(U_energy, U_error_energy, fkey("U"),
+    U_error_energy_plot_save(U0_energy, U_energy, U_error_energy, fkey("U"),
                              img_name_extension, is_save_txt,
                              # %%
                              array_dkQ, array_Tz, sample, size_PerPixel,
