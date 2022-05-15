@@ -95,7 +95,7 @@ def GET(key):
     except KeyError:
         return False  # 取 value 失败
 
-def attr_GET(line, item_attr_name): # from line，是 fun_os 中的 attr_get 函数 的 一个 copy
+def attr_line_GET(line, item_attr_name): # from line，是 fun_os 中的 attr_get 函数 的 一个 copy
     index = GET("item_attr_name_loc_dict_save")[item_attr_name]
     # print(line.split(GET("attr_separator")))
     if len(line.split(GET("attr_separator"))) >= index+1:
@@ -133,7 +133,7 @@ def gan_root_dir_boot_times():
     if len(lines) > 0: # 如果有内容，其实总能读到 ex_root_dir_boot_times 的，不会读出 None...
         line = lines[-1]  # 读取最后一行
         line = line[:-1]
-        ex_root_dir_boot_times = attr_GET(line, "root_dir_boot_times")  # 得到最后一行中的 root_dir_boot_times，把它加 1
+        ex_root_dir_boot_times = attr_line_GET(line, "root_dir_boot_times")  # 得到最后一行中的 root_dir_boot_times，把它加 1
         root_dir_boot_times = int(ex_root_dir_boot_times) + 1
     else:
         root_dir_boot_times = GET("level_min")  # 把 level 的基数抬升 1：不从 0 开始计。

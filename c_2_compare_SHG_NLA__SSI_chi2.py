@@ -345,7 +345,7 @@ if __name__ == '__main__':
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0, 
          "is_linear_convolution": 0,
          # %%
-         "Tx": 10, "Ty": 20, "Tz": 3,
+         "Tx": 10, "Ty": 20, "Tz": 0,
          "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
@@ -364,7 +364,7 @@ if __name__ == '__main__':
                'color': 'black',  # 'black','gray','darkred'
                },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1,
+         "is_colorbar_on": 1, "is_energy": 0,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,

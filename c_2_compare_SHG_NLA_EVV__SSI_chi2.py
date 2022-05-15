@@ -257,6 +257,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
 
     # print(Get("z_stored"))
     kwargs_EVV = kwargs
+    # print(kwargs)
     if abs(is_stored) == 1:
         kwargs_EVV.update({"ray": "2", "zj_EVV": Get("z_stored"), })
     else:
@@ -340,9 +341,11 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                           is_energy_normalized=is_energy_normalized, **kwargs, )
 
     else:
+        G0_energy = []
         G_energy = []
         G_error_energy = []
         U_energy = []
+        U0_energy = []
         U_error_energy = []
 
         # %%
@@ -374,7 +377,8 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                              is_end=is_end[i], )
 
             G_energy.append(G_and_G_error_energy[0])
-            G_error_energy.append(G_and_G_error_energy[1])
+            G0_energy.append(G_and_G_error_energy[1])
+            G_error_energy.append(G_and_G_error_energy[2])
 
         # %%
         # 对比 U2_EVV 与 U2_SSI 的 （绝对）误差
@@ -402,11 +406,12 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                                              is_end=is_end[i], )
 
             U_energy.append(U_and_U_error_energy[0])
-            U_error_energy.append(U_and_U_error_energy[1])
+            U0_energy.append(U_and_U_error_energy[1])
+            U_error_energy.append(U_and_U_error_energy[2])
 
-        G_energy = np.array(G_energy, dtype='float64')  # 需要把 list 转换为 array
+        G0_energy = np.array(G0_energy, dtype='float64')  # 需要把 list 转换为 array
         G_error_energy = np.array(G_error_energy, dtype='float64')
-        U_energy = np.array(U_energy, dtype='float64')
+        U0_energy = np.array(U0_energy, dtype='float64')
         U_error_energy = np.array(U_error_energy, dtype='float64')
 
         is_end = [0] * (len(zj_EVV) - 1)
@@ -414,15 +419,15 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
 
         is_print and print(tree_print(add_level=1) + "G_energy 和 G_error")
         for i in range(len(zj_EVV)):
-            is_print and print(tree_print(is_end[i]) + "zj, G_error, G_energy = {}, {}, {}"
+            is_print and print(tree_print(is_end[i]) + "zj, G_error, G0_energy, G_energy = {}, {}, {}, {}"
                                .format(format(zj_EVV[i], Get("F_f")), format(G_error_energy[i], Get("F_E")),
-                                       format(G_energy[i], Get("F_E")), ))
+                                       format(G0_energy[i], Get("F_E")), format(G_energy[i], Get("F_E")), ))
 
         is_print and print(tree_print(is_end=1, add_level=1) + "U_energy 和 U_error")
         for i in range(len(zj_EVV)):
-            is_print and print(tree_print(is_end[i]) + "zj, U_error, U_energy = {}, {}, {}"
+            is_print and print(tree_print(is_end[i]) + "zj, U_error, U0_energy, U_energy = {}, {}, {}, {}"
                                .format(format(zj_EVV[i], Get("F_f")), format(U_error_energy[i], Get("F_E")),
-                                       format(U_energy[i], Get("F_E")), ))
+                                       format(U0_energy[i], Get("F_E")), format(U_energy[i], Get("F_E")), ))
 
         if is_energy_evolution_on == 1:
             U_twin_error_energy_plot_save(U2_energy_SSI, U2_energy_EVV, G_error_energy,
@@ -486,7 +491,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 0.1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "L0_Crystal": 3, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -502,10 +507,10 @@ if __name__ == '__main__':
          # %%
          "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
-         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1, 
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0, 
          "is_linear_convolution": 0,
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 0,
+         "Tx": 18.769, "Ty": 20, "Tz": 6.9,
          "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
@@ -536,7 +541,7 @@ if __name__ == '__main__':
          "Gz_max_Enhance": 1, "match_mode": 1,
          # %%
          "is_NLA": 1, "is_amp_relative": 1,
-         "is_energy_normalized": 2, "is_output_error_EVV": 1,
+         "is_energy_normalized": 0, "is_output_error_EVV": 1,
          # %%
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,

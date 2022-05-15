@@ -161,6 +161,7 @@ def SHG_NLA(U_name="",
 
     iz = z0 / size_PerPixel
 
+    is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)
     if is_fft == 0:
 
         const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
@@ -251,7 +252,7 @@ def SHG_NLA(U_name="",
                                              **kwargs, )
 
             if is_sum_Gm == 0:
-                addition_dict = {"Tz": Tz if kwargs.get("is_NLAST_sum", 0) else None} # 若 is_NLAST_sum 有且非 0，则 Tz
+                addition_dict = {"Tz": Tz if is_NLAST_sum else None} # 若 is_NLAST_sum 有且非 0，则 Tz
                 dset("G", G2_z_modulation_NLAST(k1, k2,
                                                 modulation_squared, U_0, iz, Const,
                                                 Gz=Gz, **addition_dict, ))
@@ -370,7 +371,7 @@ if __name__ == '__main__':
         # %%
         "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
         "deff": 30, "is_fft": 1, "fft_mode": 0,
-        "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1, 
+        "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0, 
         "is_linear_convolution": 0,
         # %%
         "Tx": 10, "Ty": 10, "Tz": 3,

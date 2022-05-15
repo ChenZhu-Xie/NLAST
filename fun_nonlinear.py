@@ -157,7 +157,7 @@ def G2_z_modulation_3D_NLAST(k1, k2,
     # 3.1 对应 3.4 - 匹配
     # 3.2 对应 bulk 且 匹配
 
-    print(Tz)
+    # print(Tz)
     Tz_unit = (Tz / 1000) / Get("size_PerPixel")
     dz = Tz_unit / 2
     # print(dz, iz)
@@ -271,15 +271,144 @@ def G2_z_modulation_NLAST(k1, k2,
         k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
         k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
 
-        Big_version = 3
-        Cal_version = 4
-        Res_version = 1
+        Big_version = 4
+        Cal_version = 2
+        Res_version = 2
 
         # 3.4 > 3.2 > 1.3    match OK
         # 3.5 wrong
         # 3.6 = 1.1 > 2      dismatch OK
         # 4.0 e 指数太大，溢出
+        # 4.2                match super+ OK
         # 5.0 = 3.4 + 1.1    dismatch + match OK
+
+        K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
+        kiizQ = 2 * K1_z + Gz
+        dkiizQ = kiizQ - k2_z
+        denominator = kiizQ + k2_z
+        inside_sinc = dkiizQ / 2 * iz
+
+        def gan_G2_z_dismatch():  # 1.1
+            denominator = kiizQ ** 2 - k2_z ** 2
+            G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
+            g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
+            molecule = G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j) \
+                       - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
+            dismatch = const * molecule / denominator
+
+            return dismatch
+
+        def gan_G2_z_sinc():  # 3.4
+            sinc_denominator = (kiizQ + k2_z) / 2
+            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) ** 2)
+            sinc = const * G1_U_half_z_Squared_modulated \
+                    * np.sinc(inside_sinc / np.pi) / sinc_denominator \
+                    * math.e ** (Gz * iz * 1j) \
+                    * math.e ** (k2_z * iz / 2 * 1j) \
+                    * (1j * iz)
+
+            return sinc
+
+        def gan_G2_z_1():  # 4.2 +
+            denominator = kiizQ + k2_z
+            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) ** 2)
+            G2_z = const * G1_U_half_z_Squared_modulated \
+                   * math.e ** (Gz * iz / 2 * 1j) \
+                   * math.e ** (k2_z * iz / 2 * 1j) \
+                   / denominator \
+                   * (1j * iz)
+            return G2_z
+
+        def gan_G2_z_cos(factor):  # 4.2
+            denominator = (kiizQ + k2_z) * 2
+            z_plus = (1 + 1 / factor) / 2
+            z_minus = (1 - 1 / factor) / 2
+            G_U_z_plus_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, z_plus * iz) ** 2) * \
+                                           math.e ** (Gz * z_plus * iz * 1j) * \
+                                           math.e ** (k2_z * z_minus * iz * 1j)
+            G_U_z_minus_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, z_minus * iz) ** 2) * \
+                                            math.e ** (Gz * z_minus * iz * 1j) * \
+                                            math.e ** (k2_z * z_plus * iz * 1j)
+            G2_z = const * (G_U_z_plus_Squared_modulated + G_U_z_minus_Squared_modulated) \
+                   / denominator \
+                   * (1j * iz)
+            return G2_z
+
+        def gan_factor_out(cos_num_expect, omite_level=1e-4):  # 1e-4 以下 的 系数 忽略掉
+            factor_out = []
+            factor_out.append([1, ])  # 1 个 cos
+            factor_out.append([0.32, 0.445, ])
+            # factor_out.append([0.301003, 0.455351, ])
+            factor_out.append([0.169451, 0.298362, 0.350258, ])
+            factor_out.append([0.102129, 0.204757, 0.260585, 0.285946, ])
+            factor_out.append([-6.76961E-05, 0.130024, 0.217244, 0.251919, 0.265981, ])
+            factor_out.append([-4.96711E-06, 0.0866104, 0.160762, 0.197904, 0.216228, 0.224824, ])
+            factor_out.append([-7.37E-07, 0.0648475, 0.124482, 0.157835, 0.176501, 0.186978, 0.192352, ])
+            factor_out.append([-2.59835E-05, -2.61578E-05, 0.0764049, 0.135342, 0.160369, 0.172968, 0.179733, 0.183142, ])
+            factor_out.append([1.27E-08, -9.97E-07, 0.0571655, 0.105849, 0.131789, 0.146336, 0.154869, 0.159855, 0.162484, ])
+            factor_out.append([-1.56855E-06, -1.18615E-05, 2.40601E-05, 0.0549615, 0.110708, 0.136124, 0.147892, 0.154058, 0.15737, 0.159078, ])
+            factor_out.append([8.15E-09, -9.56E-09, -1.38E-06, 0.050591189, 0.092271169, 0.113490491, 0.125190731, 0.132148097, 0.136429679, 0.139023225, 0.140423452, ])
+            factor_out.append([1.38E-08, 9.54E-07, -1.45E-06, 5.93199E-05, 0.0588856, 0.0990237, 0.116212, 0.124933, 0.129881, 0.132858, 0.13463, 0.135579, ])
+            factor_out.append([-6.04E-11, 7.92E-09, -1.22E-07, -3.55E-06, 0.0470445, 0.0821403, 0.0993555, 0.109026, 0.114907, 0.118651, 0.121065, 0.122574, 0.123405, ])
+            factor_out.append([-6.95E-12, 9.73E-11, 1.17E-08, 6.00E-08, 0.0329041, 0.0653294, 0.0847515, 0.096197, 0.103247, 0.107785, 0.110783, 0.112767, 0.114028, 0.11473, ])
+            factor_out.append([6.24E-13, -1.94E-11, -2.24E-09, 2.09E-08, 0.0241148, 0.052351, 0.072173, 0.0846568, 0.0925488, 0.0977093, 0.101186, 0.103563, 0.105176, 0.106219, 0.106805, ])
+            factor_out.append([-4.77E-13, 7.77E-13, 8.90E-10, -1.97E-08, -4.70E-08, 0.0300253, 0.0591841, 0.0762949, 0.0862538, 0.0923673, 0.0963222, 0.098976, 0.100788, 0.102017, 0.102811, 0.103259, ])
+            factor_out.append([3.32E-12, -1.11E-10, 1.86E-09, -2.87E-09, 5.21E-08, -4.92E-06, 0.0360376, 0.0652576, 0.0797354, 0.0874927, 0.0920891, 0.0950126, 0.0969603, 0.0982858, 0.0991826, 0.099762, 0.100088, ])
+            factor_out.append([1.40E-11, -9.51E-11, -2.50E-10, -5.87E-10, 5.84E-08, 5.07E-06, 9.81E-06, 0.0432267, 0.0713149, 0.0827259, 0.0883321, 0.0915149, 0.0935178, 0.0948661, 0.0957744, 0.0963876, 0.0967835, 0.0970025, ])
+            factor_out.append([1.25E-12, 2.77E-12, 2.30E-11, 6.10E-11, 9.73E-09, -6.34E-08, -1.52E-07, 0.0338622, 0.0603613, 0.0729303, 0.079547, 0.0834764, 0.0860011, 0.0877104, 0.0889032, 0.0897435, 0.0903267, 0.0907102, 0.0909284, ])
+            factor_out.append([2.41E-14, 1.14E-12, -1.57E-12, 4.24E-12, -4.04E-10, 2.91E-09, -8.55E-09, 0.0259968, 0.0502469, 0.0638248, 0.0715418, 0.0762544, 0.0793267, 0.0814285, 0.0829129, 0.0839793, 0.0847462, 0.0852864, 0.0856454, 0.085851, ])
+            aj = factor_out[cos_num_expect - 1]
+            aj_left = [a for a in aj if a > omite_level]  # 忽略了 1e-4 以下 的 系数后，剩下的 系数们
+            cos_num = len(aj_left)  # 实际 的 cos 的 个数； 理应 len(aj) == cos_num_expect
+            nums_to_omite = cos_num_expect - cos_num  # 一共忽略了 多少个系数
+            aj_left += [1 - sum(aj_left)]  # 在末尾 添加 1 个 a[-1] 常系数
+            region = (cos_num_expect + 1) * math.pi if cos_num_expect > 1 else math.pi
+            return aj_left, cos_num, nums_to_omite, region
+
+        def gan_factor_in(cos_num_expect, nums_to_omite):
+            factor_in = []
+            factor_in.append([1.732050808, ])  # 1 个 cos
+            factor_in.append([1.17, 2.18, ])
+            # factor_in.append([1.14855, 2.09636, ])
+            factor_in.append([1.07449, 1.45342, 2.78214, ])
+            factor_in.append([1.04223, 1.24701, 1.76697, 3.4388, ])
+            factor_in.append([0.608268, 1.05724, 1.30614, 1.89195, 3.72379, ])
+            factor_in.append([0.574694, 1.03632, 1.19432, 1.52489, 2.2339, 4.41463, ])
+            factor_in.append([0.359817, 1.02674, 1.14081, 1.3628, 1.76762, 2.60773, 5.169, ])
+            factor_in.append([0.199089, 0.740792, 1.0315, 1.16434, 1.40941, 1.84433, 2.73596, 5.43949, ])
+            factor_in.append([0.124246, 0.317121, 1.02373, 1.1201, 1.29423, 1.57993, 2.07484, 3.08289, 6.13366, ])
+            factor_in.append([0.0299174, 0.304177, 0.596033, 1.02169, 1.12006, 1.30273, 1.60011, 2.11118, 3.14693, 6.27256, ])
+            factor_in.append([0.028990341, 0.23743036, 0.348599912, 1.020983903, 1.104175219, 1.247413522, 1.466735366, 1.80886966, 2.390222581, 3.564685372, 7.106325288, ])
+            factor_in.append([0.00170016, 0.173797, 0.278128, 0.872531, 1.02505, 1.11907, 1.27405, 1.50629, 1.86477, 2.47055, 3.6908, 7.36489, ])
+            factor_in.append([9.99999E-05, 0.0995394, 0.224026, 0.342159, 1.01977, 1.09433, 1.21628, 1.39361, 1.65189, 2.04728, 2.71366, 4.05479, 8.0918, ])
+            factor_in.append([4.99922E-05, 0.00169576, 0.132058, 0.496849, 1.0133, 1.06779, 1.16197, 1.29929, 1.4933, 1.77311, 2.19976, 2.91757, 4.36107, 8.70472, ])
+            factor_in.append([5.00014E-05, 4.00E-04, 0.0811973, 0.576743, 1.00954, 1.05071, 1.12518, 1.2348, 1.38705, 1.59834, 1.90081, 2.36049, 3.13266, 4.6843, 9.35174, ])
+            factor_in.append([0.000040001, 5.00E-05, 8.92E-03, 0.401678, 0.480197, 1.01214, 1.06131, 1.14455, 1.26262, 1.42357, 1.64479, 1.95984, 2.4372, 3.23768, 4.84457, 9.67538, ])
+            factor_in.append([5.00E-06, 3.99999E-05, 0.000900016, 0.00322863, 0.303287, 0.499231, 1.01491, 1.07183, 1.16322, 1.28915, 1.4583, 1.68897, 2.01602, 2.51028, 3.33781, 4.99745, 9.98423, ])
+            factor_in.append([5.00E-07, 4.00E-06, 9.00E-06, 3.00E-05, 0.00300311, 0.254407, 0.387579, 1.01839, 1.08405, 1.18381, 1.31769, 1.49511, 1.73534, 2.07462, 2.58621, 3.44157, 5.15562, 10.3033, ])
+            factor_in.append([5.00E-07, 4.00E-06, 9.00E-06, 3.00E-05, 0.00299912, 0.0950811, 0.134361, 1.01403, 1.06677, 1.14938, 1.26026, 1.40485, 1.59491, 1.85156, 2.21365, 2.75942, 3.67186, 5.50031, 10.9919, ])
+            factor_in.append([5.00E-07, 4.00E-06, 9.00E-06, 3.00E-05, 0.00299078, 0.0485485, 0.168009, 1.01053, 1.05222, 1.12023, 1.21264, 1.33231, 1.48659, 1.6885, 1.96068, 2.34438, 2.92253, 3.889, 5.8256, 11.642, ])
+            if cos_num_expect < 1:
+                cos_num_expect = 1
+            bj = factor_in[cos_num_expect - 1]
+            bj_left = bj[nums_to_omite:]  # 理应 len(aj) == len(bj) == cos_num_expect
+            # bj_left = [bj[j] for j in range(len(bj)) if j > nums_to_omite - 1]  # 忽略了 1e-4 以下 的 系数后，剩下的 系数们
+            return bj_left
+
+        def gan_G2_z_cos_seq(cos_num_expect):
+            aj, cos_num, nums_to_omite, region = gan_factor_out(cos_num_expect, )
+            bj = gan_factor_in(cos_num_expect, nums_to_omite, )
+            # print(cos_num, nums_to_omite, region, "\n")
+            # print(aj, "\n")
+            # print(bj, "\n")
+
+            if cos_num == 1:
+                G2_z = gan_G2_z_cos(bj[0])
+            else:
+                G2_z = aj[-1] * gan_G2_z_1()
+                for j in range(cos_num):
+                    G2_z += aj[j] * gan_G2_z_cos(bj[j])
+            return G2_z, region
 
         if Big_version == 0 or Big_version == 2:
 
@@ -347,12 +476,7 @@ def G2_z_modulation_NLAST(k1, k2,
             molecule = G1_Uz_Squared_modulated - g1_U0_Squared_modulated
 
 
-            if Cal_version != 2:
-                K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-                kiizQ = 2 * K1_z + Gz
             if Cal_version >= 3:
-                dkiizQ = kiizQ - k2_z
-                inside_sinc = dkiizQ * iz / 2
                 dkiizQ = 1 / (np.sinc(inside_sinc / np.pi) * iz / 2)
 
             if Cal_version == 1:
@@ -388,8 +512,6 @@ def G2_z_modulation_NLAST(k1, k2,
                 denominator = k2_z
             elif Cal_version >= 2:
                 if Cal_version != 5:
-                    K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-                    kiizQ = 2 * K1_z + Gz
                     if Cal_version < 4:
                         kii2z = (k2 ** 2 - (2 * K1_xy[0] + mesh_k2_x_k2_y[:, :, 0]) ** 2 - (
                                 2 * K1_xy[1] + mesh_k2_x_k2_y[:, :, 1]) ** 2 + 0j) ** 0.5
@@ -460,59 +582,55 @@ def G2_z_modulation_NLAST(k1, k2,
             G2_z = const * molecule / denominator
 
         elif Big_version == 4:
-            K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-            kiizQ = 2 * K1_z + Gz
-            dkiizQ = kiizQ - k2_z
-            denominator = (kiizQ + k2_z) / 2
-            e_index = -(k1_z**2 + 2*k1_z*Gz) * iz**2 / 24
-            # print(np.max(np.abs(e_index)))
-            G1_U_half_z_Squared_modulated = fft2(modulation * ifft2(
-                fft2(Uz_AST(U1_0, k1, iz/2)) * math.e ** e_index) ** 2)
-            # print(np.max(np.abs(-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12)))
-            # G2_z = const * G1_U_half_z_Squared_modulated \
-            #        * math.e ** (-(k2_z-Gz)**2 * iz**2 / 24) / denominator \
-            #        * math.e ** (Gz * iz * 1j) \
-            #        * math.e ** (k2_z * iz / 2 * 1j) \
-            #        * math.e ** (-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12) \
-            #        * (1j * iz)
-            A = -(k2_z - Gz) ** 2 * iz ** 2 / 24
-            B = Gz * iz * 1j
-            C = k2_z * iz / 2 * 1j
-            D = -(K1_z ** 2 - 2 * K1_z * k2_z) * iz ** 2 / 12
-            E = A+B+C+D
-            # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)))
-            # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)), np.max(np.abs(A)), np.max(np.abs(D)))
-            # print(np.max(np.real(e_index)) * 2, np.max(np.real(E)), np.max(np.real(A)), np.max(np.abs(D)))
-            # print(np.max(np.abs(dkiizQ))**2 * iz**2)
-            G2_z = const * G1_U_half_z_Squared_modulated \
-                   * math.e ** E / denominator \
-                   * (1j * iz)
+            if Cal_version == 0:
+                denominator = (kiizQ + k2_z) / 2
+                e_index = -(k1_z**2 + 2*k1_z*Gz) * iz**2 / 24
+                # print(np.max(np.abs(e_index)))
+                G1_U_half_z_Squared_modulated = fft2(modulation * ifft2(
+                    fft2(Uz_AST(U1_0, k1, iz/2)) * math.e ** e_index) ** 2)
+                # print(np.max(np.abs(-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12)))
+                # G2_z = const * G1_U_half_z_Squared_modulated \
+                #        * math.e ** (-(k2_z-Gz)**2 * iz**2 / 24) / denominator \
+                #        * math.e ** (Gz * iz * 1j) \
+                #        * math.e ** (k2_z * iz / 2 * 1j) \
+                #        * math.e ** (-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12) \
+                #        * (1j * iz)
+                A = -(k2_z - Gz) ** 2 * iz ** 2 / 24
+                B = Gz * iz * 1j
+                C = k2_z * iz / 2 * 1j
+                D = -(K1_z ** 2 - 2 * K1_z * k2_z) * iz ** 2 / 12
+                E = A+B+C+D
+                # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)))
+                # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)), np.max(np.abs(A)), np.max(np.abs(D)))
+                # print(np.max(np.real(e_index)) * 2, np.max(np.real(E)), np.max(np.real(A)), np.max(np.abs(D)))
+                # print(np.max(np.abs(dkiizQ))**2 * iz**2)
+                G2_z = const * G1_U_half_z_Squared_modulated \
+                       * math.e ** E / denominator \
+                       * (1j * iz)
+            elif Cal_version == 2:
+                # print("--", np.max(np.abs(kiizQ)), np.max(np.abs(inside_sinc)), iz * Get("size_PerPixel"), "\n") # 老是 π/2 而与 iz 无关，是为啥？
+                # G2_z = gan_G2_z_cos(3**0.5)
+                # G2_z, region = gan_G2_z_cos_seq(1)
+                G2_z, region = gan_G2_z_cos_seq(10)
 
-        elif Big_version == 5:
-            G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
-            g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
-            molecule = G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)\
-                       - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
-            K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-            kiizQ = 2 * K1_z + Gz
-            denominator = kiizQ ** 2 - k2_z ** 2
-            dismatch = const * molecule / denominator
+        elif Big_version == 5:  # 匹配解 与 不匹配解 的 线性组合
+            dismatch = gan_G2_z_dismatch()
 
+            if Cal_version == 0:  #  整体 线性叠加
+                match = gan_G2_z_sinc()
 
-            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) ** 2)
-            dkiizQ = kiizQ - k2_z
-            inside_sinc = dkiizQ / 2 * iz
-            sinc_denominator = (kiizQ + k2_z) / 2
-            match = const * G1_U_half_z_Squared_modulated \
-                   * np.sinc(inside_sinc / np.pi) / sinc_denominator \
-                   * math.e ** (Gz * iz * 1j) \
-                   * math.e ** (k2_z * iz / 2 * 1j) \
-                   * (1j * iz)
+                match_factor = math.e ** (- inside_sinc ** 2 / 6)
+                dismatch_factor = 1 - match_factor
 
-            match_factor = math.e ** (- inside_sinc ** 2 / 6)
-            dismatch_factor = 1 - match_factor
+                match = match_factor * match
+                dismatch = dismatch_factor * dismatch
+            elif Cal_version == 1:  #  分区 线性叠加
+                match, region = gan_G2_z_cos_seq(2)
+                match = np.where(np.abs(inside_sinc) <= region, match, 0)
+                dismatch = np.where(np.abs(inside_sinc) > region, dismatch, 0)
 
-            G2_z = dismatch_factor * dismatch + match_factor * match
+            G2_z = match + dismatch
+
 
         return G2_z * Get("size_PerPixel")**2
 

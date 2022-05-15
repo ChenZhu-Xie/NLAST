@@ -7,7 +7,7 @@ Created on Sun Dec 26 22:09:04 2021
 
 # %%
 
-from fun_os import img_squared_bordered_Read, get_Data_new_attr, get_items_new_attr, \
+from fun_os import img_squared_bordered_Read, get_Data_new_attrs, get_items_new_attr, \
     U_amp_plot_save_3d_XYz, U_phase_plot_save_3d_XYz, U_amp_plot_save_3d_XYZ, U_phase_plot_save_3d_XYZ
 from fun_global_var import init_GLV_DICT, tree_print
 
@@ -50,7 +50,7 @@ def plot_3D_test(test_target=3,
     elif test_target == 2.2:
         test_func = "U_phase_plot_save_3d_XYZ"
     else:
-        test_func = get_Data_new_attr(Data_Seq, "saver_name")[0]
+        test_func = get_Data_new_attrs(Data_Seq, "saver_name")[0]
 
     info = "plot_3d 测试 —— " + test_func
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)

@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = []
+recent_files = ['C:\\Users\\Xcz\\.spyder-py3\\temp.py', 'c_2_compare_SHG_NLA_EVV__SSI_chi2.py', 'a_0_test_plot_1D.py', 'c_3_compare_auto_Tz__SHG_NLA__SSI_chi2.py', 'b_3_SHG_NLA.py', 'c_2_compare_SHG_NLA__SSI_chi2.py', 'b_3_SHG_NLA_EVV.py']
 
 [main]
 version = 0.2.0

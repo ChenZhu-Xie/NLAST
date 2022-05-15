@@ -279,15 +279,17 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
 
     is_print and print(tree_print(add_level=1) + "G_energy 和 G_error")
     for i in range(ticks_Num):
-        is_print and print(tree_print(is_end[i]) + "Tz, G_error, dkQ, G_energy = {}, {}, {}, {}"
+        is_print and print(tree_print(is_end[i]) + "Tz, G_error, dkQ, G0_energy, G_energy = {}, {}, {}, {}, {}"
                            .format(format(array_Tz[i], Get("F_f")), format(G_error_energy[i], Get("F_E")),
-                                   format(array_dkQ[i], Get("F_E")), format(G0_energy[i], Get("F_E")), ))
+                                   format(array_dkQ[i], Get("F_E")), format(G0_energy[i], Get("F_E")),
+                                   format(G_energy[i], Get("F_E")), ))
 
     is_print and print(tree_print(is_end=1, add_level=1) + "U_energy 和 U_error")
     for i in range(ticks_Num):
-        is_print and print(tree_print(is_end[i]) + "Tz, U_error, dkQ, U_energy = {}, {}, {}, {}"
+        is_print and print(tree_print(is_end[i]) + "Tz, U_error, dkQ, U0_energy, U_energy = {}, {}, {}, {}, {}"
                            .format(format(array_Tz[i], Get("F_f")), format(U_error_energy[i], Get("F_E")),
-                                   format(array_dkQ[i], Get("F_E")), format(U0_energy[i], Get("F_E")), ))
+                                   format(array_dkQ[i], Get("F_E")), format(U0_energy[i], Get("F_E")),
+                                   format(U_energy[i], Get("F_E")), ))
 
     GU_error_energy_plot_save(G0_energy, G_energy, G_error_energy,
                               U0_energy, U_energy, U_error_energy,

@@ -7,7 +7,7 @@ Created on Sun Dec 26 22:09:04 2021
 
 # %%
 
-from fun_os import img_squared_bordered_Read, get_Data_new_attr, get_items_new_attr, \
+from fun_os import img_squared_bordered_Read, get_Data_new_attrs, get_items_new_attr, \
     U_energy_plot_save, U_error_energy_plot_save, U_twin_energy_error_plot_save, U_twin_error_energy_plot_save
 from fun_global_var import init_GLV_DICT, Get, tree_print
 
@@ -47,7 +47,7 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
     elif test_target == 3:
         test_func = "U_twin_error_energy_plot_save"
     else:
-        test_func = get_Data_new_attr(Data_Seq, "saver_name")[0]
+        test_func = get_Data_new_attrs(Data_Seq, "saver_name")[0]
 
     info = "plot_1d 测试 —— " + test_func
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -125,7 +125,7 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
 if __name__ == '__main__':
     kwargs = \
         {"test_target": -1, # 自动化了，不用填这个参数了
-         "Data_Seq": 97,
+         "Data_Seq": 294,
          "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
@@ -147,7 +147,7 @@ if __name__ == '__main__':
          "is_print": 1,
          "is_energy_normalized": 2,
          # %%
-         "kwargs_seq": 0, "root_dir": r'1',
+         "kwargs_seq": 0, "root_dir": r'D:\Users\ZML\Desktop\一些桌面文件\dk_1',
          "is_end": -1,
          "size_fig_x_scale": 10, "size_fig_y_scale": 3,
          "ax_yscale": 'linear', }

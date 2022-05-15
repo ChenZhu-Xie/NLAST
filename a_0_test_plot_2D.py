@@ -7,7 +7,7 @@ Created on Sun Dec 26 22:09:04 2021
 
 # %%
 
-from fun_os import img_squared_bordered_Read, get_Data_new_attr, get_items_new_attr,  \
+from fun_os import img_squared_bordered_Read, get_Data_new_attrs, get_items_new_attr,  \
     U_plot_save, U_amp_plot_save, U_amps_z_plot_save, U_phases_z_plot_save, U_slices_plot_save, U_selects_plot_save
 from fun_global_var import init_GLV_DICT, tree_print
 
@@ -55,7 +55,7 @@ def plot_2D_test(test_target=3,
     elif test_target == 2:
         test_func = "U_slices_plot_save"
     else:
-        test_func = get_Data_new_attr(Data_Seq, "saver_name")[0]
+        test_func = get_Data_new_attrs(Data_Seq, "saver_name")[0]
 
     info = "plot_2d 测试 —— " + test_func
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
