@@ -255,7 +255,7 @@ def SHG_NLA(U_name="",
                 addition_dict = {"Tz": Tz if is_NLAST_sum else None} # 若 is_NLAST_sum 有且非 0，则 Tz
                 dset("G", G2_z_modulation_NLAST(k1, k2,
                                                 modulation_squared, U_0, iz, Const,
-                                                Gz=Gz, **addition_dict, ))
+                                                Gz=Gz, is_customized=1, **addition_dict, ))
             elif is_sum_Gm == 1:
                 def fun1(for_th, fors_num, *args, **kwargs, ):
                     m_z = for_th - mG
@@ -266,7 +266,7 @@ def SHG_NLA(U_name="",
                     Const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
                     G2_z0_Gm = G2_z_modulation_NLAST(k1, k2,
                                                      modulation_squared, U_0, iz, Const,
-                                                     Gz=Gz_m, ) if m_z != 0 else 0
+                                                     Gz=Gz_m, is_customized=1, ) if m_z != 0 else 0
                     return G2_z0_Gm
 
                 def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):

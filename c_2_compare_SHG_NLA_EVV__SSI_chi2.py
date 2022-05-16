@@ -491,7 +491,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 3, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "L0_Crystal": 10, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -541,7 +541,7 @@ if __name__ == '__main__':
          "Gz_max_Enhance": 1, "match_mode": 1,
          # %%
          "is_NLA": 1, "is_amp_relative": 1,
-         "is_energy_normalized": 0, "is_output_error_EVV": 1,
+         "is_energy_normalized": 1, "is_output_error_EVV": 1,
          # %%
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,

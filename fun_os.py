@@ -30,6 +30,7 @@ def try_to_call_me():
     import inspect
     print(4, inspect.stack()[1][0])
     print(5, inspect.stack()[1][3])
+    print(6, [inspect.stack()[i][3] for i in range(len(inspect.stack()))])
 
 
 # %%

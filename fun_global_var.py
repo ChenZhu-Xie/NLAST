@@ -119,10 +119,11 @@ def gan_root_dir(root_dir):
 
 def gan_kwargs_dir():
     import os
-    save_kwargs_dir = GET("root_dir") + '\\' + "ENVs - kwargs_used"
-    if not os.path.isdir(save_kwargs_dir): # 得保证 先有 folder
-        os.makedirs(save_kwargs_dir) # 否则 即使 a+ 模式 也无法 自动创建 Get("root_dir") + "\\" + "all_data_info.txt"
-    return save_kwargs_dir
+    kwargs_save_dir = GET("root_dir") + '\\' + "ENVs - kwargs_used"
+    Set("kwargs_save_dir", kwargs_save_dir)
+    if not os.path.isdir(kwargs_save_dir): # 得保证 先有 folder
+        os.makedirs(kwargs_save_dir) # 否则 即使 a+ 模式 也无法 自动创建 Get("root_dir") + "\\" + "all_data_info.txt"
+    return kwargs_save_dir
 
 def gan_root_dir_boot_times():
     txt_address = GET("root_dir") + "\\" + "all_data_info.txt"
@@ -140,22 +141,29 @@ def gan_root_dir_boot_times():
     return root_dir_boot_times # 不转成 str 也行，之后 fun_os 中的 attr_Auto_Set 会自动转
 
 def gan_kwargs_seq(*args, **kwargs):
+    import os
     import json
     kwargs_seq = kwargs.get("kwargs_seq", GET("level_min") - 1)
     kwargs_seq = kwargs_seq if type(kwargs_seq) == int else GET("level_min")-1
     # 还需要 检查文件夹 里，有没有 相应序号 的 储存的 变量列表，不然也返回 GET("level_min")-1，代表 不读取 历史记录中的 json 参数
-    if kwargs_seq >= Get("root_dir_boot_times") or kwargs_seq < GET("level_min"):
+    kwargs_save_full_name = str(kwargs_seq) + ".json"
+    if (kwargs_seq < Get("root_dir_boot_times") and kwargs_seq >= GET("level_min")) \
+            or kwargs_save_full_name in os.listdir(GET("kwargs_save_dir")):
+        # 不看 "all_data_info.txt"，如果 "ENVs - kwargs_used" 里 存在这个文件，则也 读取之。
+        # 如果是 第一次启动，本身就 不满足 读取条件，但 破例 可以任意读 一次；但前提是 存在这个文件。
         # 记录的 root_dir_boot_times 里，最低是 GET("level_min")，最高是 Get("root_dir_boot_times") - 1
-        # 可能并不满足：所选的 kwargs_seq 在记录的 root_dir_boot_times 们中，而是 kwargs_seq 超出了 旧有记录 范围
-        # 包括 kwargs_seq 虽 <= Get("root_dir_boot_times")，但 < GET("level_min")，以至于 也没有 在记录范围内
-        kwargs_seq = Get("root_dir_boot_times") # 代表 不读取 历史记录中的 json 参数，等价于用自己的参数
-        # GET("level_min")-1 等价于 Get("root_dir_boot_times")，等价于 用自己的参数
-        kwargs_dict = {} # 返回一个空字典 or set 集合，类似返回 False，配合 if 的话。
-        kwargs_address = GET("kwargs_dir") + "\\" + str(kwargs_seq) + ".json"
-    else:
-        kwargs_address = GET("kwargs_dir") + "\\" + str(kwargs_seq) + ".json"
+        kwargs_address = GET("kwargs_dir") + "\\" + kwargs_save_full_name
         file_json = open(kwargs_address, 'r')
         kwargs_dict = json.load(file_json)
+    else:
+        # 可能并不满足：所选的 kwargs_seq 在记录的 root_dir_boot_times 们中，而是 kwargs_seq 超出了 旧有记录 范围
+        # 包括 kwargs_seq 虽 <= Get("root_dir_boot_times")，但 < GET("level_min")，以至于 也没有 在记录范围内
+        # GET("level_min")-1 等价于 Get("root_dir_boot_times")，等价于 用自己的参数
+        kwargs_seq = Get("root_dir_boot_times")  # 代表 不读取 历史记录中的 json 参数，等价于用自己的参数
+        kwargs_save_full_name = str(kwargs_seq) + ".json"  # 更新 文件名
+        kwargs_address = GET("kwargs_dir") + "\\" + kwargs_save_full_name
+        kwargs_dict = {}  # 返回一个空字典 or set 集合，类似返回 False，配合 if 的话。
+
     #%% 开始 储存：这次 跑的程序 所用的 参数
     kwargs.update(kwargs_dict) # 这次 跑的程序 所用的 参数
     kwargs_json = json.dumps(kwargs, sort_keys=False, indent=4, separators=(',', ':')) # dict 转为 json 内 将储存的 str
