@@ -46,7 +46,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure = "",
                      X = 0, Y = 0, 
                      #%%
                      Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5, 
-                     structure_xy_mode = 'x', Depth = 1, zoomout_times=5,
+                     structure_xy_mode = 'x', Depth = 1, ssi_zoomout_times=5,
                      #%%
                      is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, 
                      is_reverse_xy = 0, is_positive_xy = 1, 
@@ -113,7 +113,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure = "",
                   deff_structure_length_expect,
                   #%%
                   Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z, 
-                  structure_xy_mode, Depth, zoomout_times,
+                  structure_xy_mode, Depth, ssi_zoomout_times,
                   #%%
                   is_continuous, is_target_far_field, is_transverse_xy, 
                   is_reverse_xy, is_positive_xy, 
@@ -155,7 +155,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure = "",
         #%%
         U_NonZero_size, w0,
         L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
-        Duty_Cycle_z,  zoomout_times, sheets_stored_num,
+        Duty_Cycle_z,  ssi_zoomout_times, sheets_stored_num,
         z0_section_1_expect, z0_section_2_expect,
         X, Y,
         #%%
@@ -223,7 +223,7 @@ if __name__ == '__main__':
          "X": 0, "Y": 0,
          #%%
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
-         "structure_xy_mode": 'x*y', "Depth": 1, "zoomout_times": 5,
+         "structure_xy_mode": 'x*y', "Depth": 1, "ssi_zoomout_times": 5,
          #%%
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0, "is_reverse_xy": 0, "is_positive_xy": 1,
          #%%
@@ -298,7 +298,7 @@ if __name__ == '__main__':
     #                  X = 0, Y = 0,
     #                  #%%
     #                  Duty_Cycle_x = 0.5, Duty_Cycle_y = 0.5, Duty_Cycle_z = 0.5,
-    #                  structure_xy_mode = 'x*y', Depth = 1, zoomout_times=5,
+    #                  structure_xy_mode = 'x*y', Depth = 1, ssi_zoomout_times=5,
     #                  #%%
     #                  is_continuous = 0, is_target_far_field = 1, is_transverse_xy = 0, is_reverse_xy = 0, is_positive_xy = 1,
     #                  #%%

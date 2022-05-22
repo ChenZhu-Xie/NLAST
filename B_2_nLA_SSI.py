@@ -38,7 +38,7 @@ def nLA_ssi(U_name="",
             # %%
             U_NonZero_size=1, w0=0.3,
             L0_Crystal=1, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
-            Duty_Cycle_z=0.5, zoomout_times=5, sheets_stored_num=10,
+            Duty_Cycle_z=0.5, ssi_zoomout_times=5, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
             X=0, Y=0,
             # %%
@@ -150,7 +150,7 @@ def nLA_ssi(U_name="",
         = slice_ssi(L0_Crystal, Duty_Cycle_z,
                      z0_structure_frontface_expect, deff_structure_length_expect,
                      z0_section_1_expect, z0_section_2_expect,
-                     Tz, zoomout_times, size_PerPixel,
+                     Tz, ssi_zoomout_times, size_PerPixel,
                      is_print, )
 
     # %%
@@ -273,7 +273,7 @@ if __name__ == '__main__':
         # %%
         "U_NonZero_size": 1, "w0": 0.3,
         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
-        "Duty_Cycle_z": 0.5, "zoomout_times": 5, "sheets_stored_num": 10,
+        "Duty_Cycle_z": 0.5, "ssi_zoomout_times": 5, "sheets_stored_num": 10,
         "z0_section_1_expect": 1, "z0_section_2_expect": 1,
         "X": 0, "Y": 0,
         # %%
@@ -333,7 +333,7 @@ if __name__ == '__main__':
     #         # %%
     #         U_NonZero_size=1, w0=0.3,
     #         L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
-    #         Duty_Cycle_z=0.5, zoomout_times=5, sheets_stored_num=10,
+    #         Duty_Cycle_z=0.5, ssi_zoomout_times=5, sheets_stored_num=10,
     #         z0_section_1_expect=1, z0_section_2_expect=1,
     #         X=0, Y=0,
     #         # %%

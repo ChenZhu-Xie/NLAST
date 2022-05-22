@@ -13,9 +13,9 @@ from fun_global_var import Set, tree_print
 # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
 def Cal_diz(Duty_Cycle_z, size_PerPixel, Tz,
-            zoomout_times=5, is_print=1, **kwargs):
+            ssi_zoomout_times=5, is_print=1, **kwargs):
     # %%
-    deff_structure_sheet = Tz * gcd_of_float(Duty_Cycle_z)[0] / zoomout_times # 保证 deff_structure_sheet 始终能被 Tz 和 Tz * Duty_Cycle_z 整除
+    deff_structure_sheet = Tz * gcd_of_float(Duty_Cycle_z)[0] / ssi_zoomout_times # 保证 deff_structure_sheet 始终能被 Tz 和 Tz * Duty_Cycle_z 整除
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_sheet = {} μm".format(deff_structure_sheet)) # Unit: μm 调制区域切片厚度 的 实际纵向尺寸
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     diz = deff_structure_sheet / 1000 / size_PerPixel  # Unit: mm / mm = 1
@@ -68,6 +68,7 @@ def Cal_Iz_structure(diz,
     zj_structure = array_1d * diz * size_PerPixel
     zj_structure[-1] = deff_structure_length # 直接覆盖 最末一位，也永远 不会与 倒数第 2 位，值相同。
     # 相同的话，plot_1d 插值会出问题。
+    # len(zj_structure) = sheets_num_structure + 1
 
     return sheets_num_structure, Iz_structure, deff_structure_length, zj_structure
 
@@ -137,7 +138,7 @@ def Cal_IxIy(I1_x, I1_y,
 # %%
 
 def slice_structure_ssi(Duty_Cycle_z, deff_structure_length_expect,
-                        Tz, zoomout_times, size_PerPixel,
+                        Tz, ssi_zoomout_times, size_PerPixel,
                         is_print, **kwargs):
     info = "结构_纵向切片_ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -146,7 +147,7 @@ def slice_structure_ssi(Duty_Cycle_z, deff_structure_length_expect,
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
     diz, deff_structure_sheet = Cal_diz(Duty_Cycle_z, size_PerPixel, Tz,
-                                        zoomout_times, is_print, )
+                                        ssi_zoomout_times, is_print, )
 
     # %%
     # 定义 调制区域 的 纵向实际像素、调制区域 的 实际纵向尺寸
@@ -169,7 +170,7 @@ def slice_structure_ssi(Duty_Cycle_z, deff_structure_length_expect,
 def slice_ssi(L0_Crystal, Duty_Cycle_z,
                z0_structure_frontface_expect, deff_structure_length_expect,
                z0_section_1_expect, z0_section_2_expect,
-               Tz, zoomout_times, size_PerPixel,
+               Tz, ssi_zoomout_times, size_PerPixel,
                is_print, **kwargs):
     info = "晶体_纵向切片_ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -178,7 +179,7 @@ def slice_ssi(L0_Crystal, Duty_Cycle_z,
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
 
     diz, deff_structure_sheet = Cal_diz(Duty_Cycle_z, size_PerPixel, Tz,
-                                        zoomout_times, is_print, )
+                                        ssi_zoomout_times, is_print, )
 
     # %%
     # 定义 结构前端面 距离 晶体前端面 的 纵向实际像素、结构前端面 距离 晶体前端面 的 实际纵向尺寸
@@ -382,7 +383,7 @@ def cal_diz(Duty_Cycle_z, Tz, Iz_structure, size_PerPixel,
 # 生成 structure 各层 z 序列，以及 正负畴 序列信息 mj
 
 def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface,
-                        z0_structure_endface,
+                        z0_structure_endface, SSI_zoomout_times,
                         is_stripe, mx, my, Tx, Ty, Tz, structure_xy_mode, size_PerPixel, ):
     # mj_structure = np.zeros((sheets_num_structure + 1), dtype=np.float64())
     # zj_structure = np.zeros((sheets_num_structure + 1), dtype=np.float64())
@@ -405,10 +406,20 @@ def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure
     else: # 得保证 没有 重复的元素，否则 plot_1d 会出问题
         zj_structure = zj_structure[:-1] # 否则 踢除 最后一个元素
         sheets_num_structure -= 1 # 同时 sheets_num_structure - 1
-    # print(zj_structure)
+
+    dzj_structure = zj_structure[1:] - zj_structure[:-1]  # 为了 对斜条纹时的 mj_structure 赋值
+    dzj_structure_new = np.repeat(dzj_structure / SSI_zoomout_times, SSI_zoomout_times)
+    zj_structure = [0]  # 先把初值 0 放进去 占个坑
+    sum = 0
+    for i in range(len(dzj_structure_new)):
+        sum += dzj_structure_new[i]
+        zj_structure.append(sum)
+    zj_structure = np.array(zj_structure)  # 记得转换回 array
+    print(zj_structure)
 
     Dzj_structure = zj_structure - z0_structure_frontface
     Dzj_structure = Dzj_structure[:-1] # 丢掉 最后一个值，没用
+
     # dzj_structure = zj_structure[1:] - zj_structure[:-1] # 为了 对斜条纹时的 mj_structure 赋值
     # izj_structure = zj_structure / size_PerPixel # 为了 对斜条纹时的 mj_structure 赋值
     # dizj_structure = izj_structure[1:] - izj_structure[:-1] # 为了 对斜条纹时的 mj_structure 赋值
@@ -430,10 +441,13 @@ def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure
         mj_structure = mj_structure.astype(str)
         # 字符 '-1','+1','0' 分别 表示 opposite，positive，以及 bulk，注意 astype 并不会改变 mj_structure，所以得 重新赋值给 mj_structure
 
-
-    mj_structure = mj_structure.tolist()  # 转换为 list 才能储存 不同类型 的值
+    mj_structure = np.repeat(mj_structure, SSI_zoomout_times)
     # print(mj_structure)
+    mj_structure = mj_structure.tolist()  # 转换为 list 才能储存 不同类型 的值
 
+    # print(sheets_num_structure * SSI_zoomout_times, len(mj_structure))
+    sheets_num_structure = len(mj_structure)
+    # print(sheets_num_structure, len(Dzj_structure))
     # print(len(zj_structure))
     # print(len(mj_structure))
 
@@ -501,7 +515,7 @@ def cal_iz_2(zj, L0_Crystal, z0_section_2_expect, size_PerPixel,
 # %%
 # 非等间距切片
 
-def slice_SSI(L0_Crystal, size_PerPixel,
+def slice_SSI(L0_Crystal, SSI_zoomout_times, size_PerPixel,
                z0_structure_frontface_expect, deff_structure_length_expect,
                z0_section_1_expect, z0_section_2_expect,
                is_stripe, mx, my, Tx, Ty, Tz, Duty_Cycle_z, structure_xy_mode, 
@@ -541,7 +555,7 @@ def slice_SSI(L0_Crystal, size_PerPixel,
     # 及时更新 正确的 sheets_num_structure, 这样 sheets_num、sheets_num_endface 等 关键参数 也都 才是正确的
     zj_structure, mj_structure, sheets_num_structure \
         = cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure, z0_structure_frontface,
-                              z0_structure_endface,
+                              z0_structure_endface, SSI_zoomout_times,
                               is_stripe, mx, my, Tx, Ty, Tz, structure_xy_mode, size_PerPixel, )
 
     # %%
@@ -593,7 +607,7 @@ def slice_SSI(L0_Crystal, size_PerPixel,
            sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \
            sheets_num_structure, Iz_structure, deff_structure_length, \
            sheets_num, Iz, z0, \
-           mj, dizj, izj, zj, zj_structure, \
+           mj, mj_structure, dizj, izj, zj, zj_structure, \
            sheet_th_endface, sheets_num_endface, Iz_endface, z0_structure_endface, \
            sheet_th_section_1, sheets_num_section_1, Iz_1, z0_1, \
            sheet_th_section_2, sheets_num_section_2, Iz_2, z0_2

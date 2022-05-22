@@ -45,7 +45,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                               # %%
                               U_NonZero_size=0.5, w0=0.1, w0_Structure=5, structure_size_Enlarge=0.1,
                               L0_Crystal=2, z0_structure_frontface_expect=0.5, deff_structure_length_expect=1,
-                              sheets_stored_num=10,
+                              SSI_zoomout_times=1, sheets_stored_num=10,
                               z0_section_1_expect=1, z0_section_2_expect=1,
                               X=0, Y=0,
                               # %%
@@ -159,12 +159,12 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
     ticks_Num += 1
 
     # center_times >= 1，以防止 Tz 出现负数
-    zoomout_times = (ticks_Num + 1) // 2 * center_times  # 步长缩得更小，这样 步长 * 步数 更小一些，防止 Tz 出现负数
+    samples_zoomout_times = (ticks_Num + 1) // 2 * center_times  # 步长缩得更小，这样 步长 * 步数 更小一些，防止 Tz 出现负数
     if Tz != Tc:
         Gz = 2 * math.pi * mz / (Tz / 1000)  # Tz / 1000 即以 mm 为单位
         delta_k = abs(dk / size_PerPixel + Gz)  # Unit: 1 / mm
     else:
-        delta_k = abs(dk / size_PerPixel) / zoomout_times  # delta_k 是 恒正的
+        delta_k = abs(dk / size_PerPixel) / samples_zoomout_times  # delta_k 是 恒正的
 
     # 这里的 shift_right “往右移” 是指 图 往右，左加右减，则 对应 自变量 x 是做差，所以下面是 - shift_right
     # x 不要 减 太多了，也就是 图不要 往右 移太多，否则 Tz 可能 出现负数
@@ -215,7 +215,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                                  # %%
                                  U_NonZero_size, w0, w0_Structure, structure_size_Enlarge,
                                  L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
-                                 sheets_stored_num,
+                                 SSI_zoomout_times, sheets_stored_num,
                                  z0_section_1_expect, z0_section_2_expect,
                                  X, Y,
                                  # %%
@@ -335,7 +335,7 @@ if __name__ == '__main__':
           # %%
           "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
           "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
-          "sheets_stored_num": 10,
+          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
           "z0_section_1_expect": 0, "z0_section_2_expect": 0,
           "X": 0, "Y": 0,
           # %%

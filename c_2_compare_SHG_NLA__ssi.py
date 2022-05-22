@@ -50,7 +50,7 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
                      X=0, Y=0,
                      # %%
                      Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                     structure_xy_mode='x', Depth=2, zoomout_times=5,
+                     structure_xy_mode='x', Depth=2, ssi_zoomout_times=5,
                      # %%
                      is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                      is_reverse_xy=0, is_positive_xy=1,
@@ -142,7 +142,7 @@ def compare_SHG_NLA__ssi(U_name_Structure="",
                                 X, Y,
                                 # %%
                                 Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
-                                structure_xy_mode, Depth, zoomout_times,
+                                structure_xy_mode, Depth, ssi_zoomout_times,
                                 # %%
                                 is_continuous, is_target_far_field, is_transverse_xy,
                                 is_reverse_xy, is_positive_xy,
@@ -328,7 +328,7 @@ if __name__ == '__main__':
          "X": 0, "Y": 0,
          # %%
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
-         "structure_xy_mode": 'x', "Depth": 2, "zoomout_times": 5,
+         "structure_xy_mode": 'x', "Depth": 2, "ssi_zoomout_times": 5,
          # %%
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1,
@@ -411,7 +411,7 @@ if __name__ == '__main__':
     #                      X=0, Y=0,
     #                      # %%
     #                      Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-    #                      structure_xy_mode='x', Depth=2, zoomout_times=5,
+    #                      structure_xy_mode='x', Depth=2, ssi_zoomout_times=5,
     #                      # %%
     #                      is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
     #                      is_reverse_xy=0, is_positive_xy=1,

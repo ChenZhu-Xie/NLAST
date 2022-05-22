@@ -51,7 +51,8 @@ def SHG_SSF_SSI(U_name="",
                 # %%
                 U_NonZero_size=1, w0=0.3,
                 L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
-                sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
+                SSI_zoomout_times=1, sheets_stored_num=10,
+                z0_section_1_expect=1, z0_section_2_expect=1,
                 X=0, Y=0,
                 # %%
                 is_bulk=1, is_no_backgroud=0,
@@ -205,11 +206,11 @@ def SHG_SSF_SSI(U_name="",
     sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_front, \
     sheets_num_structure, Iz_structure, deff_structure_length, \
     sheets_num, Iz, z0, \
-    mj, dizj, izj, zj, zj_structure, \
+    mj, mj_structure, dizj, izj, zj, zj_structure, \
     sheet_th_endface, sheets_num_endface, Iz_endface, z0_end, \
     sheet_th_sec1, sheets_num_sec1, iz_1, z0_1, \
     sheet_th_sec2, sheets_num_sec2, iz_2, z0_2 \
-        = slice_SSI(L0_Crystal, size_PerPixel,
+        = slice_SSI(L0_Crystal, SSI_zoomout_times, size_PerPixel,
                     z0_structure_frontface_expect, deff_structure_length_expect,
                     z0_section_1_expect, z0_section_2_expect,
                     is_stripe, mx, my, Tx, Ty, Tz, Duty_Cycle_z, structure_xy_mode,
@@ -220,8 +221,8 @@ def SHG_SSF_SSI(U_name="",
     if is_stripe > 0:
         from fun_os import U_amp_plot_save, Get
         sheets_stored_num_structure = sheets_stored_num
-        for_th_first = int(mj[0] == '0')
-        for_th_stored = list(np.int64(np.round(np.linspace(0 + for_th_first, len(zj_structure) - 2 + for_th_first,
+        for_th_first = int(mj[0] == '0') * SSI_zoomout_times
+        for_th_stored = list(np.int64(np.round(np.linspace(0 + for_th_first, len(mj_structure) - 1 + for_th_first,
                                                            sheets_stored_num_structure))))
         # print(for_th_stored, sheets_num, len(for_th_stored))
         m_list = []
@@ -237,7 +238,7 @@ def SHG_SSF_SSI(U_name="",
                                                is_random_phase_Structure,
                                                is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                                                # %%
-                                               len(zj_structure), Get("Iy"), w0_Structure,
+                                               len(mj_structure), Get("Iy"), w0_Structure,
                                                Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
                                                # %%
                                                is_continuous, is_target_far_field, is_transverse_xy,
@@ -253,7 +254,7 @@ def SHG_SSF_SSI(U_name="",
                                                cmap_2d,
                                                # %%
                                                ticks_num, is_contourf,
-                                               is_title_on, is_axes_on, is_mm, zj_structure,
+                                               is_title_on, is_axes_on, is_mm, zj_structure[:-1],
                                                # %%
                                                fontsize, font,
                                                # %%
@@ -265,14 +266,14 @@ def SHG_SSF_SSI(U_name="",
     elif is_stripe == 2 or is_stripe == 2.1:  # 躺下 的 插值算法
         from fun_CGH import structure_nonrect_chi2_interp2d_2D
         modulation_lie_down = structure_nonrect_chi2_interp2d_2D(folder_address, modulation_squared,
-                                                                 structure_xy_mode, len(zj_structure),
+                                                                 structure_xy_mode, len(mj_structure),
                                                                  # %%
                                                                  is_save_txt, dpi,
                                                                  # %%
                                                                  cmap_2d,
                                                                  # %%
                                                                  ticks_num, is_contourf,
-                                                                 is_title_on, is_axes_on, is_mm, zj_structure,
+                                                                 is_title_on, is_axes_on, is_mm, zj_structure[:-1],
                                                                  # %%
                                                                  fontsize, font,
                                                                  # %%
@@ -528,7 +529,8 @@ if __name__ == '__main__':
          # %%
          "U_NonZero_size": 1, "w0": 0.3,
          "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
-         "sheets_stored_num": 10, "z0_section_1_expect": 1, "z0_section_2_expect": 1,
+         "SSI_zoomout_times": 1, "sheets_stored_num": 10,
+         "z0_section_1_expect": 1, "z0_section_2_expect": 1,
          "X": 0, "Y": 0,
          # %%
          "is_bulk": 0, "is_no_backgroud": 0,

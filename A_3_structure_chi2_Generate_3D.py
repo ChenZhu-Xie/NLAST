@@ -9,7 +9,6 @@ Created on Sun Dec 26 22:09:04 2021
 
 import numpy as np
 from scipy.io import savemat
-from fun_os import U_dir
 from fun_global_var import init_GLV_DICT, tree_print
 from fun_algorithm import gcd_of_float
 from fun_img_Resize import if_image_Add_black_border
@@ -38,7 +37,7 @@ def structure_chi2_3D(U_name="",
                       deff_structure_length_expect=2,
                       # %%
                       Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                      structure_xy_mode='x', Depth=2, zoomout_times=5,
+                      structure_xy_mode='x', Depth=2, ssi_zoomout_times=5,
                       # %%
                       is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
                       is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=1,
@@ -155,8 +154,9 @@ def structure_chi2_3D(U_name="",
     diz, deff_structure_sheet, sheets_num, \
     Iz, deff_structure_length, Tz_unit, zj_structure = \
         slice_structure_ssi(Duty_Cycle_z, deff_structure_length_expect,
-                            Tz, zoomout_times, size_PerPixel,
+                            Tz, ssi_zoomout_times, size_PerPixel,
                             is_print)
+    # print(sheets_num, len(zj_structure))
 
     # %%
 
@@ -194,7 +194,7 @@ def structure_chi2_3D(U_name="",
                                              cmap_2d,
                                              # %%
                                              ticks_num, is_contourf,
-                                             is_title_on, is_axes_on, is_mm, zj_structure,
+                                             is_title_on, is_axes_on, is_mm, zj_structure[:-1],
                                              # %%
                                              fontsize, font,
                                              # %%
@@ -213,7 +213,7 @@ def structure_chi2_3D(U_name="",
                                                                  cmap_2d,
                                                                  # %%
                                                                  ticks_num, is_contourf,
-                                                                 is_title_on, is_axes_on, is_mm, zj_structure,
+                                                                 is_title_on, is_axes_on, is_mm, zj_structure[:-1],
                                                                  # %%
                                                                  fontsize, font,
                                                                  # %%
@@ -235,7 +235,7 @@ def structure_chi2_3D(U_name="",
             if is_stripe == 0:
                 # print(iz - iz // Tz_unit * Tz_unit)
                 # if iz - iz // Tz_unit * Tz_unit < Tz_unit * Duty_Cycle_z:  # 如果 左端面 小于 占空比 【减去一个微小量（比如 diz / 10）】，则以 正向畴结构 输出为 该端面结构
-                if np.mod(for_th, step_nums_total * zoomout_times) < step_nums_left * zoomout_times:
+                if np.mod(for_th, step_nums_total * ssi_zoomout_times) < step_nums_left * ssi_zoomout_times:
                     m = modulation_squared
                     mj.append("1")
                 else:  # 如果 左端面 大于等于 占空比，则以 反向畴结构 输出为 该端面结构
@@ -331,7 +331,7 @@ if __name__ == '__main__':
           "deff_structure_length_expect": 1,
           # %%
           "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
-          "structure_xy_mode": 'x', "Depth": 2, "zoomout_times": 1,
+          "structure_xy_mode": 'x', "Depth": 2, "ssi_zoomout_times": 1,
           # %%
           "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
           "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
@@ -384,7 +384,7 @@ if __name__ == '__main__':
     #                   deff_structure_length_expect=2,
     #                   # %%
     #                   Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-    #                   structure_xy_mode='x', Depth=2, zoomout_times=5,
+    #                   structure_xy_mode='x', Depth=2, ssi_zoomout_times=5,
     #                   # %%
     #                   is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
     #                   is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=1,

@@ -47,7 +47,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
                              # %%
                              U_NonZero_size=0.5, w0=0.1, w0_Structure=5, structure_size_Enlarge=0.1,
                              L0_Crystal=2, z0_structure_frontface_expect=0.5, deff_structure_length_expect=1,
-                             sheets_stored_num=10,
+                             SSI_zoomout_times=1, sheets_stored_num=10,
                              z0_section_1_expect=1, z0_section_2_expect=1,
                              X=0, Y=0,
                              # %%
@@ -140,7 +140,8 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
          # %%
          U_NonZero_size, w0,
          L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
-         sheets_stored_num, z0_section_1_expect, z0_section_2_expect,
+         SSI_zoomout_times, sheets_stored_num,
+         z0_section_1_expect, z0_section_2_expect,
          X, Y,
          # %%
          is_bulk, is_no_backgroud,
@@ -493,7 +494,7 @@ if __name__ == '__main__':
          # %%
          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
          "L0_Crystal": 10, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
-         "sheets_stored_num": 10,
+         "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
          # %%

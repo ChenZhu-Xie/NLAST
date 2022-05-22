@@ -45,7 +45,8 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
                              z_AST=1, z_SSI=2,
                              # %% 不关心
                              z0_structure_frontface_expect=0, deff_structure_length_expect=10,
-                             sheets_stored_num=10, z0_section_1_expect=0, z0_section_2_expect=0,
+                             SSI_zoomout_times=1, sheets_stored_num=10,
+                             z0_section_1_expect=0, z0_section_2_expect=0,
                              X=0, Y=0,
                              # %% 不关心
                              is_bulk=1, is_no_backgroud=0,
@@ -168,7 +169,8 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
                 # %%
                 U_NonZero_size, w0,
                 z_SSI, z0_structure_frontface_expect, deff_structure_length_expect,
-                sheets_stored_num, z0_section_1_expect, z0_section_2_expect,
+                SSI_zoomout_times, sheets_stored_num,
+                z0_section_1_expect, z0_section_2_expect,
                 X, Y,
                 # %%
                 is_bulk, is_no_backgroud,
@@ -297,7 +299,8 @@ if __name__ == '__main__':
          "z_AST": 1, "z_SSI": 2,
          # %% 不关心
          "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 10,
-         "sheets_stored_num": 10, "z0_section_1_expect": 0, "z0_section_2_expect": 0,
+         "SSI_zoomout_times": 1, "sheets_stored_num": 10,
+         "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
          # %% 不关心
          "is_bulk": 1, "is_no_backgroud": 0,
