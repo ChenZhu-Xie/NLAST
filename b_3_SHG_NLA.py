@@ -97,7 +97,8 @@ def SHG_NLA(U_name="",
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "", "NLA", **kwargs)
-    init_GLV_rmw(U_name, "h", "NLA", "", **kwargs)
+    ray_tag = "f" if kwargs.get('ray', 2) == 3 else "h"
+    init_GLV_rmw(U_name, ray_tag, "NLA", "", **kwargs)
 
     #%%
 
@@ -131,7 +132,7 @@ def SHG_NLA(U_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   **kwargs, )
+                                   ray_pump='1', **kwargs, )
     # %%
 
     n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
@@ -206,7 +207,7 @@ def SHG_NLA(U_name="",
             # %% generate structure
 
             n1, k1, k1_z, lam2, n2, k2, k2_z, \
-            dk, lc, Tz, Gx, Gy, Gz, \
+            dk, lc, Tz, Gx, Gy, Gz, folder_address, \
             size_PerPixel, U_0_structure, g_shift_structure, \
             structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
                 = structure_chi2_Generate_2D(U_name_Structure,

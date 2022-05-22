@@ -108,7 +108,8 @@ def SHG_NLA_SSI(U_name="",
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "SSI", "NLA", **kwargs) # 更新的传入的 ray 键的值
-    init_GLV_rmw(U_name, "h", "NLA", "SSI", **kwargs)  # 不更新 并传入 pump_pic_or_U
+    ray_tag = "f" if kwargs.get('ray', 2) == 3 else "h"
+    init_GLV_rmw(U_name, ray_tag, "NLA", "SSI", **kwargs)  # 不更新 并传入 pump_pic_or_U
 
     # %%
 
@@ -142,10 +143,10 @@ def SHG_NLA_SSI(U_name="",
                                  # %%
                                  is_print,
                                  # %%
-                                 **kwargs, )
+                                 ray_pump='1', **kwargs, )
 
     n1, k1, k1_z, lam2, n2, k2, k2_z, \
-    dk, lc, Tz, Gx, Gy, Gz, \
+    dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0_structure, g_shift_structure, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
         = structure_chi2_Generate_2D(U_name_Structure,
@@ -202,7 +203,7 @@ def SHG_NLA_SSI(U_name="",
     sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_front, \
     sheets_num_structure, Iz_structure, deff_structure_length, \
     sheets_num, Iz, z0, \
-    mj, dizj, izj, zj, \
+    mj, dizj, izj, zj, zj_structure, \
     sheet_th_endface, sheets_num_endface, Iz_endface, z0_end, \
     sheet_th_sec1, sheets_num_sec1, iz_1, z0_1, \
     sheet_th_sec2, sheets_num_sec2, iz_2, z0_2 \
@@ -211,6 +212,74 @@ def SHG_NLA_SSI(U_name="",
                     z0_section_1_expect, z0_section_2_expect,
                     is_stripe, mx, my, Tx, Ty, Tz, Duty_Cycle_z, structure_xy_mode,
                     is_print)
+
+    # %%
+
+    if is_stripe > 0:
+        from fun_os import U_amp_plot_save, Get
+        sheets_stored_num_structure = sheets_stored_num
+        for_th_first = int(mj[0] == '0')
+        # print(for_th_first)
+        # print(len(zj_structure), len(zj), sheets_num)  # sheets_num = len(zj) - 1，因为 最后一层 的 结构 没用于 产生 非线性波
+        # print(zj, zj_structure)
+        for_th_stored = list(np.int64(np.round(np.linspace(0 + for_th_first, len(zj_structure)-2 + for_th_first,
+                                                           sheets_stored_num_structure))))
+        # print(for_th_stored, sheets_num-1)
+        m_list = []
+        mod_name_list = []
+    if is_stripe == 2.2:
+        from fun_CGH import structure_nonrect_chi2_Generate_2D
+        modulation_lie_down, folder_address = \
+            structure_nonrect_chi2_Generate_2D(z_pump_Structure,
+                                             is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+                                             l_Structure, p_Structure,
+                                             theta_x_Structure, theta_y_Structure,
+                                             # %%
+                                             is_random_phase_Structure,
+                                             is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+                                             # %%
+                                             len(zj_structure), Get("Iy"), w0_Structure,
+                                             Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
+                                             # %%
+                                             is_continuous, is_target_far_field, is_transverse_xy,
+                                             is_reverse_xy, is_positive_xy,
+                                             0, is_no_backgroud,
+                                             # %%
+                                             lam1, is_air_pump, is_air, T,
+                                             Tx, Ty, Tz,
+                                             mx, my, mz,
+                                             # %%
+                                             is_save, is_save_txt, dpi,
+                                             # %%
+                                             cmap_2d,
+                                             # %%
+                                             ticks_num, is_contourf,
+                                             is_title_on, is_axes_on, is_mm, zj_structure,
+                                             # %%
+                                             fontsize, font,
+                                             # %%
+                                             is_colorbar_on, is_energy,
+                                             # %%
+                                             is_print,
+                                             # %%
+                                             **kwargs, )
+    elif is_stripe == 2 or is_stripe == 2.1:  #  躺下 的 插值算法
+        from fun_CGH import structure_nonrect_chi2_interp2d_2D
+        modulation_lie_down = structure_nonrect_chi2_interp2d_2D(folder_address, modulation_squared,
+                                                                 structure_xy_mode, len(zj_structure),
+                                                                 # %%
+                                                                 is_save_txt, dpi,
+                                                                 # %%
+                                                                 cmap_2d,
+                                                                 # %%
+                                                                 ticks_num, is_contourf,
+                                                                 is_title_on, is_axes_on, is_mm, zj_structure,
+                                                                 # %%
+                                                                 fontsize, font,
+                                                                 # %%
+                                                                 is_colorbar_on,
+                                                                 # %%
+                                                                 **kwargs, )
 
     # %%
     # const
@@ -242,14 +311,15 @@ def SHG_NLA_SSI(U_name="",
 
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                if mj[for_th] == '1':
-                    modulation_squared_z = modulation_squared
-                elif mj[for_th] == '-1':
-                    modulation_squared_z = modulation_opposite_squared
-                elif mj[for_th] == '0':
+                if mj[for_th] == '0':
                     # print("???????????????")
                     modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
-                else:
+                elif is_stripe == 0:
+                    if mj[for_th] == '1':
+                        modulation_squared_z = modulation_squared
+                    elif mj[for_th] == '-1':
+                        modulation_squared_z = modulation_opposite_squared
+                elif is_stripe == 1:
                     if structure_xy_mode == 'x':  # 往右（列） 线性平移 mj[for_th] 像素
                         modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=1)
                     elif structure_xy_mode == 'y':  # 往下（行） 线性平移 mj[for_th] 像素
@@ -259,6 +329,23 @@ def SHG_NLA_SSI(U_name="",
                         # modulation_squared_z = np.roll(modulation_squared_z, mj[for_th] / (mx * Tx) * (my * Ty), axis=0)
                         modulation_squared_z = np.roll(modulation_squared_z,
                                                        int(my * Ty / Tz * (izj[for_th] - Iz_frontface)), axis=0)
+
+                    if for_th in for_th_stored:
+                        m_list.append(modulation_squared_z)
+                        mod_name_list.append("χ2_" + "tran_shift_" + str(for_th))
+
+                elif is_stripe == 2 or is_stripe == 2.1 or is_stripe == 2.2:
+                    if structure_xy_mode == 'x':
+                        modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
+                        # 按行复制 多行，成一个方阵
+                    elif structure_xy_mode == 'y':
+                        modulation_squared_z = np.tile(modulation_lie_down[:, for_th],
+                                                         (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
+
+                    if for_th in for_th_stored:
+                        m_list.append(modulation_squared_z)
+                        mod_name_list.append("χ2_" + "lie_down_" + str(for_th))
+
             else:
                 modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
         else:
@@ -283,6 +370,25 @@ def SHG_NLA_SSI(U_name="",
     my_thread(10, sheets_num,
               fun1, fun2, fun3,
               is_ordered=1, is_print=is_print, )
+
+    if is_stripe > 0:
+        for i in range(sheets_stored_num_structure):
+            U_amp_plot_save(folder_address,
+                            # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                            m_list[i], mod_name_list[i],
+                            Get("img_name_extension"),
+                            is_save_txt,
+                            # %%
+                            [], 1, size_PerPixel,
+                            0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                            # %%
+                            cmap_2d, ticks_num, is_contourf,
+                            is_title_on, is_axes_on, is_mm, 0,  #  1, 1 或 0, 0
+                            fontsize, font,
+                            # %%
+                            0, is_colorbar_on, 0,
+                            # %%
+                            suffix="", **kwargs, )
 
     # %%
 
@@ -339,7 +445,7 @@ if __name__ == '__main__':
         "is_phase_only": 0,
         # %%
         "z_pump": 0,
-        "is_LG": 1, "is_Gauss": 1, "is_OAM": 0,
+        "is_LG": 0, "is_Gauss": 1, "is_OAM": 0,
         "l": 0, "p": 0,
         "theta_x": 0, "theta_y": 0,
         # %%
@@ -372,7 +478,7 @@ if __name__ == '__main__':
         # %%
         "Tx": 18.769, "Ty": 20, "Tz": 8,
         "mx": 1, "my": 0, "mz": 1,
-        "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+        "is_stripe": 2.2, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
         # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
         # %%
         # 生成横向结构
@@ -405,7 +511,7 @@ if __name__ == '__main__':
         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
         "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
         # %%
-        "is_print": 1, "is_contours": 66, "n_TzQ": 1,
+        "is_print": 1, "is_contours": 0, "n_TzQ": 1,
         "Gz_max_Enhance": 1, "match_mode": 1,
         # %%
         "kwargs_seq": 0, "root_dir": r'1',

@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 #%%
 
+import copy
 from fun_global_var import init_GLV_DICT, tree_print
 from fun_img_Resize import if_image_Add_black_border
 from b_1_AST import AST
@@ -101,12 +102,12 @@ def refraction_AST__AST(img_full_name = "Grating.png",
     #%%
     # 先以 1 衍射 z1 后 以 n 衍射 zn
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"ray": "1", })
     U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
         AST(*args_AST(z1, 1), **kwargs_AST, )
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"U": U_z1, "ray": ray_z1, "is_end": 1, })
     U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
         AST(*args_AST(zn, is_air), **kwargs_AST, )

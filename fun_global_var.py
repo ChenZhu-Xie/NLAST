@@ -354,9 +354,9 @@ def tree_print(is_end=0, add_level=0):  # 默认 is_end = 0 ，即 默认 该层
 
 # %%
 
-def init_GLV_rmw(U_name, ray_new, method, way, **kwargs):  # kwargs 里面已经有个 ray 的键了
+def init_GLV_rmw(U_name, ray_tag, method, way, **kwargs):  # kwargs 里面已经有个 ray 的键了
     from fun_os import set_ray
-    ray_set = set_ray(U_name, ray_new, **kwargs)
+    ray_set = set_ray(U_name, ray_tag, **kwargs)
     Set("ray", ray_set)
     Set("method", method)
     Set("way", way)  # method 肯定有，但 way 不一定有
@@ -533,7 +533,7 @@ def init_SSI(g_shift, U_0,
              sheets_num, sheets_stored_num,
              X, Y, Iz, size_PerPixel, ):
     Ix, Iy = U_0.shape
-    # Set("Ix", Ix)
+    # Set("Ix", Ix)  # 已经在 其他地方 设定了
     # Set("Iy", Iy)
     Set("Iz", Iz)
 

@@ -91,7 +91,8 @@ def SHG_NLA_ssi(U_name="",
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "SSI", "Nla", **kwargs)
-    init_GLV_rmw(U_name, "h", "NLA", "ssi", **kwargs)
+    ray_tag = "f" if kwargs.get('ray', 2) == 3 else "h"
+    init_GLV_rmw(U_name, ray_tag, "NLA", "ssi", **kwargs)
 
     # %%
 
@@ -125,7 +126,7 @@ def SHG_NLA_ssi(U_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   **kwargs, )
+                                   ray_pump='1', **kwargs, )
 
     n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                    lam1, is_air, T, )

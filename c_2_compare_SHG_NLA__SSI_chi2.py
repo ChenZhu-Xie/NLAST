@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 # %%
 
+import copy
 import numpy as np
 from fun_os import img_squared_bordered_Read
 from fun_global_var import init_GLV_DICT, tree_print
@@ -177,13 +178,13 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
          is_print, is_contours, n_TzQ,
          Gz_max_Enhance, match_mode, ]
 
-    kwargs_SSI = kwargs
+    kwargs_SSI = copy.deepcopy(kwargs)
     kwargs_SSI.update({"ray": "2", })
     U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
-        SHG_NLA_SSI(*args_SSI, ) if is_NLA == 1 else \
+        SHG_NLA_SSI(*args_SSI, **kwargs_SSI, ) if is_NLA == 1 else \
             SHG_SSF_SSI(*args_SSI, **kwargs_SSI, )
 
-    kwargs_NLA = kwargs
+    kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"ray": "2", })
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SHG_NLA(U_name,
@@ -326,7 +327,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 2.66, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,

@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 # %%
 
+import copy
 import math
 import numpy as np
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_STD, fGHU_plot_save
@@ -97,7 +98,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                 # %%
                 is_print, ]
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"ray": "1", })
     U_z, G_z, ray_z, method_and_way_z, U_key_z = \
         AST(*args_AST(z), **kwargs_AST, )
@@ -135,7 +136,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                                  # %%
                                  is_print,
                                  # %%
-                                 **kwargs, )
+                                 ray_pump='1', **kwargs, )
 
     # %%
 
@@ -156,13 +157,14 @@ def interference_AST__AST(img_full_name="Grating.png",
 
     # %%
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"ray": "1", })
     U_Z, G_Z, ray_Z, method_and_way_Z, U_key_Z = \
         AST(*args_AST(Z), **kwargs_AST, )
 
     # %%
 
+    kwargs.update({"ray": "1", })
     init_GLV_rmw("", "a", "ADD", "", **kwargs)
 
     end_STD(U_z + U_Z, G_z,

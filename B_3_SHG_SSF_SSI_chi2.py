@@ -18,134 +18,137 @@ from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
 # %%
 
 def SHG_SSF_SSI(U_name="",
-                 img_full_name="Grating.png",
-                 is_phase_only=0,
-                 # %%
-                 z_pump=0,
-                 is_LG=0, is_Gauss=0, is_OAM=0,
-                 l=0, p=0,
-                 theta_x=0, theta_y=0,
-                 # %%
-                 is_random_phase=0,
-                 is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                 # %%
-                 # 生成横向结构
-                 U_name_Structure='',
-                 structure_size_Enlarge=0.1,
-                 is_phase_only_Structure=0,
-                 # %%
-                 w0_Structure=0, z_pump_Structure=0,
-                 is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
-                 l_Structure=0, p_Structure=0,
-                 theta_x_Structure=0, theta_y_Structure=0,
-                 # %%
-                 is_random_phase_Structure=0,
-                 is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
-                 # %%
-                 U_NonZero_size=1, w0=0.3,
-                 L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
-                 sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
-                 X=0, Y=0,
-                 # %%
-                 is_bulk=1, is_no_backgroud=0,
-                 is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
-                 # %%
-                 lam1=0.8, is_air_pump=0, is_air=0, T=25,
-                 deff=30,
-                 # %%
-                 Tx=10, Ty=10, Tz="2*lc",
-                 mx=0, my=0, mz=0,
-                 is_stripe=0, is_NLAST=0,
-                 # %%
-                 # 生成横向结构
-                 Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
-                 Depth=2, structure_xy_mode='x',
-                 is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
-                 is_reverse_xy=0, is_positive_xy=1,
-                 # %%
-                 is_save=0, is_save_txt=0, dpi=100,
-                 # %%
-                 color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
-                 elev=10, azim=-65, alpha=2,
-                 # %%
-                 sample=2, ticks_num=6, is_contourf=0,
-                 is_title_on=1, is_axes_on=1, is_mm=1,
-                 # %%
-                 fontsize=9,
-                 font={'family': 'serif',
-                       'style': 'normal',  # 'normal', 'italic', 'oblique'
-                       'weight': 'normal',
-                       'color': 'black',  # 'black','gray','darkred'
-                       },
-                 # %%
-                 is_colorbar_on=1, is_energy=0,
-                 # %%
-                 plot_group="UGa", is_animated=1,
-                 loop=0, duration=0.033, fps=5,
-                 # %%
-                 is_plot_3d_XYz=0, is_plot_selective=0,
-                 is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
-                 # %%
-                 is_print=1, is_contours=1, n_TzQ=1,
-                 Gz_max_Enhance=1, match_mode=1,
-                 # %%
-                 **kwargs, ):
+                img_full_name="Grating.png",
+                is_phase_only=0,
+                # %%
+                z_pump=0,
+                is_LG=0, is_Gauss=0, is_OAM=0,
+                l=0, p=0,
+                theta_x=0, theta_y=0,
+                # %%
+                is_random_phase=0,
+                is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+                # %%
+                # 生成横向结构
+                U_name_Structure='',
+                structure_size_Enlarge=0.1,
+                is_phase_only_Structure=0,
+                # %%
+                w0_Structure=0, z_pump_Structure=0,
+                is_LG_Structure=0, is_Gauss_Structure=0, is_OAM_Structure=0,
+                l_Structure=0, p_Structure=0,
+                theta_x_Structure=0, theta_y_Structure=0,
+                # %%
+                is_random_phase_Structure=0,
+                is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
+                # %%
+                U_NonZero_size=1, w0=0.3,
+                L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
+                sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
+                X=0, Y=0,
+                # %%
+                is_bulk=1, is_no_backgroud=0,
+                is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
+                # %%
+                lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                deff=30,
+                # %%
+                Tx=10, Ty=10, Tz="2*lc",
+                mx=0, my=0, mz=0,
+                is_stripe=0, is_NLAST=0,
+                # %%
+                # 生成横向结构
+                Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
+                Depth=2, structure_xy_mode='x',
+                is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
+                is_reverse_xy=0, is_positive_xy=1,
+                # %%
+                is_save=0, is_save_txt=0, dpi=100,
+                # %%
+                color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+                elev=10, azim=-65, alpha=2,
+                # %%
+                sample=2, ticks_num=6, is_contourf=0,
+                is_title_on=1, is_axes_on=1, is_mm=1,
+                # %%
+                fontsize=9,
+                font={'family': 'serif',
+                      'style': 'normal',  # 'normal', 'italic', 'oblique'
+                      'weight': 'normal',
+                      'color': 'black',  # 'black','gray','darkred'
+                      },
+                # %%
+                is_colorbar_on=1, is_energy=0,
+                # %%
+                plot_group="UGa", is_animated=1,
+                loop=0, duration=0.033, fps=5,
+                # %%
+                is_plot_3d_XYz=0, is_plot_selective=0,
+                is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+                # %%
+                is_print=1, is_contours=1, n_TzQ=1,
+                Gz_max_Enhance=1, match_mode=1,
+                # %%
+                **kwargs, ):
     # %%
 
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    #%%
+    # %%
 
     info = "SSF_大步长_SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "SSI", "SFM", **kwargs)
-    init_GLV_rmw(U_name, "h", "SSF", "SSI", **kwargs)
+    ray_tag = "f" if kwargs.get('ray', 2) == 3 else "h"
+    init_GLV_rmw(U_name, ray_tag, "SSF", "SSI", **kwargs)
 
     # %%
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
     U_0, g_shift = pump_pic_or_U(U_name,
-                                   img_full_name,
-                                   is_phase_only,
-                                   # %%
-                                   z_pump,
-                                   is_LG, is_Gauss, is_OAM,
-                                   l, p,
-                                   theta_x, theta_y,
-                                   # %%
-                                   is_random_phase,
-                                   is_H_l, is_H_theta, is_H_random_phase,
-                                   # %%
-                                   U_NonZero_size, w0,
-                                   # %%
-                                   lam1, is_air_pump, T,
-                                   # %%
-                                   is_save, is_save_txt, dpi,
-                                   cmap_2d,
-                                   # %%
-                                   ticks_num, is_contourf,
-                                   is_title_on, is_axes_on, is_mm,
-                                   # %%
-                                   fontsize, font,
-                                   # %%
-                                   is_colorbar_on, is_energy,
-                                   # %%
-                                   is_print,
-                                   # %%
-                                   **kwargs, )
+                                 img_full_name,
+                                 is_phase_only,
+                                 # %%
+                                 z_pump,
+                                 is_LG, is_Gauss, is_OAM,
+                                 l, p,
+                                 theta_x, theta_y,
+                                 # %%
+                                 is_random_phase,
+                                 is_H_l, is_H_theta, is_H_random_phase,
+                                 # %%
+                                 U_NonZero_size, w0,
+                                 # %%
+                                 lam1, is_air_pump, T,
+                                 # %%
+                                 is_save, is_save_txt, dpi,
+                                 cmap_2d,
+                                 # %%
+                                 ticks_num, is_contourf,
+                                 is_title_on, is_axes_on, is_mm,
+                                 # %%
+                                 fontsize, font,
+                                 # %%
+                                 is_colorbar_on, is_energy,
+                                 # %%
+                                 is_print,
+                                 # %%
+                                 ray_pump='1', **kwargs, )
 
     n1, k1, k1_z, lam2, n2, k2, k2_z, \
-    dk, lc, Tz, Gx, Gy, Gz, \
+    dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0_structure, g_shift_structure, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
         = structure_chi2_Generate_2D(U_name_Structure,
@@ -202,7 +205,7 @@ def SHG_SSF_SSI(U_name="",
     sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_front, \
     sheets_num_structure, Iz_structure, deff_structure_length, \
     sheets_num, Iz, z0, \
-    mj, dizj, izj, zj, \
+    mj, dizj, izj, zj, zj_structure, \
     sheet_th_endface, sheets_num_endface, Iz_endface, z0_end, \
     sheet_th_sec1, sheets_num_sec1, iz_1, z0_1, \
     sheet_th_sec2, sheets_num_sec2, iz_2, z0_2 \
@@ -211,6 +214,71 @@ def SHG_SSF_SSI(U_name="",
                     z0_section_1_expect, z0_section_2_expect,
                     is_stripe, mx, my, Tx, Ty, Tz, Duty_Cycle_z, structure_xy_mode,
                     is_print)
+
+    # %%
+
+    if is_stripe > 0:
+        from fun_os import U_amp_plot_save, Get
+        sheets_stored_num_structure = sheets_stored_num
+        for_th_first = int(mj[0] == '0')
+        for_th_stored = list(np.int64(np.round(np.linspace(0 + for_th_first, len(zj_structure) - 2 + for_th_first,
+                                                           sheets_stored_num_structure))))
+        # print(for_th_stored, sheets_num, len(for_th_stored))
+        m_list = []
+        mod_name_list = []
+    if is_stripe == 2.2:
+        from fun_CGH import structure_nonrect_chi2_Generate_2D
+        modulation_lie_down, folder_address = \
+            structure_nonrect_chi2_Generate_2D(z_pump_Structure,
+                                               is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+                                               l_Structure, p_Structure,
+                                               theta_x_Structure, theta_y_Structure,
+                                               # %%
+                                               is_random_phase_Structure,
+                                               is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+                                               # %%
+                                               len(zj_structure), Get("Iy"), w0_Structure,
+                                               Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
+                                               # %%
+                                               is_continuous, is_target_far_field, is_transverse_xy,
+                                               is_reverse_xy, is_positive_xy,
+                                               0, is_no_backgroud,
+                                               # %%
+                                               lam1, is_air_pump, is_air, T,
+                                               Tx, Ty, Tz,
+                                               mx, my, mz,
+                                               # %%
+                                               is_save, is_save_txt, dpi,
+                                               # %%
+                                               cmap_2d,
+                                               # %%
+                                               ticks_num, is_contourf,
+                                               is_title_on, is_axes_on, is_mm, zj_structure,
+                                               # %%
+                                               fontsize, font,
+                                               # %%
+                                               is_colorbar_on, is_energy,
+                                               # %%
+                                               is_print,
+                                               # %%
+                                               **kwargs, )
+    elif is_stripe == 2 or is_stripe == 2.1:  # 躺下 的 插值算法
+        from fun_CGH import structure_nonrect_chi2_interp2d_2D
+        modulation_lie_down = structure_nonrect_chi2_interp2d_2D(folder_address, modulation_squared,
+                                                                 structure_xy_mode, len(zj_structure),
+                                                                 # %%
+                                                                 is_save_txt, dpi,
+                                                                 # %%
+                                                                 cmap_2d,
+                                                                 # %%
+                                                                 ticks_num, is_contourf,
+                                                                 is_title_on, is_axes_on, is_mm, zj_structure,
+                                                                 # %%
+                                                                 fontsize, font,
+                                                                 # %%
+                                                                 is_colorbar_on,
+                                                                 # %%
+                                                                 **kwargs, )
 
     # %%
     # const
@@ -253,14 +321,15 @@ def SHG_SSF_SSI(U_name="",
 
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                if mj[for_th] == '1':
-                    modulation_squared_z = modulation_squared
-                elif mj[for_th] == '-1':
-                    modulation_squared_z = modulation_opposite_squared
-                elif mj[for_th] == '0':
+                if mj[for_th] == '0':
                     # print("???????????????")
                     modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
-                else:
+                elif is_stripe == 0:
+                    if mj[for_th] == '1':
+                        modulation_squared_z = modulation_squared
+                    elif mj[for_th] == '-1':
+                        modulation_squared_z = modulation_opposite_squared
+                elif is_stripe == 1:
                     if structure_xy_mode == 'x':  # 往右（列） 线性平移 mj[for_th] 像素
                         modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=1)
                     elif structure_xy_mode == 'y':  # 往下（行） 线性平移 mj[for_th] 像素
@@ -270,6 +339,24 @@ def SHG_SSF_SSI(U_name="",
                         # modulation_squared_z = np.roll(modulation_squared_z, mj[for_th] / (mx * Tx) * (my * Ty), axis=0)
                         modulation_squared_z = np.roll(modulation_squared_z,
                                                        int(my * Ty / Tz * (izj[for_th] - Iz_frontface)), axis=0)
+
+                    if for_th in for_th_stored:
+                        m_list.append(modulation_squared_z)
+                        mod_name_list.append("χ2_" + "tran_shift_" + str(for_th))
+
+                elif is_stripe == 2 or is_stripe == 2.1 or is_stripe == 2.2:
+                    if structure_xy_mode == 'x':
+                        modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
+                        # 按行复制 多行，成一个方阵
+                    elif structure_xy_mode == 'y':
+                        modulation_squared_z = np.tile(modulation_lie_down[:, for_th],
+                                                       (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
+
+                    if for_th in for_th_stored:
+                        m_list.append(modulation_squared_z)
+                        mod_name_list.append("χ2_" + "lie_down_" + str(for_th))
+
+
             else:
                 modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
         else:
@@ -344,6 +431,25 @@ def SHG_SSF_SSI(U_name="",
               is_ordered=1, is_print=is_print,
               is_U=is_U, )
 
+    if is_stripe > 0:
+        for i in range(sheets_stored_num_structure):
+            U_amp_plot_save(folder_address,
+                            # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                            m_list[i], mod_name_list[i],
+                            Get("img_name_extension"),
+                            is_save_txt,
+                            # %%
+                            [], 1, size_PerPixel,
+                            0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                            # %%
+                            cmap_2d, ticks_num, is_contourf,
+                            is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                            fontsize, font,
+                            # %%
+                            0, is_colorbar_on, 0,
+                            # %%
+                            suffix="", **kwargs, )
+
     # %%
 
     end_SSI(g_shift, is_energy, n_sigma=3,
@@ -396,81 +502,81 @@ def SHG_SSF_SSI(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-        "img_full_name": "Grating.png",
-        "is_phase_only": 0,
-        # %%
-        "z_pump": 0,
-        "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
-        "l": 0, "p": 0,
-        "theta_x": 0, "theta_y": 0,
-        # %%
-        "is_random_phase": 0,
-        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
-        # %%
-        # 生成横向结构
-        "U_name_Structure": '',
-        "structure_size_Enlarge": 0.1,
-        "is_phase_only_Structure": 0,
-        # %%
-        "w0_Structure": 0, "z_pump_Structure": 0,
-        "is_LG_Structure": 0, "is_Gauss_Structure": 0, "is_OAM_Structure": 0,
-        "l_Structure": 0, "p_Structure": 0,
-        "theta_x_Structure": 0, "theta_y_Structure": 0,
-        # %%
-        "is_random_phase_Structure": 0,
-        "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
-        # %%
-        "U_NonZero_size": 1, "w0": 0.3,
-        "L0_Crystal": 5, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
-        "sheets_stored_num": 10, "z0_section_1_expect": 1, "z0_section_2_expect": 1,
-        "X": 0, "Y": 0,
-        # %%
-        "is_bulk": 1, "is_no_backgroud": 0,
-        "is_stored": 0, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
-        # %%
-        "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
-        "deff": 30,
-        # %%
-        "Tx": 10, "Ty": 10, "Tz": "2*lc",
-        "mx": 1, "my": 0, "mz": 0,
-        "is_stripe": 0, "is_NLAST": 0,
-        # %%
-        # 生成横向结构
-        "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
-        "Depth": 2, "structure_xy_mode": 'x',
-        "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
-        "is_reverse_xy": 0, "is_positive_xy": 1,
-        # %%
-        "is_save": 1, "is_save_txt": 0, "dpi": 100,
-        # %%
-        "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
-        "elev": 10, "azim": -65, "alpha": 2,
-        # %%
-        "sample": 1, "ticks_num": 6, "is_contourf": 0,
-        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
-        # %%
-        "fontsize": 9,
-        "font": {'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        "is_colorbar_on": 1, "is_energy": 0,
-        # %%
-        "plot_group": "UGa", "is_animated": 1,
-        "loop": 0, "duration": 0.033, "fps": 5,
-        # %%
-        "is_plot_3d_XYz": 0, "is_plot_selective": 0,
-        "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
-        # %%
-        "is_print": 1, "is_contours": 1, "n_TzQ": 1,
-        "Gz_max_Enhance": 1, "match_mode": 1,
-        # %%
-        "kwargs_seq": 0, "root_dir": r'1',
-        "border_percentage": 0.1, "is_end": -1,
-        "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-        "ray": "2", }
+         "img_full_name": "lena1.png",
+         "is_phase_only": 0,
+         # %%
+         "z_pump": 0,
+         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+         "l": 0, "p": 0,
+         "theta_x": 0, "theta_y": 0,
+         # %%
+         "is_random_phase": 0,
+         "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+         # %%
+         # 生成横向结构
+         "U_name_Structure": '',
+         "structure_size_Enlarge": 0.1,
+         "is_phase_only_Structure": 0,
+         # %%
+         "w0_Structure": 0, "z_pump_Structure": 0,
+         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
+         "l_Structure": 1, "p_Structure": 0,
+         "theta_x_Structure": 0, "theta_y_Structure": 0,
+         # %%
+         "is_random_phase_Structure": 0,
+         "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
+         # %%
+         "U_NonZero_size": 1, "w0": 0.3,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
+         "sheets_stored_num": 10, "z0_section_1_expect": 1, "z0_section_2_expect": 1,
+         "X": 0, "Y": 0,
+         # %%
+         "is_bulk": 0, "is_no_backgroud": 0,
+         "is_stored": 0, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
+         # %%
+         "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "deff": 30,
+         # %%
+         "Tx": 18, "Ty": 10, "Tz": "2*lc",
+         "mx": 1, "my": 0, "mz": 0,
+         "is_stripe": 2.2, "is_NLAST": 0,
+         # %%
+         # 生成横向结构
+         "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
+         "Depth": 2, "structure_xy_mode": 'x',
+         "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
+         "is_reverse_xy": 0, "is_positive_xy": 1,
+         # %%
+         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         # %%
+         "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
+         "elev": 10, "azim": -65, "alpha": 2,
+         # %%
+         "sample": 1, "ticks_num": 6, "is_contourf": 0,
+         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+         # %%
+         "fontsize": 9,
+         "font": {'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+         # %%
+         "is_colorbar_on": 1, "is_energy": 0,
+         # %%
+         "plot_group": "UGa", "is_animated": 1,
+         "loop": 0, "duration": 0.033, "fps": 5,
+         # %%
+         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
+         # %%
+         "is_print": 1, "is_contours": 0, "n_TzQ": 1,
+         "Gz_max_Enhance": 1, "match_mode": 1,
+         # %%
+         "kwargs_seq": 0, "root_dir": r'1',
+         "border_percentage": 0.1, "is_end": -1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "ray": "2", }
 
     kwargs = init_GLV_DICT(**kwargs)
     SHG_SSF_SSI(**kwargs)

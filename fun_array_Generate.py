@@ -12,9 +12,9 @@ import numpy as np
 
 def mesh_shift(Ix, Iy, *args):
     
-    nx, ny = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
+    nx, ny = np.meshgrid(range(Iy), range(Ix))
     mesh_nx_ny = np.dstack((nx, ny))
-    mesh_nx_ny_shift = mesh_nx_ny - (Ix // 2, Iy // 2)
+    mesh_nx_ny_shift = mesh_nx_ny - (Iy // 2, Ix // 2)
     
     # print(len(arg))
     if len(args) >= 2: # 确保 额外 传入了 theta_x, theta_y 两个参数
@@ -44,7 +44,8 @@ def mesh_shift(Ix, Iy, *args):
 
 def Generate_r_shift(Ix = 0, Iy = 0, size_PerPixel = 0.77, 
                      theta_x = 1, theta_y = 0, ):
-    
+
+    # print(Ix, Iy)
     mesh_nx_ny_shift = mesh_shift(Ix, Iy, 
                                   theta_x, theta_y)
     r_shift = ( mesh_nx_ny_shift[:, :, 0]**2 + mesh_nx_ny_shift[:, :, 1]**2  + 0j )**0.5 * size_PerPixel

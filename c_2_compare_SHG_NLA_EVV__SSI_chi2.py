@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 # %%
 
+import copy
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_twin_energy_error_plot_save, U_twin_error_energy_plot_save
 from fun_global_var import init_GLV_DICT, tree_print, Get, eget, sget, skey
@@ -179,7 +180,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
          is_print, is_contours, n_TzQ,
          Gz_max_Enhance, match_mode, ]
 
-    kwargs_SSI = kwargs
+    kwargs_SSI = copy.deepcopy(kwargs)
     kwargs_SSI.update({"ray": "2", })
     U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
         SHG_NLA_SSI(*args_SSI, **kwargs_SSI, ) if is_NLA == 1 else \
@@ -256,7 +257,7 @@ def compare_SHG_NLA_EVV__SSI(U_name_Structure="",
          Gz_max_Enhance, match_mode, ]
 
     # print(Get("z_stored"))
-    kwargs_EVV = kwargs
+    kwargs_EVV = copy.deepcopy(kwargs)
     # print(kwargs)
     if abs(is_stored) == 1:
         kwargs_EVV.update({"ray": "2", "zj_EVV": Get("z_stored"), })

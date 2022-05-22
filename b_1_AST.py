@@ -97,7 +97,7 @@ def AST(U_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   **kwargs, )
+                                   ray_pump='1', **kwargs, )
 
     # %%
 

@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 # %%
 
+import copy
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_global_var import init_GLV_DICT
@@ -135,7 +136,7 @@ def A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
                                  # %%
                                  is_print,
                                  # %%
-                                 **kwargs, )
+                                 ray_pump='1', **kwargs, )
 
     # %%
 
@@ -234,7 +235,7 @@ def A_3_to_B_3_SHG_NLA_ssi(U_name_Structure="",
          is_print, is_contours, n_TzQ,
          Gz_max_Enhance, match_mode, ]
 
-    kwargs_ssi = kwargs
+    kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"is_end": is_end})
     if is_NLA == 1:
         return SHG_NLA_ssi(*args_SHG_ssi, **kwargs_ssi, )

@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 # %%
 
+import copy
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
@@ -141,7 +142,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                                  # %%
                                  is_print,
                                  # %%
-                                 **kwargs, )
+                                 ray_pump='1', **kwargs, )
 
     # %%
 
@@ -272,12 +273,12 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                 is_print, is_contours, n_TzQ,
                 Gz_max_Enhance, match_mode, ]
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"ray": "1", })
     U1_z_AST, G1_z_AST, ray1_z_AST, method_and_way1_z_AST, U_key1_z_AST = \
         AST(*args_AST(z_AST), **kwargs_AST, )
 
-    kwargs_ssi = kwargs
+    kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"U": U1_z_AST, "ray": ray1_z_AST, })
     U1_z_ssi, G1_z_ssi, ray1_z_ssi, method_and_way1_z_ssi, U_key1_z_ssi = \
         SHG_NLA_ssi(*args_ssi(z_ssi), **kwargs_ssi, ) if is_NLA == 1 else \
@@ -286,13 +287,13 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     # %%
     # 先倍频 z_AST 后衍射 z_ssi
 
-    kwargs_ssi = kwargs
+    kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"ray": "2", })
     U2_z_ssi, G2_z_ssi, ray2_z_ssi, method_and_way2_z_ssi, U_key2_z_ssi = \
         SHG_NLA_ssi(*args_ssi(z_ssi), ) if is_NLA == 1 else \
             SHG_SSF_ssi(*args_ssi(z_ssi), **kwargs_ssi, )
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"U": U2_z_ssi, "ray": ray2_z_ssi})
     U2_z_AST, G2_z_AST, ray2_z_AST, method_and_way2_z_AST, U_key2_z_AST = \
         AST(*args_AST(z_AST), **kwargs_AST, )
@@ -312,6 +313,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                                   is_phase_only)
 
     U2_Z_ADD = U1_z_ssi + U2_z_AST
+    kwargs.update({"ray": "2", })
     init_GLV_rmw("", "a", "ADD", "ssi", **kwargs)
     fset("U", U2_Z_ADD)
 

@@ -161,7 +161,7 @@ def slice_structure_ssi(Duty_Cycle_z, deff_structure_length_expect,
     Tz_unit = (Tz / 1000) / size_PerPixel
 
     return diz, deff_structure_sheet, sheets_num, \
-           Iz, deff_structure_length, Tz_unit
+           Iz, deff_structure_length, Tz_unit, zj_structure
 
 # %%
 # 等间距切片
@@ -414,12 +414,7 @@ def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure
     # dizj_structure = izj_structure[1:] - izj_structure[:-1] # 为了 对斜条纹时的 mj_structure 赋值
     # print("{} == {} ?".format(leftover2, dizj_structure[-1]))
 
-    if is_stripe == 0:
-        # mj_structure = - 2 * np.mod(np.arange(sheets_num_structure + 1, dtype=np.float64()), 2) + 1
-        mj_structure = - 2 * np.mod(np.arange(sheets_num_structure, dtype=np.int8()), 2) + 1
-        mj_structure = mj_structure.astype(str)
-        # 字符 '-1','+1','0' 分别 表示 opposite，positive，以及 bulk，注意 astype 并不会改变 mj_structure，所以得 重新赋值给 mj_structure
-    else:
+    if is_stripe == 1:
         if structure_xy_mode == 'x' or structure_xy_mode == 'xy':
             xyj_structure = mx * Tx / Tz * Dzj_structure  # 本身 第一层 就不移
             # xj_structure = np.append(0, xj_structure) # 第一层 不移，其他层 才移
@@ -429,6 +424,12 @@ def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure
 
         mj_structure = (xyj_structure // size_PerPixel).astype(np.int64)
         # print(mj_structure)
+    else:
+        # mj_structure = - 2 * np.mod(np.arange(sheets_num_structure + 1, dtype=np.float64()), 2) + 1
+        mj_structure = - 2 * np.mod(np.arange(sheets_num_structure, dtype=np.int8()), 2) + 1
+        mj_structure = mj_structure.astype(str)
+        # 字符 '-1','+1','0' 分别 表示 opposite，positive，以及 bulk，注意 astype 并不会改变 mj_structure，所以得 重新赋值给 mj_structure
+
 
     mj_structure = mj_structure.tolist()  # 转换为 list 才能储存 不同类型 的值
     # print(mj_structure)
@@ -592,7 +593,7 @@ def slice_SSI(L0_Crystal, size_PerPixel,
            sheet_th_frontface, sheets_num_frontface, Iz_frontface, z0_structure_frontface, \
            sheets_num_structure, Iz_structure, deff_structure_length, \
            sheets_num, Iz, z0, \
-           mj, dizj, izj, zj, \
+           mj, dizj, izj, zj, zj_structure, \
            sheet_th_endface, sheets_num_endface, Iz_endface, z0_structure_endface, \
            sheet_th_section_1, sheets_num_section_1, Iz_1, z0_1, \
            sheet_th_section_2, sheets_num_section_2, Iz_2, z0_2

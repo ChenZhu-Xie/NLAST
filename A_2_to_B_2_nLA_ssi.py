@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 #%%
 
+import copy
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_global_var import init_GLV_DICT
@@ -186,7 +187,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure = "",
         #%%
         is_print, ]
 
-    kwargs_ssi = kwargs
+    kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"is_end": is_end, })
     return nLA_ssi(*args_nLA_ssi, **kwargs_ssi, )
 

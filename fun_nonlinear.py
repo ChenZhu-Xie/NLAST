@@ -380,8 +380,8 @@ def G2_z_modulation_NLAST(k1, k2,
         k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
         k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
 
-        Big_version = 5 if is_customized == 1 else 5
-        Cal_version = 1 if is_customized == 1 else 1
+        Big_version = 5 if is_customized == 1 else 3
+        Cal_version = 1 if is_customized == 1 else 4
         Res_version = 1 if is_customized == 1 else 1
         # print(str(Big_version) + '.' + str(Cal_version) + "\n")
         cos_num_expect = 20 if is_customized == 1 else 20

@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 # %%
 
+import copy
 import numpy as np
 from fun_os import img_squared_bordered_Read
 from fun_global_var import init_GLV_DICT, tree_print
@@ -107,7 +108,7 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
 
     # %%
 
-    kwargs_ssi = kwargs
+    kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"ray": "2", })
     U2_ssi, G2_ssi, ray2_ssi, method_and_way2_ssi, U_key2_ssi = \
         A_3_to_B_3_SHG_NLA_ssi(U_name_Structure,
@@ -248,7 +249,7 @@ def compare_SHG_SSI__ssi(U_name_Structure="",
         is_print, is_contours, n_TzQ,
         Gz_max_Enhance, match_mode, ]
 
-    kwargs_SSI = kwargs
+    kwargs_SSI = copy.deepcopy(kwargs)
     kwargs_SSI.update({"ray": "2", })
     U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
         SHG_NLA_SSI(*args_SSI, **kwargs_SSI, ) if is_NLA == 1 else \

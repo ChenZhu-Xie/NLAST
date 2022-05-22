@@ -140,7 +140,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                                  # %%
                                  is_print,
                                  # %%
-                                 **kwargs, )
+                                 ray_pump='1', **kwargs, )
 
     # %%
 

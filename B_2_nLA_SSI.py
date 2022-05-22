@@ -123,7 +123,7 @@ def nLA_ssi(U_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   **kwargs, )
+                                   ray_pump='1', **kwargs, )
 
     n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                    lam1, is_air, T, )

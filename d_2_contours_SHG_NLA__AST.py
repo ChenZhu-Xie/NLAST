@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 # %%
 
+import copy
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
@@ -14,7 +15,6 @@ from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, fset, fget, 
 from b_1_AST import AST
 from b_3_SHG_NLA import SHG_NLA
 np.seterr(divide='ignore', invalid='ignore')
-
 
 def contours_SHG_NLA__AST(img_full_name="Grating.png",
                             is_phase_only=0,
@@ -182,12 +182,12 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                     is_print, is_contours, n_TzQ,
                     Gz_max_Enhance, match_mode, ]
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"ray": "1", })
     U1_z_AST, G1_z_AST, ray1_z_AST, method_and_way1_z_AST, U_key1_z_AST = \
         AST(*args_AST(z_AST), **kwargs_AST, )
 
-    kwargs_NLA = kwargs
+    kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"U": U1_z_AST, "ray": ray1_z_AST, })
     U1_z_NLA, G1_z_NLA, ray1_z_NLA, method_and_way1_z_NLA, U_key1_z_NLA = \
         SHG_NLA(*args_NLA(z_NLA), **kwargs_NLA, )
@@ -195,12 +195,12 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
     # %%
     # 先倍频 z_AST 后衍射 z_NLA
 
-    kwargs_NLA = kwargs
+    kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"ray": "2", })
     U2_z_NLA, G2_z_NLA, ray2_z_NLA, method_and_way2_z_NLA, U_key2_z_NLA = \
         SHG_NLA(*args_NLA(z_NLA), **kwargs_NLA, )
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"U": U2_z_NLA, "ray": ray2_z_NLA, })
     U2_z_AST, G2_z_AST, ray2_z_AST, method_and_way2_z_AST, U_key2_z_AST = \
         AST(*args_AST(z_AST), **kwargs_AST, )
@@ -220,6 +220,7 @@ def contours_SHG_NLA__AST(img_full_name="Grating.png",
                                   is_phase_only)
 
     U2_Z_ADD = U1_z_NLA + U2_z_AST
+    kwargs.update({"ray": "2", })
     init_GLV_rmw("", "a", "ADD", "", **kwargs)
     fset("U", U2_Z_ADD)
 

@@ -110,12 +110,12 @@ def split_parts(U_name):
 
 
 # 查找 ray （ 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray ）
-def set_ray(U0_name, ray_new, **kwargs):  # U0_name 只在这有用，用于获取 其 ray，获取一次后就不需 U0_name 了
+def set_ray(U0_name, ray_tag, **kwargs):  # U0_name 只在这有用，用于获取 其 ray，获取一次后就不需 U0_name 了
     if "ray" not in kwargs:  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
         U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U0_name)  # 从 U0_name 中找到 ray_sequence
-        ray = ray_seq[0] + ray_new if len(ray_seq) != 0 else ray_new
+        ray = ray_seq[0] + ray_tag if len(ray_seq) != 0 else ray_tag
     else:
-        ray = kwargs['ray'] + ray_new if "ray" in kwargs else ray_new  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
+        ray = kwargs['ray'] + ray_tag if "ray" in kwargs else ray_tag  # 传 'U' 的值 进来的同时，要传个 'ray' 键 及其 对应的值
 
     return ray
 
@@ -2762,6 +2762,9 @@ def img_squared_Read(img_full_name, U_NonZero_size):
     img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
     size_PerPixel = U_NonZero_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
 
+    Set("size_PerPixel", size_PerPixel)
+    Set("img_name_extension", img_name_extension)
+
     return img_name, img_name_extension, img_address, folder_address, \
            img_squared_address, img_squared_bordered_address, \
            img_squared, size_PerPixel
@@ -2787,7 +2790,8 @@ def img_squared_bordered_Read(img_full_name,
     else:
         U = img_squared_bordered.astype(np.complex128)
 
-    Set("size_PerPixel", size_PerPixel)
+    Set("Ix", Ix)
+    Set("Iy", Iy)
     Set("size_fig", size_fig)
     Set("size_fig_x", size_fig * Get("size_fig_x_scale"))
     Set("size_fig_y", size_fig * Get("size_fig_y_scale"))
@@ -2829,7 +2833,10 @@ def U_Read(U_name, img_full_name,
     img_squared_address, img_squared_bordered_address, \
     img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size)
 
-    Set("size_PerPixel", size_PerPixel)
+    size_PerPixel = U_NonZero_size / Ix  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
+    Set("size_PerPixel", size_PerPixel)  # 覆盖 img_squared_Read 所得到的 size_PerPixel
+    Set("Ix", Ix)
+    Set("Iy", Iy)
     Set("size_fig", size_fig)
     Set("size_fig_x", size_fig * Get("size_fig_x_scale"))
     Set("size_fig_y", size_fig * Get("size_fig_y_scale"))

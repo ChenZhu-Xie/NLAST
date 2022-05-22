@@ -23,16 +23,25 @@ from fun_statistics import find_data_1d_level
 # plt.rcParams['xtick.direction'] = 'out' # 设置刻度线在坐标轴内
 # plt.rcParams['ytick.direction'] = 'out' # 一次设置，全局生效，所以：记得关闭
 
-def lormat(ticks, Str):
+def lormat(ticks, Str, Max, **kwargs):
     if "%" in Str:  # 返回 float list
-        return [float(Str % z) for z in ticks], [float(Str % z) for z in ticks]
+        if kwargs.get("reverse", 0) == 1:
+            z_ticks = [float(Str % z) for z in ticks]
+            return [float(Str % (Max - z)) for z in z_ticks], z_ticks
+        else:
+            return [float(Str % z) for z in ticks], [float(Str % z) for z in ticks]
         # 当 '%.3f' = '%.3f' 时， 这玩意 等价于 Get('.1e') = '.2e' 的 下述
         # 但只当 个位数 不是零的时候：.2f 是保留 2 位小数，不计入 个位数（小数点后 的 位数一致，比较整齐）
         # .2e 是保留 3 位有效数字，如果个位数是零，则保留 3 位小数
         # [float(format(z, Get('.1e'))) for z in ticks]
     else:  # 返回 float list 作为 ticks，同时返回 字符串 list 作为 tickslabels
         # return [float(format(z, '.1e')) for z in ticks], [format(z, Get('.1e')) for z in ticks]
-        return [float(format(z, Str)) for z in ticks], [format(z, Str) for z in ticks]
+        if kwargs.get("reverse", 0) == 1:
+            z_ticks = [float(format(z, Str)) for z in ticks]
+            return [float(format(Max - z, Str)) for z in z_ticks], [format(z, Str) for z in ticks]
+        else:
+            return [float(format(z, Str)) for z in ticks], [format(z, Str) for z in ticks]
+
 
 
 def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
@@ -56,9 +65,9 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
             gan_tickslabels -= Center_divisible
             gan_ticks = gan_tickslabels + Average  # 把 0 放中间
             if abs(Max) < 10:
-                gan_tickslabels = lormat(gan_tickslabels, '%.3f')[0]
+                gan_tickslabels = lormat(gan_tickslabels, '%.3f', Max, **kwargs)[0]
             else:
-                gan_tickslabels = lormat(gan_tickslabels, '%.1f')[0]
+                gan_tickslabels = lormat(gan_tickslabels, '%.1f', Max, **kwargs)[0]
         else:
             Min_divisible = (-Min) // step * step * (-1)
             # Min_divisible = Min // step * step
@@ -71,11 +80,11 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
             gan_tickslabels += Min_divisible  # 注意 * 的 优先级比 // 高
             # if abs(Max) >= 1e3 or abs(Min) >= 1e3 or abs(Max) <= 1e-2 or abs(Min) <= 1e-2:
             if abs(Max) >= 1e3 or abs(Max) < 1e-2:
-                gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '.1e')
+                gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '.1e', Max, **kwargs)
             elif abs(Max) < 10:
-                gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '%.3f')
+                gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '%.3f', Max, **kwargs)
             else:
-                gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '%.1f')
+                gan_ticks, gan_tickslabels = lormat(gan_tickslabels, '%.1f', Max, **kwargs)
         gan_ticks = [z / Max * kwargs.get("I", Max) for z in gan_ticks]
         # size_PerPixel 基本只适用于 x 轴 居中，且 is_centered=1 的情况，z 轴 不适用？
     else:
@@ -129,7 +138,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         ix = zj
         ix_new = np.linspace(zj[0], zj[-1], Iz_new)
     else:
-        ix = [i for i in range(Ix)]
+        ix = range(Ix)
         ix_new = np.linspace(0, Ix - 1, Ix)  # 非传播 则 不对某个方向，偏爱地 重/上采样
 
     # kind = 'cubic' # kind = 0,1,2,3 nono，1 维才可以这么写，2 维只有 'linear', 'cubic', 'quintic'
@@ -473,10 +482,10 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
     Iz_new = (Iz - 1) * sample + 1  # zj 区间范围 保持不变，分段数 乘以 sample 后，新划分出的 刻度的个数
 
     if is_propagation != 0:
-        ix, iy = zj, [j for j in range(Iy)]
+        ix, iy = zj, range(Ix)
         ix_new, iy_new = np.linspace(zj[0], zj[-1], Iz_new), iy
     else:
-        ix, iy = [i for i in range(Ix)], [j for j in range(Iy)]
+        ix, iy = range(Iy), range(Ix)
         ix_new, iy_new = ix, iy  # 非传播 则 不重/上采样
         # ix_new = np.linspace(0, Ix - 1, Ix*sample) # 非传播 则 不对某个方向，偏爱地 重/上采样
         # iy_new = np.linspace(0, Iy - 1, Iy*sample) # 除非将 另一个方向 也上采样 相同倍数
@@ -516,7 +525,7 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
         # ax1.set_xticks(xticks_z if is_propagation != 0 else xticks)
         # ax1.set_yticks(yticks)  # 按理 等价于 np.linspace(0, Iy, ticks_num + 1)，但并不
         if is_mm == 1:  # round(i * size_PerPixel,2) 保留 2 位小数，改为 保留 2 位 有效数字
-            if is_propagation != 0:
+            if is_propagation != 0 and kwargs.get("is_propa_ax_reverse", 0) == 0:
                 xticks, xticklabels = gan_ticks(ix_new[-1], ticks_num, Min=ix_new[0], I=Iz_new)
                 # xticks = [find_nearest(ix_new, z)[0] for z in xticks_z]
                 ax1.set_xticks(xticks)
@@ -528,12 +537,18 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
                 # xticks = [find_nearest(array_x, x)[0] for x in xticks_x]
                 ax1.set_xticks(xticks)
                 ax1.set_xticklabels(xticklabels, fontsize=fontsize, fontdict=font)
-            yticks, yticklabels = gan_ticks(Iy * size_PerPixel, ticks_num, is_centered=1, I=Iy)
-            # array_y = np.arange(0, Ix*size_PerPixel, size_PerPixel)
-            # yticks = [find_nearest(array_y, y)[0] for y in yticks_y]
-            yticklabels = [-y for y in yticklabels]
-            ax1.set_yticks(yticks)
-            ax1.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
+
+            if kwargs.get("is_propa_ax_reverse", 0) == 0:
+                yticks, yticklabels = gan_ticks(Iy * size_PerPixel, ticks_num, is_centered=1, I=Iy)
+                # array_y = np.arange(0, Ix*size_PerPixel, size_PerPixel)
+                # yticks = [find_nearest(array_y, y)[0] for y in yticks_y]
+                yticklabels = [-y for y in yticklabels]
+                ax1.set_yticks(yticks)
+                ax1.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
+            else:
+                yticks, yticklabels = gan_ticks(ix_new[-1], ticks_num, Min=ix_new[0], I=Iz_new, reverse=1)
+                ax1.set_yticks(yticks)
+                ax1.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
         else:
             xticks, xticklabels = gan_ticks(Ix, ticks_num)
             ax1.set_xticks(xticks)
@@ -629,7 +644,7 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
     Iz = len(zj)
     Iz_new = (Iz - 1) * sample + 1  # zj 区间范围 保持不变，分段数 乘以 sample 后，新划分出的 刻度的个数
 
-    ix, iy = zj, [j for j in range(Iy)]
+    ix, iy = zj, range(Ix)
     ix_new, iy_new = np.linspace(zj[0], zj[-1], Iz_new), iy
 
     kind = 'cubic'  # kind = 0,1,2,3 nono，1 维才可以这么写，2 维只有 'linear', 'cubic', 'quintic'
@@ -725,13 +740,13 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
     Ixy = Iy
     if is_self_colorbar == 1:
-        i_Z, i_XY = np.meshgrid([i for i in range(Iz_new)], [j for j in range(Ixy)])
+        i_Z, i_XY = np.meshgrid(range(Iz_new), range(Ixy))
         i_XY = i_XY[::-1]
         img = ax1.scatter3D(i_Z, iX, i_XY, c=U_YZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha))
         i_XY = i_XY[::-1]
         img = ax1.scatter3D(i_Z, i_XY, iY, c=U_XZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha))
 
-        i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
+        i_X, i_Y = np.meshgrid(range(Iy), range(Ix))
         i_Y = i_Y[::-1]
         img = ax1.scatter3D(find_nearest(ix_new, zj[iZ_1])[0], i_X, i_Y, c=U_1, cmap=cmap_3d,
                             # ix_new.tolist().index(zj[iZ_1])
@@ -748,13 +763,13 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
                                 # ix_new.tolist().index(zj[iZ_structure_end])
                                 c=U_structure_end, cmap=cmap_3d, alpha=math.e ** (-1 * alpha))
     else:
-        i_Z, i_XY = np.meshgrid([i for i in range(Iz_new)], [j for j in range(Ixy)])
+        i_Z, i_XY = np.meshgrid(range(Iz_new), range(Ixy))
         i_XY = i_XY[::-1]
         img = ax1.scatter3D(i_Z, iX, i_XY, c=U_YZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha), vmin=vmin, vmax=vmax)
         i_XY = i_XY[::-1]
         img = ax1.scatter3D(i_Z, i_XY, iY, c=U_XZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha), vmin=vmin, vmax=vmax)
 
-        i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
+        i_X, i_Y = np.meshgrid(range(Iy), range(Ix))
         i_Y = i_Y[::-1]
         img = ax1.scatter3D(find_nearest(ix_new, zj[iZ_1])[0], i_X, i_Y, c=U_1, cmap=cmap_3d,
                             # ix_new.tolist().index(zj[iZ_1])
@@ -832,7 +847,7 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
     Iz = len(zj)
     Iz_new = (Iz - 1) * sample + 1  # zj 区间范围 保持不变，分段数 乘以 sample 后，新划分出的 刻度的个数
 
-    ix, iy = zj, [j for j in range(Iy)]
+    ix, iy = zj, range(Ix)
     ix_new, iy_new = np.linspace(zj[0], zj[-1], Iz_new), iy
 
     if is_axes_on == 0:
@@ -892,7 +907,7 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
 
     if is_self_colorbar == 1:
-        i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
+        i_X, i_Y = np.meshgrid(range(Iy), range(Ix))
         i_Y = i_Y[::-1]
         for sheet_stored_th in range(sheets_stored_num + 1):
             img = ax1.scatter3D(find_nearest(ix_new, z_stored[sheet_stored_th])[0], i_X, i_Y,
@@ -900,7 +915,7 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
                                 c=U_z_stored[:, :, sheet_stored_th], cmap=cmap_3d,
                                 alpha=math.e ** -3 * math.e ** (-1 * alpha * sheet_stored_th / sheets_stored_num))
     else:
-        i_X, i_Y = np.meshgrid([i for i in range(Ix)], [j for j in range(Iy)])
+        i_X, i_Y = np.meshgrid(range(Iy), range(Ix))
         i_Y = i_Y[::-1]
         for sheet_stored_th in range(sheets_stored_num + 1):
             img = ax1.scatter3D(find_nearest(ix_new, z_stored[sheet_stored_th])[0], i_X, i_Y,

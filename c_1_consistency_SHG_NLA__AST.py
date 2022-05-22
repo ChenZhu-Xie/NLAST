@@ -7,6 +7,7 @@ Created on Mon Nov  1 14:38:57 2021
 
 # %%
 
+import copy
 import numpy as np
 from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
@@ -186,12 +187,12 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
                 is_print, is_contours, n_TzQ,
                 Gz_max_Enhance, match_mode, ]
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"ray": "1", })
     U1_z1, G1_z1, ray1_z1, method_and_way1_z1, U_key1_z1 = \
         AST(*args_AST(z1), **kwargs_AST, )
 
-    kwargs_NLA = kwargs
+    kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"U": U1_z1, "ray": ray1_z1, })
     U2_z2, G2_z2, ray2_z2, method_and_way2_z2, U_key2_z2 = \
         SHG_NLA(*args_NLA(z2), **kwargs_NLA, )
@@ -199,12 +200,12 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
     # %%
     # 先倍频 z1 后衍射 z2
 
-    kwargs_NLA = kwargs
+    kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"ray": "2", })
     U2_z1, G2_z1, ray2_z1, method_and_way2_z1, U_key2_z1 = \
         SHG_NLA(*args_NLA(z1), **kwargs_NLA, )
 
-    kwargs_AST = kwargs
+    kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"U": U2_z1, "ray": ray2_z1, })
     U1_z2, G1_z2, ray1_z2, method_and_way1_z2, U_key1_z2 = \
         AST(*args_AST(z2), **kwargs_AST, )
@@ -214,7 +215,7 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
 
     Z = z1 + z2
 
-    kwargs_NLA = kwargs
+    kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"ray": "2", })
     U2_Z, G2_Z, ray2_Z, method_and_way2_Z, U_key2_Z = \
         SHG_NLA(*args_NLA(Z), **kwargs_NLA, )
@@ -229,6 +230,7 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
                                   is_phase_only)
 
     U2_Z_ADD = U1_z2 + U2_z2
+    kwargs.update({"ray": "2", })
     init_GLV_rmw("", "a", "ADD", "", **kwargs)
     fset("U", U2_Z_ADD)
     fset("G", fft2(U2_Z_ADD))
@@ -323,7 +325,7 @@ if __name__ == '__main__':
          # %%
          "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
-         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1, 
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0, 
          "is_linear_convolution": 0,
          # %%
          "Tx": 10, "Ty": 10, "Tz": "2*lc",
@@ -339,10 +341,10 @@ if __name__ == '__main__':
          # %%
          "cmap_2d": 'viridis',
          # %%
-         "ticks_num": 6, "is_contourf": 0,
+         "ticks_num": 7, "is_contourf": 0,
          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
          # %%
-         "fontsize": 9,
+         "fontsize": 7,
          "font": {'family': 'serif',
                'style': 'normal',  # 'normal', 'italic', 'oblique'
                'weight': 'normal',
@@ -351,7 +353,7 @@ if __name__ == '__main__':
          # %%
          "is_colorbar_on": 1, "is_energy": 1,
          # %%
-         "is_print": 2, "is_contours": 66, "n_TzQ": 1, "Gz_max_Enhance": 1, "match_mode": 1,
+         "is_print": 2, "is_contours": 0, "n_TzQ": 1, "Gz_max_Enhance": 1, "match_mode": 1,
          # %%
          "is_amp_relative": 1,
          # %%

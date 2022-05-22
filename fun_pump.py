@@ -5,14 +5,13 @@ Created on Fri Jan 28 00:42:22 2022
 @author: Xcz
 """
 
-import os
 import cv2
 import math
 import numpy as np
 import scipy.stats
 import inspect
 from fun_os import img_squared_bordered_Read, U_Read, U_read_only, U_dir, U_plot_save
-from fun_global_var import init_accu, tree_print
+from fun_global_var import Get, init_accu, tree_print
 from fun_img_Resize import img_squared_Resize
 from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase
 from fun_linear import Cal_n, Cal_kz, fft2, ifft2
@@ -110,9 +109,10 @@ def OAM(Ix=0, Iy=0,
 def OAM_profile(Ix=0, Iy=0,
                 U=0,
                 l=1,
-                theta_x=1, theta_y=0, ):
+                theta_x=0, theta_y=0, ):
     mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy,
                                     theta_x, theta_y)
+    # print(U.shape, mesh_Ix0_Iy0_shift[:, :, 0].shape,mesh_Ix0_Iy0_shift[:, :, 1].shape)
     U = U * np.power(math.e, l * np.arctan2(mesh_Ix0_Iy0_shift[:, :, 0], mesh_Ix0_Iy0_shift[:, :, 1]) * 1j)
 
     return U
@@ -211,9 +211,7 @@ def propagation_profile_U(Ix=0, Iy=0, size_PerPixel=0.77,
 
 # %%
 
-def pump(file_full_name="Grating.png",
-         # %%
-         Ix=0, Iy=0, size_PerPixel=0.77,
+def pump(Ix=0, Iy=0, size_PerPixel=0.77,
          Up=0, w0=0, k=0, z=0,
          # %%
          is_LG=0, is_Gauss=1, is_OAM=1,
@@ -223,8 +221,6 @@ def pump(file_full_name="Grating.png",
          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
          # %%
          is_save=0, is_save_txt=0, dpi=100,
-         # %%
-         cmap_2d='viridis',
          # %%
          ticks_num=6, is_contourf=0,
          is_title_on=1, is_axes_on=1, is_mm=1,
@@ -237,13 +233,12 @@ def pump(file_full_name="Grating.png",
                },
          # %%
          is_colorbar_on=1, is_energy=0,
-         is_print=1,
          # %%
          **kwargs, ):
     # %%
     # file_name = os.path.splitext(file_full_name)[0]
-    img_name_extension = os.path.splitext(file_full_name)[1]
-    size_fig = Ix / dpi
+    # img_name_extension = os.path.splitext(file_full_name)[1]  # 都能获取了
+    # size_fig = Ix / dpi  # 都能获取了
     # %%
     # 将输入场 改为 LG 光束
 
@@ -366,10 +361,15 @@ def pump(file_full_name="Grating.png",
     # 绘图：g_0_amp
 
     method = "PUMP"
+    cmap_2d = "inferno"  # "plasma", "magma", "inferno", "cividis",
+    # "Reds", "BuPu"
+    # "pink", "gist_heat",
+    # "Spectral_r", "coolwarm", "seismic", "PuOr_r"
+    # "gnuplot", "rainbow", "nipy_spectral", "gist_earth"
 
     # ray = kwargs['ray'] + "0" if "ray" in kwargs else "0"
     if inspect.stack()[1][3] == "pump_pic_or_U": # 如果 调用该 pump 的 函数，名为 这个
-        ray = kwargs['ray'] + "p" if "ray" in kwargs else "p"
+        ray = kwargs['ray_pump'] + "p" if "ray_pump" in kwargs else "p"
     elif inspect.stack()[1][3] == "pump_pic_or_U_structure":
         ray = kwargs['ray_structure'] + "p" if "ray_structure" in kwargs else "p"
     else:
@@ -379,11 +379,13 @@ def pump(file_full_name="Grating.png",
     name = "G" + ray
     title = method + " - " + name
 
+    # print(kwargs)
+    kwargs.pop('U', None)  # 要想把 kwargs 传入 U_plot_save，kwargs 里不能含 'U'
     U_plot_save(G_z0_shift, title, 0,
-                img_name_extension,
+                Get("img_name_extension"),
                 # %%
                 size_PerPixel,
-                is_save, is_save_txt, dpi, size_fig,
+                is_save, is_save_txt, dpi, Get("size_fig"),
                 # %%
                 cmap_2d, ticks_num, is_contourf,
                 is_title_on, is_axes_on, is_mm,
@@ -399,10 +401,10 @@ def pump(file_full_name="Grating.png",
     title = method + " - " + name
 
     U_plot_save(U_z0, title, 1,
-                img_name_extension,
+                Get("img_name_extension"),
                 # %%
                 size_PerPixel,
-                is_save, is_save_txt, dpi, size_fig,
+                is_save, is_save_txt, dpi, Get("size_fig"),
                 # %%
                 cmap_2d, ticks_num, is_contourf,
                 is_title_on, is_axes_on, is_mm,
@@ -476,8 +478,7 @@ def pump_pic_or_U(U_name="",
                          is_air_pump,
                          lam1, T, p="e")
 
-            U, g_shift = pump(img_full_name,
-                              Ix, Iy, size_PerPixel,
+            U, g_shift = pump(Ix, Iy, size_PerPixel,
                               U, w0, k, z_pump,
                               is_LG, is_Gauss, is_OAM,
                               l, p,
@@ -485,11 +486,10 @@ def pump_pic_or_U(U_name="",
                               is_random_phase,
                               is_H_l, is_H_theta, is_H_random_phase,
                               is_save, is_save_txt, dpi,
-                              cmap_2d, ticks_num, is_contourf,
+                              ticks_num, is_contourf,
                               is_title_on, is_axes_on, is_mm,
                               fontsize, font,
                               is_colorbar_on, is_energy,
-                              is_print,
                               **kwargs, )
 
     else:
@@ -552,13 +552,22 @@ def pump_pic_or_U_structure(U_structure_name="",
     info = "泵浦_for_结构"
     is_Print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + info)
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+
     # %%
     # 导入 方形，以及 加边框 的 图片
 
-    img_name, img_name_extension, img_squared, \
-    size_PerPixel, size_fig, Ix, Iy, U = img_squared_bordered_Read(img_full_name,
-                                                                   U_NonZero_size, dpi,
-                                                                   is_phase_only)
+    if (type(U_structure_name) != str) or U_structure_name == "":
+        img_name, img_name_extension, img_squared, \
+        size_PerPixel, size_fig, Ix, Iy, U = img_squared_bordered_Read(img_full_name,
+                                                                       U_NonZero_size, dpi,
+                                                                       is_phase_only)
+    else:
+        img_name, img_name_extension, img_squared, \
+        size_PerPixel, size_fig, Ix, Iy, U = U_Read(U_structure_name,  # 需要 用 U_Read 覆盖 size_PerPixel 等 Set 的 值
+                                                    img_full_name,
+                                                    U_NonZero_size,
+                                                    dpi,
+                                                    is_save_txt, )
 
     # %%
     # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
@@ -600,8 +609,7 @@ def pump_pic_or_U_structure(U_structure_name="",
                          lam1, T, p="e")
 
             kwargs["is_end"] = 1
-            U_structure, g_shift_structure = pump(img_squared_resize_full_name,
-                                                  Ix_structure, Iy_structure, size_PerPixel,
+            U_structure, g_shift_structure = pump(Ix_structure, Iy_structure, size_PerPixel,
                                                   U_structure, w0, k, z_pump,
                                                   is_LG, is_Gauss, is_OAM,
                                                   l, p,
@@ -609,19 +617,11 @@ def pump_pic_or_U_structure(U_structure_name="",
                                                   is_random_phase,
                                                   is_H_l, is_H_theta, is_H_random_phase,
                                                   is_save, is_save_txt, dpi,
-                                                  cmap_2d, ticks_num, is_contourf,
+                                                  ticks_num, is_contourf,
                                                   is_title_on, is_axes_on, is_mm,
                                                   fontsize, font,
                                                   is_colorbar_on, is_energy,
-                                                  is_Print,
                                                   **kwargs, )
-
-    else:
-
-        # %%
-        # 导入 方形，以及 加边框 的 图片
-
-        U = U_read_only(U_structure_name, is_save_txt)
 
     if ((type(U_structure_name) == str) and U_structure_name != "") or "U_structure" in kwargs:
         U_structure = cv2.resize(np.real(U), (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA) + \
