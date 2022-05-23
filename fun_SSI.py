@@ -415,7 +415,7 @@ def cal_zj_mj_structure(Duty_Cycle_z, deff_structure_sheet, sheets_num_structure
         sum += dzj_structure_new[i]
         zj_structure.append(sum)
     zj_structure = np.array(zj_structure)  # 记得转换回 array
-    print(zj_structure)
+    # print(zj_structure)
 
     Dzj_structure = zj_structure - z0_structure_frontface
     Dzj_structure = Dzj_structure[:-1] # 丢掉 最后一个值，没用

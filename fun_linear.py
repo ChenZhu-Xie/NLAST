@@ -74,58 +74,61 @@ def get_n(is_air, lam, T, p):
 def Cal_n(size_PerPixel,
           is_air,
           lam, T, p="e", **kwargs):
-    from fun_global_var import Set, Get
-    if "gama_x" in kwargs or "gama_y" in kwargs:
+    from fun_global_var import Get
+    if is_air != 1 and (p=="z" or p=="e" or p=="c") and "gama_x" in kwargs or "gama_y" in kwargs:
         n_c = get_n(is_air, lam, T, "c")  # n_e, n_p
         # n_b = get_n(is_air, lam, T, "b")  # n_o, n_s
         n_a = get_n(is_air, lam, T, "a")  # n_o
-
-        mesh_nx_ny_shift = mesh_shift(Get("Ix"), Get("Iy"))
+        Ix = kwargs["Ix"] if "Ix" in kwargs else Get("Ix")  # 可能会有 Ix = Ix_structure 从 kwargs 里传进来
+        Iy = kwargs["Iy"] if "Iy" in kwargs else Get("Iy") # 可能会有 Iy = Iy_structure 从 kwargs 里传进来
+        mesh_nx_ny_shift = mesh_shift(Ix, Iy)
         mesh_kx_ky_shift = np.dstack(
-            (2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Get("Iy"), 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Get("Ix")))
+            (2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Iy, 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Ix))
         # Iy 才是 笛卡尔坐标系中 x 方向 的 像素数...
 
         # 基波 与 倍频 都同享 同一个 theta_x：二者 的 中心波矢 k 差不多 共线，尽管 二次谐波 的 中心 k 还与 结构关系很大，甚至没有 中心 k 一说
         if "gama_x" in kwargs:  #  "gama_x" 为 晶体 c 轴 偏离 传播方向 的 夹角 θ<c,propa>，与 "theta_x" 共享 同一个 实验室 坐标系：x 朝右为正
             # 有该关键字，则晶体 c 轴 躺在 垂直于 y 轴 的面内，则无 "gama_y" 关键字 可言
-            alpha_x = (kwargs["theta_x"] - kwargs["gama_x"]) / 180 * math.pi  # 得到 光束 / 图 的 中心波矢 相对于 晶体坐标系 的 θ<k,c>
+            alpha = - kwargs["gama_x"] / 180 * math.pi  # 不是 倾斜相位 所对应的：最大光强 作为中心级，而是 图正中 作为 中心级
+            alpha_inc = (kwargs["theta_x"] - kwargs["gama_x"]) / 180 * math.pi  # 基波 传播方向 与 晶轴 c 的夹角
+            # alpha = (kwargs["theta_x"] - kwargs["gama_x"]) / 180 * math.pi  # 得到 光束 / 图 的 中心波矢 相对于 晶体坐标系 的 θ<k,c>
             # θ<k,c> = θ<k,propa> - θ<c,propa> ：中心波矢 相对于 实验室 坐标系 的 传播方向 夹角为 θ<k,propa>
-            n = 1 / ( np.sin(alpha_x) ** 2 / n_c ** 2 + np.cos(alpha_x) ** 2 / n_a ** 2 ) ** 0.5
-            k = 2 * math.pi * size_PerPixel / (lam / 1000 / n)  # 先得到 中心波矢 大小
-
-            sin_Alpha_nx = mesh_kx_ky_shift[:, :, 0] / k  # 注意 是 kx,ky 或 nx,ny 的 函数
-            Alpha_nx = np.arcsin(sin_Alpha_nx)  # θ<k_small,k>
-            alpha_nx = Alpha_nx + alpha_x  # θ<k_small,c> = θ<k_small,k> + θ<k,c>
-            n_nx = 1 / (np.sin(alpha_nx) ** 2 / n_c ** 2 + np.cos(alpha_nx) ** 2 / n_a ** 2) ** 0.5
-            k_nx = 2 * math.pi * size_PerPixel / (lam / 1000 / n_nx)
-
-            Set("alpha_x", alpha_x)
+            mesh = mesh_kx_ky_shift[:, :, 0]
 
         elif "gama_y" in kwargs:  # "gama_y" 也 y 朝上为正（实验室 坐标系，同时 也是 电脑坐标系）
-            alpha_y = (kwargs["theta_y"] - kwargs["gama_y"]) / 180 * math.pi
+            alpha = - kwargs["gama_y"] / 180 * math.pi  # 光强最大 与 中心级 无关，而 图正中 = 中心级
+            alpha_inc = (kwargs["theta_y"] - kwargs["gama_y"]) / 180 * math.pi  # 基波 传播方向 与 晶轴 c 的夹角
+            # alpha = (kwargs["theta_y"] - kwargs["gama_y"]) / 180 * math.pi  # 转换为 弧度
             # θ<k,c> = θ<k,propa> - θ<c,propa>
-            n = 1 / (np.sin(alpha_y) ** 2 / n_c ** 2 + np.cos(alpha_y) ** 2 / n_a ** 2) ** 0.5
-            k = 2 * math.pi * size_PerPixel / (lam / 1000 / n)  # 先得到 中心波矢 大小
+            mesh = mesh_kx_ky_shift[:, :, 1]
 
-            sin_Alpha_ny = mesh_kx_ky_shift[:, :, 1] / k  # 注意 是 kx,ky 或 nx,ny 的 函数
-            Alpha_ny = np.arcsin(sin_Alpha_ny)  # θ<k_small,k>
-            alpha_ny = Alpha_ny + alpha_y  # θ<k_small,c> = θ<k_small,k> + θ<k,c>
-            n_ny = 1 / (np.sin(alpha_ny) ** 2 / n_c ** 2 + np.cos(alpha_ny) ** 2 / n_a ** 2) ** 0.5
-            k_ny = 2 * math.pi * size_PerPixel / (lam / 1000 / n_ny)
+        n = 1 / (np.sin(alpha) ** 2 / n_c ** 2 + np.cos(alpha) ** 2 / n_a ** 2) ** 0.5
+        k = 2 * math.pi * size_PerPixel / (lam / 1000 / n)  # 先得到 中心波矢（图正中 方向） 大小
 
-            Set("alpha_y", alpha_y)
+        sin_Alpha_nxny = mesh / k  # 注意 是 kx,ky 或 nx,ny 的 函数
+        # print(mesh[0], mesh[1])  # 如果 是 一样的，说明是 每行一样，则 每列不同，则 自变量 = 列 = y
+        Alpha_nxny = np.arcsin(sin_Alpha_nxny)  # θ<k_small,k>
+        # print(Alpha_nxny[0], Alpha_nxny[1])
+        alpha_nxny = Alpha_nxny + alpha  # θ<k_small,c> = θ<k_small,k> + θ<k,c>
+        n_nxny = 1 / (np.sin(alpha_nxny) ** 2 / n_c ** 2 + np.cos(alpha_nxny) ** 2 / n_a ** 2) ** 0.5
+        k_nxny = 2 * math.pi * size_PerPixel / (lam / 1000 / n_nxny)  # 不仅 kz，连 k 现在 都是个 椭球面了
+        # Set("k_" + str(k).split('.')[-1], k_nxny) # 用值 来做名字：k 的 值 的 小数点 后的 nums 做为 str ！
+
+        n_inc = 1 / (np.sin(alpha_inc) ** 2 / n_c ** 2 + np.cos(alpha_inc) ** 2 / n_a ** 2) ** 0.5
+        # 基波 传播方向 上 的 折射率
+        k_inc = 2 * math.pi * size_PerPixel / (lam / 1000 / n_inc)  # 后得到 中心波矢（基波 传播方向 上） 大小
     else:
         n = get_n(is_air, lam, T, p)
+        n_inc = n_nxny = n
         k = 2 * math.pi * size_PerPixel / (lam / 1000 / n)  # lam / 1000 即以 mm 为单位
-
-    return n, k
-
+        k_inc = k_nxny = k
+    return n_inc, n_nxny, k_inc, k_nxny
 
 # %%
 
 # 生成 kz 网格
 
-def Cal_kz(Ix, Iy, k):
+def Cal_kz(Ix, Iy, k):  # 不仅 kz，连 k 现在 都是个 椭球面了
     mesh_nx_ny_shift = mesh_shift(Ix, Iy)
     mesh_kx_ky_shift = np.dstack(
         (2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Iy, 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Ix))
@@ -156,30 +159,36 @@ def Uz_AST(U, k, iz):
 #%%
 
 def init_AST(Ix, Iy, size_PerPixel,
-             lam1, is_air, T, ):
+             lam1, is_air, T,
+             theta_x, theta_y, **kwargs):
 
-    n1, k1 = Cal_n(size_PerPixel,
-                   is_air,
-                   lam1, T, p="e")
+    n1_inc, n1, k1_inc, k1 = Cal_n(size_PerPixel,
+                                   is_air,
+                                   lam1, T, p="e",
+                                   theta_x=theta_x,
+                                   theta_y=theta_y, **kwargs)
 
     k1_z, k1_xy = Cal_kz(Ix, Iy, k1)
 
-    return n1, k1, k1_z, k1_xy
+    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
 #%%
 
 def init_SHG(Ix, Iy, size_PerPixel,
-             lam1, is_air, T, ):
+             lam1, is_air, T,
+             theta_x, theta_y, **kwargs):
 
     lam2 = lam1 / 2
 
-    n2, k2 = Cal_n(size_PerPixel,
-                   is_air,
-                   lam2, T, p="e")
+    n2_inc, n2, k2_inc, k2 = Cal_n(size_PerPixel,
+                                   is_air,
+                                   lam2, T, p="e",
+                                   theta_x=theta_x,
+                                   theta_y=theta_y, **kwargs)
 
     k2_z, k2_xy = Cal_kz(Ix, Iy, k2)
 
-    return lam2, n2, k2, k2_z, k2_xy
+    return lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy
 
 # %%
 def Find_energy_Dropto_fraction(U, energy_fraction, relative_error):  # 类似 牛顿迭代法 的 思想

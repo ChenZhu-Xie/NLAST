@@ -48,6 +48,7 @@ def C_m(m):
 
 def Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
                is_print=1, **kwargs):
+
     dk = 2 * k1 - k2  # Unit: 无量纲
     lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: μm
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) +
@@ -82,7 +83,7 @@ def Cal_GxGyGz(mx, my, mz,
 
 # %%
 
-def args_SHG(k1, k2, size_PerPixel,
+def args_SHG(k1_inc, k2_inc, size_PerPixel,
              mx, my, mz,
              Tx, Ty, Tz,
              is_print, **kwargs):
@@ -94,7 +95,7 @@ def args_SHG(k1, k2, size_PerPixel,
     is_Print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
+    dk, lc, Tz = Cal_lc_SHG(k1_inc, k2_inc, Tz, size_PerPixel,
                             is_Print, )
 
     Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
@@ -111,13 +112,17 @@ def Cal_dk_zQ_SHG(k1, k1_z, k2_z,
                  n2_x, n2_y,
                  Gx, Gy, Gz, ):
     # n2_x_n2_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k2_x_k2_y 的 mesh，所以用 Gy 才对应
-    dk_x = mesh_k2_x_k2_y[n2_x, n2_y, 0] - mesh_k1_x_k1_y[:, :, 0] - Gy
+    # dk_x = mesh_k2_x_k2_y[n2_x, n2_y, 0] - mesh_k1_x_k1_y[:, :, 0] - Gy  #  old
+    dk_x = mesh_k2_x_k2_y[n2_x, n2_y, 0] - mesh_k1_x_k1_y[:, :, 0] - Gx  # 应该减 Gx 而非 Gy：因为 mesh 本身是 对的，只有 Iy 单独出现 才不对。
     # 其实 mesh_k2_x_k2_y[:, :, 0]、mesh_n2_x_n2_y[:, :, 0]、mesh_n2_x_n2_y[:, :, 0]、 n2_x 均只和 y，即 [:, :] 中的 第 2 个数字 有关，
     # 只由 列 y、ky 决定，与行 即 x、kx 无关
     # 而 Gy 得与 列 y、ky 发生关系,
     # 所以是 - Gy 而不是 Gx
     # 并且这里的 dk_x 应写为 dk_y
-    dk_y = mesh_k2_x_k2_y[n2_x, n2_y, 1] - mesh_k1_x_k1_y[:, :, 1] - Gx
+    # dk_y = mesh_k2_x_k2_y[n2_x, n2_y, 1] - mesh_k1_x_k1_y[:, :, 1] - Gx  #  old
+    dk_y = mesh_k2_x_k2_y[n2_x, n2_y, 1] - mesh_k1_x_k1_y[:, :, 1] - Gy  # 应该减 Gy 而非 Gx：因为 mesh 本身是 对的，只有 Ix 单独出现 才不对。
+    # print(dk_y[0], dk_y[1])  # 每行都是一样的，说明 dk_y 确实变的 只有 列，而 列 == y
+    # 所以 mesh 生成的 确实是 标准的 笛卡尔坐标系，所以该 Gy 就 Gy
     k1_z_dk_x_dk_y = (k1 ** 2 - dk_x ** 2 - dk_y ** 2 + 0j) ** 0.5
 
     dk_z = k1_z + k1_z_dk_x_dk_y - k2_z[n2_x, n2_y]
@@ -133,12 +138,16 @@ def Cal_roll_xy(Gx, Gy,
                 *args):
     if len(args) >= 2:
         nx, ny = args[0], args[1]
-        roll_x = np.floor(Ix // 2 - (Ix - 1) + nx - Gy / (2 * math.pi) * Iy).astype(np.int64)
-        roll_y = np.floor(Iy // 2 - (Iy - 1) + ny - Gx / (2 * math.pi) * Ix).astype(np.int64)
-        # 之后要平移列，而 Gx 才与列有关...
+        # roll_x = np.floor(Ix // 2 - (Ix - 1) + nx - Gy / (2 * math.pi) * Iy).astype(np.int64)  # y 向（行）移动
+        # # roll_y = np.floor(Iy // 2 - (Iy - 1) + ny - Gx / (2 * math.pi) * Ix).astype(np.int64)  # x 向（列）移动
+        roll_x = np.floor(Ix // 2 - (Ix - 1) + nx - Gy / (2 * math.pi) * Ix).astype(np.int64)  # y 向（行）移动
+        roll_y = np.floor(Iy // 2 - (Iy - 1) + ny - Gx / (2 * math.pi) * Iy).astype(np.int64)  # x 向（列）移动
+        # 之后要平移列，而 Gx 才与列有关...（同时，Iy 才是 列数，所以 Gx 总与 Iy 搭配）
     else:
-        roll_x = np.floor(Gy / (2 * math.pi) * Iy).astype(np.int64)
-        roll_y = np.floor(Gx / (2 * math.pi) * Ix).astype(np.int64)
+        # roll_x = np.floor(Gy / (2 * math.pi) * Iy).astype(np.int64)
+        # roll_y = np.floor(Gx / (2 * math.pi) * Ix).astype(np.int64)
+        roll_x = np.floor(Gy / (2 * math.pi) * Ix).astype(np.int64)
+        roll_y = np.floor(Gx / (2 * math.pi) * Iy).astype(np.int64)  # Gx 才与列有关...同时，Iy 才是 列数
 
     return roll_x, roll_y
 
@@ -692,8 +701,8 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
     Ix, Iy = U1_0.shape[0], U1_0.shape[1]
     k2_z, mesh_k2_x_k2_y = Cal_kz(Ix, Iy, k2)
 
-    Big_version = 3
-    Cal_version = 3
+    Big_version = 5
+    Cal_version = 1
     Res_version = 1
     # print(str(Big_version) + '.' + str(Cal_version) + "\n")
     cos_num_expect = 10
@@ -932,7 +941,7 @@ def G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
 # %%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 
-def Info_find_contours_SHG(g1, k1_z, k2_z, Tz, mz,
+def Info_find_contours_SHG(g1, k1_z, k2_z, dk, Tz, mz,
                            z0, size_PerPixel, deff_structure_length_expect,
                            is_print=1, is_contours=1, n_TzQ=1,
                            Gz_max_Enhance=1, match_mode=1, **kwargs):
@@ -948,7 +957,7 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, Tz, mz,
     if is_contours != -1 and is_contours != 0: # 等于 0 或 -1 则让该 子程序 完全不行使 contours 功能，甚至不提示...
         # 但 0 但会 约束 deff_structure_length_expect， -1 则彻底 啥也不干
 
-        dk = 2 * np.max(np.abs(k1_z)) - np.max(np.abs(k2_z))
+        # dk = 2 * np.max(np.abs(k1_z)) - np.max(np.abs(k2_z))
         # print(k2_z[0,0])
         is_Print and print(tree_print() + "dk = {} / μm, {}".format(dk / size_PerPixel / 1000, dk))
         lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: um

@@ -19,6 +19,7 @@ from fun_nonlinear import args_SHG
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, sget, skey, fGHU_plot_save, fU_SSI_plot
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -82,11 +83,12 @@ def nLA_ssi(U_name="",
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    #%%
+    # %%
 
     info = "NLA_折射率调制"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "~", "SSI", "nla", **kwargs)
     init_GLV_rmw(U_name, "l", "nLA", "ssi", **kwargs)
@@ -96,46 +98,48 @@ def nLA_ssi(U_name="",
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
     U_0, g_shift = pump_pic_or_U(U_name,
-                                   img_full_name,
-                                   is_phase_only,
-                                   # %%
-                                   z_pump,
-                                   is_LG, is_Gauss, is_OAM,
-                                   l, p,
-                                   theta_x, theta_y,
-                                   # %%
-                                   is_random_phase,
-                                   is_H_l, is_H_theta, is_H_random_phase,
-                                   # %%
-                                   U_NonZero_size, w0,
-                                   # %%
-                                   lam1, is_air_pump, T,
-                                   # %%
-                                   is_save, is_save_txt, dpi,
-                                   cmap_2d,
-                                   # %%
-                                   ticks_num, is_contourf,
-                                   is_title_on, is_axes_on, is_mm,
-                                   # %%
-                                   fontsize, font,
-                                   # %%
-                                   is_colorbar_on, is_energy,
-                                   # %%
-                                   is_print,
-                                   # %%
-                                   ray_pump='1', **kwargs, )
+                                 img_full_name,
+                                 is_phase_only,
+                                 # %%
+                                 z_pump,
+                                 is_LG, is_Gauss, is_OAM,
+                                 l, p,
+                                 theta_x, theta_y,
+                                 # %%
+                                 is_random_phase,
+                                 is_H_l, is_H_theta, is_H_random_phase,
+                                 # %%
+                                 U_NonZero_size, w0,
+                                 # %%
+                                 lam1, is_air_pump, T,
+                                 # %%
+                                 is_save, is_save_txt, dpi,
+                                 cmap_2d,
+                                 # %%
+                                 ticks_num, is_contourf,
+                                 is_title_on, is_axes_on, is_mm,
+                                 # %%
+                                 fontsize, font,
+                                 # %%
+                                 is_colorbar_on, is_energy,
+                                 # %%
+                                 is_print,
+                                 # %%
+                                 ray_pump='1', **kwargs, )
 
-    n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                   lam1, is_air, T, )
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
+                                                   lam1, is_air, T,
+                                                   theta_x, theta_y, **kwargs)
 
-    lam2, n2, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
-                                    lam1, is_air, T, )
+    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+                                                         lam1, is_air, T,
+                                                         theta_x, theta_y, **kwargs)
 
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1, k2, size_PerPixel,
-                         mx, my, mz,
-                         Tx, Ty, Tz,
-                         is_print, )
+    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, size_PerPixel,
+                          mx, my, mz,
+                          Tx, Ty, Tz,
+                          is_print, )
 
     # %%
 
@@ -148,10 +152,10 @@ def nLA_ssi(U_name="",
     sheet_th_sec1, sheets_num_sec1, iz_1, z0_1, \
     sheet_th_sec2, sheets_num_sec2, iz_2, z0_2 \
         = slice_ssi(L0_Crystal, Duty_Cycle_z,
-                     z0_structure_frontface_expect, deff_structure_length_expect,
-                     z0_section_1_expect, z0_section_2_expect,
-                     Tz, ssi_zoomout_times, size_PerPixel,
-                     is_print, )
+                    z0_structure_frontface_expect, deff_structure_length_expect,
+                    z0_section_1_expect, z0_section_2_expect,
+                    Tz, ssi_zoomout_times, size_PerPixel,
+                    is_print, )
 
     # %%
     # const
@@ -198,7 +202,7 @@ def nLA_ssi(U_name="",
         Q1_z = fft2((k1 / size_PerPixel / n1) ** 2 * (modulation_squared_z ** 2 - n1 ** 2) * U_z)
 
         dset("G", dget("G") * H1_zdz(dizj[for_th]) +
-             const * Q1_z * H1_z(dizj[for_th]) )
+             const * Q1_z * H1_z(dizj[for_th]))
 
         return dget("G")
 
@@ -208,7 +212,7 @@ def nLA_ssi(U_name="",
 
     # %%
 
-    end_SSI(g_shift, is_energy, n_sigma = 3, )
+    end_SSI(g_shift, is_energy, n_sigma=3, )
 
     fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    img_name_extension, is_print,
@@ -257,64 +261,65 @@ def nLA_ssi(U_name="",
         return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U"), \
                sget("U"), sget("G"), skey("U"),
 
+
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-        "img_full_name": "lena.png",
-        "is_phase_only": 0,
-        # %%
-        "z_pump": 0,
-        "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
-        "l": 0, "p": 0,
-        "theta_x": 0, "theta_y": 0,
-        # %%
-        "is_random_phase": 0,
-        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
-        # %%
-        "U_NonZero_size": 1, "w0": 0.3,
-        "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
-        "Duty_Cycle_z": 0.5, "ssi_zoomout_times": 5, "sheets_stored_num": 10,
-        "z0_section_1_expect": 1, "z0_section_2_expect": 1,
-        "X": 0, "Y": 0,
-        # %%
-        "is_bulk": 1,
-        "is_stored": 1, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
-        # %%
-        "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
-        "deff": 30,
-        # %%
-        "Tx": 10, "Ty": 10, "Tz": "2*lc",
-        "mx": 0, "my": 0, "mz": 0,
-        # %%
-        "is_save": 0, "is_save_txt": 0, "dpi": 100,
-        # %%
-        "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
-        "elev": 10, "azim": -65, "alpha": 2,
-        # %%
-        "sample": 1, "ticks_num": 6, "is_contourf": 0,
-        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
-        # %%
-        "fontsize": 9,
-        "font": {'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        "is_colorbar_on": 1, "is_energy": 0,
-        # %%
-        "plot_group": "UGa", "is_animated": 1,
-        "loop": 0, "duration": 0.033, "fps": 5,
-        # %%
-        "is_plot_3d_XYz": 0, "is_plot_selective": 0,
-        "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
-        # %%
-        "is_print": 1,
-        # %%
-        "kwargs_seq": 0, "root_dir": r'1',
-        "border_percentage": 0.1, "is_end": -1,
-        "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-        "ray": "1", }
+         "img_full_name": "lena.png",
+         "is_phase_only": 0,
+         # %%
+         "z_pump": 0,
+         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+         "l": 0, "p": 0,
+         "theta_x": 0, "theta_y": 0,
+         # %%
+         "is_random_phase": 0,
+         "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+         # %%
+         "U_NonZero_size": 1, "w0": 0.3,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "Duty_Cycle_z": 0.5, "ssi_zoomout_times": 5, "sheets_stored_num": 10,
+         "z0_section_1_expect": 1, "z0_section_2_expect": 1,
+         "X": 0, "Y": 0,
+         # %%
+         "is_bulk": 1,
+         "is_stored": 1, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
+         # %%
+         "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "deff": 30,
+         # %%
+         "Tx": 10, "Ty": 10, "Tz": "2*lc",
+         "mx": 0, "my": 0, "mz": 0,
+         # %%
+         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         # %%
+         "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
+         "elev": 10, "azim": -65, "alpha": 2,
+         # %%
+         "sample": 1, "ticks_num": 6, "is_contourf": 0,
+         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+         # %%
+         "fontsize": 9,
+         "font": {'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+         # %%
+         "is_colorbar_on": 1, "is_energy": 0,
+         # %%
+         "plot_group": "UGa", "is_animated": 1,
+         "loop": 0, "duration": 0.033, "fps": 5,
+         # %%
+         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
+         # %%
+         "is_print": 1,
+         # %%
+         "kwargs_seq": 0, "root_dir": r'1',
+         "border_percentage": 0.1, "is_end": -1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "ray": "1", }
 
     kwargs = init_GLV_DICT(**kwargs)
     nLA_ssi(**kwargs)

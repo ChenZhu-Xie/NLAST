@@ -19,76 +19,78 @@ from fun_nonlinear import args_SHG, Info_find_contours_SHG, G2_z_modulation_NLAS
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
 # %%
 
 def SHG_NLA_ssi(U_name="",
-            img_full_name="Grating.png",
-            is_phase_only=0,
-            # %%
-            z_pump=0,
-            is_LG=0, is_Gauss=0, is_OAM=0,
-            l=0, p=0,
-            theta_x=0, theta_y=0,
-            # %%
-            is_random_phase=0,
-            is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-            # %%
-            U_NonZero_size=1, w0=0.3,
-            L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
-            Duty_Cycle_z=0.5, ssi_zoomout_times=5, sheets_stored_num=10,
-            z0_section_1_expect=1, z0_section_2_expect=1,
-            X=0, Y=0,
-            # %%
-            is_bulk=1, is_no_backgroud=0,
-            is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
-            # %%
-            lam1=0.8, is_air_pump=0, is_air=0, T=25,
-            deff=30,
-            # %%
-            Tx=10, Ty=10, Tz="2*lc",
-            mx=0, my=0, mz=0,
-            is_NLAST=0,
-            # %%
-            is_save=0, is_save_txt=0, dpi=100,
-            # %%
-            color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
-            elev=10, azim=-65, alpha=2,
-            # %%
-            sample=2, ticks_num=6, is_contourf=0,
-            is_title_on=1, is_axes_on=1, is_mm=1,
-            # %%
-            fontsize=9,
-            font={'family': 'serif',
-                  'style': 'normal',  # 'normal', 'italic', 'oblique'
-                  'weight': 'normal',
-                  'color': 'black',  # 'black','gray','darkred'
-                  },
-            # %%
-            is_colorbar_on=1, is_energy=0,
-            # %%
-            plot_group="UGa", is_animated=1,
-            loop=0, duration=0.033, fps=5,
-            # %%
-            is_plot_3d_XYz=0, is_plot_selective=0,
-            is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
-            # %%
-            is_print=1, is_contours=1, n_TzQ=1,
-            Gz_max_Enhance=1, match_mode=1,
-            # %%
-            **kwargs, ):
+                img_full_name="Grating.png",
+                is_phase_only=0,
+                # %%
+                z_pump=0,
+                is_LG=0, is_Gauss=0, is_OAM=0,
+                l=0, p=0,
+                theta_x=0, theta_y=0,
+                # %%
+                is_random_phase=0,
+                is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+                # %%
+                U_NonZero_size=1, w0=0.3,
+                L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
+                Duty_Cycle_z=0.5, ssi_zoomout_times=5, sheets_stored_num=10,
+                z0_section_1_expect=1, z0_section_2_expect=1,
+                X=0, Y=0,
+                # %%
+                is_bulk=1, is_no_backgroud=0,
+                is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
+                # %%
+                lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                deff=30,
+                # %%
+                Tx=10, Ty=10, Tz="2*lc",
+                mx=0, my=0, mz=0,
+                is_NLAST=0,
+                # %%
+                is_save=0, is_save_txt=0, dpi=100,
+                # %%
+                color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
+                elev=10, azim=-65, alpha=2,
+                # %%
+                sample=2, ticks_num=6, is_contourf=0,
+                is_title_on=1, is_axes_on=1, is_mm=1,
+                # %%
+                fontsize=9,
+                font={'family': 'serif',
+                      'style': 'normal',  # 'normal', 'italic', 'oblique'
+                      'weight': 'normal',
+                      'color': 'black',  # 'black','gray','darkred'
+                      },
+                # %%
+                is_colorbar_on=1, is_energy=0,
+                # %%
+                plot_group="UGa", is_animated=1,
+                loop=0, duration=0.033, fps=5,
+                # %%
+                is_plot_3d_XYz=0, is_plot_selective=0,
+                is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+                # %%
+                is_print=1, is_contours=1, n_TzQ=1,
+                Gz_max_Enhance=1, match_mode=1,
+                # %%
+                **kwargs, ):
     # %%
 
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    #%%
+    # %%
 
     info = "NLA_小步长_ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "SSI", "Nla", **kwargs)
     ray_tag = "f" if kwargs.get('ray', 2) == 3 else "h"
@@ -99,52 +101,54 @@ def SHG_NLA_ssi(U_name="",
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
     U_0, g_shift = pump_pic_or_U(U_name,
-                                   img_full_name,
-                                   is_phase_only,
-                                   # %%
-                                   z_pump,
-                                   is_LG, is_Gauss, is_OAM,
-                                   l, p,
-                                   theta_x, theta_y,
-                                   # %%
-                                   is_random_phase,
-                                   is_H_l, is_H_theta, is_H_random_phase,
-                                   # %%
-                                   U_NonZero_size, w0,
-                                   # %%
-                                   lam1, is_air_pump, T,
-                                   # %%
-                                   is_save, is_save_txt, dpi,
-                                   cmap_2d,
-                                   # %%
-                                   ticks_num, is_contourf,
-                                   is_title_on, is_axes_on, is_mm,
-                                   # %%
-                                   fontsize, font,
-                                   # %%
-                                   is_colorbar_on, is_energy,
-                                   # %%
-                                   is_print,
-                                   # %%
-                                   ray_pump='1', **kwargs, )
+                                 img_full_name,
+                                 is_phase_only,
+                                 # %%
+                                 z_pump,
+                                 is_LG, is_Gauss, is_OAM,
+                                 l, p,
+                                 theta_x, theta_y,
+                                 # %%
+                                 is_random_phase,
+                                 is_H_l, is_H_theta, is_H_random_phase,
+                                 # %%
+                                 U_NonZero_size, w0,
+                                 # %%
+                                 lam1, is_air_pump, T,
+                                 # %%
+                                 is_save, is_save_txt, dpi,
+                                 cmap_2d,
+                                 # %%
+                                 ticks_num, is_contourf,
+                                 is_title_on, is_axes_on, is_mm,
+                                 # %%
+                                 fontsize, font,
+                                 # %%
+                                 is_colorbar_on, is_energy,
+                                 # %%
+                                 is_print,
+                                 # %%
+                                 ray_pump='1', **kwargs, )
 
-    n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                   lam1, is_air, T, )
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
+                                                   lam1, is_air, T,
+                                                   theta_x, theta_y, **kwargs)
 
-    lam2, n2, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
-                                         lam1, is_air, T, )
+    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+                                                         lam1, is_air, T,
+                                                         theta_x, theta_y, **kwargs)
 
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, Tz, mz,
+    dk, lc, Tz, \
+    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, size_PerPixel,
+                          mx, my, mz,
+                          Tx, Ty, Tz,
+                          is_print, )
+
+    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, dk, Tz, mz,
                                                                           L0_Crystal, size_PerPixel,
                                                                           deff_structure_length_expect,
                                                                           is_print, is_contours, n_TzQ, Gz_max_Enhance,
                                                                           match_mode, )
-
-    dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1, k2, size_PerPixel,
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, )
 
     # %%
 
@@ -165,7 +169,7 @@ def SHG_NLA_ssi(U_name="",
     # %%
     # const
 
-    const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+    const = (k2_inc / size_PerPixel / n2_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
 
     # %%
     # G2_z0_shift
@@ -277,63 +281,63 @@ def SHG_NLA_ssi(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-        "img_full_name": "Grating.png",
-        "is_phase_only": 0,
-        # %%
-        "z_pump": 0,
-        "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
-        "l": 0, "p": 0,
-        "theta_x": 0, "theta_y": 0,
-        # %%
-        "is_random_phase": 0,
-        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
-        # %%
-        "U_NonZero_size": 1, "w0": 0.3,
-        "L0_Crystal": 1, "z0_structure_frontface_expect": 0.5, "deff_structure_length_expect": 2,
-        "Duty_Cycle_z": 0.5, "ssi_zoomout_times": 5, "sheets_stored_num": 10,
-        "z0_section_1_expect": 1, "z0_section_2_expect": 1,
-        "X": 0, "Y": 0,
-        # %%
-        "is_bulk": 1, "is_no_backgroud": 0,
-        "is_stored": 1, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
-        # %%
-        "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
-        "deff": 30,
-        # %%
-        "Tx": 10, "Ty": 10, "Tz": 5.6,
-        "mx": 0, "my": 0, "mz": 1,
-        "is_NLAST": 0,
-        # %%
-        "is_save": 1, "is_save_txt": 0, "dpi": 100,
-        # %%
-        "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
-        "elev": 10, "azim": -65, "alpha": 2,
-        # %%
-        "sample": 1, "ticks_num": 6, "is_contourf": 0,
-        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
-        # %%
-        "fontsize": 9,
-        "font": {'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        "is_colorbar_on": 1, "is_energy": 0,
-        # %%
-        "plot_group": "UGa", "is_animated": 1,
-        "loop": 0, "duration": 0.033, "fps": 5,
-        # %%
-        "is_plot_3d_XYz": 0, "is_plot_selective": 0,
-        "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
-        # %%
-        "is_print": 1, "is_contours": 66, "n_TzQ": 1,
-        "Gz_max_Enhance": 1, "match_mode": 1,
-        # %%
-        "kwargs_seq": 0, "root_dir": r'1',
-        "border_percentage": 0.1, "is_end": -1,
-        "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-        "ray": "2", }
+         "img_full_name": "Grating.png",
+         "is_phase_only": 0,
+         # %%
+         "z_pump": 0,
+         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+         "l": 0, "p": 0,
+         "theta_x": 0, "theta_y": 0,
+         # %%
+         "is_random_phase": 0,
+         "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+         # %%
+         "U_NonZero_size": 1, "w0": 0.3,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0.5, "deff_structure_length_expect": 2,
+         "Duty_Cycle_z": 0.5, "ssi_zoomout_times": 5, "sheets_stored_num": 10,
+         "z0_section_1_expect": 1, "z0_section_2_expect": 1,
+         "X": 0, "Y": 0,
+         # %%
+         "is_bulk": 1, "is_no_backgroud": 0,
+         "is_stored": 1, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
+         # %%
+         "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "deff": 30,
+         # %%
+         "Tx": 10, "Ty": 10, "Tz": 5.6,
+         "mx": 0, "my": 0, "mz": 1,
+         "is_NLAST": 0,
+         # %%
+         "is_save": 1, "is_save_txt": 0, "dpi": 100,
+         # %%
+         "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
+         "elev": 10, "azim": -65, "alpha": 2,
+         # %%
+         "sample": 1, "ticks_num": 6, "is_contourf": 0,
+         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+         # %%
+         "fontsize": 9,
+         "font": {'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+         # %%
+         "is_colorbar_on": 1, "is_energy": 0,
+         # %%
+         "plot_group": "UGa", "is_animated": 1,
+         "loop": 0, "duration": 0.033, "fps": 5,
+         # %%
+         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
+         # %%
+         "is_print": 1, "is_contours": 66, "n_TzQ": 1,
+         "Gz_max_Enhance": 1, "match_mode": 1,
+         # %%
+         "kwargs_seq": 0, "root_dir": r'1',
+         "border_percentage": 0.1, "is_end": -1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "ray": "2", }
 
     kwargs = init_GLV_DICT(**kwargs)
     SHG_NLA_ssi(**kwargs)

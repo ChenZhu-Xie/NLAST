@@ -146,7 +146,7 @@ def SHG_NLA_SSI(U_name="",
                                  # %%
                                  ray_pump='1', **kwargs, )
 
-    n1, k1, k1_z, lam2, n2, k2, k2_z, \
+    n1_inc, n1, k1_inc, k1, k1_z, lam2, n2_inc, n2, k2_inc, k2, k2_z, \
     dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0_structure, g_shift_structure, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
@@ -192,7 +192,7 @@ def SHG_NLA_SSI(U_name="",
                                      # %%
                                      **kwargs, )
 
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, Tz, mz,
+    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, dk, Tz, mz,
                                                                           L0_Crystal, size_PerPixel,
                                                                           deff_structure_length_expect,
                                                                           is_print, is_contours, n_TzQ, Gz_max_Enhance,
@@ -217,7 +217,7 @@ def SHG_NLA_SSI(U_name="",
     # %%
 
     if is_stripe > 0:
-        from fun_os import U_amp_plot_save, Get
+        from fun_os import U_amp_plot_save
         sheets_stored_num_structure = sheets_stored_num
         # print(len(zj_structure), len(zj), sheets_num)  # sheets_num = len(zj) - 1，因为 最后一层 的 结构 没用于 产生 非线性波
         # print(zj, zj_structure)
@@ -286,7 +286,7 @@ def SHG_NLA_SSI(U_name="",
     # %%
     # const
 
-    const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+    const = (k2_inc / size_PerPixel / n2_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
 
     # %%
     # G2_z0_shift
@@ -481,7 +481,7 @@ if __name__ == '__main__':
         # %%
         "Tx": 18.769, "Ty": 20, "Tz": 8,
         "mx": 1, "my": 0, "mz": 1,
-        "is_stripe": 2.2, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+        "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
         # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
         # %%
         # 生成横向结构
@@ -491,7 +491,7 @@ if __name__ == '__main__':
         "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
         "is_reverse_xy": 0, "is_positive_xy": 1,
         # %%
-        "is_save": 1, "is_save_txt": 0, "dpi": 100,
+        "is_save": 0, "is_save_txt": 0, "dpi": 100,
         # %%
         "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
         "elev": 10, "azim": -65, "alpha": 2,
@@ -499,7 +499,7 @@ if __name__ == '__main__':
         "sample": 1, "ticks_num": 6, "is_contourf": 0,
         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
         # %%
-        "fontsize": 9,
+        "fontsize": 7,
         "font": {'family': 'serif',
               'style': 'normal',  # 'normal', 'italic', 'oblique'
               'weight': 'normal',
@@ -508,7 +508,7 @@ if __name__ == '__main__':
         # %%
         "is_colorbar_on": 1, "is_energy": 0,
         # %%
-        "plot_group": "UGap", "is_animated": 1,
+        "plot_group": "Ga", "is_animated": 1,
         "loop": 0, "duration": 0.033, "fps": 5,
         # %%
         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
@@ -520,7 +520,7 @@ if __name__ == '__main__':
         "kwargs_seq": 0, "root_dir": r'1',
         "border_percentage": 0.1, "is_end": -1,
         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-        "ray": "2", }
+        "ray": "2", "gama_y": 90, }
 
     kwargs = init_GLV_DICT(**kwargs)
     SHG_NLA_SSI(**kwargs)

@@ -9,7 +9,7 @@ Created on Sun Dec 26 22:09:04 2021
 
 import numpy as np
 from scipy.io import savemat
-from fun_global_var import init_GLV_DICT, tree_print
+from fun_global_var import Get, init_GLV_DICT, tree_print
 from fun_algorithm import gcd_of_float
 from fun_img_Resize import if_image_Add_black_border
 from fun_SSI import slice_structure_ssi
@@ -82,7 +82,7 @@ def structure_chi2_3D(U_name="",
     kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
-    n1, k1, k1_z_shift, lam2, n2, k2, k2_z_shift, \
+    n1_inc, n1, k1_inc, k1, k1_z_shift, lam2, n2_inc, n2, k2_inc, k2, k2_z_shift, \
     dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0, g_shift, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
@@ -140,7 +140,7 @@ def structure_chi2_3D(U_name="",
         g_shift = kwargs["g_shift"]
 
     z0 = kwargs["L0_Crystal"] if "L0_Crystal" in kwargs else deff_structure_length_expect
-    z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z_shift, k2_z_shift, Tz, mz,
+    z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z_shift, k2_z_shift, dk, Tz, mz,
                                                                             z0, size_PerPixel,
                                                                             deff_structure_length_expect,
                                                                             is_print, is_contours, n_TzQ, Gz_max_Enhance,
@@ -161,7 +161,7 @@ def structure_chi2_3D(U_name="",
     # %%
 
     if is_stripe > 0:
-        from fun_os import U_amp_plot_save, Get
+        from fun_os import U_amp_plot_save
         sheets_stored_num = 10
         for_th_stored = list(np.int64(np.round(np.linspace(0, sheets_num-1, sheets_stored_num))))
         # print(for_th_stored, sheets_num, len(for_th_stored))

@@ -143,10 +143,16 @@ def OAM_profile_G(Ix=0, Iy=0,
 # 对 输入场 引入 额外的 倾斜相位
 
 def incline_profile(Ix=0, Iy=0,
-                    U=0, k=0,
+                    U=0, k_inc=0,
                     theta_x=1, theta_y=0, ):
-    Kx, Ky = k * np.sin(theta_x / 180 * math.pi), k * np.sin(theta_y / 180 * math.pi)
-    # 但这个 k 其实 只是 中心 k；上述只 适用于 球面 折射率 方程...
+    # 在空气中 倾斜，还是 在晶体中 倾斜，取决于 k 中的 n 是空气 还是 晶体的 折射率：
+    # 同样的 倾角，n 不同，则积累的 空域 倾斜相位 梯度 不同
+    # 其中 k 是 k 或 k_nxny，其正中 是 倒空间 正中
+    # 各向异性晶体 中 积累的 倾斜相位 其实 也应是 各向异性的，这里做不到；似乎实际上 也做不到在晶体从倾斜：溯源都可归结到 在空气中倾斜
+    # if type(k) != float and type(k) != np.float64 and type(k) != int:  # 如果 是 array，则 只取中心级 的 k
+    #     k = k[Iy // 2, Ix // 2]  # 取中心级 的 k
+    Kx, Ky = k_inc * np.sin(theta_x / 180 * math.pi), k_inc * np.sin(theta_y / 180 * math.pi)
+    # 但这个 k 其实 只是 中心 k；或者说，上述 隐含了 球面 折射率 方程...
     # 椭球的话，kx,ky 的关系似乎得用 tan，但 tan 只在小角有效；45 度 就 1:1 了，也不对
     # Kx, Ky = k * np.tan(theta_x / 180 * math.pi), k * np.tan(theta_y / 180 * math.pi)
 
@@ -166,12 +172,12 @@ def incline_profile(Ix=0, Iy=0,
 # 对输入场 频域 引入 额外倾斜相位
 
 def incline_profile_G(Ix=0, Iy=0,
-                      U=0, k=0,
+                      U=0, k_inc=0,
                       theta_x=1, theta_y=0, ):
     g_shift = fft2(U)
 
     g_shift = incline_profile(Ix, Iy,
-                              g_shift, k,
+                              g_shift, k_inc,
                               theta_x, theta_y)
     # 本该 H_shift 的 e 指数 的 相位部分，还要 加上 k_shift * i1_z0 的，不过这里 i1_z0 = i1_0 = 0，所以加了 等于没加
 
@@ -215,7 +221,7 @@ def propagation_profile_U(Ix=0, Iy=0, size_PerPixel=0.77,
 # %%
 
 def pump(Ix=0, Iy=0, size_PerPixel=0.77,
-         Up=0, w0=0, k=0, z=0,
+         Up=0, w0=0, k_inc=0, k=0, z=0,
          # %%
          is_LG=0, is_Gauss=1, is_OAM=1,
          l=1, p=0,
@@ -314,14 +320,14 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
         # 对 频谱空间 引入额外倾斜相位
 
         Up, G_z0_shift = incline_profile_G(Ix, Iy,
-                                          Up, k,
+                                          Up, k_inc,
                                           theta_x, theta_y, )
 
     else:
         # 对 实空间 引入额外倾斜相位
 
         Up = incline_profile(Ix, Iy,
-                            Up, k,
+                            Up, k_inc,
                             theta_x, theta_y)
 
     # Up = Up**2
@@ -477,12 +483,14 @@ def pump_pic_or_U(U_name="",
             # %%
             # 预处理 输入场
 
-            n, k = Cal_n(size_PerPixel,
-                         is_air_pump,
-                         lam1, T, p="e")
+            n_inc, n, k_inc, k = Cal_n(size_PerPixel,
+                                       is_air_pump,
+                                       lam1, T, p="e",
+                                       theta_x=theta_x,
+                                       theta_y=theta_y, **kwargs)
 
             U, g_shift = pump(Ix, Iy, size_PerPixel,
-                              U, w0, k, z_pump,
+                              U, w0, k_inc, k, z_pump,
                               is_LG, is_Gauss, is_OAM,
                               l, p,
                               theta_x, theta_y,
@@ -607,13 +615,17 @@ def pump_pic_or_U_structure(U_structure_name="",
             # %%
             # 预处理 输入场
 
-            n, k = Cal_n(size_PerPixel,
-                         is_air_pump,
-                         lam1, T, p="e")
+            n_inc, n, k_inc, k = Cal_n(size_PerPixel,
+                                       is_air_pump,
+                                       lam1, T, p="e",
+                                       theta_x=theta_x,
+                                       theta_y=theta_y,
+                                       Ix=Ix_structure,
+                                       Iy=Iy_structure, **kwargs)
 
             kwargs["is_end"] = 1
             U_structure, g_shift_structure = pump(Ix_structure, Iy_structure, size_PerPixel,
-                                                  U_structure, w0, k, z_pump,
+                                                  U_structure, w0, k_inc, k, z_pump,
                                                   is_LG, is_Gauss, is_OAM,
                                                   l, p,
                                                   theta_x, theta_y,

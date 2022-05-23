@@ -97,7 +97,6 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                               num_data_points=3, center_times=40, shift_right=3,
                               # %%
                               **kwargs, ):
-
     # %%
     info = "扫描 Tz，自动对比：NLA 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -144,13 +143,15 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
 
     # %%
 
-    n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                   lam1, is_air, T, )
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
+                                                   lam1, is_air, T,
+                                                   theta_x, theta_y, **kwargs)
 
-    lam2, n2, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
-                                         lam1, is_air, T, )
+    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+                                                         lam1, is_air, T,
+                                                         theta_x, theta_y, **kwargs)
 
-    dk, lc, Tz = Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
+    dk, lc, Tz = Cal_lc_SHG(k1_inc, k2_inc, Tz, size_PerPixel,
                             0, )
 
     Tc = 2 * lc
@@ -178,7 +179,6 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
     array_Tz *= 1000  # Unit: μm
     # print(array_dkQ)
     # print(array_Tz)
-
 
     G_energy = []
     G0_energy = []
@@ -310,86 +310,86 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name_Structure": "",
-          "is_phase_only_Structure": 0,
-          # %%
-          "z_pump_Structure": 0,
-          "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
-          "l_Structure": 1, "p_Structure": 0,
-          "theta_x_Structure": 0, "theta_y_Structure": 0,
-          # %%
-          "is_random_phase_Structure": 0,
-          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
-          # %%
-          "U_name": "",
-          "img_full_name": "lena1.png",
-          "is_phase_only": 0,
-          # %%
-          "z_pump": 0,
-          "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
-          "l": 0, "p": 0,
-          "theta_x": 0, "theta_y": 0,
-          # %%
-          "is_random_phase": 0,
-          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
-          # %%---------------------------------------------------------------------
-          # %%
-          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-          "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
-          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
-          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
-          "X": 0, "Y": 0,
-          # %%
-          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
-          "structure_xy_mode": 'x', "Depth": 2,
-          # %%
-          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
-          "is_reverse_xy": 0, "is_positive_xy": 1,
-          # %%
-          "is_bulk": 0, "is_no_backgroud": 0,
-          "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
-          # %%
-          "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
-          "deff": 30, "is_fft": 1, "fft_mode": 0,
-          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1, 
-          "is_linear_convolution": 0,
-          # %%
-          "Tx": 14.769, "Ty": 20, "Tz": 0,
-          "mx": 1, "my": 0, "mz": 1,
-          "is_stripe": 0, "is_NLAST": 1,
-          # %%
-          "is_save": 2, "is_save_txt": 0, "dpi": 100,
-          # %%
-          "color_1d": 'b', "color_1d2": 'r', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
-          "elev": 10, "azim": -65, "alpha": 2,
-          # %%
-          "sample": 1, "ticks_num": 6, "is_contourf": 0,
-          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
-          # %%
-          "fontsize": 9,
-          "font": {'family': 'serif',
-                'style': 'normal',  # 'normal', 'italic', 'oblique'
-                'weight': 'normal',
-                'color': 'black',  # 'black','gray','darkred'
-                },
-          # %%
-          "is_colorbar_on": 1, "is_energy": 1,
-          # %%
-          "plot_group": "UGa", "is_animated": 1,
-          "loop": 0, "duration": 0.033, "fps": 5,
-          # %%
-          "is_plot_3d_XYz": 0, "is_plot_selective": 0,
-          "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
-          # %%
-          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
-          "Gz_max_Enhance": 1, "match_mode": 1,
-          # %% 该程序 独有
-          "is_NLA": 1, "is_amp_relative": 1,
-          "num_data_points": 40, "center_times": 1.5, "shift_right": 3,
-          # %% 该程序 作为 主入口时
-          "kwargs_seq": 0, "root_dir": r'1',
-          "border_percentage": 0.1, "is_end": -1,
-          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-          "ax_yscale": 'linear', }
+         "is_phase_only_Structure": 0,
+         # %%
+         "z_pump_Structure": 0,
+         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
+         "l_Structure": 1, "p_Structure": 0,
+         "theta_x_Structure": 0, "theta_y_Structure": 0,
+         # %%
+         "is_random_phase_Structure": 0,
+         "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
+         # %%
+         "U_name": "",
+         "img_full_name": "lena1.png",
+         "is_phase_only": 0,
+         # %%
+         "z_pump": 0,
+         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+         "l": 0, "p": 0,
+         "theta_x": 0, "theta_y": 0,
+         # %%
+         "is_random_phase": 0,
+         "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+         # %%---------------------------------------------------------------------
+         # %%
+         "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "SSI_zoomout_times": 1, "sheets_stored_num": 10,
+         "z0_section_1_expect": 0, "z0_section_2_expect": 0,
+         "X": 0, "Y": 0,
+         # %%
+         "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
+         "structure_xy_mode": 'x', "Depth": 2,
+         # %%
+         "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
+         "is_reverse_xy": 0, "is_positive_xy": 1,
+         # %%
+         "is_bulk": 0, "is_no_backgroud": 0,
+         "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
+         # %%
+         "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "deff": 30, "is_fft": 1, "fft_mode": 0,
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1,
+         "is_linear_convolution": 0,
+         # %%
+         "Tx": 14.769, "Ty": 20, "Tz": 0,
+         "mx": 1, "my": 0, "mz": 1,
+         "is_stripe": 0, "is_NLAST": 1,
+         # %%
+         "is_save": 2, "is_save_txt": 0, "dpi": 100,
+         # %%
+         "color_1d": 'b', "color_1d2": 'r', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
+         "elev": 10, "azim": -65, "alpha": 2,
+         # %%
+         "sample": 1, "ticks_num": 6, "is_contourf": 0,
+         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+         # %%
+         "fontsize": 9,
+         "font": {'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+         # %%
+         "is_colorbar_on": 1, "is_energy": 1,
+         # %%
+         "plot_group": "UGa", "is_animated": 1,
+         "loop": 0, "duration": 0.033, "fps": 5,
+         # %%
+         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
+         # %%
+         "is_print": 1, "is_contours": 0, "n_TzQ": 1,
+         "Gz_max_Enhance": 1, "match_mode": 1,
+         # %% 该程序 独有
+         "is_NLA": 1, "is_amp_relative": 1,
+         "num_data_points": 40, "center_times": 1.5, "shift_right": 3,
+         # %% 该程序 作为 主入口时
+         "kwargs_seq": 0, "root_dir": r'1',
+         "border_percentage": 0.1, "is_end": -1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "ax_yscale": 'linear', }
 
     kwargs = init_GLV_DICT(**kwargs)
     auto_compare_SHG_NLA__SSI(**kwargs)

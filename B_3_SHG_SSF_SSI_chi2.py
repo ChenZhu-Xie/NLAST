@@ -148,7 +148,7 @@ def SHG_SSF_SSI(U_name="",
                                  # %%
                                  ray_pump='1', **kwargs, )
 
-    n1, k1, k1_z, lam2, n2, k2, k2_z, \
+    n1_inc, n1, k1_inc, k1, k1_z, lam2, n2_inc, n2, k2_inc, k2, k2_z, \
     dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0_structure, g_shift_structure, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
@@ -194,7 +194,7 @@ def SHG_SSF_SSI(U_name="",
                                      # %%
                                      **kwargs, )
 
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, Tz, mz,
+    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, dk, Tz, mz,
                                                                           L0_Crystal, size_PerPixel,
                                                                           deff_structure_length_expect,
                                                                           is_print, is_contours, n_TzQ, Gz_max_Enhance,
@@ -219,7 +219,7 @@ def SHG_SSF_SSI(U_name="",
     # %%
 
     if is_stripe > 0:
-        from fun_os import U_amp_plot_save, Get
+        from fun_os import U_amp_plot_save
         sheets_stored_num_structure = sheets_stored_num
         for_th_first = int(mj[0] == '0') * SSI_zoomout_times
         for_th_stored = list(np.int64(np.round(np.linspace(0 + for_th_first, len(mj_structure) - 1 + for_th_first,
@@ -284,7 +284,7 @@ def SHG_SSF_SSI(U_name="",
     # %%
     # const
 
-    const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+    const = (k2_inc / size_PerPixel / n2_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
 
     # %%
     # G2_z0_shift

@@ -19,6 +19,7 @@ from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, Set, Get, init_GLV_rmw, init_EVV, Fun3, end_SSI, \
     dset, dget, fget, fkey, fGHU_plot_save, fU_EVV_plot
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -83,10 +84,10 @@ def SHG_NLA_EVV(U_name="",
                       'color': 'black',  # 'black','gray','darkred'
                       },
                 # %%
-                is_colorbar_on=1, is_energy=0, is_plot_3d_XYz = 0,
+                is_colorbar_on=1, is_energy=0, is_plot_3d_XYz=0,
                 # %%
-                plot_group = "UGa", is_animated = 1,
-                loop = 0, duration = 0.033, fps = 5,
+                plot_group="UGa", is_animated=1,
+                loop=0, duration=0.033, fps=5,
                 # %%
                 is_print=1, is_contours=1, n_TzQ=1,
                 Gz_max_Enhance=1, match_mode=1,
@@ -97,11 +98,12 @@ def SHG_NLA_EVV(U_name="",
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    #%%
+    # %%
 
     info = "NLAST_演化版_EVV"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "EVV", "NLA", **kwargs)
     ray_tag = "f" if kwargs.get('ray', 2) == 3 else "h"
@@ -112,64 +114,66 @@ def SHG_NLA_EVV(U_name="",
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
     U_0, g_shift = pump_pic_or_U(U_name,
-                                   img_full_name,
-                                   is_phase_only,
-                                   # %%
-                                   z_pump,
-                                   is_LG, is_Gauss, is_OAM,
-                                   l, p,
-                                   theta_x, theta_y,
-                                   # %%
-                                   is_random_phase,
-                                   is_H_l, is_H_theta, is_H_random_phase,
-                                   # %%
-                                   U_NonZero_size, w0,
-                                   # %%
-                                   lam1, is_air_pump, T,
-                                   # %%
-                                   is_save, is_save_txt, dpi,
-                                   cmap_2d,
-                                   # %%
-                                   ticks_num, is_contourf,
-                                   is_title_on, is_axes_on, is_mm,
-                                   # %%
-                                   fontsize, font,
-                                   # %%
-                                   is_colorbar_on, is_energy,
-                                   # %%
-                                   is_print,
-                                   # %%
-                                   ray_pump='1', **kwargs, )
+                                 img_full_name,
+                                 is_phase_only,
+                                 # %%
+                                 z_pump,
+                                 is_LG, is_Gauss, is_OAM,
+                                 l, p,
+                                 theta_x, theta_y,
+                                 # %%
+                                 is_random_phase,
+                                 is_H_l, is_H_theta, is_H_random_phase,
+                                 # %%
+                                 U_NonZero_size, w0,
+                                 # %%
+                                 lam1, is_air_pump, T,
+                                 # %%
+                                 is_save, is_save_txt, dpi,
+                                 cmap_2d,
+                                 # %%
+                                 ticks_num, is_contourf,
+                                 is_title_on, is_axes_on, is_mm,
+                                 # %%
+                                 fontsize, font,
+                                 # %%
+                                 is_colorbar_on, is_energy,
+                                 # %%
+                                 is_print,
+                                 # %%
+                                 ray_pump='1', **kwargs, )
     # %%
 
-    n1, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                   lam1, is_air, T, )
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
+                                                   lam1, is_air, T,
+                                                   theta_x, theta_y, **kwargs)
 
-    lam2, n2, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
-                                         lam1, is_air, T, )
-
-    # %%
-    # 提供描边信息，并覆盖值
-
-    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, Tz, mz,
-                                                                  z0, size_PerPixel, z0,
-                                                                  is_print, is_contours, n_TzQ, Gz_max_Enhance,
-                                                                  match_mode, )
+    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+                                                         lam1, is_air, T,
+                                                         theta_x, theta_y, **kwargs)
 
     # %%
     # 引入 倒格矢，对 k2 的 方向 进行调整，其实就是对 k2 的 k2x, k2y, k2z 网格的 中心频率 从 (0, 0, k2z) 移到 (Gx, Gy, k2z + Gz)
 
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1, k2, size_PerPixel,
+    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
                           is_print, )
 
-    is_NLAST_sum = kwargs.get("is_NLAST_sum", 0) # 得写在外面，否则会传进 Fun 等的 kwargs...而这一般是空的
+    # %%
+    # 提供描边信息，并覆盖值
+
+    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, dk, Tz, mz,
+                                                                  z0, size_PerPixel, z0,
+                                                                  is_print, is_contours, n_TzQ, Gz_max_Enhance,
+                                                                  match_mode, )
+
+    is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)  # 得写在外面，否则会传进 Fun 等的 kwargs...而这一般是空的
     if fft_mode == 0:
         # %% generate structure
 
-        n1, k1, k1_z, lam2, n2, k2, k2_z, \
+        n1_inc, n1, k1_inc, k1, k1_z, lam2, n2_inc, n2, k2_inc, k2, k2_z, \
         dk, lc, Tz, Gx, Gy, Gz, folder_address, \
         size_PerPixel, U_0_structure, g_shift_structure, \
         structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
@@ -220,7 +224,7 @@ def SHG_NLA_EVV(U_name="",
     iz = z0 / size_PerPixel
     # zj = kwargs.get("zj", np.linspace(0, z0, sheets_stored_num + 1)) \
     #     if is_stored==1 else np.linspace(0, z0, sheets_stored_num + 1)
-    zj = kwargs.get("zj_EVV", np.linspace(0, z0, sheets_stored_num + 1)) # 防止 后续函数 接收的 kwargs 里 出现 关键字 zj 后重名
+    zj = kwargs.get("zj_EVV", np.linspace(0, z0, sheets_stored_num + 1))  # 防止 后续函数 接收的 kwargs 里 出现 关键字 zj 后重名
     # kwargs.pop("zj", None) # 防止 后续函数 接收的 kwargs 里 出现 关键字 zj 后重名
     izj = zj / size_PerPixel
     Set("zj", zj)
@@ -231,7 +235,7 @@ def SHG_NLA_EVV(U_name="",
              is_energy_evolution_on, is_stored,
              sheets_stored_num, sheets_stored_num,
              iz, size_PerPixel, )
-    
+
     def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
@@ -243,7 +247,7 @@ def SHG_NLA_EVV(U_name="",
         # for_th2 == 0 时也要算，因为 zj[0] 不一定是 0：外部可能传入 zj
         if is_fft == 0:
 
-            const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
+            const = (k2_inc / size_PerPixel / n2_inc) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
             integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
 
             g_rotate_180 = Rotate_180(g_shift)
@@ -261,8 +265,8 @@ def SHG_NLA_EVV(U_name="",
                                                  for_th, n2_y, )
 
                     g_shift_dk_x_dk_y = Roll_xy(g_rotate_180,
-                                                 roll_x, roll_y,
-                                                 is_linear_convolution, )
+                                                roll_x, roll_y,
+                                                is_linear_convolution, )
 
                     integrate_z0[for_th, n2_y] = np.sum(
                         g_shift * g_shift_dk_x_dk_y * Eikz(dk_zQ * izj[for_th2]) * izj[for_th2] * size_PerPixel \
@@ -279,7 +283,7 @@ def SHG_NLA_EVV(U_name="",
 
         else:
 
-            Const = (k2 / size_PerPixel / n2) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+            Const = (k2_inc / size_PerPixel / n2_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
 
             if fft_mode == 0:
 
@@ -297,7 +301,7 @@ def SHG_NLA_EVV(U_name="",
                         # print(m_z, C_m(m_z), "\n")
 
                         # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
-                        Const = (k2 / size_PerPixel / n2) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
+                        Const = (k2_inc / size_PerPixel / n2_inc) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
                         G2_z0_Gm = G2_z_modulation_NLAST(k1, k2,
                                                          modulation_squared, U_0, izj[for_th2], Const,
                                                          Gz=Gz_m, is_customized=1, ) if m_z != 0 else 0
@@ -335,7 +339,7 @@ def SHG_NLA_EVV(U_name="",
                         # print(m_x, C_m(m_x), "\n")
 
                         # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
-                        Const = (k2 / size_PerPixel / n2) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
+                        Const = (k2_inc / size_PerPixel / n2_inc) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
                         G2_z0_Gm = G2_z_NLAST(k1, k2, Gx_m, Gy, Gz,
                                               U_0, izj[for_th2], Const,
                                               is_linear_convolution, ) if m_x != 0 else 0
@@ -419,76 +423,76 @@ def SHG_NLA_EVV(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-        "img_full_name": "lena1.png",
-        "is_phase_only": 0,
-        # %%
-        "z_pump": 0,
-        "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
-        "l": 0, "p": 0,
-        "theta_x": 0, "theta_y": 0,
-        # %%
-        "is_random_phase": 0,
-        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
-        # %%
-        # 生成横向结构
-        "U_name_Structure": '',
-        "structure_size_Enlarge": 0.1,
-        "is_phase_only_Structure": 0,
-        # %%
-        "w0_Structure": 0, "z_pump_Structure": 0,
-        "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 0,
-        "l_Structure": 0, "p_Structure": 0,
-        "theta_x_Structure": 0, "theta_y_Structure": 0,
-        # %%
-        "is_random_phase_Structure": 0,
-        "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
-        # %%
-        "U_NonZero_size": 0.9, "w0": 0.3,
-        "z0": 10, "sheets_stored_num": 10,
-        # %%
-        "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
-        "deff": 30, "is_fft": 1, "fft_mode": 0,
-        "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0, 
-        "is_linear_convolution": 0,
-        # %%
-        "Tx": 10, "Ty": 10, "Tz": 0,
-        "mx": 1, "my": 0, "mz": 0,
-        # %%
-        # 生成横向结构
-        "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
-        "Depth": 2, "structure_xy_mode": 'x',
-        # %%
-        "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
-        "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
-        "is_stored": 1, "is_energy_evolution_on": 1,
-        # %%
-        "is_save": 1, "is_save_txt": 0, "dpi": 100,
-        # %%
-        "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
-        "elev": 10, "azim": -65, "alpha": 2,
-        # %%
-        "sample": 1, "ticks_num": 6, "is_contourf": 0,
-        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
-        # %%
-        "fontsize": 9,
-        "font": {'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        "is_colorbar_on": 1, "is_energy": 0, "is_plot_3d_XYz": 0,
-        # %%
-        "plot_group": "UGa", "is_animated": 1,
-        "loop": 0, "duration": 0.033, "fps": 5,
-        # %%
-        "is_print": 1, "is_contours": 66, "n_TzQ": 1,
-        "Gz_max_Enhance": 1, "match_mode": 1,
-        # %%
-        "kwargs_seq": 0, "root_dir": r'1',
-        "border_percentage": 0.1, "is_end": -1,
-        "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-        "ray": "2", }
+         "img_full_name": "lena1.png",
+         "is_phase_only": 0,
+         # %%
+         "z_pump": 0,
+         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+         "l": 0, "p": 0,
+         "theta_x": 0, "theta_y": 0,
+         # %%
+         "is_random_phase": 0,
+         "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+         # %%
+         # 生成横向结构
+         "U_name_Structure": '',
+         "structure_size_Enlarge": 0.1,
+         "is_phase_only_Structure": 0,
+         # %%
+         "w0_Structure": 0, "z_pump_Structure": 0,
+         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 0,
+         "l_Structure": 0, "p_Structure": 0,
+         "theta_x_Structure": 0, "theta_y_Structure": 0,
+         # %%
+         "is_random_phase_Structure": 0,
+         "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
+         # %%
+         "U_NonZero_size": 0.9, "w0": 0.3,
+         "z0": 10, "sheets_stored_num": 10,
+         # %%
+         "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "deff": 30, "is_fft": 1, "fft_mode": 0,
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
+         "is_linear_convolution": 0,
+         # %%
+         "Tx": 10, "Ty": 10, "Tz": 0,
+         "mx": 1, "my": 0, "mz": 0,
+         # %%
+         # 生成横向结构
+         "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
+         "Depth": 2, "structure_xy_mode": 'x',
+         # %%
+         "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
+         "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
+         "is_stored": 1, "is_energy_evolution_on": 1,
+         # %%
+         "is_save": 1, "is_save_txt": 0, "dpi": 100,
+         # %%
+         "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
+         "elev": 10, "azim": -65, "alpha": 2,
+         # %%
+         "sample": 1, "ticks_num": 6, "is_contourf": 0,
+         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+         # %%
+         "fontsize": 9,
+         "font": {'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+         # %%
+         "is_colorbar_on": 1, "is_energy": 0, "is_plot_3d_XYz": 0,
+         # %%
+         "plot_group": "UGa", "is_animated": 1,
+         "loop": 0, "duration": 0.033, "fps": 5,
+         # %%
+         "is_print": 1, "is_contours": 66, "n_TzQ": 1,
+         "Gz_max_Enhance": 1, "match_mode": 1,
+         # %%
+         "kwargs_seq": 0, "root_dir": r'1',
+         "border_percentage": 0.1, "is_end": -1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "ray": "2", }
 
     kwargs = init_GLV_DICT(**kwargs)
     SHG_NLA_EVV(**kwargs)
