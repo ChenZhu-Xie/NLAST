@@ -48,7 +48,7 @@ def Generate_r_shift(Ix = 0, Iy = 0, size_PerPixel = 0.77,
     # print(Ix, Iy)
     mesh_nx_ny_shift = mesh_shift(Ix, Iy, 
                                   theta_x, theta_y)
-    r_shift = ( mesh_nx_ny_shift[:, :, 0]**2 + mesh_nx_ny_shift[:, :, 1]**2  + 0j )**0.5 * size_PerPixel
+    r_shift = ( mesh_nx_ny_shift[:, :, 0]**2 + mesh_nx_ny_shift[:, :, 1]**2 + 0j )**0.5 * size_PerPixel
     
     return r_shift
 

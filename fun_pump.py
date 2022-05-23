@@ -29,8 +29,8 @@ def HG_without_Gauss_profile(Ix=0, Iy=0, size_PerPixel=0.77,
                                     theta_x, theta_y)
 
     C_HG_mn = 1
-    x, y = 2 ** 0.5 * mesh_Ix0_Iy0_shift[:, :, 0] * size_PerPixel / w0, 2 ** 0.5 * mesh_Ix0_Iy0_shift[:, :,
-                                                                                   1] * size_PerPixel / w0
+    x, y = 2 ** 0.5 * mesh_Ix0_Iy0_shift[:, :, 0] * size_PerPixel / w0, \
+           2 ** 0.5 * mesh_Ix0_Iy0_shift[:, :, 1] * size_PerPixel / w0
     M, N = [0] * m, [0] * n
     M.append(m), N.append(n)
     HG_mn = C_HG_mn * np.polynomial.hermite.hermval(x, M) * np.polynomial.hermite.hermval(y, N)
@@ -146,6 +146,9 @@ def incline_profile(Ix=0, Iy=0,
                     U=0, k=0,
                     theta_x=1, theta_y=0, ):
     Kx, Ky = k * np.sin(theta_x / 180 * math.pi), k * np.sin(theta_y / 180 * math.pi)
+    # 但这个 k 其实 只是 中心 k；上述只 适用于 球面 折射率 方程...
+    # 椭球的话，kx,ky 的关系似乎得用 tan，但 tan 只在小角有效；45 度 就 1:1 了，也不对
+    # Kx, Ky = k * np.tan(theta_x / 180 * math.pi), k * np.tan(theta_y / 180 * math.pi)
 
     mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
     # k_shift = (k**2 - Kx**2 - Ky**2 + 0j )**0.5
