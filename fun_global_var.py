@@ -319,7 +319,7 @@ def tree_print(is_end=0, add_level=0):  # 默认 is_end = 0 ，即 默认 该层
         Set("dirs" + suffix_2, Get("dirs" + suffix_2)[:-1])  # False 全 Set 之后，把最近邻 is_end = 1 的 dirs 的 储存器 删了（而不是 清空）
         # else: # 如果 名称 改变了，且 上一个 print 默认后面 还有 同级 peer_levels（ 上一个 print 的 is_end = 0），则 level 不变
         # ex_is_end = 1 # 推测 上一个 ex_dir 的 is_end 为 1，不然怎么会 退出 其分支，另开一路 分叉树？
-        # 还真可以：比如从 args_SHG 中的 Cal_lc_SHG 里返回 并跳到 Cal_GxGyGz 内时
+        # 还真可以：比如从 args_SFG 中的 Cal_lc_SHG 里返回 并跳到 Cal_GxGyGz 内时
         # 延迟 一步 打印 则可 省略每个 def 里 最后一个 tree_print 里填 is_end 值的操作
         # ex_dir 没有 子分支 ==> ex_dir 的 is_end = 1，但 ex_dir 有子分支 ≠≠> ex_dir 的 is_end = 0
         # 每个 def 里，最后一个 tree_print 的 is_end 必为 1，但 第一个 tree_print 的 is_end 是否为 1，需要给；中间的其他 tree_print 的 is_end 默认为 0 。
@@ -372,6 +372,11 @@ def init_accu(key, init_value=0):  # 设定一个 全局变量累加器（名称
     else:
         Set(key, Get(key) + 1)
     return Get(key)
+
+
+def init_Set(key, value):  # 同一个 key 名，只在 第一次 Set 时，才 Set
+    if init_accu("init_" + key + "_times", init_value=0) == 0:
+        Set(key, value)
 
 
 def init_tkey(key):  # get_format_key：每次调用 tset 的时候，创建一个名为 key_th 的变量，且每次创建的 th 不同

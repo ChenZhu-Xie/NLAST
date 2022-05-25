@@ -15,8 +15,8 @@ from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, fset, fget, 
 from fun_pump import pump_pic_or_U
 from A_3_structure_chi2_Generate_3D import structure_chi2_3D
 from b_1_AST import AST
-from B_3_SHG_NLA_ssi import SHG_NLA_ssi
-from B_3_SHG_SSF_ssi import SHG_SSF_ssi
+from B_3_SFG_NLA_ssi import SFG_NLA_ssi
+from B_3_SFG_SSF_ssi import SFG_SSF_ssi
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -55,6 +55,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                              is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
                              # %%
                              lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                             is_air_pump_structure=0,
                              deff=30,
                              # %%
                              Tx=10, Ty=10, Tz="2*lc",
@@ -93,11 +94,10 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                              # %%
                              is_print=1, is_contours=66, n_TzQ=1,
                              Gz_max_Enhance=1, match_mode=1,
-                             # %% 该程序 独有
+                             # %% 该程序 独有 -------------------------------
                              is_NLA=1,
                              # %%
                              **kwargs, ):
-
     # %%
     info = "利用 SHG 描边：ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -129,6 +129,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                                  U_NonZero_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
+                                 kwargs.get("polar", "e"),
                                  # %%
                                  is_save, is_save_txt, dpi,
                                  cmap_2d,
@@ -167,7 +168,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                       is_continuous, is_target_far_field, is_transverse_xy,
                       is_reverse_xy, is_positive_xy, is_no_backgroud,
                       # %%
-                      lam1, is_air_pump, is_air, T,
+                      lam1, is_air_pump_structure, is_air, T,
                       Tx, Ty, Tz,
                       mx, my, mz,
                       is_stripe,
@@ -187,7 +188,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                       is_print, is_contours, n_TzQ,
                       Gz_max_Enhance, match_mode,
                       # %%
-                      g_shift=g_shift, L0_Crystal=max(z_AST, z_ssi), )
+                      g_shift=g_shift, L0_Crystal=max(z_AST, z_ssi), **kwargs, )
 
     # %%
     # 先衍射 z_AST 后倍频 z_ssi
@@ -281,8 +282,8 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"U": U1_z_AST, "ray": ray1_z_AST, })
     U1_z_ssi, G1_z_ssi, ray1_z_ssi, method_and_way1_z_ssi, U_key1_z_ssi = \
-        SHG_NLA_ssi(*args_ssi(z_ssi), **kwargs_ssi, ) if is_NLA == 1 else \
-            SHG_SSF_ssi(*args_ssi(z_ssi), **kwargs_ssi, )
+        SFG_NLA_ssi(*args_ssi(z_ssi), **kwargs_ssi, ) if is_NLA == 1 else \
+            SFG_SSF_ssi(*args_ssi(z_ssi), **kwargs_ssi, )
 
     # %%
     # 先倍频 z_AST 后衍射 z_ssi
@@ -290,8 +291,8 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"ray": "2", })
     U2_z_ssi, G2_z_ssi, ray2_z_ssi, method_and_way2_z_ssi, U_key2_z_ssi = \
-        SHG_NLA_ssi(*args_ssi(z_ssi), ) if is_NLA == 1 else \
-            SHG_SSF_ssi(*args_ssi(z_ssi), **kwargs_ssi, )
+        SFG_NLA_ssi(*args_ssi(z_ssi), ) if is_NLA == 1 else \
+            SFG_SSF_ssi(*args_ssi(z_ssi), **kwargs_ssi, )
 
     kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"U": U2_z_ssi, "ray": ray2_z_ssi})
@@ -370,6 +371,7 @@ if __name__ == '__main__':
          "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
          # %%
          "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
          "deff": 30,
          # %%
          "Tx": 10, "Ty": 10, "Tz": "2*lc",
@@ -393,10 +395,10 @@ if __name__ == '__main__':
          # %%
          "fontsize": 9,
          "font": {'family': 'serif',
-               'style': 'normal',  # 'normal', 'italic', 'oblique'
-               'weight': 'normal',
-               'color': 'black',  # 'black','gray','darkred'
-               },
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
          # %%
          "is_colorbar_on": 1, "is_energy": 1,
          # %% 不关心
@@ -408,17 +410,22 @@ if __name__ == '__main__':
          # %%
          "is_print": 1, "is_contours": 66, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
-         # %% 该程序 独有
+         # %% 该程序 独有 -------------------------------
          "is_NLA": 1,
-         # %% 该程序 作为 主入口时
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1, }
+         # %%
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "polar3": "e",
+         }
 
     kwargs = init_GLV_DICT(**kwargs)
     consistency_SHG_ssi__AST(**kwargs)
 
-    # consistency_SHG_ssi__AST(img_full_name="Grating.png",
+    # consistency_SFG_ssi__AST(img_full_name="Grating.png",
     #                          is_phase_only=0,
     #                          # %%
     #                          z_pump=0,
@@ -490,7 +497,7 @@ if __name__ == '__main__':
     #                          # %%
     #                          is_print=1, is_contours=66, n_TzQ=1,
     #                          Gz_max_Enhance=1, match_mode=1,
-    #                          # %% 该程序 独有
+    #                          # %% 该程序 独有 -------------------------------
     #                          is_NLA=1,
     #                          # %% 该程序 作为 主入口时
     #                          root_dir=r'',

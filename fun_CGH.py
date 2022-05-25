@@ -13,8 +13,8 @@ from fun_os import U_dir, U_amp_plot_save
 from fun_global_var import Get, tree_print
 from fun_plot import plot_2d
 from fun_pump import pump_pic_or_U_structure
-from fun_linear import init_AST, init_SHG, fft2
-from fun_nonlinear import args_SHG
+from fun_linear import init_AST, init_SFG, fft2
+from fun_nonlinear import args_SFG
 
 
 # %%
@@ -167,7 +167,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                is_reverse_xy=0, is_positive_xy=1,
                                is_bulk=0, is_no_backgroud=1,
                                # %%
-                               lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                               lam1=0.8, is_air=0, is_air_pump_structure=0, T=25,
                                Tx=10, Ty=10, Tz="2*lc",
                                mx=0, my=0, mz=0,
                                # %%
@@ -190,14 +190,35 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                is_print=1,
                                # %%
                                **kwargs, ):
+    lam_structure = kwargs.get("lam_structure", lam1)
+    T_structure = kwargs.get("T_structure", T)
+    kwargs.pop("lam_structure", None)
+    kwargs.pop("T_structure", None)
+    lam_structure = lam1  # 懒得搞 去管 lam_structure 的赋值了
+    T_structure = T  # 懒得搞 去管 T 的赋值了
+    # %%
+    ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    if ray_tag == "f":
+        theta2_x = kwargs.get("theta2_x", theta_x)
+        theta2_y = kwargs.get("theta2_y", theta_y)
+        # %%
+        lam2 = kwargs.get("lam2", lam1)
+        polar2 = kwargs.get("polar2", 'e')
+        # %%
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
+
+    # %%
+    
+    # %%
     info = "χ2_2D_横向绘制"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
-    kwargs["is_end"] = 1 if Get("args_SHG") else 0
-    # 如果 Get("args_SHG") 非 False（则为 1,2,...），说明之前 用过 args_SHG，那么之后这里的 args_SHG 就不会被用，则下面 这个就应是 is_end=1
-    # 否则 Get("args_SHG") == False.
+    kwargs["is_end"] = 1 if Get("args_SFG") else 0
+    # 如果 Get("args_SFG") 非 False（则为 1,2,...），说明之前 用过 args_SFG，那么之后这里的 args_SFG 就不会被用，则下面 这个就应是 is_end=1
+    # 否则 Get("args_SFG") == False.
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
@@ -217,7 +238,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                                                # %%
                                                                U_0_NonZero_size, w0, structure_size_Enlarge,
                                                                # %%
-                                                               lam1, is_air_pump, T,
+                                                               lam_structure, is_air_pump_structure, T_structure,
                                                                # %%
                                                                is_save, is_save_txt, dpi,
                                                                cmap_2d,
@@ -236,21 +257,32 @@ def structure_chi2_Generate_2D(U_structure_name="",
     kwargs.pop("is_end", None);
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    # %%
+    # %%  只提供 Gx, Gy 给自己，也提供 dk 给 A_3_structure_chi2_Generate_3D 的 Info_find_contours_SHG
+    # 也提供 dk 来矫正 Tz...
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
+                                                   theta_x, theta_y,
+                                                   **kwargs)
 
-    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+    if ray_tag == "f":
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
+                                                       lam2, is_air, T,
+                                                       theta2_x, theta2_y,
+                                                       polar2=polar2, **kwargs)
+    else:
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
+
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
-                                                         theta_x, theta_y, **kwargs)
+                                                         theta_x, theta_y,
+                                                         lam2=lam2, **kwargs)
 
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, size_PerPixel,
+    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
-                          is_print, is_end=1)
+                          is_print, k2_inc=k2_inc, is_end=1, )
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = 1 - is_no_backgroud - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
@@ -388,7 +420,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                     # %%
                     suffix="", **kwargs, )
 
-    return n1_inc, n1, k1_inc, k1, k1_z, lam2, n2_inc, n2, k2_inc, k2, k2_z, \
+    return n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
            dk, lc, Tz, Gx, Gy, Gz, folder_address, \
            size_PerPixel, U_0_structure, g_shift_structure, \
            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
@@ -411,9 +443,7 @@ def structure_nonrect_chi2_Generate_2D(z_pump=0,
                                        is_reverse_xy=0, is_positive_xy=1,
                                        is_bulk=0, is_no_backgroud=1,
                                        # %%
-                                       lam1=0.8, is_air_pump=0, is_air=0, T=25,
-                                       Tx=10, Ty=10, Tz="2*lc",
-                                       mx=0, my=0, mz=0,
+                                       lam1=0.8, is_air_pump_structure=0, T=25,
                                        # %%
                                        is_save=0, is_save_txt=0, dpi=100,
                                        # %%
@@ -431,31 +461,29 @@ def structure_nonrect_chi2_Generate_2D(z_pump=0,
                                        # %%
                                        is_colorbar_on=1, is_energy=0,
                                        # %%
-                                       is_print=1,
-                                       # %%
                                        **kwargs, ):
+    lam_structure = kwargs.get("lam_structure", lam1)
+    T_structure = kwargs.get("T_structure", T)
+    kwargs.pop("lam_structure", None)
+    kwargs.pop("T_structure", None)
+    lam_structure = lam1  # 懒得搞 去管 lam_structure 的赋值了
+    T_structure = T  # 懒得搞 去管 T 的赋值了
+    # %%
     from fun_pump import pump
     from fun_linear import Cal_n
+    # %%  只提供 Gx, Gy 给自己
+
+    Gx, Gy = Get("Gx"), Get("Gy")
+    
     # %%
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
-                                                   lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
-
-    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
-                                                         lam1, is_air, T,
-                                                         theta_x, theta_y, **kwargs)
-
-    dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, Get("size_PerPixel"),
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, is_end=1)
 
     n_inc, n, k_inc, k = Cal_n(Get("size_PerPixel"),
-                               is_air_pump,
-                               lam1, T, p="e",
+                               is_air_pump_structure,
+                               lam_structure, T_structure, p=kwargs.get("polar_structure", 'e'),
                                theta_x=theta_x,
-                               theta_y=theta_y, **kwargs)
+                               theta_y=theta_y,
+                               Ix_structure=Ix_structure,
+                               Iy_structure=Iy_structure, **kwargs)
 
     # %%
     U_structure = np.ones((Ix_structure, Iy_structure))
@@ -493,7 +521,7 @@ def structure_nonrect_chi2_Generate_2D(z_pump=0,
                                                   # %%
                                                   is_target_far_field, is_transverse_xy, is_reverse_xy, )
     else:
-        structure = np.ones((Ix_structure, Iy_structure), dtype=np.int64()) * n1
+        structure = np.ones((Ix_structure, Iy_structure), dtype=np.int64()) - is_no_backgroud
 
     # %%
 
@@ -508,6 +536,7 @@ def structure_nonrect_chi2_Generate_2D(z_pump=0,
     # %%
     name = "χ2_modulation_lie_down"
     full_name = method + " - " + name
+    is_propa_ax_reverse = 1 if Iy_structure == Get("Iy") else 0
     U_amp_plot_save(folder_address,
                     # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                     modulation_lie_down, full_name,
@@ -521,7 +550,7 @@ def structure_nonrect_chi2_Generate_2D(z_pump=0,
                     is_title_on, is_axes_on, 1, 1,  # 1, 1 或 0, 0
                     fontsize, font,
                     # %%
-                    0, is_colorbar_on, 0, is_propa_ax_reverse=1,
+                    0, is_colorbar_on, 0, is_propa_ax_reverse=is_propa_ax_reverse,
                     vmax=vmax_modulation, vmin=vmin_modulation,
                     # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                     # %%
@@ -552,6 +581,7 @@ def structure_nonrect_chi2_interp2d_2D(folder_address=1, modulation_squared=1,
                                        is_colorbar_on=1,
                                        # %%
                                        **kwargs, ):
+    # %%
     from scipy.interpolate import interp2d
     ix, iy = range(Get("Iy")), range(Get("Ix"))
     # iz = [k for k in range(sheets_num)]
@@ -573,6 +603,7 @@ def structure_nonrect_chi2_interp2d_2D(folder_address=1, modulation_squared=1,
     # print(Ix, sheets_num)
     # print(zj_structure)
     mod_name = "χ2_modulation_lie_down"
+    is_propa_ax_reverse = 1 if structure_xy_mode == 'x' else 0
     U_amp_plot_save(folder_address,
                     # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                     modulation_lie_down, mod_name,
@@ -586,7 +617,7 @@ def structure_nonrect_chi2_interp2d_2D(folder_address=1, modulation_squared=1,
                     is_title_on, is_axes_on, 1, 1,  # 1, 1 或 0, 0
                     fontsize, font,
                     # %%
-                    0, is_colorbar_on, 0, is_propa_ax_reverse=1,
+                    0, is_colorbar_on, 0, is_propa_ax_reverse=is_propa_ax_reverse,
                     # %%
                     suffix="", **kwargs, )
 
@@ -614,7 +645,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                              is_reverse_xy=0, is_positive_xy=1,
                              is_bulk=0,
                              # %%
-                             lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                             lam1=0.8, is_air=0, is_air_pump_structure=0, T=25,
                              Tx=10, Ty=10, Tz="2*lc",
                              mx=0, my=0, mz=0,
                              # %%
@@ -637,6 +668,13 @@ def structure_n1_Generate_2D(U_structure_name="",
                              is_print=1,
                              # %%
                              **kwargs, ):
+    lam_structure = kwargs.get("lam_structure", lam1)
+    T_structure = kwargs.get("T_structure", T)
+    kwargs.pop("lam_structure", None)
+    kwargs.pop("T_structure", None)
+    lam_structure = lam1  # 懒得搞 去管 lam_structure 的赋值了
+    T_structure = T  # 懒得搞 去管 T 的赋值了
+    # %%
     info = "n_2D_横向绘制"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
@@ -661,7 +699,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                                                                # %%
                                                                U_0_NonZero_size, w0, structure_size_Enlarge,
                                                                # %%
-                                                               lam1, is_air_pump, T,
+                                                               lam_structure, is_air_pump_structure, T_structure,
                                                                # %%
                                                                is_save, is_save_txt, dpi,
                                                                cmap_2d,
@@ -677,24 +715,26 @@ def structure_n1_Generate_2D(U_structure_name="",
                                                                # %%
                                                                **kwargs, )
 
-    # %%
+    # %%  只提供 Gx, Gy 给自己
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
+                                                   theta_x, theta_y,
+                                                   **kwargs)
 
-    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
-                                                         theta_x, theta_y, **kwargs)
+                                                         theta_x, theta_y,
+                                                         **kwargs)
 
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, size_PerPixel,
+    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
-                          is_print, is_end=1)
+                          is_print, is_end=1, )
 
     # %%
-    # 开始生成 调制函数 structure 和 modulation = n1 - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
+    # 开始生成 调制函数 structure 和 modulation = n1_inc - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
 
     if is_bulk == 0:
         if structure_xy_mode == "r":
@@ -714,7 +754,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                                                   # %%
                                                   is_target_far_field, is_transverse_xy, is_reverse_xy, )
     else:
-        structure = np.ones((Ix_structure, Iy_structure), dtype=np.int64()) * n1
+        structure = np.ones((Ix_structure, Iy_structure), dtype=np.int64()) * n1_inc
 
     # %%
 
@@ -727,7 +767,7 @@ def structure_n1_Generate_2D(U_structure_name="",
     # %%
 
     # vmax_structure, vmin_structure = 1, 0
-    vmax_modulation, vmin_modulation = n1, n1 - Depth
+    vmax_modulation, vmin_modulation = n1_inc, n1_inc - Depth
 
     # name = "n1_structure"
     # full_name = method + " - " + name
@@ -750,9 +790,9 @@ def structure_n1_Generate_2D(U_structure_name="",
     #                 # %%
     #                 suffix="", **kwargs, )
 
-    modulation = n1 - Depth * structure
+    modulation = n1_inc - Depth * structure
     modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant',
-                                constant_values=(n1, n1))
+                                constant_values=(n1_inc, n1_inc))
 
     name = "n1_modulation_squared"
     full_name = method + " - " + name
@@ -803,10 +843,10 @@ def structure_n1_Generate_2D(U_structure_name="",
     #                 # %%
     #                 suffix="", **kwargs, )
 
-    modulation_opposite = n1 - Depth * structure_opposite
+    modulation_opposite = n1_inc - Depth * structure_opposite
     modulation_opposite_squared = np.pad(modulation_opposite,
                                          ((border_width, border_width), (border_width, border_width)), 'constant',
-                                         constant_values=(n1, n1))
+                                         constant_values=(n1_inc, n1_inc))
 
     name = "n1_modulation_opposite_squared"
     full_name = method + " - " + name
@@ -829,7 +869,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                     # %%
                     suffix="", **kwargs, )
 
-    return n1_inc, n1, k1_inc, k1, k1_z, lam2, n2_inc, n2, k2_inc, k2, k2_z, \
+    return n1_inc, n1, k1_inc, k1, k1_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
            dk, lc, Tz, Gx, Gy, Gz, folder_address, \
            size_PerPixel, U_0_structure, g_shift_structure, \
            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
@@ -852,9 +892,7 @@ def structure_nonrect_n1_Generate_2D(z_pump=0,
                                      is_reverse_xy=0, is_positive_xy=1,
                                      is_bulk=0,
                                      # %%
-                                     lam1=0.8, is_air_pump=0, is_air=0, T=25,
-                                     Tx=10, Ty=10, Tz="2*lc",
-                                     mx=0, my=0, mz=0,
+                                     lam1=0.8, is_air_pump_structure=0, n1_inc=1, T=25,
                                      # %%
                                      is_save=0, is_save_txt=0, dpi=100,
                                      # %%
@@ -872,31 +910,29 @@ def structure_nonrect_n1_Generate_2D(z_pump=0,
                                      # %%
                                      is_colorbar_on=1, is_energy=0,
                                      # %%
-                                     is_print=1,
-                                     # %%
                                      **kwargs, ):
+    lam_structure = kwargs.get("lam_structure", lam1)
+    T_structure = kwargs.get("T_structure", T)
+    kwargs.pop("lam_structure", None)
+    kwargs.pop("T_structure", None)
+    lam_structure = lam1  # 懒得搞 去管 lam_structure 的赋值了
+    T_structure = T  # 懒得搞 去管 T 的赋值了
+    # %%
     from fun_pump import pump
     from fun_linear import Cal_n
+    # %%  只提供 Gx, Gy 给自己
+
+    Gx, Gy = Get("Gx"), Get("Gy")
+    
     # %%
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
-                                                   lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
-
-    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
-                                                         lam1, is_air, T,
-                                                         theta_x, theta_y, **kwargs)
-
-    dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, Get("size_PerPixel"),
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, is_end=1)
 
     n_inc, n, k_inc, k = Cal_n(Get("size_PerPixel"),
-                               is_air_pump,
-                               lam1, T, p="e",
+                               is_air_pump_structure,
+                               lam_structure, T_structure, p=kwargs.get("polar_structure", "e"),
                                theta_x=theta_x,
-                               theta_y=theta_y, **kwargs)
+                               theta_y=theta_y,
+                               Ix_structure=Ix_structure,
+                               Iy_structure=Iy_structure, **kwargs)
 
     # %%
     U_structure = np.ones((Ix_structure, Iy_structure))
@@ -934,7 +970,7 @@ def structure_nonrect_n1_Generate_2D(z_pump=0,
                                                   # %%
                                                   is_target_far_field, is_transverse_xy, is_reverse_xy, )
     else:
-        structure = np.ones((Ix_structure, Iy_structure), dtype=np.int64()) * n1
+        structure = np.ones((Ix_structure, Iy_structure), dtype=np.int64()) * n1_inc
 
     # %%
 
@@ -944,11 +980,12 @@ def structure_nonrect_n1_Generate_2D(z_pump=0,
 
     kwargs.pop('U', None)  # 要想把 kwargs 传入 U_amp_plot_save，kwargs 里不能含 'U'
     # %%
-    vmax_modulation, vmin_modulation = n1, n1 - Depth
-    modulation_lie_down = n1 - Depth * structure
+    vmax_modulation, vmin_modulation = n1_inc, n1_inc - Depth
+    modulation_lie_down = n1_inc - Depth * structure
     # %%
     name = "n1_modulation_lie_down"
     full_name = method + " - " + name
+    is_propa_ax_reverse = 1 if Iy_structure == Get("Iy") else 0
     U_amp_plot_save(folder_address,
                     # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                     modulation_lie_down, full_name,
@@ -962,7 +999,7 @@ def structure_nonrect_n1_Generate_2D(z_pump=0,
                     is_title_on, is_axes_on, 1, 1,  # 1, 1 或 0, 0
                     fontsize, font,
                     # %%
-                    0, is_colorbar_on, 0, is_propa_ax_reverse=1,
+                    0, is_colorbar_on, 0, is_propa_ax_reverse=is_propa_ax_reverse,
                     vmax=vmax_modulation, vmin=vmin_modulation,
                     # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                     # %%
@@ -991,6 +1028,7 @@ def structure_nonrect_n1_interp2d_2D(folder_address=1, modulation_squared=1,
                                      is_colorbar_on=1,
                                      # %%
                                      **kwargs, ):
+    # %%
     from scipy.interpolate import interp2d
     ix, iy = range(Get("Iy")), range(Get("Ix"))
     # iz = [k for k in range(sheets_num)]
@@ -1010,6 +1048,7 @@ def structure_nonrect_n1_interp2d_2D(folder_address=1, modulation_squared=1,
 
     # print(Ix, sheets_num)
     mod_name = "n1_modulation_lie_down"
+    is_propa_ax_reverse = 1 if structure_xy_mode == 'x' else 0
     U_amp_plot_save(folder_address,
                     # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                     modulation_lie_down, mod_name,
@@ -1023,7 +1062,7 @@ def structure_nonrect_n1_interp2d_2D(folder_address=1, modulation_squared=1,
                     is_title_on, is_axes_on, 1, 1,  # 1, 1 或 0, 0
                     fontsize, font,
                     # %%
-                    0, is_colorbar_on, 0, is_propa_ax_reverse=1,
+                    0, is_colorbar_on, 0, is_propa_ax_reverse=is_propa_ax_reverse,
                     # %%
                     suffix="", **kwargs, )
 

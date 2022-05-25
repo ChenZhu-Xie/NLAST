@@ -68,37 +68,39 @@ def get_n(is_air, lam, T, p):
         n = KTP_n(lam, T, p)
     return n
 
+
 # %%
 # 计算 折射率、波矢
 
 def Cal_n(size_PerPixel,
           is_air,
           lam, T, p="e", **kwargs):
+    # if inspect.stack()[1][3] == "pump_pic_or_U" or inspect.stack()[1][3] == "pump_pic_or_U2":
     from fun_global_var import Get
-    if is_air != 1 and (p=="z" or p=="e" or p=="c") and "gama_x" in kwargs or "gama_y" in kwargs:
+    if is_air != 1 and (p == "z" or p == "e" or p == "c") and ("gamma_x" in kwargs or "gamma_y" in kwargs):
         n_c = get_n(is_air, lam, T, "c")  # n_e, n_p
         # n_b = get_n(is_air, lam, T, "b")  # n_o, n_s
         n_a = get_n(is_air, lam, T, "a")  # n_o
-        Ix = kwargs["Ix"] if "Ix" in kwargs else Get("Ix")  # 可能会有 Ix = Ix_structure 从 kwargs 里传进来
-        Iy = kwargs["Iy"] if "Iy" in kwargs else Get("Iy") # 可能会有 Iy = Iy_structure 从 kwargs 里传进来
+        Ix = kwargs["Ix_structure"] if "Ix_structure" in kwargs else Get("Ix")  # 可能会有 Ix =   从 kwargs 里传进来
+        Iy = kwargs["Iy_structure"] if "Iy_structure" in kwargs else Get("Iy")  # 可能会有 Iy = Iy_structure 从 kwargs 里传进来
         mesh_nx_ny_shift = mesh_shift(Ix, Iy)
         mesh_kx_ky_shift = np.dstack(
             (2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Iy, 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Ix))
         # Iy 才是 笛卡尔坐标系中 x 方向 的 像素数...
 
         # 基波 与 倍频 都同享 同一个 theta_x：二者 的 中心波矢 k 差不多 共线，尽管 二次谐波 的 中心 k 还与 结构关系很大，甚至没有 中心 k 一说
-        if "gama_x" in kwargs:  #  "gama_x" 为 晶体 c 轴 偏离 传播方向 的 夹角 θ<c,propa>，与 "theta_x" 共享 同一个 实验室 坐标系：x 朝右为正
-            # 有该关键字，则晶体 c 轴 躺在 垂直于 y 轴 的面内，则无 "gama_y" 关键字 可言
-            alpha = - kwargs["gama_x"] / 180 * math.pi  # 不是 倾斜相位 所对应的：最大光强 作为中心级，而是 图正中 作为 中心级
-            alpha_inc = (kwargs["theta_x"] - kwargs["gama_x"]) / 180 * math.pi  # 基波 传播方向 与 晶轴 c 的夹角
-            # alpha = (kwargs["theta_x"] - kwargs["gama_x"]) / 180 * math.pi  # 得到 光束 / 图 的 中心波矢 相对于 晶体坐标系 的 θ<k,c>
+        if "gamma_x" in kwargs:  # "gamma_x" 为 晶体 c 轴 偏离 传播方向 的 夹角 θ<c,propa>，与 "theta_x" 共享 同一个 实验室 坐标系：x 朝右为正
+            # 有该关键字，则晶体 c 轴 躺在 垂直于 y 轴 的面内，则无 "gamma_y" 关键字 可言
+            alpha = - kwargs["gamma_x"] / 180 * math.pi  # 不是 倾斜相位 所对应的：最大光强 作为中心级，而是 图正中 作为 中心级
+            alpha_inc = (kwargs["theta_x"] - kwargs["gamma_x"]) / 180 * math.pi  # 基波 传播方向 与 晶轴 c 的夹角
+            # alpha = (kwargs["theta_x"] - kwargs["gamma_x"]) / 180 * math.pi  # 得到 光束 / 图 的 中心波矢 相对于 晶体坐标系 的 θ<k,c>
             # θ<k,c> = θ<k,propa> - θ<c,propa> ：中心波矢 相对于 实验室 坐标系 的 传播方向 夹角为 θ<k,propa>
             mesh = mesh_kx_ky_shift[:, :, 0]
 
-        elif "gama_y" in kwargs:  # "gama_y" 也 y 朝上为正（实验室 坐标系，同时 也是 电脑坐标系）
-            alpha = - kwargs["gama_y"] / 180 * math.pi  # 光强最大 与 中心级 无关，而 图正中 = 中心级
-            alpha_inc = (kwargs["theta_y"] - kwargs["gama_y"]) / 180 * math.pi  # 基波 传播方向 与 晶轴 c 的夹角
-            # alpha = (kwargs["theta_y"] - kwargs["gama_y"]) / 180 * math.pi  # 转换为 弧度
+        elif "gamma_y" in kwargs:  # "gamma_y" 也 y 朝上为正（实验室 坐标系，同时 也是 电脑坐标系）
+            alpha = - kwargs["gamma_y"] / 180 * math.pi  # 光强最大 与 中心级 无关，而 图正中 = 中心级
+            alpha_inc = (kwargs["theta_y"] - kwargs["gamma_y"]) / 180 * math.pi  # 基波 传播方向 与 晶轴 c 的夹角
+            # alpha = (kwargs["theta_y"] - kwargs["gamma_y"]) / 180 * math.pi  # 转换为 弧度
             # θ<k,c> = θ<k,propa> - θ<c,propa>
             mesh = mesh_kx_ky_shift[:, :, 1]
 
@@ -124,6 +126,7 @@ def Cal_n(size_PerPixel,
         k_inc = k_nxny = k
     return n_inc, n_nxny, k_inc, k_nxny
 
+
 # %%
 
 # 生成 kz 网格
@@ -134,6 +137,7 @@ def Cal_kz(Ix, Iy, k):  # 不仅 kz，连 k 现在 都是个 椭球面了
         (2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Iy, 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Ix))
     # Iy 才是 笛卡尔坐标系中 x 方向 的 像素数...
 
+    # print(k.shape, mesh_kx_ky_shift.shape)
     kz_shift = (k ** 2 - mesh_kx_ky_shift[:, :, 0] ** 2 - mesh_kx_ky_shift[:, :, 1] ** 2 + 0j) ** 0.5
 
     return kz_shift, mesh_kx_ky_shift
@@ -141,13 +145,15 @@ def Cal_kz(Ix, Iy, k):  # 不仅 kz，连 k 现在 都是个 椭球面了
 
 # %%
 
-def fft2(U): # 返回 g_shift
+def fft2(U):  # 返回 g_shift
     return np.fft.fftshift(np.fft.fft2(U))
 
-def ifft2(G_shift): # 返回 Uz
+
+def ifft2(G_shift):  # 返回 Uz
     return np.fft.ifft2(np.fft.ifftshift(G_shift))
 
-#%%
+
+# %%
 
 def Uz_AST(U, k, iz):
     kz_shift, mesh_kx_ky_shift = Cal_kz(U.shape[0], U.shape[1], k)
@@ -156,39 +162,79 @@ def Uz_AST(U, k, iz):
     Uz = ifft2(g_shift * H)
     return Uz
 
-#%%
+
+# %%
 
 def init_AST(Ix, Iy, size_PerPixel,
              lam1, is_air, T,
-             theta_x, theta_y, **kwargs):
+             theta_x, theta_y,
+             **kwargs):
+    p = kwargs["polar2"] if "polar2" in kwargs else kwargs.get("polar", "e")
 
-    n1_inc, n1, k1_inc, k1 = Cal_n(size_PerPixel,
-                                   is_air,
-                                   lam1, T, p="e",
-                                   theta_x=theta_x,
-                                   theta_y=theta_y, **kwargs)
+    n_inc, n, k_inc, k = Cal_n(size_PerPixel,
+                               is_air,
+                               lam1, T, p=p,
+                               theta_x=theta_x,
+                               theta_y=theta_y, **kwargs)
 
-    k1_z, k1_xy = Cal_kz(Ix, Iy, k1)
+    k_z, k_xy = Cal_kz(Ix, Iy, k)
 
-    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy
+    return n_inc, n, k_inc, k, k_z, k_xy
 
-#%%
 
-def init_SHG(Ix, Iy, size_PerPixel,
+# %%
+
+def init_SFG(Ix, Iy, size_PerPixel,
              lam1, is_air, T,
-             theta_x, theta_y, **kwargs):
+             theta_x, theta_y,
+             **kwargs):
+    lam2 = kwargs.get("lam2", lam1)
+    lam3 = 1 / (1 / lam1 + 1 / lam2)  # 能量守恒
 
-    lam2 = lam1 / 2
-
-    n2_inc, n2, k2_inc, k2 = Cal_n(size_PerPixel,
+    n3_inc, n3, k3_inc, k3 = Cal_n(size_PerPixel,
                                    is_air,
-                                   lam2, T, p="e",
+                                   lam3, T, p=kwargs.get("polar3", "e"),
                                    theta_x=theta_x,
                                    theta_y=theta_y, **kwargs)
 
-    k2_z, k2_xy = Cal_kz(Ix, Iy, k2)
+    k3_z, k3_xy = Cal_kz(Ix, Iy, k3)
 
-    return lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy
+    return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy
+
+
+# %%
+
+def gan_k_vector(k_inc, theta_x, theta_y, ):
+    theta_x = theta_x / 180 * math.pi
+    theta_y = theta_y / 180 * math.pi
+    kz = k_inc * math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小
+    kx = k_inc * math.sin(theta_x) * math.cos(theta_y)
+    ky = k_inc * math.cos(theta_x) * math.sin(theta_y)
+    return kx, ky, kz
+
+
+def gan_k3_vector(k1_inc, theta1_x, theta1_y,
+                  k2_inc, theta2_x, theta2_y, ):
+    k1_x, k1_y, k1_z = gan_k_vector(k1_inc, theta1_x, theta1_y, )
+    k2_x, k2_y, k2_z = gan_k_vector(k2_inc, theta2_x, theta2_y, )
+    k3_x, k3_y, k3_z = k1_x + k2_x, k1_y + k2_y, k1_z + k2_z  # 动量守恒
+    k3_inc = k3_x ** 2 + k3_y ** 2 + k3_z ** 2
+    return k3_x, k3_y, k3_z, k3_inc
+
+
+def cal_theta3_xy(k1_inc, theta1_x, theta1_y,
+                  k2_inc, theta2_x, theta2_y, ):
+    k3_x, k3_y, k3_z, k3_inc = gan_k3_vector(k1_inc, theta1_x, theta1_y,
+                                             k2_inc, theta2_x, theta2_y, )
+    # sin_theta3_x = k3_x / k3_inc
+    # sin_theta3_y = k3_y / k3_inc
+    # theta3_x = math.arcsin(tan_theta3_x)
+    # theta3_y = math.arcsin(tan_theta3_y)
+    tan_theta3_x = k3_x / k3_z
+    tan_theta3_y = k3_y / k3_z
+    theta3_x = math.atan(tan_theta3_x)
+    theta3_y = math.atan(tan_theta3_y)
+    return theta3_x, theta3_y
 
 # %%
 def Find_energy_Dropto_fraction(U, energy_fraction, relative_error):  # 类似 牛顿迭代法 的 思想
@@ -236,4 +282,3 @@ def Find_energy_Dropto_fraction(U, energy_fraction, relative_error):  # 类似 �
             U_slice_total_energy_record = U_slice_total_energy
         else:
             return ix, iy, scale, U_slice_total_energy / U_total_energy
-

@@ -46,21 +46,22 @@ def C_m(m):
 
 # %%
 
-def Cal_lc_SHG(k1, k2, Tz, size_PerPixel,
+def Cal_lc_SHG(k1_inc, k3_inc, Tz, size_PerPixel,
                is_print=1, **kwargs):
+    k2_inc = kwargs.get("k2_inc", k1_inc)
 
-    dk = 2 * k1 - k2  # Unit: 无量纲
+    dk = k1_inc + k2_inc - k3_inc  # Unit: 无量纲
     lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: μm
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) +
                        "lc = {} μm, Tc = {} μm".format(lc, lc * 2))
 
     # print(type(Tz) != np.float64)
     # print(type(Tz) != float) # float = np.float ≠ np.float64
-    
-    if (type(Tz) != float and type(Tz) != np.float64 
+
+    if (type(Tz) != float and type(Tz) != np.float64
         and type(Tz) != int) or Tz <= 0:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
         Tz = 2 * lc  # Unit: μm
-        
+
     return dk, lc, Tz
 
 
@@ -78,25 +79,30 @@ def Cal_GxGyGz(mx, my, mz,
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) +
                        "Tx = {} μm, Ty = {} μm, Tz = {} μm".format(Tx, Ty, Tz))
 
+    from fun_global_var import init_Set
+    init_Set("Gx", Gx)  # structure_nonrect_chi2_Generate_2D 会用到
+    init_Set("Gy", Gy)
+
     return Gx, Gy, Gz
 
 
 # %%
 
-def args_SHG(k1_inc, k2_inc, size_PerPixel,
+def args_SFG(k1_inc, k3_inc, size_PerPixel,
              mx, my, mz,
              Tx, Ty, Tz,
              is_print, **kwargs):
-    info = "args_SHG"
-    is_first = int(init_accu(info, 1) == 1) # 若第一次调用 args_SHG，则 is_first 为 1，否则为 0
-    is_Print = is_print * is_first # 两个 得都 非零，才 print
+    info = "args_SFG"
+    is_first = int(init_accu(info, 1) == 1)  # 若第一次调用 args_SFG，则 is_first 为 1，否则为 0
+    is_Print = is_print * is_first  # 两个 得都 非零，才 print
 
     info = "参数_SHG"
     is_Print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    dk, lc, Tz = Cal_lc_SHG(k1_inc, k2_inc, Tz, size_PerPixel,
-                            is_Print, )
+    dk, lc, Tz = Cal_lc_SHG(k1_inc, k3_inc, Tz, size_PerPixel,
+                            is_Print, **kwargs)
 
     Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                             Tx, Ty, Tz, size_PerPixel,
@@ -107,25 +113,25 @@ def args_SHG(k1_inc, k2_inc, size_PerPixel,
 
 # %%
 
-def Cal_dk_zQ_SHG(k1, k1_z, k2_z,
-                 mesh_k1_x_k1_y, mesh_k2_x_k2_y,
-                 n2_x, n2_y,
-                 Gx, Gy, Gz, ):
-    # n2_x_n2_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k2_x_k2_y 的 mesh，所以用 Gy 才对应
-    # dk_x = mesh_k2_x_k2_y[n2_x, n2_y, 0] - mesh_k1_x_k1_y[:, :, 0] - Gy  #  old
-    dk_x = mesh_k2_x_k2_y[n2_x, n2_y, 0] - mesh_k1_x_k1_y[:, :, 0] - Gx  # 应该减 Gx 而非 Gy：因为 mesh 本身是 对的，只有 Iy 单独出现 才不对。
-    # 其实 mesh_k2_x_k2_y[:, :, 0]、mesh_n2_x_n2_y[:, :, 0]、mesh_n2_x_n2_y[:, :, 0]、 n2_x 均只和 y，即 [:, :] 中的 第 2 个数字 有关，
+def Cal_dk_zQ_SFG(k2, k1_z, k3_z,
+                  mesh_k1_x_k1_y, mesh_k3_x_k3_y,
+                  n3_x, n3_y,
+                  Gx, Gy, Gz, ):
+    # n3_x_n3_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k3_x_k3_y 的 mesh，所以用 Gy 才对应
+    # dk_x = mesh_k3_x_k3_y[n3_x, n3_y, 0] - mesh_k1_x_k1_y[:, :, 0] - Gy  #  old
+    dk_x = mesh_k3_x_k3_y[n3_x, n3_y, 0] - mesh_k1_x_k1_y[:, :, 0] - Gx  # 应该减 Gx 而非 Gy：因为 mesh 本身是 对的，只有 Iy 单独出现 才不对。
+    # 其实 mesh_k3_x_k3_y[:, :, 0]、mesh_n3_x_n3_y[:, :, 0]、mesh_n3_x_n3_y[:, :, 0]、 n3_x 均只和 y，即 [:, :] 中的 第 2 个数字 有关，
     # 只由 列 y、ky 决定，与行 即 x、kx 无关
     # 而 Gy 得与 列 y、ky 发生关系,
     # 所以是 - Gy 而不是 Gx
     # 并且这里的 dk_x 应写为 dk_y
-    # dk_y = mesh_k2_x_k2_y[n2_x, n2_y, 1] - mesh_k1_x_k1_y[:, :, 1] - Gx  #  old
-    dk_y = mesh_k2_x_k2_y[n2_x, n2_y, 1] - mesh_k1_x_k1_y[:, :, 1] - Gy  # 应该减 Gy 而非 Gx：因为 mesh 本身是 对的，只有 Ix 单独出现 才不对。
+    # dk_y = mesh_k3_x_k3_y[n3_x, n3_y, 1] - mesh_k1_x_k1_y[:, :, 1] - Gx  #  old
+    dk_y = mesh_k3_x_k3_y[n3_x, n3_y, 1] - mesh_k1_x_k1_y[:, :, 1] - Gy  # 应该减 Gy 而非 Gx：因为 mesh 本身是 对的，只有 Ix 单独出现 才不对。
     # print(dk_y[0], dk_y[1])  # 每行都是一样的，说明 dk_y 确实变的 只有 列，而 列 == y
     # 所以 mesh 生成的 确实是 标准的 笛卡尔坐标系，所以该 Gy 就 Gy
-    k1_z_dk_x_dk_y = (k1 ** 2 - dk_x ** 2 - dk_y ** 2 + 0j) ** 0.5
+    k2_z_dk_x_dk_y = (k2 ** 2 - dk_x ** 2 - dk_y ** 2 + 0j) ** 0.5
 
-    dk_z = k1_z + k1_z_dk_x_dk_y - k2_z[n2_x, n2_y]
+    dk_z = k1_z + k2_z_dk_x_dk_y - k3_z[n3_x, n3_y]
     dk_zQ = dk_z + Gz
 
     return dk_zQ
@@ -152,11 +158,12 @@ def Cal_roll_xy(Gx, Gy,
     return roll_x, roll_y
 
 
-def G2_z_modulation_3D_NLAST(k1, k2,
-                             modulation, U1_0, iz, const,
+def G3_z_modulation_3D_NLAST(k1, k2, k3,
+                             modulation, U1_0, U2_0, iz, const,
                              Tz=10, is_customized=0, ):
     k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
-    k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
+    k2_z, mesh_k2_x_k2_y = Cal_kz(U2_0.shape[0], U2_0.shape[1], k2)
+    k3_z, mesh_k3_x_k3_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k3)
 
     Big_version = 1 if is_customized == 1 else 2
     Cal_version = 1 if is_customized == 1 else 1
@@ -175,8 +182,8 @@ def G2_z_modulation_3D_NLAST(k1, k2,
     # J = iz / dz
 
     if Big_version == 0:
-        kiiz = k1 + k1_z
-        dkiiz = kiiz - k2
+        kiiz = k1 + k2_z
+        dkiiz = kiiz - k3
 
         # print(J, (-1)**J)
 
@@ -184,88 +191,90 @@ def G2_z_modulation_3D_NLAST(k1, k2,
             # %% version 1（更自洽）
 
             G_U1_z_Squared_modulated_1 = fft2(
-                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz * dz * 1j))) \
-                * Uz_AST(U1_0, k1, iz) ** 2)
+                ifft2(fft2(modulation) / (kiiz ** 2 - k3 ** 2) / (1 + math.e ** (- dkiiz * dz * 1j))) \
+                * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
 
             G_U1_z_Squared_modulated_2 = fft2(
-                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2) / (1 + math.e ** (kiiz * dz * 1j))) \
-                * Uz_AST(U1_0, k1, iz) ** 2)
+                ifft2(fft2(modulation) / (kiiz ** 2 - k3 ** 2) / (1 + math.e ** (kiiz * dz * 1j))) \
+                * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
 
             g_U1_0_Squared_modulated = fft2(
-                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2)
+                ifft2(fft2(modulation) / (kiiz ** 2 - k3 ** 2)
                       * (1 / (1 + math.e ** (- dkiiz * dz * 1j)) - 1 / (1 + math.e ** (kiiz * dz * 1j)))) \
                 * U1_0 ** 2)
 
-            G2_z = const * (G_U1_z_Squared_modulated_1 * (-1) ** J
-                                    - G_U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z * iz * 1j)
-                                    + g_U1_0_Squared_modulated * math.e ** (k2_z * iz * 1j))
+            G3_z = const * (G_U1_z_Squared_modulated_1 * (-1) ** J
+                            - G_U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k3_z * iz * 1j)
+                            + g_U1_0_Squared_modulated * math.e ** (k3_z * iz * 1j))
 
         elif Cal_version == 2:
             # %% version 2（少近似）
 
             G_U1_z_Squared_modulated_1 = fft2(
-                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz * dz * 1j))) \
-                * Uz_AST(U1_0, k1, iz) ** 2)
+                ifft2(fft2(modulation) / (kiiz ** 2 - k3 ** 2) / (1 + math.e ** (- dkiiz * dz * 1j))) \
+                * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
 
             G_U1_z_Squared_modulated_2 = fft2(
-                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2)) \
-                * Uz_AST(U1_0, k1, iz) ** 2 / (1 + math.e ** (kiiz * dz * 1j)))
+                ifft2(fft2(modulation) / (kiiz ** 2 - k3 ** 2)) \
+                * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz) / (1 + math.e ** (kiiz * dz * 1j)))
 
             g_U1_0_Squared_modulated_1 = fft2(
-                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2) / (1 + math.e ** (- dkiiz * dz * 1j))) \
+                ifft2(fft2(modulation) / (kiiz ** 2 - k3 ** 2) / (1 + math.e ** (- dkiiz * dz * 1j))) \
                 * U1_0 ** 2)
 
             g_U1_0_Squared_modulated_2 = fft2(
-                ifft2(fft2(modulation) / (kiiz ** 2 - k2 ** 2)) \
+                ifft2(fft2(modulation) / (kiiz ** 2 - k3 ** 2)) \
                 * U1_0 ** 2 / (1 + math.e ** (kiiz * dz * 1j)))
 
-            G2_z = const * (G_U1_z_Squared_modulated_1 * (-1) ** J
-                                    - G_U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k2_z * iz * 1j)
-                                    + g_U1_0_Squared_modulated_1 * math.e ** (k2_z * iz * 1j)
-                                    - g_U1_0_Squared_modulated_2 * math.e ** (k2_z * iz * 1j))
+            G3_z = const * (G_U1_z_Squared_modulated_1 * (-1) ** J
+                            - G_U1_z_Squared_modulated_2 * (-1) ** J * math.e ** (k3_z * iz * 1j)
+                            + g_U1_0_Squared_modulated_1 * math.e ** (k3_z * iz * 1j)
+                            - g_U1_0_Squared_modulated_2 * math.e ** (k3_z * iz * 1j))
 
     else:
         g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
-        G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
+        G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
 
         K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-        kiiz = 2 * K1_z
-        dkiiz = kiiz - k2_z
+        K2_z, K2_xy = find_Kxyz(fft2(U2_0), k2)
+        kiiz = K1_z + K2_z
+        dkiiz = kiiz - k3_z
         if Big_version < 3:
-            denominator = kiiz ** 2 - k2_z ** 2
+            denominator = kiiz ** 2 - k3_z ** 2
         else:
-            denominator = kiiz + k2_z
+            denominator = kiiz + k3_z
             inside_sinc = dkiiz * dz / 2
             # print(np.max(np.abs(inside_sinc)))
 
         if Big_version == 1:
-            factor = 1/(1 + math.e ** (- 1j * dkiiz * dz)) - \
-                     1/(1 + math.e ** (1j * dkiiz * dz))
-            G2_z = const / denominator * factor * \
-                   (g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j) +
+            factor = 1 / (1 + math.e ** (- 1j * dkiiz * dz)) - \
+                     1 / (1 + math.e ** (1j * dkiiz * dz))
+            G3_z = const / denominator * factor * \
+                   (g1_U0_Squared_modulated * math.e ** (k3_z * iz * 1j) +
                     G1_Uz_Squared_modulated * (-1) ** J)
         elif Big_version == 2:
             factor_1 = 1 / (1 + math.e ** (- 1j * kiiz * dz)) - \
                        1 / (1 + math.e ** (1j * dkiiz * dz))
-            factor_2 = 1 / (1 + math.e ** (- 1j * kiiz * dz)) * math.e ** (1j * k2_z * iz) - \
+            factor_2 = 1 / (1 + math.e ** (- 1j * kiiz * dz)) * math.e ** (1j * k3_z * iz) - \
                        1 / (1 + math.e ** (1j * dkiiz * dz))
-            G2_z = const / denominator * \
-                   (factor_1 * g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j) +
+            G3_z = const / denominator * \
+                   (factor_1 * g1_U0_Squared_modulated * math.e ** (k3_z * iz * 1j) +
                     factor_2 * G1_Uz_Squared_modulated * (-1) ** J)
         elif Big_version == 3:
             factor = np.sinc(inside_sinc / np.pi) * 1j * dz / \
                      np.cos(inside_sinc)
             # print(np.max(np.abs(np.cos(inside_sinc))))
             if Cal_version == 1:
-                G2_z = const / denominator * factor * \
-                       (g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j) +
+                G3_z = const / denominator * factor * \
+                       (g1_U0_Squared_modulated * math.e ** (k3_z * iz * 1j) +
                         G1_Uz_Squared_modulated * (-1) ** J)
             elif Cal_version == 2:
-                G2_z = const / denominator * factor * \
+                G3_z = const / denominator * factor * \
                        (G1_Uz_Squared_modulated -
-                        g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j))
+                        g1_U0_Squared_modulated * math.e ** (k3_z * iz * 1j))
 
-    return G2_z * Get("size_PerPixel")**2
+    return G3_z * Get("size_PerPixel") ** 2
+
 
 # %%
 def gan_factor_out(cos_num_expect, omite_level=1e-4):  # 1e-4 以下 的 系数 忽略掉
@@ -372,22 +381,24 @@ def gan_factor_in(cos_num_expect, nums_to_omite):
     # bj_left = [bj[j] for j in range(len(bj)) if j > nums_to_omite - 1]  # 忽略了 1e-4 以下 的 系数后，剩下的 系数们
     return bj_left
 
+
 # %%
 
-def G2_z_modulation_NLAST(k1, k2,
-                          modulation, U1_0, iz, const,
+def G3_z_modulation_NLAST(k1, k2, k3,
+                          modulation, U1_0, U2_0, iz, const,
                           Gz=1, is_customized=0,
                           **kwargs, ):
     # from fun_os import try_to_call_me
     # print(try_to_call_me())
     if kwargs.get("Tz", None) != None:
-        return G2_z_modulation_3D_NLAST(k1, k2,
-                                        modulation, U1_0, iz, const,
+        return G3_z_modulation_3D_NLAST(k1, k2, k3,
+                                        modulation, U1_0, U2_0, iz, const,
                                         is_customized=is_customized,
                                         **kwargs, )
     else:
         k1_z, mesh_k1_x_k1_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k1)
-        k2_z, mesh_k2_x_k2_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k2)
+        k2_z, mesh_k2_x_k1_y = Cal_kz(U2_0.shape[0], U2_0.shape[1], k2)
+        k3_z, mesh_k3_x_k3_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k3)
 
         Big_version = 5 if is_customized == 1 else 3
         Cal_version = 1 if is_customized == 1 else 4
@@ -404,58 +415,61 @@ def G2_z_modulation_NLAST(k1, k2,
         # 5.1 = 1.1 + 4.2    dismatch + match 分区
 
         K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-        kiizQ = 2 * K1_z + Gz
-        dkiizQ = kiizQ - k2_z
-        denominator = kiizQ + k2_z
+        K2_z, K2_xy = find_Kxyz(fft2(U2_0), k2)
+        kiizQ = K1_z + K2_z + Gz
+        dkiizQ = kiizQ - k3_z
+        denominator = kiizQ + k3_z
         inside_sinc = dkiizQ / 2 * iz
 
-        def gan_G2_z_dismatch():  # 1.1
-            denominator = kiizQ ** 2 - k2_z ** 2
-            G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
-            g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
+        def gan_G3_z_dismatch():  # 1.1
+            denominator = kiizQ ** 2 - k3_z ** 2
+            G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
+            g1_U0_Squared_modulated = fft2(modulation * U1_0 * U2_0)
             molecule = G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j) \
-                       - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
+                       - g1_U0_Squared_modulated * math.e ** (k3_z * iz * 1j)
             dismatch = const * molecule / denominator
 
             return dismatch
 
-        def gan_G2_z_sinc():  # 3.4
-            sinc_denominator = (kiizQ + k2_z) / 2
-            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) ** 2)
+        def gan_G3_z_sinc():  # 3.4
+            sinc_denominator = (kiizQ + k3_z) / 2
+            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) * Uz_AST(U2_0, k2, iz / 2))
             sinc = const * G1_U_half_z_Squared_modulated \
-                    * np.sinc(inside_sinc / np.pi) / sinc_denominator \
-                    * math.e ** (Gz * iz * 1j) \
-                    * math.e ** (k2_z * iz / 2 * 1j) \
-                    * (1j * iz)
+                   * np.sinc(inside_sinc / np.pi) / sinc_denominator \
+                   * math.e ** (Gz * iz * 1j) \
+                   * math.e ** (k3_z * iz / 2 * 1j) \
+                   * (1j * iz)
 
             return sinc
 
-        def gan_G2_z_1():  # 4.2 +
-            denominator = kiizQ + k2_z
-            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) ** 2)
+        def gan_G3_z_1():  # 4.2 +
+            denominator = kiizQ + k3_z
+            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) * Uz_AST(U2_0, k2, iz / 2))
             cos_1 = const * G1_U_half_z_Squared_modulated \
-                   * math.e ** (Gz * iz / 2 * 1j) \
-                   * math.e ** (k2_z * iz / 2 * 1j) \
-                   / denominator \
-                   * (1j * iz)
+                    * math.e ** (Gz * iz / 2 * 1j) \
+                    * math.e ** (k3_z * iz / 2 * 1j) \
+                    / denominator \
+                    * (1j * iz)
             return cos_1
 
-        def gan_G2_z_cos(factor):  # 4.2
-            denominator = (kiizQ + k2_z) * 2
+        def gan_G3_z_cos(factor):  # 4.2
+            denominator = (kiizQ + k3_z) * 2
             z_plus = (1 + 1 / factor) / 2
             z_minus = (1 - 1 / factor) / 2
-            G_U_z_plus_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, z_plus * iz) ** 2) * \
+            G_U_z_plus_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, z_plus * iz) *
+                                                Uz_AST(U2_0, k2, z_plus * iz)) * \
                                            math.e ** (Gz * z_plus * iz * 1j) * \
-                                           math.e ** (k2_z * z_minus * iz * 1j)
-            G_U_z_minus_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, z_minus * iz) ** 2) * \
+                                           math.e ** (k3_z * z_minus * iz * 1j)
+            G_U_z_minus_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, z_minus * iz) *
+                                                 Uz_AST(U2_0, k2, z_minus * iz)) * \
                                             math.e ** (Gz * z_minus * iz * 1j) * \
-                                            math.e ** (k2_z * z_plus * iz * 1j)
+                                            math.e ** (k3_z * z_plus * iz * 1j)
             cos = const * (G_U_z_plus_Squared_modulated + G_U_z_minus_Squared_modulated) \
-                   / denominator \
-                   * (1j * iz)
+                  / denominator \
+                  * (1j * iz)
             return cos
 
-        def gan_G2_z_cos_seq(cos_num_expect):
+        def gan_G3_z_cos_seq(cos_num_expect):
             aj, cos_num, nums_to_omite, region = gan_factor_out(cos_num_expect, )
             bj = gan_factor_in(cos_num_expect, nums_to_omite, )
             # print(cos_num, nums_to_omite, region, "\n")
@@ -463,142 +477,144 @@ def G2_z_modulation_NLAST(k1, k2,
             # print(bj, "\n")
 
             if cos_num == 1:
-                cos_seq = gan_G2_z_cos(bj[0])
+                cos_seq = gan_G3_z_cos(bj[0])
             else:
-                cos_seq = aj[-1] * gan_G2_z_1()
+                cos_seq = aj[-1] * gan_G3_z_1()
                 for j in range(cos_num):
-                    cos_seq += aj[j] * gan_G2_z_cos(bj[j])
+                    cos_seq += aj[j] * gan_G3_z_cos(bj[j])
             return cos_seq, region
 
         if Big_version == 0 or Big_version == 2:
 
             if Big_version == 0:
-                # kiiz = k1 + k2_z + Gz # 草，倍频是加 k1_z，和频才是加 k2_z（而非 k3_z）
-                kiizQ = k1 + k1_z + Gz
+                kiizQ = k1 + k2_z + Gz
 
                 if Cal_version == 1:
                     # %% == version 1（更自洽）
                     G1_Uz_Squared_modulated = fft2(
-                        ifft2(fft2(modulation) / (kiizQ ** 2 - k2 ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
-                    # print(np.min(np.abs((kiiz ** 2 - k2 ** 2))))
+                        ifft2(fft2(modulation) / (kiizQ ** 2 - k3 ** 2)) * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
+                    # print(np.min(np.abs((kiiz ** 2 - k3 ** 2))))
                     g1_U0_Squared_modulated = fft2(
-                        ifft2(fft2(modulation) / (kiizQ ** 2 - k2 ** 2)) * U1_0 ** 2)
+                        ifft2(fft2(modulation) / (kiizQ ** 2 - k3 ** 2)) * U1_0 ** 2)
 
                 elif Cal_version == 2:
                     # %% == version 1.1
                     G1_Uz_Squared_modulated = fft2(
-                        ifft2(fft2(modulation) / (kiizQ ** 2 - k2_z ** 2)) * Uz_AST(U1_0, k1, iz) ** 2)
+                        ifft2(fft2(modulation) / (kiizQ ** 2 - k3_z ** 2)) * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2,
+                                                                                                           iz))
                     g1_U0_Squared_modulated = fft2(
-                        ifft2(fft2(modulation) / (kiizQ ** 2 - k2_z ** 2)) * U1_0 ** 2)
+                        ifft2(fft2(modulation) / (kiizQ ** 2 - k3_z ** 2)) * U1_0 ** 2)
 
                 elif Cal_version == 3:
                     # %% == version 2（少近似）
                     G1_Uz_Squared_modulated = fft2(
-                        modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ ** 2 - k2_z ** 2)))
+                        modulation * ifft2(
+                            fft2(Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz)) / (kiizQ ** 2 - k3_z ** 2)))
 
                     g1_U0_Squared_modulated = fft2(
-                        modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k2_z ** 2)))
+                        modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k3_z ** 2)))
 
                 elif Cal_version == 4:
                     # %% == version 2.1
                     G1_Uz_Squared_modulated = fft2(
-                        modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) ** 2) / (kiizQ ** 2 - k2 ** 2)))
+                        modulation * ifft2(fft2(Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz)) / (kiizQ ** 2 - k3 ** 2)))
 
                     g1_U0_Squared_modulated = fft2(
-                        modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k2 ** 2)))
+                        modulation * ifft2(fft2(U1_0 ** 2) / (kiizQ ** 2 - k3 ** 2)))
 
             elif Big_version == 2:
                 K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-                kiizQ = 2 * K1_z + Gz
-                kii2z = (k2 ** 2 - (2 * K1_xy[0] + mesh_k2_x_k2_y[:, :, 0]) ** 2 - (
-                        2 * K1_xy[1] + mesh_k2_x_k2_y[:, :, 1]) ** 2 + 0j) ** 0.5
+                K2_z, K2_xy = find_Kxyz(fft2(U2_0), k2)
+                kiizQ = K1_z + K2_z + Gz
+                kii2z = (k3 ** 2 - (K1_xy[0] + K2_xy[0] + mesh_k3_x_k3_y[:, :, 0]) ** 2 - (
+                        K1_xy[1] + K2_xy[1] + mesh_k3_x_k3_y[:, :, 1]) ** 2 + 0j) ** 0.5
                 denominator = kiizQ ** 2 - kii2z ** 2
 
                 G1_Uz_Squared_modulated = fft2(
-                    ifft2(fft2(modulation) / denominator) * Uz_AST(U1_0, k1, iz) ** 2)
-                # print(np.min(np.abs((kiiz ** 2 - k2 ** 2))))
+                    ifft2(fft2(modulation) / denominator) * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
+                # print(np.min(np.abs((kiiz ** 2 - k3 ** 2))))
                 g1_U0_Squared_modulated = fft2(
                     ifft2(fft2(modulation) / denominator) * U1_0 ** 2)
 
             if Res_version == 1:
                 # 不加 负号，U 的相位 会差个 π，我也不知道 为什么
-                G2_z = const * (G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
-                                        - g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j))
+                G3_z = const * (G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
+                                - g1_U0_Squared_modulated * math.e ** (k3_z * iz * 1j))
             elif Res_version == 2:
-                G2_z = const * G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
+                G3_z = const * G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j)
 
             elif Res_version == 3:
-                G2_z = - const * g1_U0_Squared_modulated * math.e ** (k2_z * iz * 1j)
+                G3_z = - const * g1_U0_Squared_modulated * math.e ** (k3_z * iz * 1j)
 
         elif Big_version == 1:
-            G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2) * math.e ** (Gz * iz * 1j)
-            g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2) * math.e ** (k2_z * iz * 1j)
+            G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz)) * \
+                                      math.e ** (Gz * iz * 1j)
+            g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2) * math.e ** (k3_z * iz * 1j)
             molecule = G1_Uz_Squared_modulated - g1_U0_Squared_modulated
-
 
             if Cal_version >= 3:
                 dkiizQ = 1 / (np.sinc(inside_sinc / np.pi) * iz / 2)
 
             if Cal_version == 1:
-                denominator = kiizQ ** 2 - k2_z ** 2
+                denominator = kiizQ ** 2 - k3_z ** 2
             elif Cal_version == 2:
-                kiizQ = 2 * k1_z + Gz
-                denominator = kiizQ ** 2 - k2_z ** 2
+                kiizQ = k1_z + k2_z + Gz
+                denominator = kiizQ ** 2 - k3_z ** 2
             elif Cal_version == 3:
-                denominator = (kiizQ + k2_z) * dkiizQ
+                denominator = (kiizQ + k3_z) * dkiizQ
             elif Cal_version == 4:
-                denominator = (dkiizQ + 2 * k2_z) * dkiizQ
+                denominator = (dkiizQ + 2 * k3_z) * dkiizQ
             elif Cal_version == 5:
-                denominator = (dkiizQ + 2 * k2_z) * (kiizQ - k2_z)
+                denominator = (dkiizQ + 2 * k3_z) * (kiizQ - k3_z)
 
-            # print(np.max(np.abs(dkiizQ)), np.max(np.abs(kiizQ - k2_z)))
-            # print(np.min(np.abs(dkiizQ)), np.min(np.abs(kiizQ - k2_z)))
+            # print(np.max(np.abs(dkiizQ)), np.max(np.abs(kiizQ - k3_z)))
+            # print(np.min(np.abs(dkiizQ)), np.min(np.abs(kiizQ - k3_z)))
 
             if Res_version == 1:
-                G2_z = const * molecule / denominator
+                G3_z = const * molecule / denominator
             elif Res_version == 2:
-                G2_z = const * G1_Uz_Squared_modulated / denominator
+                G3_z = const * G1_Uz_Squared_modulated / denominator
             elif Res_version == 3:
-                G2_z = const * g1_U0_Squared_modulated / denominator
+                G3_z = const * g1_U0_Squared_modulated / denominator
 
         elif Big_version == 3:
-            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz/2) ** 2)
+            G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) * Uz_AST(U2_0, k2, iz / 2))
             if Cal_version == 1:
                 molecule = G1_U_half_z_Squared_modulated \
                            * math.e ** (Gz * iz * 1j) \
-                           * math.e ** (k2_z * iz/2 * 1j) \
+                           * math.e ** (k3_z * iz / 2 * 1j) \
                            * (1j * iz)
 
-                denominator = k2_z
+                denominator = k3_z
             elif Cal_version >= 2:
                 if Cal_version != 5:
                     if Cal_version < 4:
-                        kii2z = (k2 ** 2 - (2 * K1_xy[0] + mesh_k2_x_k2_y[:, :, 0]) ** 2 - (
-                                2 * K1_xy[1] + mesh_k2_x_k2_y[:, :, 1]) ** 2 + 0j) ** 0.5
+                        kii2z = (k3 ** 2 - (K1_xy[0] + K2_xy[0] + mesh_k3_x_k3_y[:, :, 0]) ** 2 - (
+                                K1_xy[1] + K2_xy[1] + mesh_k3_x_k3_y[:, :, 1]) ** 2 + 0j) ** 0.5
                         dkiizQ = kiizQ - kii2z
                     else:
-                        dkiizQ = kiizQ - k2_z
+                        dkiizQ = kiizQ - k3_z
                     inside_sinc = dkiizQ / 2 * iz
                 elif Cal_version == 5:
-                    G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
+                    G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
                     g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
-                    exp_dk_factor = math.e ** (1j * (Gz - k2_z) / 2 * iz)
+                    exp_dk_factor = math.e ** (1j * (Gz - k3_z) / 2 * iz)
                     i_dkiizQ_z_1 = np.log(G1_Uz_Squared_modulated / G1_U_half_z_Squared_modulated * exp_dk_factor)
                     i_dkiizQ_z_2 = np.log(g1_U0_Squared_modulated / G1_U_half_z_Squared_modulated / exp_dk_factor)
                     i_dkiizQ_z = i_dkiizQ_z_1 - i_dkiizQ_z_2
                     dkiizQ = i_dkiizQ_z / (1j * iz)
                     # print(np.max(np.abs(dkiizQ)))
-                    kiizQ = dkiizQ + k2_z
+                    kiizQ = dkiizQ + k3_z
                     # print(np.max(np.abs(kiizQ)))
                     inside_sinc = dkiizQ / 2 * iz
                 if Cal_version == 6:
-                    G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) ** 2)
+                    G1_Uz_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
                     g1_U0_Squared_modulated = fft2(modulation * U1_0 ** 2)
-                    exp_dk_factor = math.e ** (1j * (Gz - k2_z) / 2 * iz)
+                    exp_dk_factor = math.e ** (1j * (Gz - k3_z) / 2 * iz)
                     sin_molecule_1 = G1_Uz_Squared_modulated * exp_dk_factor
                     sin_molecule_2 = g1_U0_Squared_modulated / exp_dk_factor
                     sin_molecule = sin_molecule_1 - sin_molecule_2
-                    sin_denominator = 2*1j*G1_U_half_z_Squared_modulated
+                    sin_denominator = 2 * 1j * G1_U_half_z_Squared_modulated
 
                     sin_real = np.real(sin_molecule / sin_denominator)
                     # sin_im = np.imag(sin_molecule / sin_denominator)
@@ -614,92 +630,95 @@ def G2_z_modulation_NLAST(k1, k2,
                 if Cal_version == 2:
                     sinc_denominator = (kiizQ + kii2z) / 2
                     modulation_modified = ifft2(fft2(modulation) * np.sinc(inside_sinc / np.pi) / sinc_denominator)
-                    G1_U_half_z_Squared_modulated = fft2(modulation_modified * Uz_AST(U1_0, k1, iz / 2) ** 2)
+                    G1_U_half_z_Squared_modulated = fft2(modulation_modified * Uz_AST(U1_0, k1, iz / 2)
+                                                         * Uz_AST(U2_0, k2, iz / 2))
                     molecule = G1_U_half_z_Squared_modulated \
                                * math.e ** (Gz * iz * 1j) \
-                               * math.e ** (k2_z * iz / 2 * 1j) \
+                               * math.e ** (k3_z * iz / 2 * 1j) \
                                * (1j * iz)
 
                     denominator = 1
                 elif Cal_version == 3:
                     modulation_modified = ifft2(fft2(modulation) * np.sinc(inside_sinc / np.pi))
-                    G1_U_half_z_Squared_modulated = fft2(modulation_modified * Uz_AST(U1_0, k1, iz / 2) ** 2)
+                    G1_U_half_z_Squared_modulated = fft2(modulation_modified * Uz_AST(U1_0, k1, iz / 2)
+                                                         * Uz_AST(U2_0, k2, iz / 2))
                     molecule = G1_U_half_z_Squared_modulated \
                                * math.e ** (Gz * iz * 1j) \
-                               * math.e ** (k2_z * iz / 2 * 1j) \
+                               * math.e ** (k3_z * iz / 2 * 1j) \
                                * (1j * iz)
-                    denominator = k2_z
+                    denominator = k3_z
                 elif Cal_version >= 4:
-                    sinc_denominator = (kiizQ + k2_z) / 2
+                    sinc_denominator = (kiizQ + k3_z) / 2
                     molecule = G1_U_half_z_Squared_modulated \
                                * np.sinc(inside_sinc / np.pi) / sinc_denominator \
                                * math.e ** (Gz * iz * 1j) \
-                               * math.e ** (k2_z * iz / 2 * 1j) \
+                               * math.e ** (k3_z * iz / 2 * 1j) \
                                * (1j * iz)
                     denominator = 1
                 if Cal_version == 6:
                     molecule *= correction_factor
-            G2_z = const * molecule / denominator
+            G3_z = const * molecule / denominator
 
         elif Big_version == 4:
             if Cal_version == 0:
-                denominator = (kiizQ + k2_z) / 2
-                e_index = -(k1_z**2 + 2*k1_z*Gz) * iz**2 / 24
+                denominator = (kiizQ + k3_z) / 2
+                e_index_1 = -(k1_z ** 2 + 2 * k1_z * Gz) * iz ** 2 / 24
+                e_index_2 = -(k2_z ** 2 + 2 * k2_z * Gz) * iz ** 2 / 24
                 # print(np.max(np.abs(e_index)))
                 G1_U_half_z_Squared_modulated = fft2(modulation * ifft2(
-                    fft2(Uz_AST(U1_0, k1, iz/2)) * math.e ** e_index) ** 2)
-                # print(np.max(np.abs(-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12)))
-                # G2_z = const * G1_U_half_z_Squared_modulated \
-                #        * math.e ** (-(k2_z-Gz)**2 * iz**2 / 24) / denominator \
+                    fft2(Uz_AST(U1_0, k1, iz / 2)) * math.e ** e_index_1) * ifft2(
+                    fft2(Uz_AST(U2_0, k2, iz / 2)) * math.e ** e_index_2))
+                # print(np.max(np.abs(-(K1_z**2 - 2*K1_z*k3_z) * iz**2 / 12)))
+                # G3_z = const * G1_U_half_z_Squared_modulated \
+                #        * math.e ** (-(k3_z-Gz)**2 * iz**2 / 24) / denominator \
                 #        * math.e ** (Gz * iz * 1j) \
-                #        * math.e ** (k2_z * iz / 2 * 1j) \
-                #        * math.e ** (-(K1_z**2 - 2*K1_z*k2_z) * iz**2 / 12) \
+                #        * math.e ** (k3_z * iz / 2 * 1j) \
+                #        * math.e ** (-(K1_z**2 - 2*K1_z*k3_z) * iz**2 / 12) \
                 #        * (1j * iz)
-                A = -(k2_z - Gz) ** 2 * iz ** 2 / 24
+                A = -(k3_z - Gz) ** 2 * iz ** 2 / 24
                 B = Gz * iz * 1j
-                C = k2_z * iz / 2 * 1j
-                D = -(K1_z ** 2 - 2 * K1_z * k2_z) * iz ** 2 / 12
-                E = A+B+C+D
+                C = k3_z * iz / 2 * 1j
+                D = -(K1_z * K2_z - (K1_z + K2_z) * k3_z) * iz ** 2 / 12
+                E = A + B + C + D
                 # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)))
                 # print(np.max(np.abs(e_index)) * 2, np.max(np.abs(E)), np.max(np.abs(A)), np.max(np.abs(D)))
                 # print(np.max(np.real(e_index)) * 2, np.max(np.real(E)), np.max(np.real(A)), np.max(np.abs(D)))
                 # print(np.max(np.abs(dkiizQ))**2 * iz**2)
-                G2_z = const * G1_U_half_z_Squared_modulated \
+                G3_z = const * G1_U_half_z_Squared_modulated \
                        * math.e ** E / denominator \
                        * (1j * iz)
             elif Cal_version == 2:
                 # print("--", np.max(np.abs(kiizQ)), np.max(np.abs(inside_sinc)), iz * Get("size_PerPixel"), "\n") # 老是 π/2 而与 iz 无关，是为啥？
-                # G2_z = gan_G2_z_cos(3**0.5)
-                # G2_z, region = gan_G2_z_cos_seq(1)
-                G2_z, region = gan_G2_z_cos_seq(cos_num_expect)
+                # G3_z = gan_G3_z_cos(3**0.5)
+                # G3_z, region = gan_G3_z_cos_seq(1)
+                G3_z, region = gan_G3_z_cos_seq(cos_num_expect)
 
         elif Big_version == 5:  # 匹配解 与 不匹配解 的 线性组合
-            dismatch = gan_G2_z_dismatch()
+            dismatch = gan_G3_z_dismatch()
 
-            if Cal_version == 0:  #  整体 线性叠加
-                match = gan_G2_z_sinc()
+            if Cal_version == 0:  # 整体 线性叠加
+                match = gan_G3_z_sinc()
 
                 match_factor = math.e ** (- inside_sinc ** 2 / 6)
                 dismatch_factor = 1 - match_factor
 
                 match = match_factor * match
                 dismatch = dismatch_factor * dismatch
-            elif Cal_version == 1:  #  分区 线性叠加
-                match, region = gan_G2_z_cos_seq(cos_num_expect)
+            elif Cal_version == 1:  # 分区 线性叠加
+                match, region = gan_G3_z_cos_seq(cos_num_expect)
                 match = np.where(np.abs(inside_sinc) <= region, match, 0)
                 dismatch = np.where(np.abs(inside_sinc) > region, dismatch, 0)
 
-            G2_z = match + dismatch
+            G3_z = match + dismatch
+
+        return G3_z * Get("size_PerPixel") ** 2
 
 
-        return G2_z * Get("size_PerPixel")**2
-
-
-def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
-               U1_0, iz, const,
+def G3_z_NLAST(k1, k2, k3, Gx, Gy, Gz,
+               U1_0, U2_0, iz, const,
                is_linear_convolution, ):
     Ix, Iy = U1_0.shape[0], U1_0.shape[1]
-    k2_z, mesh_k2_x_k2_y = Cal_kz(Ix, Iy, k2)
+    k3_z, mesh_k3_x_k3_y = Cal_kz(Ix, Iy, k3)
 
     Big_version = 5
     Cal_version = 1
@@ -713,17 +732,18 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
     # 5.1 = 1.1 + 4.2    dismatch + match 分区
 
     K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
-    kiizQ = 2 * K1_z + Gz
-    dkiizQ = kiizQ - k2_z
-    # denominator = kiizQ + k2_z
+    K2_z, K2_xy = find_Kxyz(fft2(U2_0), k2)
+    kiizQ = K1_z + K2_z + Gz
+    dkiizQ = kiizQ - k3_z
+    # denominator = kiizQ + k3_z
     inside_sinc = dkiizQ / 2 * iz
 
     roll_x, roll_y = Cal_roll_xy(Gx, Gy,
                                  Ix, Iy, )
 
-    def gan_Gg_dismatch(): # 1.1
-        G_U1_z_Squared = fft2(Uz_AST(U1_0, k1, iz) ** 2)
-        g_U1_0_Squared = fft2(U1_0 ** 2)
+    def gan_Gg_dismatch():  # 1.1
+        G_U1_z_Squared = fft2(Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
+        g_U1_0_Squared = fft2(U1_0 * U2_0)
         G_U1_z_Squared_Q = Roll_xy(G_U1_z_Squared,
                                    roll_x, roll_y,
                                    is_linear_convolution, )
@@ -732,42 +752,41 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
                                    is_linear_convolution, )
         return G_U1_z_Squared_Q, g_U1_0_Squared_Q
 
-
     if Big_version < 3:
         G_U1_z_Squared_Q, g_U1_0_Squared_Q = gan_Gg_dismatch()
 
         if Res_version == 1:
             molecule = G_U1_z_Squared_Q * math.e ** (Gz * iz * 1j) \
-                       - g_U1_0_Squared_Q * math.e ** (k2_z * iz * 1j)
+                       - g_U1_0_Squared_Q * math.e ** (k3_z * iz * 1j)
 
         elif Res_version == 2:
             molecule = G_U1_z_Squared_Q * math.e ** (Gz * iz * 1j)
 
         elif Res_version == 3:
-            molecule = - g_U1_0_Squared_Q * math.e ** (k2_z * iz * 1j)
+            molecule = - g_U1_0_Squared_Q * math.e ** (k3_z * iz * 1j)
 
     elif Big_version == 3:
-        G_U1_z_Squared = fft2(Uz_AST(U1_0, k1, iz / 2) ** 2)
+        G_U1_z_Squared = fft2(Uz_AST(U1_0, k1, iz / 2) * Uz_AST(U2_0, k2, iz / 2))
         G_U1_z_Squared_Q = Roll_xy(G_U1_z_Squared,
                                    roll_x, roll_y,
                                    is_linear_convolution, )
     elif Big_version > 3:
-        def gan_G2_z_dismatch():  # 1.1
+        def gan_G3_z_dismatch():  # 1.1
             G_U1_z_Squared_Q, g_U1_0_Squared_Q = gan_Gg_dismatch()
 
             molecule = G_U1_z_Squared_Q * math.e ** (Gz * iz * 1j) \
-                       - g_U1_0_Squared_Q * math.e ** (k2_z * iz * 1j)
-            denominator = kiizQ ** 2 - k2_z ** 2
+                       - g_U1_0_Squared_Q * math.e ** (k3_z * iz * 1j)
+            denominator = kiizQ ** 2 - k3_z ** 2
             dismatch = const * molecule / denominator
 
             return dismatch
 
-        def gan_G2_z_cos(factor):  # 4.2
-            denominator = (kiizQ + k2_z) * 2
+        def gan_G3_z_cos(factor):  # 4.2
+            denominator = (kiizQ + k3_z) * 2
             z_plus = (1 + 1 / factor) / 2
             z_minus = (1 - 1 / factor) / 2
-            G_U_z_plus_Squared = fft2(Uz_AST(U1_0, k1, z_plus * iz) ** 2)
-            G_U_z_minus_Squared = fft2(Uz_AST(U1_0, k1, z_minus * iz) ** 2)
+            G_U_z_plus_Squared = fft2(Uz_AST(U1_0, k1, z_plus * iz) * Uz_AST(U2_0, k2, z_plus * iz))
+            G_U_z_minus_Squared = fft2(Uz_AST(U1_0, k1, z_minus * iz) * Uz_AST(U2_0, k2, z_minus * iz))
             G_U_z_plus_Squared_Q = Roll_xy(G_U_z_plus_Squared,
                                            roll_x, roll_y,
                                            is_linear_convolution, )
@@ -775,31 +794,31 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
                                             roll_x, roll_y,
                                             is_linear_convolution, )
             G_U_z_plus_Squared_Q_total = G_U_z_plus_Squared_Q * \
-                                           math.e ** (Gz * z_plus * iz * 1j) * \
-                                           math.e ** (k2_z * z_minus * iz * 1j)
+                                         math.e ** (Gz * z_plus * iz * 1j) * \
+                                         math.e ** (k3_z * z_minus * iz * 1j)
             G_U_z_minus_Squared_Q_total = G_U_z_minus_Squared_Q * \
-                                            math.e ** (Gz * z_minus * iz * 1j) * \
-                                            math.e ** (k2_z * z_plus * iz * 1j)
+                                          math.e ** (Gz * z_minus * iz * 1j) * \
+                                          math.e ** (k3_z * z_plus * iz * 1j)
             cos = const * (G_U_z_plus_Squared_Q_total + G_U_z_minus_Squared_Q_total) \
-                   / denominator \
-                   * (1j * iz)
+                  / denominator \
+                  * (1j * iz)
             return cos
 
-        def gan_G2_z_1():  # 4.2 +
-            denominator = kiizQ + k2_z
-            G1_U_half_z_Squared = fft2(Uz_AST(U1_0, k1, iz / 2) ** 2)
+        def gan_G3_z_1():  # 4.2 +
+            denominator = kiizQ + k3_z
+            G1_U_half_z_Squared = fft2(Uz_AST(U1_0, k1, iz / 2) * Uz_AST(U2_0, k2, iz / 2))
             G1_U_half_z_Squared_Q = Roll_xy(G1_U_half_z_Squared,
                                             roll_x, roll_y,
                                             is_linear_convolution, )
             G1_U_half_z_Squared_Q_total = G1_U_half_z_Squared_Q * \
-                                           math.e ** (Gz * iz/2 * 1j) * \
-                                           math.e ** (k2_z * iz/2 * 1j)
+                                          math.e ** (Gz * iz / 2 * 1j) * \
+                                          math.e ** (k3_z * iz / 2 * 1j)
             cos_1 = const * G1_U_half_z_Squared_Q_total \
-                   / denominator \
-                   * (1j * iz)
+                    / denominator \
+                    * (1j * iz)
             return cos_1
 
-        def gan_G2_z_cos_seq(cos_num_expect):
+        def gan_G3_z_cos_seq(cos_num_expect):
             aj, cos_num, nums_to_omite, region = gan_factor_out(cos_num_expect, )
             bj = gan_factor_in(cos_num_expect, nums_to_omite, )
             # print(cos_num, nums_to_omite, region, "\n")
@@ -807,33 +826,33 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
             # print(bj, "\n")
 
             if cos_num == 1:
-                cos_seq = gan_G2_z_cos(bj[0])
+                cos_seq = gan_G3_z_cos(bj[0])
             else:
-                cos_seq = aj[-1] * gan_G2_z_1()
+                cos_seq = aj[-1] * gan_G3_z_1()
                 for j in range(cos_num):
-                    cos_seq += aj[j] * gan_G2_z_cos(bj[j])
+                    cos_seq += aj[j] * gan_G3_z_cos(bj[j])
             return cos_seq, region
 
     if Big_version <= 3:
-        kii2z = (k2 ** 2 - (2 * K1_xy[0] + mesh_k2_x_k2_y[:, :, 0]) ** 2 - (
-                2 * K1_xy[1] + mesh_k2_x_k2_y[:, :, 1]) ** 2 + 0j) ** 0.5
+        kii2z = (k3 ** 2 - (K1_xy[0] + K2_xy[0] + mesh_k3_x_k3_y[:, :, 0]) ** 2 - (
+                K1_xy[1] + K2_xy[1] + mesh_k3_x_k3_y[:, :, 1]) ** 2 + 0j) ** 0.5
         if Big_version == 0:
 
             # %% denominator: dk_Squared
 
-            # n2_x_n2_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k2_x_k2_y 的 mesh，所以用 Gy 才对应
-            k1izQ = (k1 ** 2 - (mesh_k2_x_k2_y[:, :, 0] - Gy) ** 2 - (
-                    mesh_k2_x_k2_y[:, :, 1] - Gx) ** 2 + 0j) ** 0.5
+            # n3_x_n3_y 的 mesh 才用 Gy / (2 * math.pi) * I2_y)，这里是 k3_x_k3_y 的 mesh，所以用 Gy 才对应
+            k2izQ = (k2 ** 2 - (mesh_k3_x_k3_y[:, :, 0] - Gy) ** 2 - (
+                    mesh_k3_x_k3_y[:, :, 1] - Gx) ** 2 + 0j) ** 0.5
 
-            kizQ = k1 + k1izQ + Gz
-            # kizQ = k1 + k2_z + Gz
-            denominator = kizQ ** 2 - k2_z ** 2
+            kizQ = k1 + k2izQ + Gz
+            # kizQ = k1 + k3_z + Gz
+            denominator = kizQ ** 2 - k3_z ** 2
 
-            kizQ = k1 + (k1 ** 2 - Gx ** 2 - Gy ** 2) ** 0.5 + Gz
-            denominator = kizQ ** 2 - k2 ** 2
+            kizQ = k1 + (k2 ** 2 - Gx ** 2 - Gy ** 2) ** 0.5 + Gz
+            denominator = kizQ ** 2 - k3 ** 2
 
         elif Big_version == 1:
-            denominator = kiizQ ** 2 - k2_z ** 2
+            denominator = kiizQ ** 2 - k3_z ** 2
 
         elif Big_version == 2:
             denominator = kiizQ ** 2 - kii2z ** 2
@@ -842,14 +861,14 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
             if Cal_version == 1:
                 molecule = G_U1_z_Squared_Q \
                            * math.e ** (Gz * iz * 1j) \
-                           * math.e ** (k2_z * iz/2 * 1j) * (1j * iz)
+                           * math.e ** (k3_z * iz / 2 * 1j) * (1j * iz)
 
-                denominator = k2_z
+                denominator = k3_z
             elif Cal_version >= 2:
                 if Cal_version < 4:
                     dkiizQ = kiizQ - kii2z
                 else:
-                    dkiizQ = kiizQ - k2_z
+                    dkiizQ = kiizQ - k3_z
                 inside_sinc = dkiizQ / 2 * iz
                 if Cal_version == 2:
                     modulation_denominator = (kiizQ + kii2z) / 2
@@ -857,7 +876,7 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
                     molecule = G_U1_z_Squared_Q \
                                * np.sinc(inside_sinc / np.pi) / modulation_denominator \
                                * math.e ** (Gz * iz * 1j) \
-                               * math.e ** (k2_z * iz / 2 * 1j) \
+                               * math.e ** (k3_z * iz / 2 * 1j) \
                                * (1j * iz)
 
                     denominator = 1
@@ -865,60 +884,60 @@ def G2_z_NLAST(k1, k2, Gx, Gy, Gz,
                     molecule = G_U1_z_Squared_Q \
                                * np.sinc(inside_sinc / np.pi) \
                                * math.e ** (Gz * iz * 1j) \
-                               * math.e ** (k2_z * iz / 2 * 1j) \
+                               * math.e ** (k3_z * iz / 2 * 1j) \
                                * (1j * iz)
 
-                    denominator = k2_z
+                    denominator = k3_z
                 elif Cal_version >= 4:
-                    sinc_denominator = (kiizQ + k2_z) / 2
+                    sinc_denominator = (kiizQ + k3_z) / 2
                     molecule = G_U1_z_Squared_Q \
                                * np.sinc(inside_sinc / np.pi) / sinc_denominator \
                                * math.e ** (Gz * iz * 1j) \
-                               * math.e ** (k2_z * iz / 2 * 1j) \
+                               * math.e ** (k3_z * iz / 2 * 1j) \
                                * (1j * iz)
                     denominator = 1
 
         # %%
-        G2_z = 2 * const * molecule / denominator
+        G3_z = 2 * const * molecule / denominator
 
     elif Big_version == 4:  # 4.2
         # if Cal_version == 2:
-        G2_z, region = gan_G2_z_cos_seq(cos_num_expect)
+        G3_z, region = gan_G3_z_cos_seq(cos_num_expect)
 
     elif Big_version == 5:  # 匹配解 与 不匹配解 的 线性组合, 5.1
-        dismatch = gan_G2_z_dismatch()
+        dismatch = gan_G3_z_dismatch()
         # if Cal_version == 1:  # 分区 线性叠加
 
-        match, region = gan_G2_z_cos_seq(cos_num_expect)
+        match, region = gan_G3_z_cos_seq(cos_num_expect)
         match = np.where(np.abs(inside_sinc) <= region, match, 0)
         dismatch = np.where(np.abs(inside_sinc) > region, dismatch, 0)
 
-        G2_z = match + dismatch
+        G3_z = match + dismatch
 
-
-    return G2_z * Get("size_PerPixel")**2
+    return G3_z * Get("size_PerPixel") ** 2
 
 
 # %%
 
-def G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
-                     U1_0, iz, const,
+def G3_z_NLAST_false(k1, k2, k3, Gx, Gy, Gz,
+                     U1_0, U2_0, iz, const,
                      is_linear_convolution, ):
     Ix, Iy = U1_0.shape[0], U1_0.shape[1]
     k1_z, mesh_k1_x_k1_y = Cal_kz(Ix, Iy, k1)
-    k2_z, mesh_k2_x_k2_y = Cal_kz(Ix, Iy, k2)
+    k2_z, mesh_k2_x_k2_y = Cal_kz(U2_0.shape[0], U2_0.shape[1], k2)
+    k3_z, mesh_k3_x_k3_y = Cal_kz(Ix, Iy, k3)
 
-    G_U1_z_Squared = fft2(Uz_AST(U1_0, k1, iz) ** 2)
-    g_U1_0_Squared = fft2(U1_0 ** 2)
+    G_U1_z_Squared = fft2(Uz_AST(U1_0, k1, iz) * Uz_AST(U2_0, k2, iz))
+    g_U1_0_Squared = fft2(U1_0 * U2_0)
 
     dG_Squared = G_U1_z_Squared \
-                       - g_U1_0_Squared * math.e ** (k2_z * iz * 1j)
+                 - g_U1_0_Squared * math.e ** (k3_z * iz * 1j)
 
     # %% denominator: dk_Squared
 
-    kiizQ = k1 + k1_z + Gz
+    kiizQ = k1 + k2_z + Gz
 
-    dk_Squared = kiizQ ** 2 - k2_z ** 2
+    dk_Squared = kiizQ ** 2 - k3_z ** 2
 
     # %% fractional
 
@@ -931,40 +950,42 @@ def G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
                            roll_x, roll_y,
                            is_linear_convolution, )
 
-    # %% G2_z0
+    # %% G3_z0
 
-    G2_z = 2 * const * fractional_Q * math.e ** (Gz * iz * 1j)
+    G3_z = 2 * const * fractional_Q * math.e ** (Gz * iz * 1j)
 
-    return G2_z * Get("size_PerPixel")**2
+    return G3_z * Get("size_PerPixel") ** 2
 
 
 # %%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 
-def Info_find_contours_SHG(g1, k1_z, k2_z, dk, Tz, mz,
+def Info_find_contours_SHG(g1, k1_z, k3_z, dk, Tz, mz,
                            z0, size_PerPixel, deff_structure_length_expect,
                            is_print=1, is_contours=1, n_TzQ=1,
                            Gz_max_Enhance=1, match_mode=1, **kwargs):
     # %%
-    # 描边
+    # 描边 （目前 暂时只 对倍频 有效，和频描 谁的边 都不知道...，更别说 怎么描了，搞屁）
     key = "Info_find_contours_SHG"
     is_first = int(init_accu(key, 1) == 1)  # 若第一次调用 Info_find_contours_SHG，则 is_first 为 1，否则为 0
     is_Print = is_print * is_first  # 两个 得都 非零，才 print
 
-    is_contours != -1 and is_Print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "info_描边")
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    is_contours != -1 and is_Print and print(
+        tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "info_描边")
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    if is_contours != -1 and is_contours != 0: # 等于 0 或 -1 则让该 子程序 完全不行使 contours 功能，甚至不提示...
+    if is_contours != -1 and is_contours != 0:  # 等于 0 或 -1 则让该 子程序 完全不行使 contours 功能，甚至不提示...
         # 但 0 但会 约束 deff_structure_length_expect， -1 则彻底 啥也不干
 
-        # dk = 2 * np.max(np.abs(k1_z)) - np.max(np.abs(k2_z))
-        # print(k2_z[0,0])
+        # dk = 2 * np.max(np.abs(k1_z)) - np.max(np.abs(k3_z))
+        # print(k3_z[0,0])
         is_Print and print(tree_print() + "dk = {} / μm, {}".format(dk / size_PerPixel / 1000, dk))
         lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: um
         # print("相干长度 = {} μm".format(lc))
         # print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
         # print("畴宽_max = 相干长度 = {} μm <= 畴宽 = {} μm ".format(lc, Tz/2))
-        if (type(Tz) != float and type(Tz) != np.float64 
+        if (type(Tz) != float and type(Tz) != np.float64
             and type(Tz) != int) or Tz <= 0:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
             Tz = 2 * lc  # Unit: um
 
@@ -977,19 +998,19 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, dk, Tz, mz,
 
         # %%
 
-        # print("k2_z_min = {} / μm, k1_z_min = {} / μm".format(np.min(np.abs(k2_z))/size_PerPixel/1000, np.min(np.abs(k1_z))/size_PerPixel/1000))
-        # print(np.abs(k2_z))
+        # print("k3_z_min = {} / μm, k1_z_min = {} / μm".format(np.min(np.abs(k3_z))/size_PerPixel/1000, np.min(np.abs(k1_z))/size_PerPixel/1000))
+        # print(np.abs(k3_z))
         if match_mode == 1:
             ix, iy, scale, energy_fraction = Find_energy_Dropto_fraction(g1, 2 / 3, 0.1)
-            Gz_max = np.abs(k2_z[ix, 0]) - 2 * np.abs(k1_z[ix, 0])
+            Gz_max = np.abs(k3_z[ix, 0]) - 2 * np.abs(k1_z[ix, 0])
             is_Print and print(tree_print() + "scale = {}, energy_fraction = {}".format(scale, energy_fraction))
         else:
-            Gz_max = np.min(np.abs(k2_z)) - 2 * np.min(np.abs(k1_z))
+            Gz_max = np.min(np.abs(k3_z)) - 2 * np.min(np.abs(k1_z))
 
         Gz_max = Gz_max * Gz_max_Enhance
         is_Print and print(tree_print() + "Gz_max = {} / μm, {}".format(Gz_max / size_PerPixel / 1000, Gz_max))
         Tz_min = 2 * math.pi * mz * size_PerPixel / (
-                    abs(Gz_max) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
+                abs(Gz_max) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         # print("Tz_min = {} μm".format(Tz_min))
 
         dkQ_max = dk + Gz_max
@@ -1018,7 +1039,8 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, dk, Tz, mz,
             # “不要不” 不存在，因为第 2 个设置之后，意味着要 进行描边，所以 第 3 个必须 = 要；同理 “要要不” 也不存在
             # “要不不” 也不存在，因为 提供信息 但啥也不干，有什么用？提供信息就是为了做事，提供了就要做。所以 若第 1 个为 要，则第 2 个也得为 要。
             # “不不不” 也就是 意味着 这个函数 没用。。。那拿你来干啥，提供点信息，总是好的吧。。。算了，也安排上 “不不不选项”
-            is_Print and print(tree_print(add_level=1) + "info_描边 2：若希望 mod( 现 z0, TzQ_exp ) = 0")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
+            is_Print and print(
+                tree_print(add_level=1) + "info_描边 2：若希望 mod( 现 z0, TzQ_exp ) = 0")  # 波长定，z0 定，Tz 不定 (lcQ 不定)
 
             is_Print and print(tree_print() + "lcQ_min = {} mm".format(lcQ_min))
             TzQ_exp = z0 / (z0 // TzQ_min)  # 满足 Tz_min <= · <= Tz_max = 原 Tz， 且 能使 z0 整除 TzQ 中，最小（最接近 TzQ_min）的 TzQ
@@ -1041,7 +1063,7 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, dk, Tz, mz,
             dkQ_exp = math.pi / lcQ_exp * size_PerPixel
             Gz_exp = dkQ_exp - dk
             Tz_exp = 2 * math.pi * mz * size_PerPixel / (
-                        abs(Gz_exp) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
+                    abs(Gz_exp) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
             is_Print and print(tree_print() + "Tz_min = {} μm".format(Tz_min))
             is_Print and print(tree_print() + "Tz_exp = {} μm # ==> 2.同时 Tz = Tz_exp".format(Tz_exp))
             is_Print and print(tree_print() + "Tz     = {} μm".format(Tz))
@@ -1066,7 +1088,7 @@ def Info_find_contours_SHG(g1, k1_z, k2_z, dk, Tz, mz,
         z0_recommend = z0
         Tz_recommend = Tz
 
-    if is_contours != -1: # 等于 -1 则 不额外覆盖 deff_structure_sheet_expect 的值
+    if is_contours != -1:  # 等于 -1 则 不额外覆盖 deff_structure_sheet_expect 的值
         # if deff_structure_length_expect <= z0_recommend + deff_structure_sheet_expect / 1000:
         #     deff_structure_length_expect = z0_recommend + deff_structure_sheet_expect / 1000
         #     is_Print and print("deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
@@ -1123,13 +1145,13 @@ def Info_find_contours(dk, Tz, mz,
         dkQ_max_abs = math.pi / lcQ_min * size_PerPixel
         Gz_max = dkQ_max_abs - dk
         Tz_min = 2 * math.pi * mz * size_PerPixel / (
-                    abs(Gz_max) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
+                abs(Gz_max) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         print("Tz_min = {} μm".format(Tz_min))
 
         dkQ_exp_abs = math.pi / lcQ_exp * size_PerPixel
         Gz_exp = dkQ_exp_abs - dk
         Tz_exp = 2 * math.pi * mz * size_PerPixel / (
-                    abs(Gz_exp) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
+                abs(Gz_exp) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         print("Tz_exp = {} μm # ==> 3.最后调 Tz = Tz_exp ".format(Tz_exp))
         print("Tz     = {} μm # ==> 1.先调 Tz < Tz_max".format(Tz))
         print("Tz_max = {} μm".format(lc * 2))

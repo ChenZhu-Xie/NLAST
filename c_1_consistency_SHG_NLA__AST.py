@@ -15,7 +15,8 @@ from fun_linear import fft2
 from fun_compare import U_compare
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, fset, fget, fkey
 from b_1_AST import AST
-from b_3_SHG_NLA import SHG_NLA
+from b_3_SFG_NLA import SFG_NLA
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -47,6 +48,7 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
                              z1=1, z2=5,
                              # %%
                              lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                             is_air_pump_structure=0,
                              deff=30, is_fft=1, fft_mode=0,
                              is_sum_Gm=0, mG=0,
                              is_linear_convolution=0,
@@ -79,15 +81,15 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
                              # %%
                              is_print=2, is_contours=1, n_TzQ=1,
                              Gz_max_Enhance=1, match_mode=1,
-                             #%%
+                             # %%
                              is_amp_relative=1,
                              # %%
                              **kwargs, ):
-
-    #%%
+    # %%
     info = "利用 SHG 检验：NLAST 自洽性"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 非线性 惠更斯 菲涅尔 原理
 
@@ -159,6 +161,7 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
                 z_NLA,
                 # %%
                 lam1, is_air_pump, is_air, T,
+                is_air_pump_structure,
                 deff, is_fft, fft_mode,
                 is_sum_Gm, mG,
                 is_linear_convolution,
@@ -195,7 +198,7 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
     kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"U": U1_z1, "ray": ray1_z1, })
     U2_z2, G2_z2, ray2_z2, method_and_way2_z2, U_key2_z2 = \
-        SHG_NLA(*args_NLA(z2), **kwargs_NLA, )
+        SFG_NLA(*args_NLA(z2), **kwargs_NLA, )
 
     # %%
     # 先倍频 z1 后衍射 z2
@@ -203,7 +206,7 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
     kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"ray": "2", })
     U2_z1, G2_z1, ray2_z1, method_and_way2_z1, U_key2_z1 = \
-        SHG_NLA(*args_NLA(z1), **kwargs_NLA, )
+        SFG_NLA(*args_NLA(z1), **kwargs_NLA, )
 
     kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"U": U2_z1, "ray": ray2_z1, })
@@ -218,7 +221,7 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
     kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"ray": "2", })
     U2_Z, G2_Z, ray2_Z, method_and_way2_Z, U_key2_Z = \
-        SHG_NLA(*args_NLA(Z), **kwargs_NLA, )
+        SFG_NLA(*args_NLA(Z), **kwargs_NLA, )
 
     # %%
     # 加和 U1_NLA 与 U2_AST = U2_Z_Superposition
@@ -324,8 +327,9 @@ if __name__ == '__main__':
          "z1": 3, "z2": 5,
          # %%
          "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
-         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0, 
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
          "Tx": 10, "Ty": 10, "Tz": "2*lc",
@@ -346,24 +350,28 @@ if __name__ == '__main__':
          # %%
          "fontsize": 7,
          "font": {'family': 'serif',
-               'style': 'normal',  # 'normal', 'italic', 'oblique'
-               'weight': 'normal',
-               'color': 'black',  # 'black','gray','darkred'
-               },
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
          # %%
          "is_colorbar_on": 1, "is_energy": 1,
          # %%
          "is_print": 2, "is_contours": 0, "n_TzQ": 1, "Gz_max_Enhance": 1, "match_mode": 1,
-         # %%
+         # %% 该程序 独有 -------------------------------
          "is_amp_relative": 1,
-         # %%
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
-         "border_percentage": 0.1, "is_end": -1, }
+         "border_percentage": 0.1, "is_end": -1,
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "polar3": "e",
+         }
 
     kwargs = init_GLV_DICT(**kwargs)
     consistency_SHG_NLA__AST(**kwargs)
 
-    # consistency_SHG_NLA__AST(img_full_name="grating.png",
+    # consistency_SFG_NLA__AST(img_full_name="grating.png",
     #                          is_phase_only=0,
     #                          # %%
     #                          z_pump=0,

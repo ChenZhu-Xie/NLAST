@@ -14,8 +14,8 @@ from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_ssi
-from fun_linear import init_AST, init_SHG, fft2, ifft2
-from fun_nonlinear import Eikz, args_SHG, Info_find_contours_SHG
+from fun_linear import init_AST, init_SFG, fft2, ifft2
+from fun_nonlinear import args_SFG, Info_find_contours_SHG, G3_z_modulation_NLAST
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
@@ -25,7 +25,7 @@ np.seterr(divide='ignore', invalid='ignore')
 
 # %%
 
-def SHG_SSF_ssi(U_name="",
+def SFG_NLA_ssi(U_name="",
                 img_full_name="Grating.png",
                 is_phase_only=0,
                 # %%
@@ -59,8 +59,7 @@ def SHG_SSF_ssi(U_name="",
                 elev=10, azim=-65, alpha=2,
                 # %%
                 sample=2, ticks_num=6, is_contourf=0,
-                is_title_on=1, is_axes_on=1,
-                is_mm=1,
+                is_title_on=1, is_axes_on=1, is_mm=1,
                 # %%
                 fontsize=9,
                 font={'family': 'serif',
@@ -81,6 +80,36 @@ def SHG_SSF_ssi(U_name="",
                 Gz_max_Enhance=1, match_mode=1,
                 # %%
                 **kwargs, ):
+    ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    if ray_tag == "f":
+        U2_name = kwargs.get("U2_name", U_name)
+        img2_full_name = kwargs.get("img2_full_name", img_full_name)
+        is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
+        # %%
+        z_pump2 = kwargs.get("z_pump2", z_pump)
+        is_LG_2 = kwargs.get("is_LG_2", is_LG)
+        is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
+        is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
+        # %%
+        l2 = kwargs.get("l2", l)
+        p2 = kwargs.get("p2", p)
+        theta2_x = kwargs.get("theta2_x", theta_x)
+        theta2_y = kwargs.get("theta2_y", theta_y)
+        # %%
+        is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
+        is_H_l2 = kwargs.get("is_H_l2", is_H_l)
+        is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
+        is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
+        # %%
+        w0_2 = kwargs.get("w0_2", w0)
+        lam2 = kwargs.get("lam2", lam1)
+        is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
+        T2 = kwargs.get("T2", T)
+        polar2 = kwargs.get("polar2", 'e')
+        # %%
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
+
     # %%
 
     if_image_Add_black_border(U_name, img_full_name,
@@ -88,14 +117,13 @@ def SHG_SSF_ssi(U_name="",
 
     # %%
 
-    info = "SSF_小步长_ssi"
+    info = "NLA_小步长_ssi"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    # kwargs['ray'] = init_GLV_rmw(U_name, "^", "SSI", "Sfm", **kwargs)
-    ray_tag = "f" if kwargs.get('ray', 2) == 3 else "h"
-    init_GLV_rmw(U_name, ray_tag, "SSF", "ssi", **kwargs)
+    # kwargs['ray'] = init_GLV_rmw(U_name, "^", "SSI", "Nla", **kwargs)
+    init_GLV_rmw(U_name, ray_tag, "NLA", "ssi", **kwargs)
 
     # %%
 
@@ -131,21 +159,69 @@ def SHG_SSF_ssi(U_name="",
                                  # %%
                                  ray_pump='1', **kwargs, )
 
+    # %%
+
+    if ray_tag == "f":
+        from fun_pump import pump_pic_or_U2
+        U2_0, g2 = pump_pic_or_U2(U2_name,
+                                img2_full_name,
+                                is_phase_only_2,
+                                # %%
+                                z_pump2,
+                                is_LG_2, is_Gauss_2, is_OAM_2,
+                                l2, p2,
+                                theta2_x, theta2_y,
+                                # %%
+                                is_random_phase_2,
+                                is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                # %%
+                                U_NonZero_size, w0_2,
+                                # %%
+                                lam2, is_air_pump, T,
+                                polar2,
+                                # %%
+                                is_save, is_save_txt, dpi,
+                                # %%
+                                ticks_num, is_contourf,
+                                is_title_on, is_axes_on, is_mm,
+                                # %%
+                                fontsize, font,
+                                # %%
+                                is_colorbar_on, is_energy,
+                                # %%
+                                is_print,
+                                # %%
+                                ray_pump='2', **kwargs, )
+    else:
+        U2_0, g2 = U_0, g_shift
+
+    # %%
+
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
+                                                   theta_x, theta_y,
+                                                   **kwargs)
 
-    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+    if ray_tag == "f":
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
+                                                       lam2, is_air, T,
+                                                       theta2_x, theta2_y,
+                                                       polar2=polar2, **kwargs)
+    else:
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
+
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
-                                                         theta_x, theta_y, **kwargs)
+                                                         theta_x, theta_y,
+                                                         lam2=lam2, **kwargs)
 
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, size_PerPixel,
+    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
-                          is_print, )
+                          is_print, k2_inc=k2_inc, )
 
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, dk, Tz, mz,
+    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
                                                                           L0_Crystal, size_PerPixel,
                                                                           deff_structure_length_expect,
                                                                           is_print, is_contours, n_TzQ, Gz_max_Enhance,
@@ -170,10 +246,10 @@ def SHG_SSF_ssi(U_name="",
     # %%
     # const
 
-    const = (k2_inc / size_PerPixel / n2_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+    const = (k3_inc / size_PerPixel / n3_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
 
     # %%
-    # G2_z0_shift
+    # G3_z0_shift
 
     method = "MOD"
     folder_name = method + " - " + "χ2_modulation_squared"
@@ -184,24 +260,13 @@ def SHG_SSF_ssi(U_name="",
              sheets_num, sheets_stored_num,
              X, Y, Iz, size_PerPixel, )
 
-    cal_mode = [1, 1, 0]
+    def H3_zdz(diz):
+        return np.power(math.e, k3_z * diz * 1j)
+        # 注意 这里的 传递函数 的 指数是 正的 ！！！
 
-    # 以 G 算 还是以 U 算、源项 是否 也衍射、k_2z 是否是 matrix 版
-    # 用 G 算 会快很多
-    # 不管是 G 还是 U，matrix 版的能量 总是要低一些，只不过 U 低得少些，没有数量级差异，而 G 少得很多
-
-    def H2_zdz(diz):
-        return np.power(math.e, k2_z * diz * 1j)
-
-    def H2_z(diz):
-        if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
-            dk_z = 2 * k1_z - k2_z
-            return np.power(math.e, k2_z * diz * 1j) / (k2_z / size_PerPixel) * Eikz(
-                dk_z * diz) * diz * size_PerPixel \
-                   * (2 / (dk_z / k2_z + 2))
-        else:
-            return np.power(math.e, k2 * diz * 1j) / (k2 / size_PerPixel) * Eikz(
-                dk * diz) * diz * size_PerPixel * (2 / (dk / k2 + 2))
+    def H3_z(diz):
+        return (np.power(math.e, k3_z * diz * 1j) - 1) / k3_z ** 2 * size_PerPixel ** 2
+        # 注意 这里的 传递函数 的 指数是 正的 ！！！
 
     def fun1(for_th, fors_num, *args, **kwargs, ):
         iz = izj[for_th]
@@ -210,89 +275,48 @@ def SHG_SSF_ssi(U_name="",
         G1_z = g_shift * H1_z
         U_z = ifft2(G1_z)
 
+        if ray_tag == "f":
+            H2_z = np.power(math.e, k2_z * iz * 1j)
+            G2_z = g2 * H2_z
+            U2_z = ifft2(G2_z)
+        else:
+            U2_z = U_z
+
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
                 modulation_squared_full_name = str(for_th - sheets_num_frontface) + (is_save_txt and ".txt" or ".mat")
                 modulation_squared_address = folder_address + "\\" + modulation_squared_full_name
                 modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
             else:
+                # print("???????????????")
                 modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
         else:
             modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
 
-        if cal_mode[0] == 1:  # 如果以 G 算
-
-            if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
-                if cal_mode[1] == 1:  # 若 源项 也衍射
-                    Q2_z = fft2(
-                        modulation_squared_z * U_z ** 2 * H2_z(dizj[for_th])
-                        / np.power(math.e, k2_z * diz * 1j))
-                else:
-                    Q2_z = fft2(modulation_squared_z * U_z ** 2 * H2_z(dizj[for_th]))
-            else:
-                Q2_z = fft2(modulation_squared_z * U_z ** 2)
-
-            if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
-                dG2_zdz = const * Q2_z
-            else:
-                if cal_mode[1] == 1:  # 若 源项 也衍射
-                    dG2_zdz = const * Q2_z * H2_z(dizj[for_th]) \
-                              / np.power(math.e, k2 * diz * 1j)
-                else:
-                    dG2_zdz = const * Q2_z * H2_z(dizj[for_th])
-
-            return dG2_zdz
+        if is_NLAST == 1:
+            dG3_zdz = G3_z_modulation_NLAST(k1, k2, k3,
+                                            modulation_squared_z, U_z, U2_z, dizj[for_th], const,
+                                            Gz=0, )
 
         else:
+            Q2_z = fft2(modulation_squared_z * U_z * U2_z)
+            dG3_zdz = const * Q2_z * H3_z(dizj[for_th])
+        # print(dizj[for_th]*size_PerPixel)
+        return dG3_zdz
 
-            S2_z = modulation_squared_z * U_z ** 2
+    def fun2(for_th, fors_num, dG3_zdz, *args, **kwargs, ):
 
-            if cal_mode[1] == 1:  # 若 源项 也衍射
-                if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
-                    dU2_zdz = const * S2_z * H2_z(dizj[for_th]) / \
-                              np.power(math.e, k2_z * diz * 1j)
-                else:
-                    dU2_zdz = const * S2_z * H2_z(dizj[for_th]) / np.power(math.e, k2 * diz * 1j)
-            else:
-                dU2_zdz = const * S2_z * H2_z(dizj[for_th])
+        dset("G", dget("G") * H3_zdz(dizj[for_th]) + dG3_zdz)
 
-            return dU2_zdz
-
-    def fun2(for_th, fors_num, dG2_zdz, *args, **kwargs, ):
-
-        if cal_mode[0] == 1:  # 如果以 G 算
-
-            if cal_mode[1] == 1:  # 若 源项 也衍射
-                dset("G", (dget("G") + dG2_zdz) * H2_zdz(dizj[for_th]))
-            else:
-                dset("G", dget("G") * H2_zdz(dizj[for_th]) + dG2_zdz)
-
-            return dget("G")
-
-        else:
-
-            dU2_zdz = dG2_zdz
-
-            if cal_mode[1] == 1:  # 若 源项 也衍射
-                dset("U", ifft2(fft2(dget("U") + dU2_zdz) * H2_zdz(dizj[for_th])))
-            else:
-                dset("U", ifft2(fft2(dget("U")) * H2_zdz(dizj[for_th])) + dU2_zdz)
-
-            return dget("U")
-
-    # %%
-
-    is_U = 0 if cal_mode[0] == 1 else 1  # 如以 G 算，则 is_U = 0
+        return dget("G")
 
     my_thread(10, sheets_num,
               fun1, fun2, fun3,
-              is_ordered=1, is_print=is_print,
-              is_U=is_U, )
+              is_ordered=1, is_print=is_print, )
 
     # %%
 
-    end_SSI(g_shift, is_energy, n_sigma=3,
-            is_U=is_U, )
+    end_SSI(g_shift, is_energy, n_sigma=3, )
 
     fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    img_name_extension, is_print,
@@ -359,16 +383,16 @@ if __name__ == '__main__':
          "X": 0, "Y": 0,
          # %%
          "is_bulk": 1, "is_no_backgroud": 0,
-         "is_stored": 0, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
+         "is_stored": 1, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
          # %%
          "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
          "deff": 30,
          # %%
-         "Tx": 10, "Ty": 10, "Tz": "2*lc",
-         "mx": 0, "my": 0, "mz": 0,
+         "Tx": 10, "Ty": 10, "Tz": 5.6,
+         "mx": 0, "my": 0, "mz": 1,
          "is_NLAST": 0,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 1, "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -391,18 +415,45 @@ if __name__ == '__main__':
          "is_plot_3d_XYz": 0, "is_plot_selective": 0,
          "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
          # %%
-         "is_print": 1, "is_contours": 1, "n_TzQ": 1,
+         "is_print": 1, "is_contours": 66, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
-         # %%
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
+         # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-         "ray": "2", }
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "ray": "2", "polar3": "e",
+         }
+
+    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+        pump2_kwargs = {
+            "U2_name": "",
+            "img2_full_name": "lena.png",
+            "is_phase_only_2": 0,
+            # %%
+            "z_pump2": 0,
+            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
+            "l2": 0, "p2": 0,
+            "theta2_x": 0, "theta2_y": 0,
+            # %%
+            "is_random_phase_2": 0,
+            "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
+            # %%
+            "w0_2": 0.3,
+            # %%
+            "lam2": 1, "is_air_pump2": 0, "T2": 25,
+            "polar2": 'e',
+        }
+        pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
+        # Object of type dict_keys is not JSON serializable，所以 得转为 list
+        kwargs.update(pump2_kwargs)
 
     kwargs = init_GLV_DICT(**kwargs)
-    SHG_SSF_ssi(**kwargs)
+    SFG_NLA_ssi(**kwargs)
 
-    # SHG_SSF_ssi(U_name="",
+    # SFG_NLA_ssi(U_name="",
     #         img_full_name="Grating.png",
     #         is_phase_only=0,
     #         # %%
@@ -421,16 +472,16 @@ if __name__ == '__main__':
     #         X=0, Y=0,
     #         # %%
     #         is_bulk=1, is_no_backgroud=0,
-    #         is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
+    #         is_stored=1, is_show_structure_face=1, is_energy_evolution_on=1,
     #         # %%
     #         lam1=0.8, is_air_pump=0, is_air=0, T=25,
     #         deff=30,
     #         # %%
-    #         Tx=10, Ty=10, Tz="2*lc",
-    #         mx=0, my=0, mz=0,
+    #         Tx=10, Ty=10, Tz=5.6,
+    #         mx=0, my=0, mz=1,
     #         is_NLAST=0,
     #         # %%
-    #         is_save=0, is_save_txt=0, dpi=100,
+    #         is_save=1, is_save_txt=0, dpi=100,
     #         # %%
     #         color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
     #         elev=10, azim=-65, alpha=2,
@@ -453,7 +504,7 @@ if __name__ == '__main__':
     #         is_plot_3d_XYz=0, is_plot_selective=0,
     #         is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
     #         # %%
-    #         is_print=1, is_contours=1, n_TzQ=1,
+    #         is_print=1, is_contours=66, n_TzQ=1,
     #         Gz_max_Enhance=1, match_mode=1,
     #         # %%
     #         root_dir=r'',

@@ -13,8 +13,9 @@ from fun_os import img_squared_bordered_Read, U_plot_save
 from fun_img_Resize import if_image_Add_black_border
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, fset, fget, fkey
 from b_1_AST import AST
-from B_3_SHG_NLA_SSI_chi2 import SHG_NLA_SSI
-from B_3_SHG_SSF_SSI_chi2 import SHG_SSF_SSI
+from B_3_SFG_NLA_SSI_chi2 import SFG_NLA_SSI
+from B_3_SFG_SSF_SSI_chi2 import SFG_SSF_SSI
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -53,6 +54,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
                              is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
                              # %%
                              lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                             is_air_pump_structure=0,
                              deff=30,
                              # %%
                              Tx=10, Ty=10, Tz="2*lc",
@@ -91,15 +93,15 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
                              # %%
                              is_print=1, is_contours=66, n_TzQ=1,
                              Gz_max_Enhance=1, match_mode=1,
-                             #%% 该程序 独有
-                             is_NLA = 1,
+                             # %% 该程序 独有
+                             is_NLA=1,
                              # %%
                              **kwargs, ):
-
     # %%
     info = "利用 SHG 描边：SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 非线性 惠更斯 菲涅尔 原理
 
@@ -177,6 +179,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
                 is_stored, is_show_structure_face, is_energy_evolution_on,
                 # %%
                 lam1, is_air_pump, is_air, T,
+                is_air_pump_structure,
                 deff,
                 # %%
                 Tx, Ty, Tz,
@@ -218,8 +221,8 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
     kwargs_SSI = copy.deepcopy(kwargs)
     kwargs_SSI.update({"U": U1_z_AST, "ray": ray1_z_AST, })
     U1_z_SSI, G1_z_SSI, ray1_z_SSI, method_and_way1_z_SSI, U_key1_z_SSI = \
-        SHG_NLA_SSI(*args_SSI(z_SSI), **kwargs_SSI, ) if is_NLA == 1 else \
-            SHG_SSF_SSI(*args_SSI(z_SSI), **kwargs_SSI, )
+        SFG_NLA_SSI(*args_SSI(z_SSI), **kwargs_SSI, ) if is_NLA == 1 else \
+            SFG_SSF_SSI(*args_SSI(z_SSI), **kwargs_SSI, )
 
     # %%
     # 先倍频 z_AST 后衍射 z_SSI
@@ -227,8 +230,8 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
     kwargs_SSI = copy.deepcopy(kwargs)
     kwargs_SSI.update({"ray": "2", })
     U2_z_SSI, G2_z_SSI, ray2_z_SSI, method_and_way2_z_SSI, U_key2_z_SSI = \
-        SHG_NLA_SSI(*args_SSI(z_SSI), **kwargs_SSI, ) if is_NLA == 1 else \
-            SHG_SSF_SSI(*args_SSI(z_SSI), **kwargs_SSI, )
+        SFG_NLA_SSI(*args_SSI(z_SSI), **kwargs_SSI, ) if is_NLA == 1 else \
+            SFG_SSF_SSI(*args_SSI(z_SSI), **kwargs_SSI, )
 
     kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"U": U2_z_SSI, "ray": ray2_z_SSI, })
@@ -270,6 +273,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
 
     # %%
 
+
 if __name__ == '__main__':
     kwargs = \
         {"img_full_name": "Grating.png",
@@ -307,6 +311,7 @@ if __name__ == '__main__':
          "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
          # %%
          "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam_structure": 1.064, "is_air_pump_structure": 0, "T_structure": 25,
          "deff": 30,
          # %%
          "Tx": 10, "Ty": 10, "Tz": "2*lc",
@@ -330,10 +335,10 @@ if __name__ == '__main__':
          # %%
          "fontsize": 9,
          "font": {'family': 'serif',
-               'style': 'normal',  # 'normal', 'italic', 'oblique'
-               'weight': 'normal',
-               'color': 'black',  # 'black','gray','darkred'
-               },
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
          # %%
          "is_colorbar_on": 1, "is_energy": 1,
          # %% 不关心
@@ -345,17 +350,22 @@ if __name__ == '__main__':
          # %%
          "is_print": 1, "is_contours": 66, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
-         # %% 该程序 独有
+         # %% 该程序 独有 ------------------------------- -------------------------------
          "is_NLA": 1,
-         # %% 该程序 作为 主入口时
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1, }
+         # %%
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "polar3": "e",
+         }
 
     kwargs = init_GLV_DICT(**kwargs)
     consistency_SHG_SSI__AST(**kwargs)
 
-    # consistency_SHG_SSI__AST(img_full_name="Grating.png",
+    # consistency_SFG_SSI__AST(img_full_name="Grating.png",
     #                          is_phase_only=0,
     #                          # %%
     #                          z_pump=0,

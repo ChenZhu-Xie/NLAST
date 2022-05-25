@@ -12,14 +12,14 @@ import numpy as np
 from fun_global_var import init_GLV_DICT, Get, tree_print, GU_error_energy_plot_save
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST, init_SHG
+from fun_linear import init_AST, init_SFG
 from fun_nonlinear import Cal_lc_SHG
-from c_2_compare_SHG_NLA__SSI_chi2 import compare_SHG_NLA__SSI
+from c_2_compare_SFG_NLA__SSI_chi2 import compare_SFG_NLA__SSI
 
 np.seterr(divide='ignore', invalid='ignore')
 
 
-def auto_compare_SHG_NLA__SSI(U_name_Structure="",
+def auto_compare_SFG_NLA__SSI(U_name_Structure="",
                               is_phase_only_Structure=0,
                               # %%
                               z_pump_Structure=0,
@@ -59,6 +59,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                               is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
                               # %%
                               lam1=1.5, is_air_pump=0, is_air=0, T=25,
+                              is_air_pump_structure=0,
                               deff=30, is_fft=1, fft_mode=0,
                               is_sum_Gm=0, mG=0,
                               is_linear_convolution=0,
@@ -92,11 +93,41 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                               # %%
                               is_print=1, is_contours=1, n_TzQ=1,
                               Gz_max_Enhance=1, match_mode=1,
-                              # %% 该程序 独有
+                              # %% 该程序 独有 -------------------------------
                               is_NLA=1, is_amp_relative=1,
                               num_data_points=3, center_times=40, shift_right=3,
                               # %%
                               **kwargs, ):
+    ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    if ray_tag == "f":
+        U2_name = kwargs.get("U2_name", U_name)
+        img2_full_name = kwargs.get("img2_full_name", img_full_name)
+        is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
+        # %%
+        z_pump2 = kwargs.get("z_pump2", z_pump)
+        is_LG_2 = kwargs.get("is_LG_2", is_LG)
+        is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
+        is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
+        # %%
+        l2 = kwargs.get("l2", l)
+        p2 = kwargs.get("p2", p)
+        theta2_x = kwargs.get("theta2_x", theta_x)
+        theta2_y = kwargs.get("theta2_y", theta_y)
+        # %%
+        is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
+        is_H_l2 = kwargs.get("is_H_l2", is_H_l)
+        is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
+        is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
+        # %%
+        w0_2 = kwargs.get("w0_2", w0)
+        lam2 = kwargs.get("lam2", lam1)
+        is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
+        T2 = kwargs.get("T2", T)
+        polar2 = kwargs.get("polar2", 'e')
+        # %%
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
+
     # %%
     info = "扫描 Tz，自动对比：NLA 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -143,15 +174,61 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
 
     # %%
 
+    if ray_tag == "f":
+        from fun_pump import pump_pic_or_U2
+        U2_0, g2 = pump_pic_or_U2(U2_name,
+                                img2_full_name,
+                                is_phase_only_2,
+                                # %%
+                                z_pump2,
+                                is_LG_2, is_Gauss_2, is_OAM_2,
+                                l2, p2,
+                                theta2_x, theta2_y,
+                                # %%
+                                is_random_phase_2,
+                                is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                # %%
+                                U_NonZero_size, w0_2,
+                                # %%
+                                lam2, is_air_pump, T,
+                                polar2,
+                                # %%
+                                is_save, is_save_txt, dpi,
+                                # %%
+                                ticks_num, is_contourf,
+                                is_title_on, is_axes_on, is_mm,
+                                # %%
+                                fontsize, font,
+                                # %%
+                                is_colorbar_on, is_energy,
+                                # %%
+                                is_print,
+                                # %%
+                                ray_pump='2', **kwargs, )
+    else:
+        U2_0, g2 = U_0, g_shift
+
+    # %%
+
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
+                                                   theta_x, theta_y,
+                                                   **kwargs)
 
-    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+    if ray_tag == "f":
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
+                                                       lam2, is_air, T,
+                                                       theta2_x, theta2_y,
+                                                       polar2=polar2, **kwargs)
+    else:
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
+
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
-                                                         theta_x, theta_y, **kwargs)
+                                                         theta_x, theta_y,
+                                                         lam2=lam2, **kwargs)
 
-    dk, lc, Tz = Cal_lc_SHG(k1_inc, k2_inc, Tz, size_PerPixel,
+    dk, lc, Tz = Cal_lc_SHG(k1_inc, k3_inc, Tz, size_PerPixel,
                             0, )
 
     Tc = 2 * lc
@@ -189,7 +266,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
 
     for i in range(ticks_Num):
         tuple_temp = \
-            compare_SHG_NLA__SSI(U_name_Structure,
+            compare_SFG_NLA__SSI(U_name_Structure,
                                  is_phase_only_Structure,
                                  # %%
                                  z_pump_Structure,
@@ -229,6 +306,7 @@ def auto_compare_SHG_NLA__SSI(U_name_Structure="",
                                  is_stored, is_show_structure_face, is_energy_evolution_on,
                                  # %%
                                  lam1, is_air_pump, is_air, T,
+                                 is_air_pump_structure,
                                  deff, is_fft, fft_mode,
                                  is_sum_Gm, mG,
                                  is_linear_convolution,
@@ -349,6 +427,7 @@ if __name__ == '__main__':
          "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
          # %%
          "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1,
          "is_linear_convolution": 0,
@@ -382,19 +461,47 @@ if __name__ == '__main__':
          # %%
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
-         # %% 该程序 独有
+         # %% 该程序 独有 -------------------------------
          "is_NLA": 1, "is_amp_relative": 1,
          "num_data_points": 40, "center_times": 1.5, "shift_right": 3,
-         # %% 该程序 作为 主入口时
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
+         # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-         "ax_yscale": 'linear', }
+         "ax_yscale": 'linear',
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "ray": '3', "polar3": "e",
+         }
+
+    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+        pump2_kwargs = {
+            "U2_name": "",
+            "img2_full_name": "lena.png",
+            "is_phase_only_2": 0,
+            # %%
+            "z_pump2": 0,
+            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
+            "l2": 0, "p2": 0,
+            "theta2_x": 0, "theta2_y": 0,
+            # %%
+            "is_random_phase_2": 0,
+            "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
+            # %%
+            "w0_2": 0.3,
+            # %%
+            "lam2": 1, "is_air_pump2": 0, "T2": 25,
+            "polar2": 'e',
+        }
+        pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
+        # Object of type dict_keys is not JSON serializable，所以 得转为 list
+        kwargs.update(pump2_kwargs)
 
     kwargs = init_GLV_DICT(**kwargs)
-    auto_compare_SHG_NLA__SSI(**kwargs)
+    auto_compare_SFG_NLA__SSI(**kwargs)
 
-    # auto_compare_SHG_NLA__SSI(U_name_Structure="",
+    # auto_compare_SFG_NLA__SSI(U_name_Structure="",
     #                           is_phase_only_Structure=0,
     #                           # %%
     #                           z_pump_Structure=0,
@@ -467,7 +574,7 @@ if __name__ == '__main__':
     #                           # %%
     #                           is_print=1, is_contours=0, n_TzQ=1,
     #                           Gz_max_Enhance=1, match_mode=1,
-    #                           # %% 该程序 独有
+    #                           # %% 该程序 独有 -------------------------------
     #                           is_NLA=1, is_amp_relative=1,
     #                           num_data_points=40, center_times=1.5, shift_right=3,
     #                           # %% 该程序 作为 主入口时

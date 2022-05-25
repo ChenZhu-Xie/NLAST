@@ -31,9 +31,9 @@ def Roll_xy(U,
     U = np.roll(U, roll_x, axis=0)
     
     if is_linear_convolution == 1:
-        if roll_x < 0: # n2_x + Gx / (2 * math.pi) * I2_x 小于 (I2_x - 1) - I2_x//2 时，后半部分 取零，只剩 前半部分
+        if roll_x < 0: # n3_x + Gx / (2 * math.pi) * I2_x 小于 (I2_x - 1) - I2_x//2 时，后半部分 取零，只剩 前半部分
             U[roll_x:, :] = 0
-        elif roll_x > 0: # n2_x + Gx / (2 * math.pi) * I2_x 大于 (I2_x - 1) - I2_x//2 时，前半部分 取零，只剩 后半部分
+        elif roll_x > 0: # n3_x + Gx / (2 * math.pi) * I2_x 大于 (I2_x - 1) - I2_x//2 时，前半部分 取零，只剩 后半部分
             U[:roll_x, :] = 0
             
     # # 往右（列） 线性平移 roll_y 像素：先对 将要平移出框的 roll_y 个列 取零，再 循环平移；先后 顺序可反，但 取零的列的 左右 也得 同时反

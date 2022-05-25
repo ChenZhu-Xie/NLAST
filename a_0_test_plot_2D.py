@@ -216,7 +216,7 @@ if __name__ == '__main__':
          # %%
          "is_animated": -1,
          "loop": 0, "duration": 0.033, "fps": 5,
-         # %%
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "is_end": -1, }
 

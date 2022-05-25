@@ -123,6 +123,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                                  U_NonZero_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
+                                 kwargs.get("polar", "e"),
                                  # %%
                                  is_save, is_save_txt, dpi,
                                  cmap_2d,
@@ -142,7 +143,8 @@ def interference_AST__AST(img_full_name="Grating.png",
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
+                                                   theta_x, theta_y,
+                                                   kwargs.get("polar", "e"), **kwargs)
 
     # %%
 
@@ -223,9 +225,12 @@ if __name__ == '__main__':
          "is_colorbar_on": 1, "is_energy": 1,
          # %%
          "is_print": 1,
-         # %%
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
-         "border_percentage": 0.1, "is_end": -1, }
+         "border_percentage": 0.1, "is_end": -1,
+         # %%
+         "gamma_y": 90, "polar": "e",
+         }
 
     kwargs = init_GLV_DICT(**kwargs)
     interference_AST__AST(**kwargs)

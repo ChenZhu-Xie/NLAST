@@ -13,17 +13,18 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_SSI
 from fun_linear import fft2, ifft2
-from fun_nonlinear import Info_find_contours_SHG, G2_z_modulation_NLAST
+from fun_nonlinear import Info_find_contours_SHG, G3_z_modulation_NLAST
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
 # %%
 
-def SHG_NLA_SSI(U_name="",
+def SFG_NLA_SSI(U_name="",
                 img_full_name="Grating.png",
                 is_phase_only=0,
                 # %%
@@ -58,6 +59,7 @@ def SHG_NLA_SSI(U_name="",
                 is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
                 # %%
                 lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                is_air_pump_structure=0,
                 deff=30,
                 # %%
                 Tx=10, Ty=10, Tz="2*lc",
@@ -97,19 +99,49 @@ def SHG_NLA_SSI(U_name="",
                 Gz_max_Enhance=1, match_mode=1,
                 # %%
                 **kwargs, ):
+    ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    if ray_tag == "f":
+        U2_name = kwargs.get("U2_name", U_name)
+        img2_full_name = kwargs.get("img2_full_name", img_full_name)
+        is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
+        # %%
+        z_pump2 = kwargs.get("z_pump2", z_pump)
+        is_LG_2 = kwargs.get("is_LG_2", is_LG)
+        is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
+        is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
+        # %%
+        l2 = kwargs.get("l2", l)
+        p2 = kwargs.get("p2", p)
+        theta2_x = kwargs.get("theta2_x", theta_x)
+        theta2_y = kwargs.get("theta2_y", theta_y)
+        # %%
+        is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
+        is_H_l2 = kwargs.get("is_H_l2", is_H_l)
+        is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
+        is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
+        # %%
+        w0_2 = kwargs.get("w0_2", w0)
+        lam2 = kwargs.get("lam2", lam1)
+        is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
+        T2 = kwargs.get("T2", T)
+        polar2 = kwargs.get("polar2", 'e')
+        # %%
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
+
     # %%
 
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    #%%
+    # %%
 
     info = "NLA_大步长_SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "SSI", "NLA", **kwargs) # 更新的传入的 ray 键的值
-    ray_tag = "f" if kwargs.get('ray', 2) == 3 else "h"
     init_GLV_rmw(U_name, ray_tag, "NLA", "SSI", **kwargs)  # 不更新 并传入 pump_pic_or_U
 
     # %%
@@ -146,7 +178,45 @@ def SHG_NLA_SSI(U_name="",
                                  # %%
                                  ray_pump='1', **kwargs, )
 
-    n1_inc, n1, k1_inc, k1, k1_z, lam2, n2_inc, n2, k2_inc, k2, k2_z, \
+    # %%
+
+    if ray_tag == "f":
+        from fun_pump import pump_pic_or_U2
+        U2_0, g2 = pump_pic_or_U2(U2_name,
+                                img2_full_name,
+                                is_phase_only_2,
+                                # %%
+                                z_pump2,
+                                is_LG_2, is_Gauss_2, is_OAM_2,
+                                l2, p2,
+                                theta2_x, theta2_y,
+                                # %%
+                                is_random_phase_2,
+                                is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                # %%
+                                U_NonZero_size, w0_2,
+                                # %%
+                                lam2, is_air_pump, T,
+                                polar2,
+                                # %%
+                                is_save, is_save_txt, dpi,
+                                # %%
+                                ticks_num, is_contourf,
+                                is_title_on, is_axes_on, is_mm,
+                                # %%
+                                fontsize, font,
+                                # %%
+                                is_colorbar_on, is_energy,
+                                # %%
+                                is_print,
+                                # %%
+                                ray_pump='2', **kwargs, )
+    else:
+        U2_0, g2 = U_0, g_shift
+
+    # %%
+
+    n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
     dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0_structure, g_shift_structure, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
@@ -172,7 +242,7 @@ def SHG_NLA_SSI(U_name="",
                                      is_positive_xy,
                                      is_bulk, is_no_backgroud,
                                      # %%
-                                     lam1, is_air_pump, is_air, T,
+                                     lam1, is_air_pump_structure, is_air, T,
                                      Tx, Ty, Tz,
                                      mx, my, mz,
                                      # %%
@@ -192,7 +262,9 @@ def SHG_NLA_SSI(U_name="",
                                      # %%
                                      **kwargs, )
 
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, dk, Tz, mz,
+    # %%
+
+    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
                                                                           L0_Crystal, size_PerPixel,
                                                                           deff_structure_length_expect,
                                                                           is_print, is_contours, n_TzQ, Gz_max_Enhance,
@@ -231,41 +303,41 @@ def SHG_NLA_SSI(U_name="",
         mod_name_list = []
     if is_stripe == 2.2:
         from fun_CGH import structure_nonrect_chi2_Generate_2D
+        if structure_xy_mode == 'x':
+            Ix_structure, Iy_structure = len(mj_structure), Get("Iy")
+        elif structure_xy_mode == 'y':
+            Ix_structure, Iy_structure = Get("Ix"), len(mj_structure)
         modulation_lie_down, folder_address = \
             structure_nonrect_chi2_Generate_2D(z_pump_Structure,
-                                             is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
-                                             l_Structure, p_Structure,
-                                             theta_x_Structure, theta_y_Structure,
-                                             # %%
-                                             is_random_phase_Structure,
-                                             is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
-                                             # %%
-                                             len(mj_structure), Get("Iy"), w0_Structure,
-                                             Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
-                                             # %%
-                                             is_continuous, is_target_far_field, is_transverse_xy,
-                                             is_reverse_xy, is_positive_xy,
-                                             0, is_no_backgroud,
-                                             # %%
-                                             lam1, is_air_pump, is_air, T,
-                                             Tx, Ty, Tz,
-                                             mx, my, mz,
-                                             # %%
-                                             is_save, is_save_txt, dpi,
-                                             # %%
-                                             cmap_2d,
-                                             # %%
-                                             ticks_num, is_contourf,
-                                             is_title_on, is_axes_on, is_mm, zj_structure[:-1],
-                                             # %%
-                                             fontsize, font,
-                                             # %%
-                                             is_colorbar_on, is_energy,
-                                             # %%
-                                             is_print,
-                                             # %%
-                                             **kwargs, )
-    elif is_stripe == 2 or is_stripe == 2.1:  #  躺下 的 插值算法
+                                               is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+                                               l_Structure, p_Structure,
+                                               theta_x_Structure, theta_y_Structure,
+                                               # %%
+                                               is_random_phase_Structure,
+                                               is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+                                               # %%
+                                               Ix_structure, Iy_structure, w0_Structure,
+                                               Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
+                                               # %%
+                                               is_continuous, is_target_far_field, is_transverse_xy,
+                                               is_reverse_xy, is_positive_xy,
+                                               0, is_no_backgroud,
+                                               # %%
+                                               lam1, is_air_pump_structure, T,
+                                               # %%
+                                               is_save, is_save_txt, dpi,
+                                               # %%
+                                               cmap_2d,
+                                               # %%
+                                               ticks_num, is_contourf,
+                                               is_title_on, is_axes_on, is_mm, zj_structure[:-1],
+                                               # %%
+                                               fontsize, font,
+                                               # %%
+                                               is_colorbar_on, is_energy,
+                                               # %%
+                                               **kwargs, )
+    elif is_stripe == 2 or is_stripe == 2.1:  # 躺下 的 插值算法
         from fun_CGH import structure_nonrect_chi2_interp2d_2D
         modulation_lie_down = structure_nonrect_chi2_interp2d_2D(folder_address, modulation_squared,
                                                                  structure_xy_mode, len(mj_structure),
@@ -286,22 +358,22 @@ def SHG_NLA_SSI(U_name="",
     # %%
     # const
 
-    const = (k2_inc / size_PerPixel / n2_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+    const = (k3_inc / size_PerPixel / n3_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
 
     # %%
-    # G2_z0_shift
+    # G3_z0_shift
 
     init_SSI(g_shift, U_0,
              is_energy_evolution_on, is_stored,
              sheets_num, sheets_stored_num,
              X, Y, Iz, size_PerPixel, )
 
-    def H2_zdz(diz):
-        return np.power(math.e, k2_z * diz * 1j)
+    def H3_zdz(diz):
+        return np.power(math.e, k3_z * diz * 1j)
         # 注意 这里的 传递函数 的 指数是 正的 ！！！
 
-    def H2_z(diz):
-        return (np.power(math.e, k2_z * diz * 1j) - 1) / k2_z ** 2 * size_PerPixel ** 2
+    def H3_z(diz):
+        return (np.power(math.e, k3_z * diz * 1j) - 1) / k3_z ** 2 * size_PerPixel ** 2
         # 注意 这里的 传递函数 的 指数是 正的 ！！！
 
     def fun1(for_th, fors_num, *args, **kwargs, ):
@@ -310,6 +382,13 @@ def SHG_NLA_SSI(U_name="",
         H1_z = np.power(math.e, k1_z * iz * 1j)
         G1_z = g_shift * H1_z
         U_z = ifft2(G1_z)
+
+        if ray_tag == "f":
+            H2_z = np.power(math.e, k2_z * iz * 1j)
+            G2_z = g2 * H2_z
+            U2_z = ifft2(G2_z)
+        else:
+            U2_z = U_z
 
         if is_bulk == 0:
             if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
@@ -342,7 +421,7 @@ def SHG_NLA_SSI(U_name="",
                         # 按行复制 多行，成一个方阵
                     elif structure_xy_mode == 'y':
                         modulation_squared_z = np.tile(modulation_lie_down[:, for_th],
-                                                         (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
+                                                       (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
 
                     if for_th in for_th_stored:
                         m_list.append(modulation_squared_z)
@@ -354,18 +433,18 @@ def SHG_NLA_SSI(U_name="",
             modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
 
         if is_NLAST == 1:
-            dG2_zdz = G2_z_modulation_NLAST(k1, k2,
-                                            modulation_squared_z, U_z, dizj[for_th], const,
+            dG3_zdz = G3_z_modulation_NLAST(k1, k2, k3,
+                                            modulation_squared_z, U_z, U2_z, dizj[for_th], const,
                                             Gz=0, )
         else:
-            Q2_z = fft2(modulation_squared_z * U_z ** 2)
-            dG2_zdz = const * Q2_z * H2_z(dizj[for_th])
+            Q2_z = fft2(modulation_squared_z * U_z * U2_z)
+            dG3_zdz = const * Q2_z * H3_z(dizj[for_th])
         # print(dizj*size_PerPixel)
-        return dG2_zdz
+        return dG3_zdz
 
-    def fun2(for_th, fors_num, dG2_zdz, *args, **kwargs, ):
+    def fun2(for_th, fors_num, dG3_zdz, *args, **kwargs, ):
 
-        dset("G", dget("G") * H2_zdz(dizj[for_th]) + dG2_zdz)
+        dset("G", dget("G") * H3_zdz(dizj[for_th]) + dG3_zdz)
 
         return dget("G")
 
@@ -385,7 +464,7 @@ def SHG_NLA_SSI(U_name="",
                             0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
                             # %%
                             cmap_2d, ticks_num, is_contourf,
-                            is_title_on, is_axes_on, is_mm, 0,  #  1, 1 或 0, 0
+                            is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
                             fontsize, font,
                             # %%
                             0, is_colorbar_on, 0,
@@ -443,89 +522,117 @@ def SHG_NLA_SSI(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-        "img_full_name": "lena1.png",
-        "is_phase_only": 0,
-        # %%
-        "z_pump": 0,
-        "is_LG": 0, "is_Gauss": 1, "is_OAM": 0,
-        "l": 0, "p": 0,
-        "theta_x": 0, "theta_y": 0,
-        # %%
-        "is_random_phase": 0,
-        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
-        # %%
-        # 生成横向结构
-        "U_name_Structure": '',
-        "structure_size_Enlarge": 0.1,
-        "is_phase_only_Structure": 0,
-        # %%
-        "w0_Structure": 0, "z_pump_Structure": 0,
-        "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
-        "l_Structure": 1, "p_Structure": 0,
-        "theta_x_Structure": 0, "theta_y_Structure": 0,
-        # %%
-        "is_random_phase_Structure": 0,
-        "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
-        # %%
-        "U_NonZero_size": 0.9, "w0": 0.1,
-        "L0_Crystal": 2.66, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
-        "SSI_zoomout_times": 1, "sheets_stored_num": 10,
-        "z0_section_1_expect": 1, "z0_section_2_expect": 1,
-        "X": 0, "Y": 0,
-        # %%
-        "is_bulk": 0, "is_no_backgroud": 0,
-        "is_stored": 1, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
-        # %%
-        "lam1": 1, "is_air_pump": 0, "is_air": 0, "T": 25,
-        "deff": 30,
-        # %%
-        "Tx": 18.769, "Ty": 20, "Tz": 8,
-        "mx": 1, "my": 0, "mz": 1,
-        "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
-        # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
-        # %%
-        # 生成横向结构
-        "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
-        "Depth": 2, "structure_xy_mode": 'x',
-        # %%
-        "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
-        "is_reverse_xy": 0, "is_positive_xy": 1,
-        # %%
-        "is_save": 0, "is_save_txt": 0, "dpi": 100,
-        # %%
-        "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
-        "elev": 10, "azim": -65, "alpha": 2,
-        # %%
-        "sample": 1, "ticks_num": 6, "is_contourf": 0,
-        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
-        # %%
-        "fontsize": 7,
-        "font": {'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        "is_colorbar_on": 1, "is_energy": 0,
-        # %%
-        "plot_group": "Ga", "is_animated": 1,
-        "loop": 0, "duration": 0.033, "fps": 5,
-        # %%
-        "is_plot_3d_XYz": 0, "is_plot_selective": 0,
-        "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
-        # %%
-        "is_print": 1, "is_contours": 0, "n_TzQ": 1,
-        "Gz_max_Enhance": 1, "match_mode": 1,
-        # %%
-        "kwargs_seq": 0, "root_dir": r'1',
-        "border_percentage": 0.1, "is_end": -1,
-        "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-        "ray": "2", "gama_y": 90, }
+         "img_full_name": "lena1.png",
+         "is_phase_only": 0,
+         # %%
+         "z_pump": 0,
+         "is_LG": 0, "is_Gauss": 1, "is_OAM": 0,
+         "l": 0, "p": 0,
+         "theta_x": 0, "theta_y": 0,
+         # %%
+         "is_random_phase": 0,
+         "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+         # %%
+         # 生成横向结构
+         "U_name_Structure": '',
+         "structure_size_Enlarge": 0.1,
+         "is_phase_only_Structure": 0,
+         # %%
+         "w0_Structure": 0, "z_pump_Structure": 0,
+         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
+         "l_Structure": 1, "p_Structure": 0,
+         "theta_x_Structure": 0, "theta_y_Structure": 0,
+         # %%
+         "is_random_phase_Structure": 0,
+         "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
+         # %%
+         "U_NonZero_size": 0.9, "w0": 0.1,
+         "L0_Crystal": 2.66, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
+         "SSI_zoomout_times": 1, "sheets_stored_num": 10,
+         "z0_section_1_expect": 1, "z0_section_2_expect": 1,
+         "X": 0, "Y": 0,
+         # %%
+         "is_bulk": 0, "is_no_backgroud": 0,
+         "is_stored": 1, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
+         # %%
+         "lam1": 1, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
+         "deff": 30,
+         # %%
+         "Tx": 18.769, "Ty": 20, "Tz": 8,
+         "mx": 1, "my": 1, "mz": 1,
+         "is_stripe": 2.2, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+         # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
+         # %%
+         # 生成横向结构
+         "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
+         "Depth": 2, "structure_xy_mode": 'y',
+         # %%
+         "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
+         "is_reverse_xy": 0, "is_positive_xy": 1,
+         # %%
+         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         # %%
+         "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
+         "elev": 10, "azim": -65, "alpha": 2,
+         # %%
+         "sample": 1, "ticks_num": 6, "is_contourf": 0,
+         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+         # %%
+         "fontsize": 7,
+         "font": {'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+         # %%
+         "is_colorbar_on": 1, "is_energy": 0,
+         # %%
+         "plot_group": "Ga", "is_animated": 1,
+         "loop": 0, "duration": 0.033, "fps": 5,
+         # %%
+         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
+         # %%
+         "is_print": 1, "is_contours": 0, "n_TzQ": 1,
+         "Gz_max_Enhance": 1, "match_mode": 1,
+         # %% 该程序 作为 主入口时 -------------------------------
+         "kwargs_seq": 0, "root_dir": r'1',
+         "border_percentage": 0.1, "is_end": -1,
+         # %%
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "ray": "3", "polar3": "e",
+         }
+
+    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+        pump2_kwargs = {
+            "U2_name": "",
+            "img2_full_name": "lena.png",
+            "is_phase_only_2": 0,
+            # %%
+            "z_pump2": 0,
+            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
+            "l2": 0, "p2": 0,
+            "theta2_x": 0, "theta2_y": 0,
+            # %%
+            "is_random_phase_2": 0,
+            "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
+            # %%
+            "w0_2": 0.3,
+            # %%
+            "lam2": 1, "is_air_pump2": 0, "T2": 25,
+            "polar2": 'e',
+        }
+        pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
+        # Object of type dict_keys is not JSON serializable，所以 得转为 list
+        kwargs.update(pump2_kwargs)
 
     kwargs = init_GLV_DICT(**kwargs)
-    SHG_NLA_SSI(**kwargs)
+    SFG_NLA_SSI(**kwargs)
 
-    # SHG_NLA_SSI(U_name="",
+    # SFG_NLA_SSI(U_name="",
     #             img_full_name="lena1.png",
     #             is_phase_only=0,
     #             # %%

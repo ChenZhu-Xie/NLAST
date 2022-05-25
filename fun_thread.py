@@ -196,7 +196,7 @@ def my_thread(threads_num, fors_num,
 #
 #         def run(self):
 #             global thread_th, for_th
-#             """----- 你 需累积的 全局变量，替换 最末一个 g2_z_plus_dz_shift -----"""
+#             """----- 你 需累积的 全局变量，替换 最末一个 g3_z_plus_dz_shift -----"""
 #
 #             """----- your code begin 1 -----"""
 #             # fun_1(self.for_th, fors_num, *arg[ : num_1 - 1 ]

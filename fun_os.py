@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 import math
 import inspect
-from fun_global_var import Set, Get, tree_print
+from fun_global_var import init_Set, Set, Get, tree_print
 from scipy.io import loadmat, savemat
 from fun_plot import plot_1d, plot_2d, plot_3d_XYz, plot_3d_XYZ
 from fun_gif_video import imgs2gif_imgio, imgs2gif_PIL, imgs2gif_art
@@ -2609,13 +2609,16 @@ def U_twin_energy_error_plot_save(U, l2, U_name,
     kwargs['p_dir'] = 'GU_energy_error(z)'
     # %%
     if kwargs.get("is_energy_normalized", False) == 1:
-        U = U / np.max(U)
-        l2 = l2 / np.max(l2)
+        U_plot = U / np.max(U)
+        l2_plot = l2 / np.max(l2)
         title_suffix = '_energy_normalized - compare'
     elif kwargs.get("is_energy_normalized", False) == 2:
-        l2 = l2 / l2[-1] * U[-1]
+        U_plot = U
+        l2_plot = l2 / l2[-1] * U[-1]
         title_suffix = '_energy_sync - compare'
     else:
+        U_plot = U
+        l2_plot = l2
         title_suffix = '_energy - compare'
 
     if is_save == 2:
@@ -2626,7 +2629,7 @@ def U_twin_energy_error_plot_save(U, l2, U_name,
     label1 = "SSI_energy"
     label2 = "EVV_energy"
     U_energy_plot(folder_address,
-                  U, U_name,
+                  U_plot, U_name,
                   img_name_extension,
                   # %%
                   zj, sample, size_PerPixel,
@@ -2637,7 +2640,7 @@ def U_twin_energy_error_plot_save(U, l2, U_name,
                   # %%
                   z=z, suffix=title_suffix,
                   # %%
-                  l2=l2, color_1d2=color_1d2,
+                  l2=l2_plot, color_1d2=color_1d2,
                   label=label1, label2=label2,
                   zj2=zj2, **kwargs, )
 
@@ -2675,14 +2678,18 @@ def U_twin_error_energy_plot_save(U, l2, l3, U_name,
                                   z, **kwargs, ):
     kwargs['p_dir'] = 'GU_error(z)'
     # %%
+    # print(U[-1])
     if kwargs.get("is_energy_normalized", False) == 1:
-        U = U / np.max(U)
-        l2 = l2 / np.max(l2)
+        U_plot = U / np.max(U)
+        l2_plot = l2 / np.max(l2)
         title_suffix = '_energy_normalized & error - compare'
     elif kwargs.get("is_energy_normalized", False) == 2:
-        l2 = l2 / l2[-1] * U[-1]
+        U_plot = U
+        l2_plot = l2 / l2[-1] * U[-1]
         title_suffix = '_energy_sync & error - compare'
     else:
+        U_plot = U
+        l2_plot = l2
         title_suffix = '_energy & error - compare'
 
     if is_save == 2:
@@ -2694,7 +2701,7 @@ def U_twin_error_energy_plot_save(U, l2, l3, U_name,
     label2 = "EVV_energy"
     label3 = "distribution_error"
     U_energy_plot(folder_address,
-                  U, U_name,
+                  U_plot, U_name,
                   img_name_extension,
                   # %%
                   zj, sample, size_PerPixel,
@@ -2705,7 +2712,7 @@ def U_twin_error_energy_plot_save(U, l2, l3, U_name,
                   # %%
                   z=z, suffix=title_suffix,
                   # %%
-                  l2=l2, color_1d2=color_1d2,
+                  l2=l2_plot, color_1d2=color_1d2,
                   label=label1, label2=label2,
                   l3=l3, label3=label3,
                   zj2=zj2, **kwargs, )
@@ -2762,8 +2769,7 @@ def img_squared_Read(img_full_name, U_NonZero_size):
     img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
     size_PerPixel = U_NonZero_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
 
-    Set("size_PerPixel", size_PerPixel)
-    Set("img_name_extension", img_name_extension)
+    init_Set("img_name_extension", img_name_extension)
 
     return img_name, img_name_extension, img_address, folder_address, \
            img_squared_address, img_squared_bordered_address, \
@@ -2790,11 +2796,12 @@ def img_squared_bordered_Read(img_full_name,
     else:
         U = img_squared_bordered.astype(np.complex128)
 
-    Set("Ix", Ix)
-    Set("Iy", Iy)
-    Set("size_fig", size_fig)
-    Set("size_fig_x", size_fig * Get("size_fig_x_scale"))
-    Set("size_fig_y", size_fig * Get("size_fig_y_scale"))
+    init_Set("Ix", Ix)
+    init_Set("Iy", Iy)
+    init_Set("size_PerPixel", size_PerPixel)
+    init_Set("size_fig", size_fig)
+    init_Set("size_fig_x", size_fig * Get("size_fig_x_scale"))
+    init_Set("size_fig_y", size_fig * Get("size_fig_y_scale"))
 
     return img_name, img_name_extension, img_squared, size_PerPixel, size_fig, Ix, Iy, U
 
@@ -2834,11 +2841,13 @@ def U_Read(U_name, img_full_name,
     img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size)
 
     size_PerPixel = U_NonZero_size / Ix  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
-    Set("size_PerPixel", size_PerPixel)  # 覆盖 img_squared_Read 所得到的 size_PerPixel
-    Set("Ix", Ix)
-    Set("Iy", Iy)
-    Set("size_fig", size_fig)
-    Set("size_fig_x", size_fig * Get("size_fig_x_scale"))
-    Set("size_fig_y", size_fig * Get("size_fig_y_scale"))
+    # 覆盖 img_squared_Read 所得到的 size_PerPixel
+
+    init_Set("Ix", Ix)
+    init_Set("Iy", Iy)
+    init_Set("size_PerPixel", size_PerPixel)
+    init_Set("size_fig", size_fig)
+    init_Set("size_fig_x", size_fig * Get("size_fig_x_scale"))
+    init_Set("size_fig_y", size_fig * Get("size_fig_y_scale"))
 
     return img_name, img_name_extension, img_squared, size_PerPixel, size_fig, Ix, Iy, U

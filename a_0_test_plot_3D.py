@@ -189,7 +189,7 @@ if __name__ == '__main__':
                   },
          # %%
          "is_colorbar_on": 1, "is_energy": 0,
-         # %%
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "is_end": -1, }
 

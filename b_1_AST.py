@@ -108,7 +108,8 @@ def AST(U_name="",
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
+                                                   theta_x, theta_y,
+                                                   **kwargs)
 
     # %%
 
@@ -169,10 +170,13 @@ if __name__ == '__main__':
          "is_colorbar_on": 1, "is_energy": 0,
          # %%
          "is_print": 1,
-         # %%
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
-         "ray": "1", }
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "ray": "1",
+         }
 
     kwargs = init_GLV_DICT(**kwargs)
     AST(**kwargs)

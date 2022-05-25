@@ -12,9 +12,9 @@ import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST, init_SHG
-from fun_nonlinear import args_SHG, Eikz, C_m, Cal_dk_zQ_SHG, Cal_roll_xy, G2_z_modulation_NLAST, \
-    G2_z_NLAST, G2_z_NLAST_false, Info_find_contours_SHG, G2_z_modulation_3D_NLAST
+from fun_linear import init_AST, init_SFG
+from fun_nonlinear import args_SFG, Eikz, C_m, Cal_dk_zQ_SFG, Cal_roll_xy, G3_z_modulation_NLAST, \
+    G3_z_NLAST, G3_z_NLAST_false, Info_find_contours_SHG, G3_z_modulation_3D_NLAST
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, Set, Get, init_GLV_rmw, init_EVV, Fun3, end_SSI, \
@@ -25,7 +25,7 @@ np.seterr(divide='ignore', invalid='ignore')
 
 # %%
 
-def SHG_NLA_EVV(U_name="",
+def SFG_NLA_EVV(U_name="",
                 img_full_name="Grating.png",
                 is_phase_only=0,
                 # %%
@@ -54,6 +54,7 @@ def SHG_NLA_EVV(U_name="",
                 z0=1, sheets_stored_num=10,
                 # %%
                 lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                is_air_pump_structure=0,
                 deff=30, is_fft=1, fft_mode=0,
                 is_sum_Gm=0, mG=0,
                 is_linear_convolution=0,
@@ -93,6 +94,36 @@ def SHG_NLA_EVV(U_name="",
                 Gz_max_Enhance=1, match_mode=1,
                 # %%
                 **kwargs, ):
+    ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    if ray_tag == "f":
+        U2_name = kwargs.get("U2_name", U_name)
+        img2_full_name = kwargs.get("img2_full_name", img_full_name)
+        is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
+        # %%
+        z_pump2 = kwargs.get("z_pump2", z_pump)
+        is_LG_2 = kwargs.get("is_LG_2", is_LG)
+        is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
+        is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
+        # %%
+        l2 = kwargs.get("l2", l)
+        p2 = kwargs.get("p2", p)
+        theta2_x = kwargs.get("theta2_x", theta_x)
+        theta2_y = kwargs.get("theta2_y", theta_y)
+        # %%
+        is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
+        is_H_l2 = kwargs.get("is_H_l2", is_H_l)
+        is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
+        is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
+        # %%
+        w0_2 = kwargs.get("w0_2", w0)
+        lam2 = kwargs.get("lam2", lam1)
+        is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
+        T2 = kwargs.get("T2", T)
+        polar2 = kwargs.get("polar2", 'e')
+        # %%
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
+
     # %%
 
     if_image_Add_black_border(U_name, img_full_name,
@@ -106,7 +137,6 @@ def SHG_NLA_EVV(U_name="",
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "^", "EVV", "NLA", **kwargs)
-    ray_tag = "f" if kwargs.get('ray', 2) == 3 else "h"
     init_GLV_rmw(U_name, ray_tag, "NLA", "EVV", **kwargs)
 
     # %%
@@ -142,29 +172,76 @@ def SHG_NLA_EVV(U_name="",
                                  is_print,
                                  # %%
                                  ray_pump='1', **kwargs, )
+
+    # %%
+
+    if ray_tag == "f":
+        from fun_pump import pump_pic_or_U2
+        U2_0, g2 = pump_pic_or_U2(U2_name,
+                                img2_full_name,
+                                is_phase_only_2,
+                                # %%
+                                z_pump2,
+                                is_LG_2, is_Gauss_2, is_OAM_2,
+                                l2, p2,
+                                theta2_x, theta2_y,
+                                # %%
+                                is_random_phase_2,
+                                is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                # %%
+                                U_NonZero_size, w0_2,
+                                # %%
+                                lam2, is_air_pump, T,
+                                polar2,
+                                # %%
+                                is_save, is_save_txt, dpi,
+                                # %%
+                                ticks_num, is_contourf,
+                                is_title_on, is_axes_on, is_mm,
+                                # %%
+                                fontsize, font,
+                                # %%
+                                is_colorbar_on, is_energy,
+                                # %%
+                                is_print,
+                                # %%
+                                ray_pump='2', **kwargs, )
+    else:
+        U2_0, g2 = U_0, g_shift
+
     # %%
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
+                                                   theta_x, theta_y,
+                                                   **kwargs)
 
-    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+    if ray_tag == "f":
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
+                                                       lam2, is_air, T,
+                                                       theta2_x, theta2_y,
+                                                       polar2=polar2, **kwargs)
+    else:
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
+
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
-                                                         theta_x, theta_y, **kwargs)
+                                                         theta_x, theta_y,
+                                                         lam2=lam2, **kwargs)
 
     # %%
-    # 引入 倒格矢，对 k2 的 方向 进行调整，其实就是对 k2 的 k2x, k2y, k2z 网格的 中心频率 从 (0, 0, k2z) 移到 (Gx, Gy, k2z + Gz)
+    # 引入 倒格矢，对 k3 的 方向 进行调整，其实就是对 k3 的 k3x, k3y, k3z 网格的 中心频率 从 (0, 0, k3z) 移到 (Gx, Gy, k3z + Gz)
 
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, size_PerPixel,
+    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
-                          is_print, )
+                          is_print, k2_inc=k2_inc, )
 
     # %%
     # 提供描边信息，并覆盖值
 
-    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k2_z, dk, Tz, mz,
+    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
                                                                   z0, size_PerPixel, z0,
                                                                   is_print, is_contours, n_TzQ, Gz_max_Enhance,
                                                                   match_mode, )
@@ -173,7 +250,7 @@ def SHG_NLA_EVV(U_name="",
     if fft_mode == 0:
         # %% generate structure
 
-        n1_inc, n1, k1_inc, k1, k1_z, lam2, n2_inc, n2, k2_inc, k2, k2_z, \
+        n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
         dk, lc, Tz, Gx, Gy, Gz, folder_address, \
         size_PerPixel, U_0_structure, g_shift_structure, \
         structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
@@ -199,7 +276,7 @@ def SHG_NLA_EVV(U_name="",
                                          is_positive_xy,
                                          0, is_no_backgroud,
                                          # %%
-                                         lam1, is_air_pump, is_air, T,
+                                         lam1, is_air_pump_structure, is_air, T,
                                          Tx, Ty, Tz,
                                          mx, my, mz,
                                          # %%
@@ -240,50 +317,50 @@ def SHG_NLA_EVV(U_name="",
 
         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
             np.zeros((Ix, Iy), dtype=np.complex128()))
-        # 加上 Fun3 中的 sset 其实共 储存了 2 次 这些 G2_zm 层（m = for_th2），有点浪费
+        # 加上 Fun3 中的 sset 其实共 储存了 2 次 这些 G3_zm 层（m = for_th2），有点浪费
         # 但这里的又是必须存在的，因为之后得用它来在 fun2 里累加。。
         # 所以最多也是之后的 Fun3 中的 sset 可以不必存在
 
         # for_th2 == 0 时也要算，因为 zj[0] 不一定是 0：外部可能传入 zj
         if is_fft == 0:
 
-            const = (k2_inc / size_PerPixel / n2_inc) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
+            const = (k3_inc / size_PerPixel / n3_inc) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
             integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
 
             g_rotate_180 = Rotate_180(g_shift)
 
             def fun1(for_th, fors_num, *args, **kwargs, ):
-                for n2_y in range(Iy):
-                    dk_zQ = Cal_dk_zQ_SHG(k1,
-                                          k1_z, k2_z,
-                                          k1_xy, k2_xy,
-                                          for_th, n2_y,
+                for n3_y in range(Iy):
+                    dk_zQ = Cal_dk_zQ_SFG(k2,
+                                          k1_z, k3_z,
+                                          k1_xy, k3_xy,
+                                          for_th, n3_y,
                                           Gx, Gy, Gz, )
 
                     roll_x, roll_y = Cal_roll_xy(Gx, Gy,
                                                  Ix, Iy,
-                                                 for_th, n2_y, )
+                                                 for_th, n3_y, )
 
                     g_shift_dk_x_dk_y = Roll_xy(g_rotate_180,
                                                 roll_x, roll_y,
                                                 is_linear_convolution, )
 
-                    integrate_z0[for_th, n2_y] = np.sum(
+                    integrate_z0[for_th, n3_y] = np.sum(
                         g_shift * g_shift_dk_x_dk_y * Eikz(dk_zQ * izj[for_th2]) * izj[for_th2] * size_PerPixel \
-                        * (2 / (dk_zQ / k2_z[for_th, n2_y] + 2)))
+                        * (2 / (dk_zQ / k3_z[for_th, n3_y] + 2)))
 
             my_thread(10, Ix,
                       fun1, noop, noop,
                       is_ordered=1, is_print=is_print, )
 
-            g2_z = const * integrate_z0 / k2_z * size_PerPixel
+            g3_z = const * integrate_z0 / k3_z * size_PerPixel
 
             Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                g2_z * np.power(math.e, k2_z * izj[for_th2] * 1j))
+                g3_z * np.power(math.e, k3_z * izj[for_th2] * 1j))
 
         else:
 
-            Const = (k2_inc / size_PerPixel / n2_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
+            Const = (k3_inc / size_PerPixel / n3_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
 
             if fft_mode == 0:
 
@@ -291,8 +368,8 @@ def SHG_NLA_EVV(U_name="",
                     # print(kwargs)
                     addition_dict = {"Tz": Tz if is_NLAST_sum else None}  # 若 is_NLAST_sum 有且非 0，则 Tz
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                        G2_z_modulation_NLAST(k1, k2,
-                                              modulation_squared, U_0, izj[for_th2], Const,
+                        G3_z_modulation_NLAST(k1, k2, k3,
+                                              modulation_squared, U_0, U2_0, izj[for_th2], Const,
                                               Gz=Gz, is_customized=1, **addition_dict, ))
                 elif is_sum_Gm == 1:
                     def fun1(for_th, fors_num, *args, **kwargs, ):
@@ -301,17 +378,17 @@ def SHG_NLA_EVV(U_name="",
                         # print(m_z, C_m(m_z), "\n")
 
                         # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
-                        Const = (k2_inc / size_PerPixel / n2_inc) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
-                        G2_z0_Gm = G2_z_modulation_NLAST(k1, k2,
-                                                         modulation_squared, U_0, izj[for_th2], Const,
+                        Const = (k3_inc / size_PerPixel / n3_inc) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
+                        G3_z0_Gm = G3_z_modulation_NLAST(k1, k2, k3,
+                                                         modulation_squared, U_0, U2_0, izj[for_th2], Const,
                                                          Gz=Gz_m, is_customized=1, ) if m_z != 0 else 0
-                        return G2_z0_Gm
+                        return G3_z0_Gm
 
-                    def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
+                    def fun2(for_th, fors_num, G3_z0_Gm, *args, **kwargs, ):
                         # print("forth = {}".format(for_th))
 
                         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                            Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G2_z0_Gm)
+                            Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G3_z0_Gm)
 
                         return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
 
@@ -320,8 +397,8 @@ def SHG_NLA_EVV(U_name="",
                               is_ordered=1, is_print=is_print, )
                 else:
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                        G2_z_modulation_3D_NLAST(k1, k2,
-                                                 modulation_squared, U_0,
+                        G3_z_modulation_3D_NLAST(k1, k2, k3,
+                                                 modulation_squared, U_0, U2_0,
                                                  izj[for_th2], Const,
                                                  Tz=Tz, ))
 
@@ -329,8 +406,8 @@ def SHG_NLA_EVV(U_name="",
 
                 if is_sum_Gm == 0:
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                        G2_z_NLAST(k1, k2, Gx, Gy, Gz,
-                                   U_0, izj[for_th2], Const,
+                        G3_z_NLAST(k1, k2, k3, Gx, Gy, Gz,
+                                   U_0, U2_0, izj[for_th2], Const,
                                    is_linear_convolution, ))
                 else:
                     def fun1(for_th, fors_num, *args, **kwargs, ):
@@ -339,16 +416,16 @@ def SHG_NLA_EVV(U_name="",
                         # print(m_x, C_m(m_x), "\n")
 
                         # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
-                        Const = (k2_inc / size_PerPixel / n2_inc) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
-                        G2_z0_Gm = G2_z_NLAST(k1, k2, Gx_m, Gy, Gz,
-                                              U_0, izj[for_th2], Const,
+                        Const = (k3_inc / size_PerPixel / n3_inc) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
+                        G3_z0_Gm = G3_z_NLAST(k1, k2, k3, Gx_m, Gy, Gz,
+                                              U_0, U2_0, izj[for_th2], Const,
                                               is_linear_convolution, ) if m_x != 0 else 0
-                        return G2_z0_Gm
+                        return G3_z0_Gm
 
-                    def fun2(for_th, fors_num, G2_z0_Gm, *args, **kwargs, ):
+                    def fun2(for_th, fors_num, G3_z0_Gm, *args, **kwargs, ):
 
                         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                            Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G2_z0_Gm)
+                            Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G3_z0_Gm)
 
                         return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
 
@@ -359,15 +436,15 @@ def SHG_NLA_EVV(U_name="",
             elif fft_mode == 2:
 
                 Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                    G2_z_NLAST_false(k1, k2, Gx, Gy, Gz,
-                                     U_0, izj[for_th2], Const,
+                    G3_z_NLAST_false(k1, k2, k3, Gx, Gy, Gz,
+                                     U_0, U2_0, izj[for_th2], Const,
                                      is_linear_convolution, ))
 
         return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
 
-    def Fun2(for_th2, fors_num, G2_zm, *args, **kwargs, ):
+    def Fun2(for_th2, fors_num, G3_zm, *args, **kwargs, ):
 
-        dset("G", G2_zm)  # 主要是为了 end_SSI 中的 dget("G") 而存在的，否则 直接 返回 G2_zm 了
+        dset("G", G3_zm)  # 主要是为了 end_SSI 中的 dget("G") 而存在的，否则 直接 返回 G3_zm 了
 
         return dget("G")
 
@@ -451,6 +528,7 @@ if __name__ == '__main__':
          "z0": 10, "sheets_stored_num": 10,
          # %%
          "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
@@ -488,16 +566,41 @@ if __name__ == '__main__':
          # %%
          "is_print": 1, "is_contours": 66, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
-         # %%
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
+         # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         # %%
          "ray": "2", }
 
-    kwargs = init_GLV_DICT(**kwargs)
-    SHG_NLA_EVV(**kwargs)
+    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+        pump2_kwargs = {
+            "U2_name": "",
+            "img2_full_name": "lena.png",
+            "is_phase_only_2": 0,
+            # %%
+            "z_pump2": 0,
+            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
+            "l2": 0, "p2": 0,
+            "theta2_x": 0, "theta2_y": 0,
+            # %%
+            "is_random_phase_2": 0,
+            "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
+            # %%
+            "w0_2": 0.3,
+            # %%
+            "lam2": 1, "is_air_pump2": 0, "T2": 25,
+            "polar2": 'e',
+        }
+        pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
+        # Object of type dict_keys is not JSON serializable，所以 得转为 list
+        kwargs.update(pump2_kwargs)
 
-    # SHG_NLA_EVV(U_name="",
+    kwargs = init_GLV_DICT(**kwargs)
+    SFG_NLA_EVV(**kwargs)
+
+    # SFG_NLA_EVV(U_name="",
     #             img_full_name="lena1.png",
     #             is_phase_only=0,
     #             # %%

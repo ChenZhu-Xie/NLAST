@@ -255,16 +255,16 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
         # 将 实空间 输入场 变为 束腰 z = 0 处的 LG 光束
 
         Up = LG_without_Gauss_profile(Ix, Iy, size_PerPixel,
-                                     w0,
-                                     l, p,
-                                     theta_x, theta_y, )
+                                      w0,
+                                      l, p,
+                                      theta_x, theta_y, )
     elif is_LG == 2:
         # 将 实空间 输入场 变为 束腰 z = 0 处的 HG 光束
 
         Up = HG_without_Gauss_profile(Ix, Iy, size_PerPixel,
-                                     w0,
-                                     l, p,
-                                     theta_x, theta_y, )
+                                      w0,
+                                      l, p,
+                                      theta_x, theta_y, )
 
     # %%
     # 对输入场 引入 高斯限制
@@ -273,15 +273,15 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
         # 将 实空间 输入场 变为 束腰 z = 0 处的 高斯光束
 
         Up = Gauss(Ix, Iy, size_PerPixel,
-                  w0,
-                  theta_x, theta_y, )
+                   w0,
+                   theta_x, theta_y, )
 
     else:
         # 对 实空间 输入场 引入 高斯限制
 
         Up = Gauss_profile(Ix, Iy, size_PerPixel,
-                          Up, w0,
-                          theta_x, theta_y, )
+                           Up, w0,
+                           theta_x, theta_y, )
 
     # %%
     # 对输入场 引入 额外的 螺旋相位
@@ -291,8 +291,8 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
         # 将输入场 在实空间 改为 纯相位 的 OAM
 
         Up = OAM(Ix, Iy,
-                l,
-                theta_x, theta_y, )
+                 l,
+                 theta_x, theta_y, )
 
     elif is_LG != 2:  # 只有 非厄米高斯时，l ≠ 0 时 才加 螺旋相位
         # 对输入场 引入 额外的 螺旋相位
@@ -301,17 +301,17 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
             # 对 频谱空间 引入额外螺旋相位
 
             Up, G_z0_shift = OAM_profile_G(Ix, Iy,
-                                          Up,
-                                          l,
-                                          theta_x, theta_y, )
+                                           Up,
+                                           l,
+                                           theta_x, theta_y, )
 
         else:
             # 对 实空间 引入额外螺旋相位
 
             Up = OAM_profile(Ix, Iy,
-                            Up,
-                            l,
-                            theta_x, theta_y, )
+                             Up,
+                             l,
+                             theta_x, theta_y, )
 
     # %%
     # 对输入场 引入 额外的 倾斜相位
@@ -320,15 +320,15 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
         # 对 频谱空间 引入额外倾斜相位
 
         Up, G_z0_shift = incline_profile_G(Ix, Iy,
-                                          Up, k_inc,
-                                          theta_x, theta_y, )
+                                           Up, k_inc,
+                                           theta_x, theta_y, )
 
     else:
         # 对 实空间 引入额外倾斜相位
 
         Up = incline_profile(Ix, Iy,
-                            Up, k_inc,
-                            theta_x, theta_y)
+                             Up, k_inc,
+                             theta_x, theta_y)
 
     # Up = Up**2
     # %%
@@ -377,9 +377,9 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
     # "gnuplot", "rainbow", "nipy_spectral", "gist_earth"
 
     # ray = kwargs['ray'] + "0" if "ray" in kwargs else "0"
-    if inspect.stack()[1][3] == "pump_pic_or_U": # 如果 调用该 pump 的 函数，名为 这个
+    if inspect.stack()[1][3] == "pump_pic_or_U" or inspect.stack()[1][3] == "pump_pic_or_U2":
         ray = kwargs['ray_pump'] + "p" if "ray_pump" in kwargs else "p"
-    elif inspect.stack()[1][3] == "pump_pic_or_U_structure":
+    elif inspect.stack()[1][3] == "pump_pic_or_U_structure":  # 如果 调用该 pump 的 函数，名为 这个
         ray = kwargs['ray_structure'] + "p" if "ray_structure" in kwargs else "p"
     else:
         ray = "p"
@@ -463,6 +463,7 @@ def pump_pic_or_U(U_name="",
                   is_print=1,
                   # %%
                   **kwargs, ):
+    # %%
     kwargs['p_dir'] = 'PUMP'
     # %%
     if (type(U_name) != str) or U_name == "":
@@ -478,14 +479,15 @@ def pump_pic_or_U(U_name="",
 
         if "U" in kwargs:
             U = kwargs["U"]
-            g_shift = fft2(U)
+        elif "U1" in kwargs:
+            U = kwargs["U1"]
         else:
             # %%
             # 预处理 输入场
 
             n_inc, n, k_inc, k = Cal_n(size_PerPixel,
                                        is_air_pump,
-                                       lam1, T, p="e",
+                                       lam1, T, p=kwargs.get("polar", "e"),
                                        theta_x=theta_x,
                                        theta_y=theta_y, **kwargs)
 
@@ -514,10 +516,146 @@ def pump_pic_or_U(U_name="",
                                                     U_NonZero_size,
                                                     dpi,
                                                     is_save_txt, )
+    g_shift = fft2(U)
 
     return img_name, img_name_extension, img_squared, \
            size_PerPixel, size_fig, Ix, Iy, \
            U, g_shift
+
+
+def pump_pic_or_U2(U2_name="",
+                   img2_full_name="Grating.png",
+                   is_phase_only_2=0,
+                   # %%
+                   z_pump2=0,
+                   is_LG_2=0, is_Gauss_2=0, is_OAM_2=0,
+                   l2=0, p2=0,
+                   theta2_x=0, theta2_y=0,
+                   # %%
+                   is_random_phase_2=0,
+                   is_H_l2=0, is_H_theta2=0, is_H_random_phase_2=0,
+                   # %%
+                   U_NonZero_size=1, w0_2=0.3,
+                   # %%
+                   lam2=0.8, is_air_pump2=0, T2=25,
+                   polar2='e',
+                   # %%
+                   is_save=0, is_save_txt=0, dpi=100,
+                   # %%
+                   ticks_num=6, is_contourf=0,
+                   is_title_on=1, is_axes_on=1, is_mm=1,
+                   # %%
+                   fontsize=9,
+                   font={'family': 'serif',
+                         'style': 'normal',  # 'normal', 'italic', 'oblique'
+                         'weight': 'normal',
+                         'color': 'black',  # 'black','gray','darkred'
+                         },
+                   # %%
+                   is_colorbar_on=1, is_energy=0,
+                   # %%
+                   is_print=1,
+                   # %%
+                   **kwargs, ):
+    # %%
+    kwargs['p_dir'] = 'PUMP - 2'
+    # %%
+    info = "pump_pic_or_U2"
+    is_first = int(init_accu(info, 1) == 1)  # 若第一次调用 pump_pic_or_U_structure，则 is_first 为 1，否则为 0
+    is_Print = is_print * is_first  # 两个 得都 非零，才 print
+
+    info = "泵浦_2"
+    is_Print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + info)
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    # %%
+    # 导入 方形，以及 加边框 的 图片
+
+    if (type(U2_name) != str) or U2_name == "":
+        img2_name, img2_name_extension, img2_squared, \
+        size_PerPixel_2, size_fig_2, I2x, I2y, U2 = img_squared_bordered_Read(img2_full_name,
+                                                                              U_NonZero_size, dpi,
+                                                                              is_phase_only_2)
+    else:
+        img2_name, img2_name_extension, img2_squared, \
+        size_PerPixel_2, size_fig_2, I2x, I2y, U2 = U_Read(U2_name,  # 需要 用 U_Read 覆盖 size_PerPixel 等 Set 的 值
+                                                           img2_full_name,
+                                                           U_NonZero_size,
+                                                           dpi,
+                                                           is_save_txt, )
+
+    # %%
+    # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
+
+    U2_NonZero_size_Enlarge = 0
+    U2_NonZero_size = U_NonZero_size * (1 + U2_NonZero_size_Enlarge)
+    is_Print and print(tree_print() + "U2_NonZero_size = {} mm".format(U2_NonZero_size))
+
+    I2x_NonZero, I2y_NonZero, deff_structure_size = Cal_IxIy(Get("Ix"), Get("Iy"),
+                                                             U2_NonZero_size, Get("size_PerPixel"),
+                                                             is_Print)
+
+    # %%
+    # 需要先将 目标 U2_NonZero = img2_squared 给 放大 或 缩小 到 与 I2x_NonZero, I2y_NonZero 相同，才能开始 之后的工作
+    # 最终结果就是 img2_squared_resize 与 img_squared 尺寸相同，也就是 I2x_NonZero, I2y_NonZero = Ix_NonZero, Iy_NonZero
+
+    border_width, img2_squared_resize_full_name, img2_squared_resize = \
+        img_squared_Resize(img2_full_name, img2_squared,
+                           I2x_NonZero, I2y_NonZero, Get("Ix"),
+                           is_Print, )
+
+    # %% 补零后 再拿进去 Pump
+
+    img2_squared_resize_bordered = np.pad(img2_squared_resize, ((border_width, border_width),
+                                                                (border_width, border_width)),
+                                          'constant', constant_values=(0, 0))
+
+    # %%
+
+    # %%
+    if (type(U2_name) != str) or U2_name == "":
+
+        if "U2" in kwargs:
+            U2 = kwargs["U2"]
+        else:
+            if is_phase_only_2 == 1:
+                U2 = np.power(math.e, (img2_squared_resize_bordered.astype(np.complex128())
+                                       / 255 * 2 * math.pi - math.pi) * 1j)  # 变成相位图
+            else:
+                U2 = img2_squared_resize_bordered.astype(np.complex128)
+            # %%
+            # 预处理 输入场
+
+            n2_inc, n2, k2_inc, k2 = Cal_n(Get("size_PerPixel"),
+                                           is_air_pump2,
+                                           lam2, T2, p=polar2,
+                                           theta_x=theta2_x,
+                                           theta_y=theta2_y, **kwargs)
+
+            kwargs["is_end"] = 1
+            U2, g2_shift = pump(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
+                                U2, w0_2, k2_inc, k2, z_pump2,
+                                is_LG_2, is_Gauss_2, is_OAM_2,
+                                l2, p2,
+                                theta2_x, theta2_y,
+                                is_random_phase_2,
+                                is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                is_save, is_save_txt, dpi,
+                                ticks_num, is_contourf,
+                                is_title_on, is_axes_on, is_mm,
+                                fontsize, font,
+                                is_colorbar_on, is_energy,
+                                **kwargs, )
+
+    if ((type(U2_name) == str) and U2_name != "") or "U2" in kwargs:
+        U2 = cv2.resize(np.real(U2), (Get("Ix"), Get("Iy")), interpolation=cv2.INTER_AREA) + \
+             cv2.resize(np.imag(U2), (Get("Ix"), Get("Iy")), interpolation=cv2.INTER_AREA) * 1j
+        # U2 必须 resize 为 Ix, Iy 大小；
+        # 但 cv2 、 skimage.transform 中 resize 都能处理 图片 和 float64，
+        # 但似乎 没有东西 能直接 处理 complex128，但可 分别处理 实部和虚部，再合并为 complex128
+    g2_shift = fft2(U2)
+
+    return U2, g2_shift
 
 
 def pump_pic_or_U_structure(U_structure_name="",
@@ -554,6 +692,7 @@ def pump_pic_or_U_structure(U_structure_name="",
                             is_print=1,
                             # %%
                             **kwargs, ):
+    # %%
     kwargs['p_dir'] = 'PUMP - for_modulation'
     # %%
     info = "pump_pic_or_U_structure"
@@ -562,7 +701,8 @@ def pump_pic_or_U_structure(U_structure_name="",
 
     info = "泵浦_for_结构"
     is_Print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     # %%
     # 导入 方形，以及 加边框 的 图片
@@ -617,11 +757,11 @@ def pump_pic_or_U_structure(U_structure_name="",
 
             n_inc, n, k_inc, k = Cal_n(size_PerPixel,
                                        is_air_pump,
-                                       lam1, T, p="e",
+                                       lam1, T, p=kwargs.get("polar_structure", "e"),
                                        theta_x=theta_x,
                                        theta_y=theta_y,
-                                       Ix=Ix_structure,
-                                       Iy=Iy_structure, **kwargs)
+                                       Ix_structure=Ix_structure,
+                                       Iy_structure=Iy_structure, **kwargs)
 
             kwargs["is_end"] = 1
             U_structure, g_shift_structure = pump(Ix_structure, Iy_structure, size_PerPixel,
@@ -644,7 +784,7 @@ def pump_pic_or_U_structure(U_structure_name="",
         # U 必须 resize 为 Ix_structure, Iy_structure 大小；
         # 但 cv2 、 skimage.transform 中 resize 都能处理 图片 和 float64，
         # 但似乎 没有东西 能直接 处理 complex128，但可 分别处理 实部和虚部，再合并为 complex128
-        g_shift_structure = fft2(U_structure)
+    g_shift_structure = fft2(U_structure)
 
     return img_name, img_name_extension, img_squared, \
            size_PerPixel, size_fig, Ix, Iy, \

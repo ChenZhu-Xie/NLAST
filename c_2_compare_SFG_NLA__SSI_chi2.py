@@ -14,14 +14,14 @@ from fun_global_var import init_GLV_DICT, tree_print
 from fun_img_Resize import if_image_Add_black_border
 from fun_linear import fft2
 from fun_compare import U_compare
-from b_3_SHG_NLA import SHG_NLA
-from B_3_SHG_NLA_SSI_chi2 import SHG_NLA_SSI
-from B_3_SHG_SSF_SSI_chi2 import SHG_SSF_SSI
+from b_3_SFG_NLA import SFG_NLA
+from B_3_SFG_NLA_SSI_chi2 import SFG_NLA_SSI
+from B_3_SFG_SSF_SSI_chi2 import SFG_SSF_SSI
 
 np.seterr(divide='ignore', invalid='ignore')
 
 
-def compare_SHG_NLA__SSI(U_name_Structure="",
+def compare_SFG_NLA__SSI(U_name_Structure="",
                          is_phase_only_Structure=0,
                          # %%
                          z_pump_Structure=0,
@@ -61,6 +61,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                          is_stored=0, is_show_structure_face=1, is_energy_evolution_on=1,
                          # %%
                          lam1=1.5, is_air_pump=0, is_air=0, T=25,
+                         is_air_pump_structure=0,
                          deff=30, is_fft=1, fft_mode=0,
                          is_sum_Gm=0, mG=0,
                          is_linear_convolution=0,
@@ -98,11 +99,11 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                          is_NLA=1, is_amp_relative=1,
                          # %%
                          **kwargs, ):
-
     # %%
     info = "利用 SHG 对比：NLA 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
     if_image_Add_black_border("", img_full_name,
@@ -146,6 +147,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
          is_stored, is_show_structure_face, is_energy_evolution_on,
          # %%
          lam1, is_air_pump, is_air, T,
+         is_air_pump_structure,
          deff,
          # %%
          Tx, Ty, Tz,
@@ -182,13 +184,13 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
     kwargs_SSI = copy.deepcopy(kwargs)
     kwargs_SSI.update({"ray": "2", })
     U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
-        SHG_NLA_SSI(*args_SSI, **kwargs_SSI, ) if is_NLA == 1 else \
-            SHG_SSF_SSI(*args_SSI, **kwargs_SSI, )
+        SFG_NLA_SSI(*args_SSI, **kwargs_SSI, ) if is_NLA == 1 else \
+            SFG_SSF_SSI(*args_SSI, **kwargs_SSI, )
 
     kwargs_NLA = copy.deepcopy(kwargs)
     kwargs_NLA.update({"ray": "2", })
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
-        SHG_NLA(U_name,
+        SFG_NLA(U_name,
                 img_full_name,
                 is_phase_only,
                 # %%
@@ -217,6 +219,7 @@ def compare_SHG_NLA__SSI(U_name_Structure="",
                 L0_Crystal,
                 # %%
                 lam1, is_air_pump, is_air, T,
+                is_air_pump_structure,
                 deff, is_fft, fft_mode,
                 is_sum_Gm, mG,
                 is_linear_convolution,
@@ -343,8 +346,9 @@ if __name__ == '__main__':
          "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
          # %%
          "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam_structure": 1.064, "is_air_pump_structure": 0, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
-         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0, 
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
          "Tx": 10, "Ty": 20, "Tz": 0,
@@ -361,10 +365,10 @@ if __name__ == '__main__':
          # %%
          "fontsize": 9,
          "font": {'family': 'serif',
-               'style': 'normal',  # 'normal', 'italic', 'oblique'
-               'weight': 'normal',
-               'color': 'black',  # 'black','gray','darkred'
-               },
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
          # %%
          "is_colorbar_on": 1, "is_energy": 0,
          # %%
@@ -376,17 +380,45 @@ if __name__ == '__main__':
          # %%
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
-         # %%
+         # %% 该程序 独有 -------------------------------
          "is_NLA": 1, "is_amp_relative": 1,
-         # %%
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1, }
+         # %%
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "polar3": "e",
+         }
+
+    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+        pump2_kwargs = {
+            "U2_name": "",
+            "img2_full_name": "lena.png",
+            "is_phase_only_2": 0,
+            # %%
+            "z_pump2": 0,
+            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
+            "l2": 0, "p2": 0,
+            "theta2_x": 0, "theta2_y": 0,
+            # %%
+            "is_random_phase_2": 0,
+            "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
+            # %%
+            "w0_2": 0.3,
+            # %%
+            "lam2": 1, "is_air_pump2": 0, "T2": 25,
+            "polar2": 'e',
+        }
+        pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
+        # Object of type dict_keys is not JSON serializable，所以 得转为 list
+        kwargs.update(pump2_kwargs)
 
     kwargs = init_GLV_DICT(**kwargs)
-    compare_SHG_NLA__SSI(**kwargs)
+    compare_SFG_NLA__SSI(**kwargs)
 
-    # compare_SHG_NLA__SSI(U_name_Structure="",
+    # compare_SFG_NLA__SSI(U_name_Structure="",
     #                      is_phase_only_Structure=0,
     #                      # %%
     #                      z_pump_Structure=0,

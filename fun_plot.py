@@ -43,7 +43,6 @@ def lormat(ticks, Str, Max, **kwargs):
             return [float(format(z, Str)) for z in ticks], [format(z, Str) for z in ticks]
 
 
-
 def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
     Str = format((Max - Min) / ticks_num, '.0e')
     # print(Str, Max, Min)
@@ -91,7 +90,16 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
         gan_ticks = gan_tickslabels = np.arange(0, ticks_num + 1, 1)
     return gan_ticks, gan_tickslabels
 
-def mjrFormatter(x, pos):
+
+def mjrFormatter_sci(x, pos):
+    x_str = format(x, '.1e')
+    e_before = x_str.split('e')[0]
+    e_after = x_str.split('e')[1]
+    # sci = e_before + " × " + "$10^{{{0}}}$".format("%.f" % int(e_after))  # "%.f" 是 四舍五入 取整
+    sci = e_before + " · " + "$10^{{{0}}}$".format("%.f" % int(e_after))  # "%.f" 是 四舍五入 取整
+    return sci
+
+def mjrFormatter_log(x, pos):
     return "$10^{{{0}}}$".format("%.1f" % x)  # 奇了怪了， x 本身已经是 格式化过了的，咋还得格式化一次...
 
 def convert_inf_to_min(array): # 防止 绘图 纵坐标 遇 inf 无法解析，并 正确生成 tickslabel
@@ -237,7 +245,7 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
             vmin = kwargs.get("vmin", min(np.min(array1D_new), np.min(l2_new), np.min(l2_new_error)))
         elif "l2" in kwargs and 'l3' not in kwargs: # 如果 ax1 上 只画 2 条 能量曲线 时，需要 给 min 补个零，防止 ganticks 的时候，不从 0 开始
             vmax = kwargs.get("vmax", np.max(array1D_new))
-            vmin = 0
+            vmin = kwargs.get("vmin", np.min(array1D_new)) if kwargs.get("ax_yscale", None) != 'linear' else 0
         else:
             vmax = kwargs.get("vmax", np.max(array1D_new))
             vmin = kwargs.get("vmin", np.min(array1D_new))
@@ -246,11 +254,15 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
         ax1.set_yticks(ax1_yticks)
         ax1.set_yticklabels(ax1_yticklabels, fontsize=fontsize, fontdict=font)
 
+        if np.max(np.abs(xticks)) >= 1e3 or np.max(np.abs(xticks)) < 1e-2:
+            ax1.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+        if np.max(np.abs(ax1_yticks)) >= 1e3 or np.max(np.abs(ax1_yticks)) < 1e-2:
+            ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
         if 'ax1_xticklabel' in kwargs:  # 如果 强迫 ax1 的 x 轴标签 保持原样（则看的是 随 dk 的 演化，则 能量 也得 log）
             if kwargs.get("ax_yscale", None) != 'linear':
                 # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
                 # ax1.yaxis.set_major_formatter(logfmt)
-                ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter))
+                ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_log))
 
         ax1.set_xlabel(xlabel, fontsize=fontsize, fontdict=font)  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         ax1.set_ylabel(ylabel, fontsize=fontsize, fontdict=font)  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
@@ -316,27 +328,32 @@ def plot_1d(zj, sample=2, size_PerPixel=0.007,
 
             if 'l3' in kwargs:
                 vmax2 = kwargs.get("vmax2", np.max(l3_new))
-                # vmin2 = kwargs.get("vmin2", np.min(l3_new))
+                vmin2 = kwargs.get("vmin2", np.min(l3_new)) if kwargs.get("ax_yscale", None) != 'linear' else 0
                 # print(vmax2, vmin2)
-                vmin2 = 0
             else:
                 if kwargs.get("is_energy_normalized", False) == 2: # 如果要画 随 T 的 演化
                     # ax2.set_ylim(ax1.get_ylim())  # ax2 的 y 轴范围 不再自动，而是 强制 ax2 的 y 轴 范围 等于 ax1 的 y 轴范围
                     vmax2, vmin2 = vmax, vmin  # 与 ax2.set_ylim(ax1.get_ylim()) 配合，强制 ax2 的 y 轴 刻度线 等于 ax1 的 刻度线。
                 else: # 如果要画 随 T 的 演化
                     vmax2 = kwargs.get("vmax2", max(np.max(l2_new), np.max(l2_new_error)))
-                    # vmin2 = kwargs.get("vmin2", min(np.min(l2_new), np.min(l2_new_error)))
-                    vmin2 = 0 # 这样才能使 ticks 和 labels 的 第一个元素 是 0
+                    if kwargs.get("ax_yscale", None) != 'linear':
+                        vmin2 = kwargs.get("vmin2", min(np.min(l2_new), np.min(l2_new_error)))
+                    else:
+                        vmin2 = 0 # 这样才能使 ticks 和 labels 的 第一个元素 是 0
 
             ax2_yticks, ax2_yticklabels = gan_ticks(vmax2, ticks_num, Min=vmin2)
             ax2.set_yticks(ax2_yticks)
             ax2.set_yticklabels(ax2_yticklabels, fontsize=fontsize, fontdict=font)
 
+            if np.max(np.abs(xticks)) >= 1e3 or np.max(np.abs(xticks)) < 1e-2:
+                ax2.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+            if np.max(np.abs(ax2_yticks)) >= 1e3 or np.max(np.abs(ax2_yticks)) < 1e-2:
+                ax2.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
             if 'l3' in kwargs:
                 if kwargs.get("ax_yscale", None) != 'linear':
                     # logfmt = mpl.ticker.LogFormatterExponent(base=10.0, labelOnlyBase=True)
                     # ax2.yaxis.set_major_formatter(logfmt)
-                    ax2.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter))
+                    ax2.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_log))
 
             ax2.set_xlabel(xlabel2, fontsize=fontsize, fontdict=font)
             ax2.set_ylabel(ylabel2, fontsize=fontsize, fontdict=font)
@@ -450,7 +467,6 @@ def add_right_cax(ax, pad, width):
 
     return cax
 
-
 def plot_2d(zj, sample=2, size_PerPixel=0.007,
             # %%
             array2D=0, array2D_address=os.path.dirname(os.path.abspath(__file__)), array2D_title='',
@@ -556,6 +572,12 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
             yticks, yticklabels = gan_ticks(Iy, ticks_num)
             ax1.set_yticks(yticks)
             ax1.set_yticklabels(yticklabels, fontsize=fontsize, fontdict=font)
+
+        if np.max(np.abs(xticks)) >= 1e3 or np.max(np.abs(xticks)) < 1e-2:
+            ax1.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+        if np.max(np.abs(yticks)) >= 1e3 or np.max(np.abs(yticks)) < 1e-2:
+            ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+
         ax1.set_xlabel(xlabel, fontsize=fontsize, fontdict=font)  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         ax1.set_ylabel(ylabel, fontsize=fontsize, fontdict=font)  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
 
@@ -583,6 +605,8 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
+        if np.max(np.abs(cticks)) >= 1e3 or np.max(np.abs(cticks)) < 1e-2:
+            cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
         cb.set_label(clabel, fontsize=fontsize, fontdict=font)  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
     array2D_title = array2D_title if is_energy != 1 else array2D_title + "_Squared"
@@ -672,6 +696,7 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
     else:
         UXY = np.dstack((U_YZ_new, U_XZ_new))
         UZ = np.dstack((U_1, U_2))
+
     # %% 插值 end
 
     if is_axes_on == 0:
@@ -729,6 +754,14 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
             zticks, zticklabels = gan_ticks(Iy, ticks_num)
             ax1.set_zticks(zticks)
             ax1.set_zticklabels(zticklabels, fontsize=fontsize, fontdict=font)
+
+        if np.max(np.abs(xticks)) >= 1e3 or np.max(np.abs(xticks)) < 1e-2:
+            ax1.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+        if np.max(np.abs(yticks)) >= 1e3 or np.max(np.abs(yticks)) < 1e-2:
+            ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+        if np.max(np.abs(zticks)) >= 1e3 or np.max(np.abs(zticks)) < 1e-2:
+            ax1.zaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+
         ax1.set_xlabel(xlabel, fontsize=fontsize, fontdict=font)  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         ax1.set_ylabel(ylabel, fontsize=fontsize, fontdict=font)  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         ax1.set_zlabel(zlabel, fontsize=fontsize, fontdict=font)  # 设置 z 轴的 标签名、标签字体；字体大小 fontsize=fontsize
@@ -738,6 +771,7 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
     vmax = kwargs.get("vmax", max(np.max(UXY), np.max(UZ)))
     vmin = kwargs.get("vmin", min(np.min(UXY), np.min(UZ)))
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
+
     Ixy = Iy
     if is_self_colorbar == 1:
         i_Z, i_XY = np.meshgrid(range(Iz_new), range(Ixy))
@@ -795,6 +829,8 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
+        if np.max(np.abs(cticks)) >= 1e3 or np.max(np.abs(cticks)) < 1e-2:
+            cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
         cb.set_label(clabel, fontsize=fontsize, fontdict=font)  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
     img_title = img_title if is_energy != 1 else img_title + "_Squared"
@@ -850,6 +886,7 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
     ix, iy = zj, range(Ix)
     ix_new, iy_new = np.linspace(zj[0], zj[-1], Iz_new), iy
 
+    # %%
     if is_axes_on == 0:
         ax1.axis('off')
     else:
@@ -889,22 +926,30 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
             zticks, zticklabels = gan_ticks(Iy, ticks_num)
             ax1.set_zticks(zticks)
             ax1.set_zticklabels(zticklabels, fontsize=fontsize, fontdict=font)
+
+        if np.max(np.abs(xticks)) >= 1e3 or np.max(np.abs(xticks)) < 1e-2:
+            ax1.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+        if np.max(np.abs(yticks)) >= 1e3 or np.max(np.abs(yticks)) < 1e-2:
+            ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+        if np.max(np.abs(zticks)) >= 1e3 or np.max(np.abs(zticks)) < 1e-2:
+            ax1.zaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+
         ax1.set_xlabel(xlabel, fontsize=fontsize, fontdict=font)  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         ax1.set_ylabel(ylabel, fontsize=fontsize, fontdict=font)  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
         ax1.set_zlabel(zlabel, fontsize=fontsize, fontdict=font)  # 设置 z 轴的 标签名、标签字体；字体大小 fontsize=fontsize
 
     ax1.view_init(elev=elev, azim=azim);  # 后一个为负 = 绕 z 轴逆时针
 
+    U_z_stored = U_z_stored if is_energy != 1 else np.abs(U_z_stored) ** 2
+    vmax = kwargs.get("vmax", np.max(U_z_stored))
+    vmin = kwargs.get("vmin", np.min(U_z_stored))
+    # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
+
     sheets_stored_num = len(z_stored) - 1
     x_stretch_factor = sheets_stored_num ** 0.5 * 2
     # ax1.get_proj = lambda: np.dot(Axes3D.get_proj(ax1), np.diag([1 * x_stretch_factor, 1, 1, 1]))
     ax1.get_proj = lambda: np.dot(Axes3D.get_proj(ax1), np.diag([1, 1 / x_stretch_factor, 1 / x_stretch_factor, 1]))
     # ax1.get_proj = lambda: np.dot(Axes3D.get_proj(ax1), np.diag([1, 1/x_stretch_factor, 1/x_stretch_factor, 1/x_stretch_factor]))
-
-    U_z_stored = U_z_stored if is_energy != 1 else np.abs(U_z_stored) ** 2
-    vmax = kwargs.get("vmax", np.max(U_z_stored))
-    vmin = kwargs.get("vmin", np.min(U_z_stored))
-    # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
 
     if is_self_colorbar == 1:
         i_X, i_Y = np.meshgrid(range(Iy), range(Ix))
@@ -933,6 +978,8 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
+        if np.max(np.abs(cticks)) >= 1e3 or np.max(np.abs(cticks)) < 1e-2:
+            cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
         cb.set_label(clabel, fontsize=fontsize, fontdict=font)  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
     img_title = img_title if is_energy != 1 else img_title + "_Squared"

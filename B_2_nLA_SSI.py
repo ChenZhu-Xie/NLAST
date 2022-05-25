@@ -14,8 +14,8 @@ from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_ssi
-from fun_linear import init_AST, init_SHG, fft2, ifft2
-from fun_nonlinear import args_SHG
+from fun_linear import init_AST, init_SFG, fft2, ifft2
+from fun_nonlinear import args_SFG
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, sget, skey, fGHU_plot_save, fU_SSI_plot
@@ -129,14 +129,16 @@ def nLA_ssi(U_name="",
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
+                                                   theta_x, theta_y,
+                                                   **kwargs)
 
-    lam2, n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_SHG(Ix, Iy, size_PerPixel,
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
-                                                         theta_x, theta_y, **kwargs)
+                                                         theta_x, theta_y,
+                                                         **kwargs)
 
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SHG(k1_inc, k2_inc, size_PerPixel,
+    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
                           is_print, )
@@ -315,11 +317,15 @@ if __name__ == '__main__':
          "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
          # %%
          "is_print": 1,
-         # %%
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
+         # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
-         "ray": "1", }
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "ray": "1",
+         }
 
     kwargs = init_GLV_DICT(**kwargs)
     nLA_ssi(**kwargs)

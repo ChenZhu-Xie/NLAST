@@ -15,6 +15,7 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_SSI import slice_structure_ssi
 from fun_thread import noop, my_thread
 from fun_CGH import structure_n1_Generate_2D
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -41,7 +42,7 @@ def structure_n1_3D(U_name="",
                     is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
                     is_reverse_xy=0, is_positive_xy=1,
                     # %%
-                    lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                    lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
                     # %%
                     Tx=10, Ty=10, Tz="2*lc",
                     mx=0, my=0, mz=0,
@@ -73,13 +74,14 @@ def structure_n1_3D(U_name="",
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
 
-    #%%
+    # %%
     info = "n_3D_生成结构"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
 
-    n1_inc, n1, k1_inc, k1, k1_z_shift, lam2, n2_inc, n2, k2_inc, k2, k2_z_shift, \
+    n1_inc, n1, k1_inc, k1, k1_z_shift, lam3, n3_inc, n3, k3_inc, k3, k3_z_shift, \
     dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0, g_shift, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
@@ -102,7 +104,7 @@ def structure_n1_3D(U_name="",
                                    is_reverse_xy, is_positive_xy,
                                    0,
                                    # %%
-                                   lam1, is_air_pump, is_air, T,
+                                   lam1, is_air_pump_structure, is_air, T,
                                    Tx, Ty, Tz,
                                    mx, my, mz,
                                    # %%
@@ -130,54 +132,54 @@ def structure_n1_3D(U_name="",
     Iz, deff_structure_length, Tz_unit, zj_structure = \
         slice_structure_ssi(Duty_Cycle_z, deff_structure_length_expect,
                             Tz, ssi_zoomout_times, size_PerPixel,
-                            is_print,)
+                            is_print, )
 
     # %%
 
     if is_stripe > 0:
         from fun_os import U_amp_plot_save
         sheets_stored_num = 10
-        for_th_stored = list(np.int64(np.round(np.linspace(0, sheets_num-1, sheets_stored_num))))
+        for_th_stored = list(np.int64(np.round(np.linspace(0, sheets_num - 1, sheets_stored_num))))
         # print(for_th_stored, sheets_num, len(for_th_stored))
         m_list = []
         mod_name_list = []
     if is_stripe == 2.2:
         from fun_CGH import structure_nonrect_n1_Generate_2D
+        if structure_xy_mode == 'x':
+            Ix_structure, Iy_structure = sheets_num, Get("Iy")
+        elif structure_xy_mode == 'y':
+            Ix_structure, Iy_structure = Get("Ix"), sheets_num
         modulation_lie_down, folder_address = \
             structure_nonrect_n1_Generate_2D(z_pump,
-                                           is_LG, is_Gauss, is_OAM,
-                                           l, p,
-                                           theta_x, theta_y,
-                                           # %%
-                                           is_random_phase,
-                                           is_H_l, is_H_theta, is_H_random_phase,
-                                           # %%
-                                           sheets_num, Get("Iy"), w0,
-                                           Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
-                                           # %%
-                                           is_continuous, is_target_far_field, is_transverse_xy,
-                                           is_reverse_xy, is_positive_xy,
-                                           0,
-                                           # %%
-                                           lam1, is_air_pump, is_air, T,
-                                           Tx, Ty, Tz,
-                                           mx, my, mz,
-                                           # %%
-                                           is_save, is_save_txt, dpi,
-                                           # %%
-                                           cmap_2d,
-                                           # %%
-                                           ticks_num, is_contourf,
-                                           is_title_on, is_axes_on, is_mm, zj_structure[:-1],
-                                           # %%
-                                           fontsize, font,
-                                           # %%
-                                           is_colorbar_on, is_energy,
-                                           # %%
-                                           is_print,
-                                           # %%
-                                           **kwargs, )
-    elif is_stripe == 2 or is_stripe == 2.1:  #  躺下 的 插值算法
+                                             is_LG, is_Gauss, is_OAM,
+                                             l, p,
+                                             theta_x, theta_y,
+                                             # %%
+                                             is_random_phase,
+                                             is_H_l, is_H_theta, is_H_random_phase,
+                                             # %%
+                                             Ix_structure, Iy_structure, w0,
+                                             Duty_Cycle_x, Duty_Cycle_y, structure_xy_mode, Depth,
+                                             # %%
+                                             is_continuous, is_target_far_field, is_transverse_xy,
+                                             is_reverse_xy, is_positive_xy,
+                                             0,
+                                             # %%
+                                             lam1, is_air_pump_structure, n1_inc, T,
+                                             # %%
+                                             is_save, is_save_txt, dpi,
+                                             # %%
+                                             cmap_2d,
+                                             # %%
+                                             ticks_num, is_contourf,
+                                             is_title_on, is_axes_on, is_mm, zj_structure[:-1],
+                                             # %%
+                                             fontsize, font,
+                                             # %%
+                                             is_colorbar_on, is_energy,
+                                             # %%
+                                             **kwargs, )
+    elif is_stripe == 2 or is_stripe == 2.1:  # 躺下 的 插值算法
         from fun_CGH import structure_nonrect_n1_interp2d_2D
         modulation_lie_down = \
             structure_nonrect_n1_interp2d_2D(folder_address, modulation_squared,
@@ -220,12 +222,12 @@ def structure_n1_3D(U_name="",
                 elif structure_xy_mode == 'xy':  # 往右（列） 线性平移 mj[for_th] 像素
                     m = np.roll(modulation_squared, int(mx * Tx / Tz * iz), axis=1)
                     m = np.roll(modulation_squared, int(my * Ty / Tz * iz), axis=0)
-                    
+
                 if for_th in for_th_stored:
                     m_list.append(m)
                     mod_name_list.append("n1_" + "tran_shift_" + str(for_th))
-            
-            elif is_stripe == 2 or is_stripe == 2.1 or is_stripe == 2.2:  #  躺下 的 插值算法 & 直接 CGH 算法
+
+            elif is_stripe == 2 or is_stripe == 2.1 or is_stripe == 2.2:  # 躺下 的 插值算法 & 直接 CGH 算法
                 if structure_xy_mode == 'x':
                     modulation_squared_new = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))  # 按行复制 多行，成一个方阵
                 elif structure_xy_mode == 'y':
@@ -259,7 +261,7 @@ def structure_n1_3D(U_name="",
     my_thread(10, sheets_num,
               fun1, noop, noop,
               is_ordered=1, is_print=is_print, is_end=1)
-    
+
     if is_stripe > 0:
         for i in range(sheets_stored_num):
             U_amp_plot_save(folder_address,
@@ -272,7 +274,7 @@ def structure_n1_3D(U_name="",
                             0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
                             # %%
                             cmap_2d, ticks_num, is_contourf,
-                            is_title_on, is_axes_on, is_mm, 0,  #  1, 1 或 0, 0
+                            is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
                             fontsize, font,
                             # %%
                             0, is_colorbar_on, 0,
@@ -283,53 +285,56 @@ def structure_n1_3D(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-        "img_full_name": "lena1.png",
-        "is_phase_only": 0,
-        # %%
-        "z_pump": 0,
-        "is_LG": 0, "is_Gauss": 1, "is_OAM": 1,
-        "l": 3, "p": 0,
-        "theta_x": 0, "theta_y": 0,
-        # %%
-        "is_random_phase": 0,
-        "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
-        # %%
-        "U_NonZero_size": 1, "w0": 0, "structure_size_Enlarge": 0.1,
-        "deff_structure_length_expect": 1,
-        # %%
-        "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
-        "structure_xy_mode": 'x', "Depth": 1, "ssi_zoomout_times": 1,
-        # %%
-        "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
-        "is_reverse_xy": 0, "is_positive_xy": 1,
-        # %%
-        "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
-        # %%
-        "Tx": 18, "Ty": 10, "Tz": 0,
-        "mx": 1, "my": 0, "mz": 1,
-        "is_stripe": 2.2,
-        # %%
-        "is_save": 0, "is_save_txt": 0, "dpi": 100,
-        "is_bulk": 0,
-        # %%
-        "cmap_2d": 'viridis',
-        # %%
-        "ticks_num": 6, "is_contourf": 0,
-        "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
-        # %%
-        "fontsize": 7,
-        "font": {'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        "is_colorbar_on": 1, "is_energy": 0,
-        # %%
-        "is_print": 1,
-        # %%
-        "kwargs_seq": 0, "root_dir": r'1',
-        "border_percentage": 0.1, "is_end": -1, }
+         "img_full_name": "lena1.png",
+         "is_phase_only": 0,
+         # %%
+         "z_pump": 0,
+         "is_LG": 0, "is_Gauss": 1, "is_OAM": 1,
+         "l": 3, "p": 0,
+         "theta_x": 0, "theta_y": 0,
+         # %%
+         "is_random_phase": 0,
+         "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
+         # %%
+         "U_NonZero_size": 1, "w0": 0, "structure_size_Enlarge": 0.1,
+         "deff_structure_length_expect": 1,
+         # %%
+         "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
+         "structure_xy_mode": 'x', "Depth": 1, "ssi_zoomout_times": 1,
+         # %%
+         "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
+         "is_reverse_xy": 0, "is_positive_xy": 1,
+         # %%
+         "lam1": 0.8, "is_air_pump_structure": 0, "is_air": 0, "T": 25,
+         # %%
+         "Tx": 18, "Ty": 10, "Tz": 0,
+         "mx": 1, "my": 0, "mz": 1,
+         "is_stripe": 2.2,
+         # %%
+         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_bulk": 0,
+         # %%
+         "cmap_2d": 'viridis',
+         # %%
+         "ticks_num": 6, "is_contourf": 0,
+         "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
+         # %%
+         "fontsize": 7,
+         "font": {'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+         # %%
+         "is_colorbar_on": 1, "is_energy": 0,
+         # %%
+         "is_print": 1,
+         # %% 该程序 作为 主入口时 -------------------------------
+         "kwargs_seq": 0, "root_dir": r'1',
+         "border_percentage": 0.1, "is_end": -1,
+         # %%
+         "polar_structure": "e",
+         }
 
     kwargs = init_GLV_DICT(**kwargs)
     structure_n1_3D(**kwargs)
@@ -355,7 +360,7 @@ if __name__ == '__main__':
     #                 is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
     #                 is_reverse_xy=0, is_positive_xy=1,
     #                 # %%
-    #                 lam1=0.8, is_air_pump=0, is_air=0, T=25,
+    #                 lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
     #                 # %%
     #                 Tx=10, Ty=10, Tz="2*lc",
     #                 mx=0, my=0, mz=1,

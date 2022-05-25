@@ -125,7 +125,7 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
 if __name__ == '__main__':
     kwargs = \
         {"test_target": -1, # 自动化了，不用填这个参数了
-         "Data_Seq": 294,
+         "Data_Seq": 33,
          "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
@@ -146,11 +146,12 @@ if __name__ == '__main__':
                },
          "is_print": 1,
          "is_energy_normalized": 2,
-         # %%
-         "kwargs_seq": 0, "root_dir": r'D:\Users\ZML\Desktop\一些桌面文件\dk_1',
+         # %% 该程序 作为 主入口时 -------------------------------
+         "kwargs_seq": 0, "root_dir": r'1',
          "is_end": -1,
+         # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 3,
-         "ax_yscale": 'linear', }
+         "ax_yscale": '', }
 
     kwargs = init_GLV_DICT(**kwargs)
     plot_1D_test(**kwargs)

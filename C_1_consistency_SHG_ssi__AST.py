@@ -17,8 +17,9 @@ from fun_pump import pump_pic_or_U
 from fun_compare import U_compare
 from A_3_structure_chi2_Generate_3D import structure_chi2_3D
 from b_1_AST import AST
-from B_3_SHG_NLA_ssi import SHG_NLA_ssi
-from B_3_SHG_SSF_ssi import SHG_SSF_ssi
+from B_3_SFG_NLA_ssi import SFG_NLA_ssi
+from B_3_SFG_SSF_ssi import SFG_SSF_ssi
+
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -56,6 +57,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                              is_stored=0, is_show_structure_face=0, is_energy_evolution_on=1,
                              # %%
                              lam1=0.8, is_air_pump=0, is_air=0, T=25,
+                             is_air_pump_structure=0,
                              deff=30,
                              # %%
                              Tx=10, Ty=10, Tz="2*lc",
@@ -94,15 +96,15 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                              # %%
                              is_print=1, is_contours=66, n_TzQ=1,
                              Gz_max_Enhance=1, match_mode=1,
-                             # %% 该程序 独有
+                             # %% 该程序 独有 -------------------------------
                              is_NLA=1, is_amp_relative=1,
                              # %%
                              **kwargs, ):
-
     # %%
     info = "利用 SHG 检验：ssi 自洽性"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
     # 非线性 惠更斯 菲涅尔 原理
 
@@ -129,6 +131,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                                  U_NonZero_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
+                                 kwargs.get("polar", "e"),
                                  # %%
                                  is_save, is_save_txt, dpi,
                                  cmap_2d,
@@ -167,7 +170,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                       is_continuous, is_target_far_field, is_transverse_xy,
                       is_reverse_xy, is_positive_xy, is_no_backgroud,
                       # %%
-                      lam1, is_air_pump, is_air, T,
+                      lam1, is_air_pump_structure, is_air, T,
                       Tx, Ty, Tz,
                       mx, my, mz,
                       is_stripe,
@@ -187,7 +190,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                       is_print, is_contours, n_TzQ,
                       Gz_max_Enhance, match_mode,
                       # %%
-                      g_shift=g_shift, L0_Crystal=max(z1, z2), )
+                      g_shift=g_shift, L0_Crystal=max(z1, z2), **kwargs, )
 
     # %%
     # 先衍射 z1 后倍频 z2
@@ -281,8 +284,8 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"U": U1_z1, "ray": ray1_z1, })
     U2_z2, G2_z2, ray2_z2, method_and_way2_z2, U_key2_z2 = \
-            SHG_NLA_ssi(*args_ssi(z2), **kwargs_ssi, ) if is_NLA == 1 else \
-                SHG_SSF_ssi(*args_ssi(z2), **kwargs_ssi, )
+        SFG_NLA_ssi(*args_ssi(z2), **kwargs_ssi, ) if is_NLA == 1 else \
+            SFG_SSF_ssi(*args_ssi(z2), **kwargs_ssi, )
 
     # %%
     # 先倍频 z1 后衍射 z2
@@ -290,8 +293,8 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"ray": "2", })
     U2_z1, G2_z1, ray2_z1, method_and_way2_z1, U_key2_z1 = \
-        SHG_NLA_ssi(*args_ssi(z1), **kwargs_ssi, ) if is_NLA == 1 else \
-            SHG_SSF_ssi(*args_ssi(z1), **kwargs_ssi, )
+        SFG_NLA_ssi(*args_ssi(z1), **kwargs_ssi, ) if is_NLA == 1 else \
+            SFG_SSF_ssi(*args_ssi(z1), **kwargs_ssi, )
 
     kwargs_AST = copy.deepcopy(kwargs)
     kwargs_AST.update({"U": U2_z1, "ray": ray2_z1})
@@ -306,8 +309,8 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     kwargs_ssi = copy.deepcopy(kwargs)
     kwargs_ssi.update({"ray": "2", })
     U2_Z, G2_Z, ray2_Z, method_and_way2_Z, U_key2_Z = \
-        SHG_NLA_ssi(*args_ssi(Z), ) if is_NLA == 1 else \
-            SHG_SSF_ssi(*args_ssi(Z), **kwargs_ssi, )
+        SFG_NLA_ssi(*args_ssi(Z), ) if is_NLA == 1 else \
+            SFG_SSF_ssi(*args_ssi(Z), **kwargs_ssi, )
 
     # %%
     # 加和 U1_NLA 与 U2_AST = U2_Z_Superposition
@@ -320,7 +323,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
 
     U2_Z_ADD = U1_z2 + U2_z2
     kwargs.update({"ray": "2", })
-    init_GLV_rmw("", "a", "ADD", "ssi", **kwargs) # 主要是用于 之后 compare 里 fkey 获取 U_title 或 U_name 用
+    init_GLV_rmw("", "a", "ADD", "ssi", **kwargs)  # 主要是用于 之后 compare 里 fkey 获取 U_title 或 U_name 用
     fset("U", U2_Z_ADD)
     fset("G", fft2(U2_Z_ADD))
 
@@ -382,6 +385,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
 
     # %%
 
+
 if __name__ == '__main__':
     kwargs = \
         {"img_full_name": "Grating.png",
@@ -418,6 +422,7 @@ if __name__ == '__main__':
          "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
          # %%
          "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
          "deff": 30,
          # %%
          "Tx": 10, "Ty": 10, "Tz": "2*lc",
@@ -441,10 +446,10 @@ if __name__ == '__main__':
          # %%
          "fontsize": 9,
          "font": {'family': 'serif',
-               'style': 'normal',  # 'normal', 'italic', 'oblique'
-               'weight': 'normal',
-               'color': 'black',  # 'black','gray','darkred'
-               },
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
          # %%
          "is_colorbar_on": 1, "is_energy": 1,
          # %% 不关心
@@ -456,17 +461,22 @@ if __name__ == '__main__':
          # %%
          "is_print": 1, "is_contours": 66, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
-         # %% 该程序 独有
+         # %% 该程序 独有 -------------------------------
          "is_NLA": 1, "is_amp_relative": 1,
-         # %% 该程序 作为 主入口时
+         # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1, }
+         # %%
+         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         # %%
+         "gamma_y": 90, "polar": "e",
+         "polar3": "e",
+         }
 
     kwargs = init_GLV_DICT(**kwargs)
     consistency_SHG_ssi__AST(**kwargs)
 
-    # consistency_SHG_ssi__AST(img_full_name="Grating.png",
+    # consistency_SFG_ssi__AST(img_full_name="Grating.png",
     #                          is_phase_only=0,
     #                          # %%
     #                          z_pump=0,
@@ -538,7 +548,7 @@ if __name__ == '__main__':
     #                          # %%
     #                          is_print=1, is_contours=66, n_TzQ=1,
     #                          Gz_max_Enhance=1, match_mode=1,
-    #                          # %% 该程序 独有
+    #                          # %% 该程序 独有 -------------------------------
     #                          is_NLA=1, is_amp_relative=1,
     #                          # %% 该程序 作为 主入口时
     #                          root_dir=r'',
