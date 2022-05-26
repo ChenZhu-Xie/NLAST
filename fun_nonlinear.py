@@ -8,7 +8,7 @@ Created on Fri Feb 25 20:23:31 2022
 import math
 import numpy as np
 from fun_array_Transform import Roll_xy
-from fun_linear import Cal_kz, fft2, ifft2, Uz_AST, Find_energy_Dropto_fraction
+from fun_linear import Cal_n, Cal_kz, fft2, ifft2, Uz_AST, Find_energy_Dropto_fraction
 from fun_statistics import find_Kxyz
 from fun_global_var import Get, init_accu, tree_print
 
@@ -74,6 +74,8 @@ def Cal_GxGyGz(mx, my, mz,
     Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000)  # Tz / 1000 即以 mm 为单位
     Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000)  # Tz / 1000 即以 mm 为单位
 
+    Gy = - Gy  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系（这里 转后，其他地方 就不用 转了）
+
     is_print and print(tree_print(add_level=-1) +
                        "mx = {} μm, my = {} μm, mz = {} μm".format(mx, my, mz))
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) +
@@ -92,8 +94,11 @@ def args_SFG(k1_inc, k3_inc, size_PerPixel,
              mx, my, mz,
              Tx, Ty, Tz,
              is_print, **kwargs):
+    import inspect
+    call_times_limit = 3 if inspect.stack()[1][3] == "accurate_args_SFG" else 1
+
     info = "args_SFG"
-    is_first = int(init_accu(info, 1) == 1)  # 若第一次调用 args_SFG，则 is_first 为 1，否则为 0
+    is_first = int(init_accu(info, 1) <= call_times_limit)  # 若第一次调用 args_SFG，则 is_first 为 1，否则为 0
     is_Print = is_print * is_first  # 两个 得都 非零，才 print
 
     info = "参数_SHG"
@@ -109,6 +114,159 @@ def args_SFG(k1_inc, k3_inc, size_PerPixel,
                             is_Print, is_end=1)
     return dk, lc, Tz, \
            Gx, Gy, Gz
+
+
+# %%
+
+def init_SFG(Ix, Iy, size_PerPixel,
+             lam1, is_air, T,
+             theta_x, theta_y,
+             **kwargs):
+    lam2 = kwargs.get("lam2", lam1)
+    lam3 = 1 / (1 / lam1 + 1 / lam2)  # 能量守恒
+
+    n3_inc, n3, k3_inc, k3 = Cal_n(size_PerPixel,
+                                   is_air,
+                                   lam3, T, p=kwargs.get("polar3", "e"),
+                                   theta_x=theta_x,
+                                   theta_y=theta_y, **kwargs)
+
+    k3_z, k3_xy = Cal_kz(Ix, Iy, k3)
+
+    return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy
+
+
+# %%
+
+def gan_k_vector(k_inc, theta_x, theta_y, ):
+    # theta_y = - theta_y （之后 用到 theta3_y 的时候 会自动转 theta3_y，所以 这里 就不用 转 theta_y 和 theta2_y 了）
+    # theta2_y = - theta2_y 这里只需保证用 标准笛卡尔坐标系下的 theta_y 和 theta2_y 生成 同样笛卡尔坐标系下的 theta3_y 即可
+    theta_x = theta_x / 180 * math.pi
+    theta_y = theta_y / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
+    # # %%  现实：无论先转 theta_x 还是先转 theta_y
+    # kz = k_inc * math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小
+    # # %%  现实：先转 theta_x 再转 theta_y
+    # ky = k_inc * math.cos(theta_x) * math.sin(theta_y)
+    # kx = k_inc * math.sin(theta_x)
+    # # %%  现实：先转 theta_y 再转 theta_x
+    # ky = k_inc * math.sin(theta_y)
+    # kx = k_inc * math.sin(theta_x) * math.cos(theta_y)
+    # return kx, ky, kz
+    # %%  非现实
+    Kx, Ky = k_inc * np.sin(theta_x), k_inc * np.sin(theta_y)
+    Kz = k_inc ** 2 - Kx ** 2 - Ky ** 2
+    # 实际的 kx, ky, kz 只能通过 K_z, (K_x, K_y) = find_Kxyz(g, k) 来得到
+    # 但其实 更实际地， k_x, k_y 是 多值的，尽管 k_z 在大部分情况下，可以被视为 单值的
+    # 所以不必搞 “那么” 实际，以致于 连 find_Kxyz 都不必用上
+    return Kx, Ky, Kz
+
+
+def gan_k3_vector(k1_inc, theta1_x, theta1_y,
+                  k2_inc, theta2_x, theta2_y,
+                  Gx, Gy, Gz, ):
+    k1_x, k1_y, k1_z = gan_k_vector(k1_inc, theta1_x, theta1_y, )
+    k2_x, k2_y, k2_z = gan_k_vector(k2_inc, theta2_x, theta2_y, )
+    k3_x, k3_y, k3_z_on_Gz = k1_x + k2_x + Gx, k1_y + k2_y + Gy, k1_z + k2_z + Gz  # 动量守恒
+    # 但其中 Gz 的正确性 值得怀疑：因为 如若 Tz = 0，即匹配的情况下 算出的 Gz，是在 不精确的 theta3_x, theta3_y 情况下 算出的
+    # 而真实的 theta3_x, theta3_y 还尚未得到；但其得到途径又需要 Gz... 准确的说是需要 k3_inc，因此需要 另辟蹊径 地找 可信赖的 k3_inc 源
+    # 如若 Tz != 0，或 mz = 0，则 Gz 的 来源 只取决于 mz, Tz，因此 只要 Tz 准， k3_z_on_Gz、 k3_inc_on_Gz 就是准的
+    k3_inc_on_Gz = k3_x ** 2 + k3_y ** 2 + k3_z_on_Gz ** 2
+    return k3_x, k3_y, k3_z_on_Gz, k3_inc_on_Gz
+
+
+def cal_theta3_xy(k1_inc, theta1_x, theta1_y,
+                  k2_inc, theta2_x, theta2_y,
+                  Gx, Gy, Gz, k3_inc, ):
+    k3_x, k3_y, k3_z_on_Gz, k3_inc_on_Gz = gan_k3_vector(k1_inc, theta1_x, theta1_y,
+                                                         k2_inc, theta2_x, theta2_y,
+                                                         Gx, Gy, Gz, )
+    # sin_theta3_x = k3_x / k3_inc  # 信赖 传入的 k3_inc：但 k3_inc 一定是不准的，因为 用的是 不准的 theta3_x, theta3_y 算出的
+    # sin_theta3_y = k3_y / k3_inc
+    # theta3_x = math.arcsin(sin_theta3_x)
+    # theta3_y = math.arcsin(sin_theta3_y)
+    tan_theta3_x = k3_x / k3_z_on_Gz  # 信赖 算出的 k3_z_on_Gz，也就是 信赖 上一个 def 传入的 Gz
+    tan_theta3_y = k3_y / k3_z_on_Gz
+    theta3_x = math.atan(tan_theta3_x)
+    theta3_y = math.atan(tan_theta3_y)
+    return theta3_x, theta3_y
+
+
+# %%
+
+def accurate_args_SFG(Ix, Iy, size_PerPixel,
+                      lam1, lam2, is_air, T,
+                      k1_inc, k2_inc,
+                      g_shift, k1_z,
+                      z0, deff_structure_length_expect,
+                      mx, my, mz,
+                      Tx, Ty, Tz,
+                      is_contours, n_TzQ,
+                      Gz_max_Enhance, match_mode,
+                      is_print,
+                      theta_x, theta2_x,
+                      theta_y, theta2_y,
+                      **kwargs):
+    # %%  给出 试探 Gz
+
+    theta_3x, theta_3y = (theta_x + theta2_x) / 2, (theta_y + theta2_y) / 2  # 先给出 k3_inc 的 试探解，以 初步计算 匹配时的 dk
+
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
+                                                         lam1, is_air, T,
+                                                         theta_3x, theta_3y,
+                                                         lam2=lam2, **kwargs)
+
+    dk, lc, Tz, \
+    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,  # 先 初步计算 匹配时，Gz 的 试探解
+                          mx, my, mz,
+                          Tx, Ty, Tz,
+                          is_print, k2_inc=k2_inc, )
+
+    # %%  利用 试探 Gz，给出 较准确 Gz
+
+    theta3_x, theta3_y = cal_theta3_xy(k1_inc, theta_x, theta_y,  # 利用 非匹配时 准确的 Gz 更新 更准确的 theta3_x, theta3_y
+                                       k2_inc, theta2_x, theta2_y,
+                                       Gx, Gy, Gz, k3_inc, )
+
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,  # 更新 更准确的 k3_inc
+                                                         lam1, is_air, T,
+                                                         theta3_x, theta3_y,
+                                                         lam2=lam2, **kwargs)
+
+    dk, lc, Tz, \
+    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,  # 更新 更准确的 dk
+                          mx, my, mz,
+                          Tx, Ty, Tz,
+                          is_print, k2_inc=k2_inc, )
+
+    # %%  利用 较准确 Gz，给出 更新后的 Gz
+    # 提供描边信息，并覆盖值
+
+    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
+                                                                  z0, size_PerPixel, deff_structure_length_expect,
+                                                                  is_print, is_contours, n_TzQ, Gz_max_Enhance,
+                                                                  match_mode, )  # 传入准确的 dk，得到 新的 Tz
+
+    dk, lc, Tz, \
+    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,  # 利用 新的 Tz，更新 新的 Gz
+                          mx, my, mz,
+                          Tx, Ty, Tz,
+                          is_print, k2_inc=k2_inc, )
+
+    # %%  利用 更新后的 Gz，给出 更新后的 k3 系列
+
+    theta3_x, theta3_y = cal_theta3_xy(k1_inc, theta_x, theta_y,  # 利用 新的 Gz，更新 新的 theta3_x, theta3_y
+                                       k2_inc, theta2_x, theta2_y,
+                                       Gx, Gy, Gz, k3_inc, )
+
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,  # 利用 新的 theta3_x, theta3_y，更新 k3 系列
+                                                         lam1, is_air, T,
+                                                         theta3_x, theta3_y,
+                                                         lam2=lam2, **kwargs)
+
+    return theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+           dk, lc, Tz, \
+           Gx, Gy, Gz, \
+           z0, Tz, deff_structure_length_expect
 
 
 # %%

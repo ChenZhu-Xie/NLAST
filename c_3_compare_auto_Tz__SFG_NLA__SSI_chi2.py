@@ -12,8 +12,8 @@ import numpy as np
 from fun_global_var import init_GLV_DICT, Get, tree_print, GU_error_energy_plot_save
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST, init_SFG
-from fun_nonlinear import Cal_lc_SHG
+from fun_linear import init_AST
+from fun_nonlinear import Cal_lc_SHG, accurate_args_SFG
 from c_2_compare_SFG_NLA__SSI_chi2 import compare_SFG_NLA__SSI
 
 np.seterr(divide='ignore', invalid='ignore')
@@ -125,6 +125,8 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
         T2 = kwargs.get("T2", T)
         polar2 = kwargs.get("polar2", 'e')
         # %%
+        pump2_keys = kwargs["pump2_keys"]
+        # %%
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
@@ -223,13 +225,22 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
-                                                         lam1, is_air, T,
-                                                         theta_x, theta_y,
-                                                         lam2=lam2, **kwargs)
-
-    dk, lc, Tz = Cal_lc_SHG(k1_inc, k3_inc, Tz, size_PerPixel,
-                            0, )
+    theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    dk, lc, Tz, \
+    Gx, Gy, Gz, \
+    L0_Crystal, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
+                                                                     lam1, lam2, is_air, T,
+                                                                     k1_inc, k2_inc,
+                                                                     g_shift, k1_z,
+                                                                     L0_Crystal, deff_structure_length_expect,
+                                                                     mx, my, mz,
+                                                                     Tx, Ty, Tz,
+                                                                     is_contours, n_TzQ,
+                                                                     Gz_max_Enhance, match_mode,
+                                                                     is_print,
+                                                                     theta_x, theta2_x,
+                                                                     theta_y, theta2_y,
+                                                                     **kwargs)
 
     Tc = 2 * lc
 

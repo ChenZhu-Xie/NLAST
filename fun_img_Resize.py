@@ -70,7 +70,7 @@ def image_Border(src, dst, loc='a', width=3, color=(0, 0, 0, 255)):
 
 def image_Add_black_border(img_full_name="Grating.png",
                            border_percentage=0.5,
-                           is_print=1, **kwargs ):
+                           is_print=1, **kwargs):
     # img_full_name = "Grating.png"
     # border_percentage = 0.5 # 边框 占图片的 百分比，也即 图片 放大系数
 
@@ -116,25 +116,37 @@ def image_Add_black_border(img_full_name="Grating.png",
 
     img_squared_bordered = cv2.imdecode(np.fromfile(img_squared_bordered_address, dtype=np.uint8),
                                         0)  # 按 相对路径 + 灰度图 读取图片
-    is_print and print(tree_print(1) + "U.shape = img_squared_bordered.shape = {}".format(img_squared_bordered.shape))
+    is_print and print(tree_print(kwargs.get("is_end_last", 1)) + "U.shape = img_squared_bordered.shape = {}".format(img_squared_bordered.shape))
 
 
 # %%
 
 def if_image_Add_black_border(U_name, img_full_name,
-                              is_name_main, is_print, **kwargs, ): # 没有 该函数作为起始的 py 文件，需要加 init_GLV_DICT
+                              is_name_main, is_print, **kwargs, ):  # 没有 该函数作为起始的 py 文件，需要加 init_GLV_DICT
 
-    if is_name_main: # 等价于：如果是 第一次 进入该程序
+    if is_name_main:  # 等价于：如果是 第一次 进入该程序
         # %% 开始 加边框
         # print(1, kwargs)
         # init_GLV_DICT(**kwargs) # 这里初始化的 init_GLV 传了参数进去 —— 没懂为什么得是 **....，不然传进去变成位置参数 args 中的一元素了
         kwargs.pop("is_end", 0)
-        if (type(U_name) != str) or U_name == "" and "U" not in kwargs:
+        if ((type(U_name) != str) or U_name == "") and ("U" not in kwargs and "U1" not in kwargs):
             border_percentage = kwargs["border_percentage"] if "border_percentage" in kwargs else 0.1
+            kwargs.pop("border_percentage", None)
 
             image_Add_black_border(img_full_name,  # 预处理 导入图片 为方形，并加边框
                                    border_percentage,
-                                   is_print, )  # 没把 kwargs 传进来，因此 外面的 is_end = 1 不会进来，也就不会 使加黑边 为 末尾
+                                   is_print, is_end_last=-1)  # 没把 kwargs 传进来，因此 外面的 is_end = 1 不会进来，也就不会 使加黑边 为 末尾
+
+        if kwargs.get('ray', "2") == "3":
+            U2_name, img2_full_name = kwargs.get("U2_name", U_name), kwargs.get("img2_full_name", img_full_name)
+            if ((type(U2_name) != str) or U2_name == "") and ("U2" not in kwargs):
+                border_percentage = kwargs["border_percentage"] if "border_percentage" in kwargs else 0.1
+                kwargs.pop("border_percentage", None)
+
+                image_Add_black_border(img2_full_name,  # 预处理 导入图片 为方形，并加边框
+                                       border_percentage,
+                                       is_print, add_level=1)  # 没把 kwargs 传进来，因此 外面的 is_end = 1 不会进来，也就不会 使加黑边 为 末尾
+
 
 # %%
 # 需要先将 目标 U_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix_structure, Iy_structure 相同，才能开始 之后的工作
@@ -146,7 +158,7 @@ def img_squared_Resize(img_full_name, img_squared,
         = Info_img(img_full_name)
 
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "图片裁剪")
-    kwargs.pop("is_end", 0) # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", 0)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
     img_squared_resize = cv2.resize(img_squared, (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA)
     img_squared_resize_full_name = "1. " + img_name + "_squared" + "_resize" + img_name_extension

@@ -99,6 +99,11 @@ def SFG_SSF_SSI(U_name="",
                 Gz_max_Enhance=1, match_mode=1,
                 # %%
                 **kwargs, ):
+    # %%
+    if_image_Add_black_border(U_name, img_full_name,
+                              __name__ == "__main__", is_print, **kwargs, )
+
+    # %%
     ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
     if ray_tag == "f":
         U2_name = kwargs.get("U2_name", U_name)
@@ -126,13 +131,10 @@ def SFG_SSF_SSI(U_name="",
         T2 = kwargs.get("T2", T)
         polar2 = kwargs.get("polar2", 'e')
         # %%
+        pump2_keys = kwargs["pump2_keys"]
+        # %%
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
-
-    # %%
-
-    if_image_Add_black_border(U_name, img_full_name,
-                              __name__ == "__main__", is_print, **kwargs, )
 
     # %%
 
@@ -216,8 +218,12 @@ def SFG_SSF_SSI(U_name="",
 
     # %%
 
+    if ray_tag == "f":
+        for key in pump2_keys:
+            kwargs[key] = locals()[key]
+            kwargs["pump2_keys"] = locals()["pump2_keys"]
     n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-    dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+    theta3_x, theta3_y, L0_Crystal, deff_structure_length_expect, dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0_structure, g_shift_structure, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
         = structure_chi2_Generate_2D(U_name_Structure,
@@ -259,8 +265,16 @@ def SFG_SSF_SSI(U_name="",
                                      is_colorbar_on, is_energy,
                                      # %%
                                      is_print,
+                                     # %% --------------------- for Info_find_contours_SHG
+                                     deff_structure_length_expect,
+                                     is_contours, n_TzQ,
+                                     Gz_max_Enhance, match_mode,
+                                     L0_Crystal=L0_Crystal, g_shift=g_shift,
                                      # %%
                                      **kwargs, )
+    if ray_tag == "f":
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
     L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
                                                                           L0_Crystal, size_PerPixel,
@@ -582,7 +596,7 @@ if __name__ == '__main__':
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
-         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
+         "is_LG": 0, "is_Gauss": 1, "is_OAM": 0,
          "l": 0, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
@@ -611,7 +625,7 @@ if __name__ == '__main__':
          "is_bulk": 0, "is_no_backgroud": 0,
          "is_stored": 0, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
          # %%
-         "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam1": 1, "is_air_pump": 0, "is_air": 2, "T": 25,
          "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
          "deff": 30,
          # %%
@@ -656,8 +670,8 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "gamma_y": 90, "polar": "e",
-         "ray": "2", "polar3": "e",
+         "gamma_x": 45, "polar": "o",
+         "ray": "3", "polar3": "o",
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1

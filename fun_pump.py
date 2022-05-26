@@ -26,7 +26,7 @@ def HG_without_Gauss_profile(Ix=0, Iy=0, size_PerPixel=0.77,
                              m=1, n=0,
                              theta_x=1, theta_y=0, ):
     mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy,
-                                    theta_x, theta_y)
+                                    )
 
     C_HG_mn = 1
     x, y = 2 ** 0.5 * mesh_Ix0_Iy0_shift[:, :, 0] * size_PerPixel / w0, \
@@ -145,13 +145,28 @@ def OAM_profile_G(Ix=0, Iy=0,
 def incline_profile(Ix=0, Iy=0,
                     U=0, k_inc=0,
                     theta_x=1, theta_y=0, ):
+    theta_y = - theta_y  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
     # 在空气中 倾斜，还是 在晶体中 倾斜，取决于 k 中的 n 是空气 还是 晶体的 折射率：
     # 同样的 倾角，n 不同，则积累的 空域 倾斜相位 梯度 不同
     # 其中 k 是 k 或 k_nxny，其正中 是 倒空间 正中
     # 各向异性晶体 中 积累的 倾斜相位 其实 也应是 各向异性的，这里做不到；似乎实际上 也做不到在晶体从倾斜：溯源都可归结到 在空气中倾斜
     # if type(k) != float and type(k) != np.float64 and type(k) != int:  # 如果 是 array，则 只取中心级 的 k
     #     k = k[Iy // 2, Ix // 2]  # 取中心级 的 k
-    Kx, Ky = k_inc * np.sin(theta_x / 180 * math.pi), k_inc * np.sin(theta_y / 180 * math.pi)
+    # %%
+    theta_x = theta_x / 180 * math.pi
+    theta_y = theta_y / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
+    # # %%  现实：无论先转 theta_x 还是先转 theta_y
+    # kz = k_inc * math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小
+    # # %%  现实：先转 theta_x 再转 theta_y
+    # ky = k_inc * math.cos(theta_x) * math.sin(theta_y)
+    # kx = k_inc * math.sin(theta_x)
+    # # %%  现实：先转 theta_y 再转 theta_x
+    # ky = k_inc * math.sin(theta_y)
+    # kx = k_inc * math.sin(theta_x) * math.cos(theta_y)
+    # return kx, ky, kz
+    # %%  非现实
+    Kx, Ky = k_inc * np.sin(theta_x), k_inc * np.sin(theta_y)
+    # %%
     # 但这个 k 其实 只是 中心 k；或者说，上述 隐含了 球面 折射率 方程...
     # 椭球的话，kx,ky 的关系似乎得用 tan，但 tan 只在小角有效；45 度 就 1:1 了，也不对
     # Kx, Ky = k * np.tan(theta_x / 180 * math.pi), k * np.tan(theta_y / 180 * math.pi)

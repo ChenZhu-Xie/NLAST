@@ -11,10 +11,9 @@ import math
 import numpy as np
 from fun_os import U_dir, U_amp_plot_save
 from fun_global_var import Get, tree_print
-from fun_plot import plot_2d
 from fun_pump import pump_pic_or_U_structure
-from fun_linear import init_AST, init_SFG, fft2
-from fun_nonlinear import args_SFG
+from fun_linear import init_AST, fft2
+from fun_nonlinear import args_SFG, accurate_args_SFG
 
 
 # %%
@@ -40,7 +39,7 @@ def CGH(U, mode,
         is_Gauss, l,
         is_continuous, ):
     i1_x0, i1_y0 = np.meshgrid(range(U.shape[1]), range(U.shape[0]))
-    i1_x0_shift, i1_y0_shift = i1_x0 - U.shape[0] // 2, i1_y0 - U.shape[1] // 2
+    i1_x0_shift, i1_y0_shift = i1_x0 - U.shape[1] // 2, i1_y0 - U.shape[0] // 2
 
     def args_CGH(mode, ):
         return [cgh, mode,
@@ -188,8 +187,13 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                is_colorbar_on=1, is_energy=0,
                                # %%
                                is_print=1,
+                               # %% --------------------- for Info_find_contours_SHG
+                               deff_structure_length_expect=1,
+                               is_contours=1, n_TzQ=1,
+                               Gz_max_Enhance=1, match_mode=1,
                                # %%
                                **kwargs, ):
+    # print(kwargs)
     lam_structure = kwargs.get("lam_structure", lam1)
     T_structure = kwargs.get("T_structure", T)
     kwargs.pop("lam_structure", None)
@@ -197,19 +201,18 @@ def structure_chi2_Generate_2D(U_structure_name="",
     lam_structure = lam1  # 懒得搞 去管 lam_structure 的赋值了
     T_structure = T  # 懒得搞 去管 T 的赋值了
     # %%
+    theta2_x = kwargs.get("theta2_x", theta_x)
+    theta2_y = kwargs.get("theta2_y", theta_y)
+    lam2 = kwargs.get("lam2", lam1)
+    polar2 = kwargs.get("polar2", 'e')
+    # %%
     ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
     if ray_tag == "f":
-        theta2_x = kwargs.get("theta2_x", theta_x)
-        theta2_y = kwargs.get("theta2_y", theta_y)
-        # %%
-        lam2 = kwargs.get("lam2", lam1)
-        polar2 = kwargs.get("polar2", 'e')
-        # %%
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
     # %%
-    
+
     # %%
     info = "χ2_2D_横向绘制"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -273,16 +276,32 @@ def structure_chi2_Generate_2D(U_structure_name="",
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
-                                                         lam1, is_air, T,
-                                                         theta_x, theta_y,
-                                                         lam2=lam2, **kwargs)
+    # import inspect
+    # if inspect.stack()[1][3] == "structure_chi2_3D":
+    # elif inspect.stack()[1][3] == "SFG_NLA_SSI" or inspect.stack()[1][3] == "SFG_SSF_SSI":
+    # else:
 
+    g_shift = kwargs["g_shift"] if "g_shift" in kwargs else g_shift_structure
+    z0 = kwargs["L0_Crystal"] if "L0_Crystal" in kwargs else deff_structure_length_expect
+    kwargs.pop("g_shift", None)
+    kwargs.pop("L0_Crystal", None)
+
+    theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, k2_inc=k2_inc, is_end=1, )
+    Gx, Gy, Gz, \
+    z0_recommend, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
+                                                                       lam1, lam2, is_air, T,
+                                                                       k1_inc, k2_inc,
+                                                                       g_shift, k1_z,
+                                                                       z0, deff_structure_length_expect,
+                                                                       mx, my, mz,
+                                                                       Tx, Ty, Tz,
+                                                                       is_contours, n_TzQ,
+                                                                       Gz_max_Enhance, match_mode,
+                                                                       is_print,
+                                                                       theta_x, theta2_x,
+                                                                       theta_y, theta2_y,
+                                                                       **kwargs)
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = 1 - is_no_backgroud - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
@@ -421,7 +440,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                     suffix="", **kwargs, )
 
     return n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-           dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+           theta3_x, theta3_y, z0_recommend, deff_structure_length_expect, dk, lc, Tz, Gx, Gy, Gz, folder_address, \
            size_PerPixel, U_0_structure, g_shift_structure, \
            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
 
@@ -474,7 +493,7 @@ def structure_nonrect_chi2_Generate_2D(z_pump=0,
     # %%  只提供 Gx, Gy 给自己
 
     Gx, Gy = Get("Gx"), Get("Gy")
-    
+
     # %%
 
     n_inc, n, k_inc, k = Cal_n(Get("size_PerPixel"),
@@ -722,6 +741,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                                                    theta_x, theta_y,
                                                    **kwargs)
 
+    from fun_nonlinear import init_SFG
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
                                                          theta_x, theta_y,
@@ -923,7 +943,7 @@ def structure_nonrect_n1_Generate_2D(z_pump=0,
     # %%  只提供 Gx, Gy 给自己
 
     Gx, Gy = Get("Gx"), Get("Gy")
-    
+
     # %%
 
     n_inc, n, k_inc, k = Cal_n(Get("size_PerPixel"),

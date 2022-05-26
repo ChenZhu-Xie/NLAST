@@ -19,8 +19,8 @@ def mesh_shift(Ix, Iy, *args):
     # print(len(arg))
     if len(args) >= 2: # 确保 额外 传入了 theta_x, theta_y 两个参数
     
-        theta_x = args[0]
-        theta_y = args[1]
+        theta_x = args[0] / 180 * math.pi
+        theta_y = - args[1] / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
         
         # print(mesh_nx_ny_shift[:, :, 0])
         # print(type(mesh_nx_ny_shift[0,0,0]))
@@ -35,8 +35,11 @@ def mesh_shift(Ix, Iy, *args):
         # 而且 这里是 对数组 array 的 切片，不是 对 list 的；对 list 的 切片还是 list，然而 list 相当于 labview 的 簇，不能乘以 非整数，
         # 但 list 乘以 整数 也不是 每个元素 都乘以 整数，而是 将其 复制 几份后 并加入原来的 List
         
-        mesh_nx_ny_shift = np.dstack((mesh_nx_ny_shift[:, :, 0] * np.cos(theta_x / 180 * math.pi), mesh_nx_ny_shift[:, :, 1] * np.cos(theta_y / 180 * math.pi)))
-    
+        mesh_nx_ny_shift = np.dstack((mesh_nx_ny_shift[:, :, 0] * np.cos(theta_x), mesh_nx_ny_shift[:, :, 1] * np.cos(theta_y)))
+    #  nx[y, x] 和 mesh_nx_ny_shift[:, :, 0][y, x] 均只与 x（列） 有关，但向右是增
+    #  ny[y, x] 和 mesh_nx_ny_shift[:, :, 1][y, x] 均只与 y（行） 有关，但向下是增
+    #  所以 与 图片 or 电脑 坐标系 是 共用同一个 坐标系的
+    #  因此 该 mesh 可直接与 g 相乘，并 帮 g 规定了 横是 x， 纵是 y，且 y 朝下
     return mesh_nx_ny_shift
 
 #%%

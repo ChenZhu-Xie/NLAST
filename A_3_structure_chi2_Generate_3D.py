@@ -83,9 +83,14 @@ def structure_chi2_3D(U_name="",
     kwargs.pop("is_end", None);
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
     # %%
+    # 提供描边信息，并覆盖值
+
+    # 这里 传 deff_structure_length_expect 进去 而不是 z0，是有问题的，导致只有 周期 Tz 能与 NLA_SSI 保持一致，长度并不能，
+    # 这样若 deff_structure_length_expect < NLA_SSI 中的 z0 则 无法读取到 > deff_structure_length_expect 的 结构，只能手动在 A_to_B_3_NLA_SSI 中设置 deff_structure_length_expect 比 z0 大
+    # 并不打算改这一点，因为否则的话，需要向这个函数传入一个参数，而这个参数却是之后要引用的函数 NLA_SSI 才能给出的，违反了 因果律
 
     n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-    dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+    theta3_x, theta3_y, z0_recommend, deff_structure_length_expect, dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0, g_shift, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
         = structure_chi2_Generate_2D(U_name,
@@ -128,26 +133,15 @@ def structure_chi2_3D(U_name="",
                                      is_colorbar_on, is_energy,
                                      # %%
                                      is_print,
+                                     # %% --------------------- for Info_find_contours_SHG
+                                     deff_structure_length_expect,
+                                     is_contours, n_TzQ,
+                                     Gz_max_Enhance, match_mode,
                                      # %%
                                      **kwargs, )
-
-    # %%
-    # 提供描边信息，并覆盖值
-
-    # 这里 传 deff_structure_length_expect 进去 而不是 z0，是有问题的，导致只有 周期 Tz 能与 NLA_SSI 保持一致，长度并不能，
-    # 这样若 deff_structure_length_expect < NLA_SSI 中的 z0 则 无法读取到 > deff_structure_length_expect 的 结构，只能手动在 A_to_B_3_NLA_SSI 中设置 deff_structure_length_expect 比 z0 大
-    # 并不打算改这一点，因为否则的话，需要向这个函数传入一个参数，而这个参数却是之后要引用的函数 NLA_SSI 才能给出的，违反了 因果律
-
-    if "g_shift" in kwargs:
-        g_shift = kwargs["g_shift"]
-
-    z0 = kwargs["L0_Crystal"] if "L0_Crystal" in kwargs else deff_structure_length_expect
-    z0_recommend, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
-                                                                            z0, size_PerPixel,
-                                                                            deff_structure_length_expect,
-                                                                            is_print, is_contours, n_TzQ,
-                                                                            Gz_max_Enhance,
-                                                                            match_mode, )
+    if kwargs.get('ray', "2") == "3":
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸

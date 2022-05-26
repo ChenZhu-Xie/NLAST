@@ -28,8 +28,8 @@ def find_Kxyz(g, k):
     g_energy = np.sum(np.abs(g)**2)
     k_xyz_weight = np.abs(g)**2 / g_energy
     K_z = np.sum(k_xyz_weight * k_z)  #  g 点阵 的 坐标系 与 k_z 的 相同么 ？
-    K_y, K_x = np.sum(k_xyz_weight * mesh_k_x_k_y[:,:,0]), np.sum(k_xyz_weight * mesh_k_x_k_y[:,:,1])
-    return K_z, (K_y, K_x)
+    K_x, K_y = np.sum(k_xyz_weight * mesh_k_x_k_y[:,:,0]), np.sum(k_xyz_weight * mesh_k_x_k_y[:,:,1])
+    return K_z, (K_x, K_y)
 
 def find_data_1d_level(data_1d, level_percentage):
     data_covered_num = math.ceil(len(data_1d) * level_percentage) # 向上取整 以覆盖比 level_percentage 范围 更大的 数据

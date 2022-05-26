@@ -99,6 +99,11 @@ def SFG_NLA_SSI(U_name="",
                 Gz_max_Enhance=1, match_mode=1,
                 # %%
                 **kwargs, ):
+    # %%
+    if_image_Add_black_border(U_name, img_full_name,
+                              __name__ == "__main__", is_print, **kwargs, )
+
+    # %%
     ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
     if ray_tag == "f":
         U2_name = kwargs.get("U2_name", U_name)
@@ -126,13 +131,10 @@ def SFG_NLA_SSI(U_name="",
         T2 = kwargs.get("T2", T)
         polar2 = kwargs.get("polar2", 'e')
         # %%
+        pump2_keys = kwargs["pump2_keys"]
+        # %%
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
-
-    # %%
-
-    if_image_Add_black_border(U_name, img_full_name,
-                              __name__ == "__main__", is_print, **kwargs, )
 
     # %%
 
@@ -216,8 +218,12 @@ def SFG_NLA_SSI(U_name="",
 
     # %%
 
+    if ray_tag == "f":
+        for key in pump2_keys:
+            kwargs[key] = locals()[key]
+            kwargs["pump2_keys"] = locals()["pump2_keys"]
     n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-    dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+    theta3_x, theta3_y, L0_Crystal, deff_structure_length_expect, dk, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0_structure, g_shift_structure, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
         = structure_chi2_Generate_2D(U_name_Structure,
@@ -259,8 +265,16 @@ def SFG_NLA_SSI(U_name="",
                                      is_colorbar_on, is_energy,
                                      # %%
                                      is_print,
+                                     # %% --------------------- for Info_find_contours_SHG
+                                     deff_structure_length_expect,
+                                     is_contours, n_TzQ,
+                                     Gz_max_Enhance, match_mode,
+                                     L0_Crystal=L0_Crystal, g_shift=g_shift,
                                      # %%
                                      **kwargs, )
+    if ray_tag == "f":
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
     # %%
 

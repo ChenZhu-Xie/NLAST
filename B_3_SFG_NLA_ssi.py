@@ -14,8 +14,8 @@ from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_ssi
-from fun_linear import init_AST, init_SFG, fft2, ifft2
-from fun_nonlinear import args_SFG, Info_find_contours_SHG, G3_z_modulation_NLAST
+from fun_linear import init_AST, fft2, ifft2
+from fun_nonlinear import accurate_args_SFG, Info_find_contours_SHG, G3_z_modulation_NLAST
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
@@ -80,6 +80,11 @@ def SFG_NLA_ssi(U_name="",
                 Gz_max_Enhance=1, match_mode=1,
                 # %%
                 **kwargs, ):
+    # %%
+    if_image_Add_black_border(U_name, img_full_name,
+                              __name__ == "__main__", is_print, **kwargs, )
+
+    # %%
     ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
     if ray_tag == "f":
         U2_name = kwargs.get("U2_name", U_name)
@@ -107,13 +112,10 @@ def SFG_NLA_ssi(U_name="",
         T2 = kwargs.get("T2", T)
         polar2 = kwargs.get("polar2", 'e')
         # %%
+        pump2_keys = kwargs["pump2_keys"]
+        # %%
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
-
-    # %%
-
-    if_image_Add_black_border(U_name, img_full_name,
-                              __name__ == "__main__", is_print, **kwargs, )
 
     # %%
 
@@ -164,34 +166,34 @@ def SFG_NLA_ssi(U_name="",
     if ray_tag == "f":
         from fun_pump import pump_pic_or_U2
         U2_0, g2 = pump_pic_or_U2(U2_name,
-                                img2_full_name,
-                                is_phase_only_2,
-                                # %%
-                                z_pump2,
-                                is_LG_2, is_Gauss_2, is_OAM_2,
-                                l2, p2,
-                                theta2_x, theta2_y,
-                                # %%
-                                is_random_phase_2,
-                                is_H_l2, is_H_theta2, is_H_random_phase_2,
-                                # %%
-                                U_NonZero_size, w0_2,
-                                # %%
-                                lam2, is_air_pump, T,
-                                polar2,
-                                # %%
-                                is_save, is_save_txt, dpi,
-                                # %%
-                                ticks_num, is_contourf,
-                                is_title_on, is_axes_on, is_mm,
-                                # %%
-                                fontsize, font,
-                                # %%
-                                is_colorbar_on, is_energy,
-                                # %%
-                                is_print,
-                                # %%
-                                ray_pump='2', **kwargs, )
+                                  img2_full_name,
+                                  is_phase_only_2,
+                                  # %%
+                                  z_pump2,
+                                  is_LG_2, is_Gauss_2, is_OAM_2,
+                                  l2, p2,
+                                  theta2_x, theta2_y,
+                                  # %%
+                                  is_random_phase_2,
+                                  is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                  # %%
+                                  U_NonZero_size, w0_2,
+                                  # %%
+                                  lam2, is_air_pump, T,
+                                  polar2,
+                                  # %%
+                                  is_save, is_save_txt, dpi,
+                                  # %%
+                                  ticks_num, is_contourf,
+                                  is_title_on, is_axes_on, is_mm,
+                                  # %%
+                                  fontsize, font,
+                                  # %%
+                                  is_colorbar_on, is_energy,
+                                  # %%
+                                  is_print,
+                                  # %%
+                                  ray_pump='2', **kwargs, )
     else:
         U2_0, g2 = U_0, g_shift
 
@@ -210,22 +212,22 @@ def SFG_NLA_ssi(U_name="",
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
-                                                         lam1, is_air, T,
-                                                         theta_x, theta_y,
-                                                         lam2=lam2, **kwargs)
-
+    theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, k2_inc=k2_inc, )
-
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
-                                                                          L0_Crystal, size_PerPixel,
-                                                                          deff_structure_length_expect,
-                                                                          is_print, is_contours, n_TzQ, Gz_max_Enhance,
-                                                                          match_mode, )
+    Gx, Gy, Gz, \
+    L0_Crystal, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
+                                                                     lam1, lam2, is_air, T,
+                                                                     k1_inc, k2_inc,
+                                                                     g_shift, k1_z,
+                                                                     L0_Crystal, deff_structure_length_expect,
+                                                                     mx, my, mz,
+                                                                     Tx, Ty, Tz,
+                                                                     is_contours, n_TzQ,
+                                                                     Gz_max_Enhance, match_mode,
+                                                                     is_print,
+                                                                     theta_x, theta2_x,
+                                                                     theta_y, theta2_y,
+                                                                     **kwargs)
 
     # %%
 
