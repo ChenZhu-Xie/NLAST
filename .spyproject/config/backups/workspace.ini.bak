@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['C:\\Users\\Xcz\\.spyder-py3\\temp.py', 'b_3_SFG_NLA.py', 'B_3_SFG_SSF_SSI_chi2.py', 'fun_CGH.py']
+recent_files = ['b_3_SFG_NLA.py', 'fun_linear.py']
 
 [main]
 version = 0.2.0

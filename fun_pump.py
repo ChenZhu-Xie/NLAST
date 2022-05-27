@@ -152,28 +152,34 @@ def incline_profile(Ix=0, Iy=0,
     # 各向异性晶体 中 积累的 倾斜相位 其实 也应是 各向异性的，这里做不到；似乎实际上 也做不到在晶体从倾斜：溯源都可归结到 在空气中倾斜
     # if type(k) != float and type(k) != np.float64 and type(k) != int:  # 如果 是 array，则 只取中心级 的 k
     #     k = k[Iy // 2, Ix // 2]  # 取中心级 的 k
-    # %%
     theta_x = theta_x / 180 * math.pi
     theta_y = theta_y / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
-    # # %%  现实：无论先转 theta_x 还是先转 theta_y
-    # kz = k_inc * math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小
-    # # %%  现实：先转 theta_x 再转 theta_y
-    # ky = k_inc * math.cos(theta_x) * math.sin(theta_y)
-    # kx = k_inc * math.sin(theta_x)
-    # # %%  现实：先转 theta_y 再转 theta_x
+    # %%  球面三角（xz 面 + yz 面，二者的 法向 相对于 z 轴 的 偏角）
+    # %%  现实：无论先转 theta_x 还是先转 theta_y
+    kz = k_inc * math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小
+    # %%  现实 1：先转 theta_x 再转 theta_y
+    ky = k_inc * math.cos(theta_x) * math.sin(theta_y)
+    kx = k_inc * math.sin(theta_x)
+    # %%  现实 2：先转 theta_y 再转 theta_x
     # ky = k_inc * math.sin(theta_y)
     # kx = k_inc * math.sin(theta_x) * math.cos(theta_y)
-    # return kx, ky, kz
-    # %%  非现实
-    Kx, Ky = k_inc * np.sin(theta_x), k_inc * np.sin(theta_y)
+    # %%  非现实（实际上 直接规定 kx,ky，导致 kz 可能为负...，因此不可归一化，何况也不是正交的）
+    # kx, ky = k_inc * np.sin(theta_x), k_inc * np.sin(theta_y)
+    # kz = (k_inc ** 2 - kx ** 2 - ky ** 2) ** 0.5
     # %%
     # 但这个 k 其实 只是 中心 k；或者说，上述 隐含了 球面 折射率 方程...
     # 椭球的话，kx,ky 的关系似乎得用 tan，但 tan 只在小角有效；45 度 就 1:1 了，也不对
-    # Kx, Ky = k * np.tan(theta_x / 180 * math.pi), k * np.tan(theta_y / 180 * math.pi)
+    # kx, ky = k * np.tan(theta_x), k * np.tan(theta_y)
+    # %%  球坐标系（需借助 上述的 kx, ky, kz 以得到 极角 theta、方位角 phi）
+    # kx = k_inc * math.sin(theta) * math.cos(phi)  # 球作标系 转 直角坐标，恰好 完全与 球面三角法 相反
+    # ky = k_inc * math.sin(theta) * math.sin(phi)  # 原因是 轴 - 面内 的 2 个 角，即 极角 - 方位角
+    # kz = k_inc * math.cos(theta)  #  极角 = 90⁰ - 面-面 夹角、方位角 = 面-面 夹角
+    # 即 theta = 90⁰ - theta_x，phi = theta_y 对应 先转 theta_x 再转 theta_y，且 kx, ky, kz 对应 kz, ky, kx
+    # 即 theta = 90⁰ - theta_y，phi = theta_x 对应 先转 theta_y 再转 theta_x，且 kx, ky, kz 对应 kz, kx, ky
 
     mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
     # k_shift = (k**2 - Kx**2 - Ky**2 + 0j )**0.5
-    U = U * np.power(math.e, (Kx * mesh_Ix0_Iy0_shift[:, :, 0] + Ky * mesh_Ix0_Iy0_shift[:, :, 1]) * 1j)
+    U = U * np.power(math.e, (kx * mesh_Ix0_Iy0_shift[:, :, 0] + ky * mesh_Ix0_Iy0_shift[:, :, 1]) * 1j)
 
     return U
 

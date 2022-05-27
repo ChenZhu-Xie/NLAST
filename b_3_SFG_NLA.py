@@ -462,7 +462,7 @@ if __name__ == '__main__':
          "U_NonZero_size": 0.9, "w0": 0.3,
          "z0": 5,
          # %%
-         "lam1": 1.064, "is_air_pump": 0, "is_air": 2, "T": 25,
+         "lam1": 1.064, "is_air_pump": 0, "is_air": 2, "T": 50,
          "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
@@ -500,7 +500,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "gamma_x": 68, "polar": "o",
+         "gamma_x": 90, "polar": "o",
          "ray": "3", "polar3": "o",
          }
 
@@ -520,7 +520,7 @@ if __name__ == '__main__':
             # %%
             "w0_2": 0.3,
             # %%
-            "lam2": 1.064, "is_air_pump2": 0, "T2": 25,
+            "lam2": 1.064, "is_air_pump2": 0, "T2": 40,
             "polar2": 'e',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})

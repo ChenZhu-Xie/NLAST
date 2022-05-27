@@ -143,22 +143,29 @@ def gan_k_vector(k_inc, theta_x, theta_y, ):
     # theta2_y = - theta2_y 这里只需保证用 标准笛卡尔坐标系下的 theta_y 和 theta2_y 生成 同样笛卡尔坐标系下的 theta3_y 即可
     theta_x = theta_x / 180 * math.pi
     theta_y = theta_y / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
-    # # %%  现实：无论先转 theta_x 还是先转 theta_y
-    # kz = k_inc * math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小
-    # # %%  现实：先转 theta_x 再转 theta_y
-    # ky = k_inc * math.cos(theta_x) * math.sin(theta_y)
-    # kx = k_inc * math.sin(theta_x)
-    # # %%  现实：先转 theta_y 再转 theta_x
+    # %%  球面三角（xz 面 + yz 面，二者的 法向 相对于 z 轴 的 偏角）
+    # %%  现实：无论先转 theta_x 还是先转 theta_y
+    kz = k_inc * math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小
+    # %%  现实 1：先转 theta_x 再转 theta_y
+    ky = k_inc * math.cos(theta_x) * math.sin(theta_y)
+    kx = k_inc * math.sin(theta_x)
+    # %%  现实 2：先转 theta_y 再转 theta_x
     # ky = k_inc * math.sin(theta_y)
     # kx = k_inc * math.sin(theta_x) * math.cos(theta_y)
-    # return kx, ky, kz
-    # %%  非现实
-    Kx, Ky = k_inc * np.sin(theta_x), k_inc * np.sin(theta_y)
-    Kz = k_inc ** 2 - Kx ** 2 - Ky ** 2
+    # %%  非现实（实际上 直接规定 kx,ky，导致 kz 可能为负...，因此不可归一化，何况也不是正交的）
+    # kx, ky = k_inc * np.sin(theta_x), k_inc * np.sin(theta_y)
+    # kz = (k_inc ** 2 - kx ** 2 - ky ** 2) ** 0.5
     # 实际的 kx, ky, kz 只能通过 K_z, (K_x, K_y) = find_Kxyz(g, k) 来得到
     # 但其实 更实际地， k_x, k_y 是 多值的，尽管 k_z 在大部分情况下，可以被视为 单值的
     # 所以不必搞 “那么” 实际，以致于 连 find_Kxyz 都不必用上
-    return Kx, Ky, Kz
+    # %%  球坐标系（需借助 上述的 kx, ky, kz 以得到 极角 theta、方位角 phi）
+    # kx = k_inc * math.sin(theta) * math.cos(phi)  # 球作标系 转 直角坐标，恰好 完全与 球面三角法 相反
+    # ky = k_inc * math.sin(theta) * math.sin(phi)  # 原因是 轴 - 面内 的 2 个 角，即 极角 - 方位角
+    # kz = k_inc * math.cos(theta)  #  极角 = 90⁰ - 面-面 夹角、方位角 = 面-面 夹角
+    # 即 theta = 90⁰ - theta_x，phi = theta_y 对应 先转 theta_x 再转 theta_y，且 kx, ky, kz 对应 kz, ky, kx
+    # 即 theta = 90⁰ - theta_y，phi = theta_x 对应 先转 theta_y 再转 theta_x，且 kx, ky, kz 对应 kz, kx, ky
+    # %%
+    return kx, ky, kz
 
 
 def gan_k3_vector(k1_inc, theta1_x, theta1_y,
@@ -170,7 +177,7 @@ def gan_k3_vector(k1_inc, theta1_x, theta1_y,
     # 但其中 Gz 的正确性 值得怀疑：因为 如若 Tz = 0，即匹配的情况下 算出的 Gz，是在 不精确的 theta3_x, theta3_y 情况下 算出的
     # 而真实的 theta3_x, theta3_y 还尚未得到；但其得到途径又需要 Gz... 准确的说是需要 k3_inc，因此需要 另辟蹊径 地找 可信赖的 k3_inc 源
     # 如若 Tz != 0，或 mz = 0，则 Gz 的 来源 只取决于 mz, Tz，因此 只要 Tz 准， k3_z_on_Gz、 k3_inc_on_Gz 就是准的
-    k3_inc_on_Gz = k3_x ** 2 + k3_y ** 2 + k3_z_on_Gz ** 2
+    k3_inc_on_Gz = (k3_x ** 2 + k3_y ** 2 + k3_z_on_Gz ** 2) ** 0.5
     return k3_x, k3_y, k3_z_on_Gz, k3_inc_on_Gz
 
 

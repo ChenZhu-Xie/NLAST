@@ -31,7 +31,7 @@ def LN_n(lam, T, p="e"):
 
 # %%
 
-def KTP_n(lam, T, p="z"):
+def KTP_n_old(lam, T, p="z"):
     if p == "z" or p == "e" or p == "c":
         a = [0, 3.3134, 0.05694, 0.05657, 0, 0, 0.01682]
         b = [0, -1.1327e-7, 1.673e-7, -1.601e-8, 5.2833e-8]
@@ -46,14 +46,36 @@ def KTP_n(lam, T, p="z"):
     n = math.sqrt(a[1] + b[1] * F + (a[2] + b[2] * F) / (lam ** 2 - a[3] + b[3] * F) - (a[6] + b[4] * F) * lam ** 2)
     return n
 
+def KTP_n(lam, T, p="z"):
+    if p == "z" or p == "e" or p == "c":
+        a = [0, 4.59423, 0.06206, 0.04763, 110.80672, 86.12171]
+        if lam < 1.57:
+            b = [0, 0.9221, -2.9220, 3.6677, -0.1897]  # lam = 0.53 ~ 1.57
+        else:
+            b = [0, -0.5523, 3.3920, -1.7101, 0.3424]  # lam = 1.32 ~ 3.53
+    elif p == "y" or p == "o" or p == "b":
+        a = [0, 3.45018, 0.04341, 0.04597, 16.98825, 39.43799]
+        b = [0, 0.1997, -0.4063, 0.5154, 0.5425]  # lam = 0.43 ~ 1.58
+    # elif p == "x" or p == "a":
+    else:
+        a = [0, 3.29100, 0.04140, 0.03978, 9.35522, 31.45571]
+        b = [0, 0.1717, -0.5353, 0.8416, 0.1627]  # lam = 0.43 ~ 1.58
+    n_T20 = math.sqrt(a[1] + a[2] / (lam ** 2 - a[3]) + a[4] / (lam ** 2 - a[5]))
+    if lam < 1.57:
+        dn_dT = (b[1] / lam ** 3 + b[2] / lam ** 2 + b[3] / lam + b[4]) * 1e-5
+    elif p == "z" or p == "e" or p == "c":
+        dn_dT = (b[1] / lam + b[2] + b[3] * lam + b[4] * lam ** 2) * 1e-5
+    n = n_T20 + dn_dT * (T-20)
+    return n
 
-lam = 1
+
+lam = 1.064/2
 T = 25
 # print("LN_ne = {}".format(LN_n(lam, T, "e")))
 # print("LN_no = {}".format(LN_n(lam, T, "o")))
-print("KTP_nz = {}".format(KTP_n(lam, T, "z")))
-print("KTP_ny = {}".format(KTP_n(lam, T, "y")))
-print("KTP_nx = {}".format(KTP_n(lam, T, "x")))
+# print("KTP_nz = {}".format(KTP_n(lam, T, "z")))
+# print("KTP_ny = {}".format(KTP_n(lam, T, "y")))
+# print("KTP_nx = {}".format(KTP_n(lam, T, "x")))
 # print("KTP_ne = {}".format(KTP_n(lam, T, "e")))
 # print("KTP_no = {}".format(KTP_n(lam, T, "o")))
 
@@ -79,9 +101,11 @@ def Cal_n(size_PerPixel,
     from fun_global_var import Get
     if is_air != 1 and (p == "z" or p == "e" or p == "c") and ("gamma_x" in kwargs or "gamma_y" in kwargs):
 
-        n_c = get_n(is_air, lam, T, "c")  # n_e, n_p
-        # n_b = get_n(is_air, lam, T, "b")  # n_o, n_s
-        n_a = get_n(is_air, lam, T, "a")  # n_a
+        n_p = get_n(is_air, lam, T, "c")  # n_e, n_z
+        if is_air == 1:  # 如果是 LN
+            n_s = get_n(is_air, lam, T, "b")  # n_o, n_y
+        else:  # 如果是 KTP
+            n_s = get_n(is_air, lam, T, "a")  # n_x
 
         Ix = kwargs["Ix_structure"] if "Ix_structure" in kwargs else Get("Ix")  # 可能会有 Ix =   从 kwargs 里传进来
         Iy = kwargs["Iy_structure"] if "Iy_structure" in kwargs else Get("Iy")  # 可能会有 Iy = Iy_structure 从 kwargs 里传进来
@@ -111,7 +135,8 @@ def Cal_n(size_PerPixel,
             # θ<k,c> = θ<k,propa> - θ<c,propa>
             mesh = mesh_kx_ky_shift[:, :, 1]
 
-        n = 1 / (np.sin(alpha) ** 2 / n_c ** 2 + np.cos(alpha) ** 2 / n_a ** 2) ** 0.5
+        # print(alpha / math.pi * 180)
+        n = 1 / (np.sin(alpha) ** 2 / n_p ** 2 + np.cos(alpha) ** 2 / n_s ** 2) ** 0.5
         k = 2 * math.pi * size_PerPixel / (lam / 1000 / n)  # 先得到 中心波矢（图正中 方向） 大小
 
         sin_Alpha_nxny = mesh / k  # 注意 是 kx,ky 或 nx,ny 的 函数
@@ -119,11 +144,11 @@ def Cal_n(size_PerPixel,
         Alpha_nxny = np.arcsin(sin_Alpha_nxny)  # θ<k_small,k>
         # print(Alpha_nxny[0], Alpha_nxny[1])
         alpha_nxny = Alpha_nxny + alpha  # θ<k_small,c> = θ<k_small,k> + θ<k,c>
-        n_nxny = 1 / (np.sin(alpha_nxny) ** 2 / n_c ** 2 + np.cos(alpha_nxny) ** 2 / n_a ** 2) ** 0.5
+        n_nxny = 1 / (np.sin(alpha_nxny) ** 2 / n_p ** 2 + np.cos(alpha_nxny) ** 2 / n_s ** 2) ** 0.5
         k_nxny = 2 * math.pi * size_PerPixel / (lam / 1000 / n_nxny)  # 不仅 kz，连 k 现在 都是个 椭球面了
         # Set("k_" + str(k).split('.')[-1], k_nxny) # 用值 来做名字：k 的 值 的 小数点 后的 nums 做为 str ！
 
-        n_inc = 1 / (np.sin(alpha_inc) ** 2 / n_c ** 2 + np.cos(alpha_inc) ** 2 / n_a ** 2) ** 0.5
+        n_inc = 1 / (np.sin(alpha_inc) ** 2 / n_p ** 2 + np.cos(alpha_inc) ** 2 / n_s ** 2) ** 0.5
         # 基波 传播方向 上 的 折射率
         k_inc = 2 * math.pi * size_PerPixel / (lam / 1000 / n_inc)  # 后得到 中心波矢（基波 传播方向 上） 大小
     else:
