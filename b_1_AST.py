@@ -151,7 +151,7 @@ if __name__ == '__main__':
          "U_NonZero_size": 1, "w0": 0.1,
          "z0": 1,
          # %%
-         "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam1": 0.8, "is_air_pump": 1, "is_air": 0, "T": 25,
          # %%
          "is_save": 1, "is_save_txt": 0, "dpi": 100,
          # %%
@@ -174,7 +174,8 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "gamma_y": 90, "polar": "e",
+         "theta_z": 90, "phi_z": 22.5, "phi_c": 22.5,
+         "polar": "e",
          "ray": "1",
          }
 

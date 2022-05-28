@@ -334,7 +334,7 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
          # %%
-         "lam1": 0.8, "is_air_pump_structure": 0, "is_air": 0, "T": 25,
+         "lam1": 0.8, "is_air_pump_structure": 1, "is_air": 0, "T": 25,
          # %%
          "Tx": 30, "Ty": 20, "Tz": 0,
          "mx": 1, "my": 0, "mz": 1,
@@ -382,7 +382,7 @@ if __name__ == '__main__':
             # %%
             "w0_2": 0.3,
             # %%
-            "lam2": 1, "is_air_pump2": 0, "T2": 25,
+            "lam2": 1, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})

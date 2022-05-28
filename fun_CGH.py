@@ -166,7 +166,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                is_reverse_xy=0, is_positive_xy=1,
                                is_bulk=0, is_no_backgroud=1,
                                # %%
-                               lam1=0.8, is_air=0, is_air_pump_structure=0, T=25,
+                               lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
                                Tx=10, Ty=10, Tz="2*lc",
                                mx=0, my=0, mz=0,
                                # %%
@@ -664,7 +664,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                              is_reverse_xy=0, is_positive_xy=1,
                              is_bulk=0,
                              # %%
-                             lam1=0.8, is_air=0, is_air_pump_structure=0, T=25,
+                             lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
                              Tx=10, Ty=10, Tz="2*lc",
                              mx=0, my=0, mz=0,
                              # %%

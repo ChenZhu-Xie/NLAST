@@ -345,8 +345,8 @@ if __name__ == '__main__':
          "is_bulk": 0, "is_no_backgroud": 0,
          "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
          # %%
-         "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
-         "lam_structure": 1.064, "is_air_pump_structure": 0, "T_structure": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
+         "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
@@ -388,7 +388,8 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "gamma_y": 90, "polar": "e",
+         "theta_z": 90, "phi_z": 22.5, "phi_c": 22.5,
+         "polar": "e",
          "polar3": "e",
          }
 
@@ -408,7 +409,7 @@ if __name__ == '__main__':
             # %%
             "w0_2": 0.3,
             # %%
-            "lam2": 1, "is_air_pump2": 0, "T2": 25,
+            "lam2": 1, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})

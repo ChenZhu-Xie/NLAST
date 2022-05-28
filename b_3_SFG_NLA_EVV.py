@@ -537,8 +537,8 @@ if __name__ == '__main__':
          "U_NonZero_size": 0.9, "w0": 0.3,
          "z0": 10, "sheets_stored_num": 10,
          # %%
-         "lam1": 1.064, "is_air_pump": 0, "is_air": 0, "T": 25,
-         "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
+         "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
@@ -600,7 +600,7 @@ if __name__ == '__main__':
             # %%
             "w0_2": 0.3,
             # %%
-            "lam2": 1, "is_air_pump2": 0, "T2": 25,
+            "lam2": 1, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})

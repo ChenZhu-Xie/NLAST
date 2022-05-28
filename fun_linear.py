@@ -46,6 +46,7 @@ def KTP_n_old(lam, T, p="z"):
     n = math.sqrt(a[1] + b[1] * F + (a[2] + b[2] * F) / (lam ** 2 - a[3] + b[3] * F) - (a[6] + b[4] * F) * lam ** 2)
     return n
 
+
 def KTP_n(lam, T, p="z"):
     if p == "z" or p == "e" or p == "c":
         a = [0, 4.59423, 0.06206, 0.04763, 110.80672, 86.12171]
@@ -65,12 +66,14 @@ def KTP_n(lam, T, p="z"):
         dn_dT = (b[1] / lam ** 3 + b[2] / lam ** 2 + b[3] / lam + b[4]) * 1e-5
     elif p == "z" or p == "e" or p == "c":
         dn_dT = (b[1] / lam + b[2] + b[3] * lam + b[4] * lam ** 2) * 1e-5
-    n = n_T20 + dn_dT * (T-20)
+    n = n_T20 + dn_dT * (T - 20)
     return n
 
 
-lam = 1.064/2
+lam = 1.064 / 2
 T = 25
+
+
 # print("LN_ne = {}".format(LN_n(lam, T, "e")))
 # print("LN_no = {}".format(LN_n(lam, T, "o")))
 # print("KTP_nz = {}".format(KTP_n(lam, T, "z")))
@@ -97,17 +100,51 @@ def get_n(is_air, lam, T, p):
 def Cal_n(size_PerPixel,
           is_air,
           lam, T, p="e", **kwargs):
-    # if inspect.stack()[1][3] == "pump_pic_or_U" or inspect.stack()[1][3] == "pump_pic_or_U2":
-    from fun_global_var import Get
-    if is_air != 1 and (p == "z" or p == "e" or p == "c") and ("gamma_x" in kwargs or "gamma_y" in kwargs):
+    if is_air != 1:
 
-        n_p = get_n(is_air, lam, T, "c")  # n_e, n_z
-        if is_air == 1:  # 如果是 LN
-            n_s = get_n(is_air, lam, T, "b")  # n_o, n_y
-        else:  # 如果是 KTP
-            n_s = get_n(is_air, lam, T, "a")  # n_x
+        # %%
+        # 基波 与 倍频 都同享 同一个 theta_x：二者 的 中心波矢 k 差不多 共线，尽管 二次谐波 的 中心 k 还与 结构关系很大，甚至没有 中心 k 一说
+        # （旧）"gamma_x" 为 晶体 c 轴 偏离 传播方向 的 夹角 θ<c,propa>，与 "theta_x" 共享 同一个 实验室 坐标系：x 朝右为正
+        # （旧）有 "gamma_x" 关键字，则晶体 c 轴 躺在 垂直于 y 轴 的面内，则无 "phi_z" 关键字 可言
+        # （旧）"gamma_y" 与 "theta_y" 共享 同一个 实验室 坐标系，也 y 朝上为正（实验室 坐标系，同时 也是 电脑坐标系），所以也得 取负
 
-        Ix = kwargs["Ix_structure"] if "Ix_structure" in kwargs else Get("Ix")  # 可能会有 Ix =   从 kwargs 里传进来
+        # print(kwargs)
+        theta_x = kwargs["theta_x"] / 180 * math.pi if "theta_x" in kwargs else 0
+        theta_y = - kwargs["theta_y"] / 180 * math.pi if "theta_y" in kwargs else 0
+        #  初始时，晶体的 a,b,c 轴，分别与 -x, y, k 重合
+        theta_z_crystal = kwargs["theta_z"] / 180 * math.pi if "theta_z" in kwargs else 0
+        # （新）"theta_z_crystal" 为 晶体 c 轴 绕 传播方向 k，从 电脑坐标系 的 -x 轴（实验室 坐标系 的 x 轴）开始，
+        #  朝 y 轴 正向，顺时针 旋转（记为 0），的 夹角
+        #  即以 k 为 z 轴正向的 右手系 下的值
+        phi_z_crystal = kwargs["phi_z"] / 180 * math.pi if "phi_z" in kwargs else 0
+        # （新）"phi_z_crystal" 晶体 c 轴 与 传播方向 k 轴 的夹角，朝四周 都为正，不一定朝上为正。
+        # print(phi_z_crystal)
+        phi_c_crystal = kwargs["phi_c"] / 180 * math.pi if "phi_c" in kwargs else 0
+        # （新）"phi_c_crystal" 晶体 绕 自身 c 轴， 自旋 方位角，朝 a → b 为正。
+        # print(phi_c_crystal)
+
+        # %%  生成 折射率 椭球的 3 个主轴
+        n_z = get_n(is_air, lam, T, "z")  # n_c, n_e
+        n_y = get_n(is_air, lam, T, "y")  # n_b, n_o
+        n_x = get_n(is_air, lam, T, "x")  # n_a
+        # print(n_x, n_y, n_z)
+        theta_z_inc, phi_z_inc = Cal_theta_phi_z_inc(theta_x, theta_y, )  # %% 算 theta_z_inc, phi_z_inc
+        phi_c_def = math.pi
+        theta_c_inc, phi_c_inc = theta_z_crystal, phi_c_def - phi_c_crystal
+        # 因为 初始时，晶体的 a,b,c 轴，分别与 -x, y, k 重合；且 极角 只沿 z - x 面内 方向 倾倒 折射率椭球；
+        # 但按理说 KTP 还能 绕着 自己的 c 轴，自右手系的 a 向 b 旋，多这一个自由度：
+        # 事后 在其坐标系下 反向旋转 其他 参照物 即可。
+        # print(theta_z_inc, phi_z_inc)
+        delta = Cal_delta(n_x, n_y, n_z, theta_c_inc, phi_c_inc, )
+        n_e, n_o = Cal_n_e(n_x, n_y, n_z, theta_c_inc, phi_c_inc, delta, )
+        # print(n_e, n_o)
+
+        n_inc = n_e if p == "z" or p == "e" or p == "c" else n_o  # 基波 传播方向 上 的 折射率
+        k_inc = 2 * math.pi * size_PerPixel / (lam / 1000 / n_inc)  # 后得到 中心波矢（基波 传播方向 上） 大小
+
+        # %% 生成 mesh
+        from fun_global_var import Get
+        Ix = kwargs["Ix_structure"] if "Ix_structure" in kwargs else Get("Ix")  # 可能会有 Ix = Ix_structure  从 kwargs 里传进来
         Iy = kwargs["Iy_structure"] if "Iy_structure" in kwargs else Get("Iy")  # 可能会有 Iy = Iy_structure 从 kwargs 里传进来
 
         mesh_nx_ny_shift = mesh_shift(Ix, Iy)
@@ -115,48 +152,132 @@ def Cal_n(size_PerPixel,
             (2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Iy, 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Ix))
         # Iy 才是 笛卡尔坐标系中 x 方向 的 像素数...
 
-        # 基波 与 倍频 都同享 同一个 theta_x：二者 的 中心波矢 k 差不多 共线，尽管 二次谐波 的 中心 k 还与 结构关系很大，甚至没有 中心 k 一说
-        if "gamma_x" in kwargs:  # "gamma_x" 为 晶体 c 轴 偏离 传播方向 的 夹角 θ<c,propa>，与 "theta_x" 共享 同一个 实验室 坐标系：x 朝右为正
-            gamma_x = kwargs["gamma_x"] / 180 * math.pi
-            theta_x = kwargs["theta_x"] / 180 * math.pi
+        # %%
+        sin_theta_z_inc_nxny = (mesh_kx_ky_shift[:, :, 0] ** 2 + mesh_kx_ky_shift[:, :, 1] ** 2) ** 0.5 / k_inc
+        # 注意 是 kx,ky 或 nx,ny 的 函数（这里 假设了 k 附近的 采样点 分布 是个球面？那这也不准：k_inc 从一开始，就不是个 标量）
+        theta_z_inc_nxny = np.arcsin(sin_theta_z_inc_nxny)
+        phi_z_inc_nxny = np.arctan2(- mesh_kx_ky_shift[:, :, 1], - mesh_kx_ky_shift[:, :, 0])
+        # phi_z_inc_nxny = np.arctan((- mesh_kx_ky_shift[:, :, 1]) / (- mesh_kx_ky_shift[:, :, 0]))  # 需要 变换到 直角坐标系下
+        # print(np.max(theta_z_inc_nxny), np.max(phi_z_inc_nxny), np.min(phi_z_inc_nxny))
 
-            # 有该关键字，则晶体 c 轴 躺在 垂直于 y 轴 的面内，则无 "gamma_y" 关键字 可言
-            alpha = - gamma_x  # 不是 倾斜相位 所对应的：最大光强 作为中心级，而是 图正中 作为 中心级
-            alpha_inc = theta_x - gamma_x  # 基波 传播方向 与 晶轴 c 的夹角（光束 / 图 的 中心波矢 相对于 晶体坐标系 的 θ<k,c>）
-            # θ<k,c> = θ<k,propa> - θ<c,propa> ：中心波矢 相对于 实验室 坐标系 的 传播方向 夹角为 θ<k,propa>
-            mesh = mesh_kx_ky_shift[:, :, 0]
+        theta_c_inc_nxny, phi_c_inc_nxny = \
+            Cal_theta_phi_c_inc(theta_z_crystal, phi_z_crystal, phi_c_crystal,
+                                theta_z_inc_nxny, phi_z_inc_nxny, phi_c_inc=phi_c_def)
+        # print(np.max(np.abs(theta_c_inc_nxny)), np.max(np.abs(phi_c_inc_nxny)))
+        delta_nxny = Cal_delta(n_x, n_y, n_z, theta_c_inc_nxny, phi_c_inc_nxny, )
+        n_e_nxny, n_o_nxny = Cal_n_e(n_x, n_y, n_z, theta_c_inc_nxny, phi_c_inc_nxny, delta_nxny, )
+        # print(np.max(n_e_nxny), np.max(n_o_nxny))
 
-        elif "gamma_y" in kwargs:  # "gamma_y" 也 y 朝上为正（实验室 坐标系，同时 也是 电脑坐标系）
-            gamma_y = - kwargs["gamma_y"] / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
-            theta_y = - kwargs["theta_y"] / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
-
-            alpha = - gamma_y  # 光强最大 与 中心级 无关，而 图正中 = 中心级
-            alpha_inc = theta_y - gamma_y  # 基波 传播方向 与 晶轴 c 的夹角
-            # θ<k,c> = θ<k,propa> - θ<c,propa>
-            mesh = mesh_kx_ky_shift[:, :, 1]
-
-        # print(alpha / math.pi * 180)
-        n = 1 / (np.sin(alpha) ** 2 / n_p ** 2 + np.cos(alpha) ** 2 / n_s ** 2) ** 0.5
-        k = 2 * math.pi * size_PerPixel / (lam / 1000 / n)  # 先得到 中心波矢（图正中 方向） 大小
-
-        sin_Alpha_nxny = mesh / k  # 注意 是 kx,ky 或 nx,ny 的 函数
-        # print(mesh[0], mesh[1])  # 如果 是 一样的，说明是 每行一样，则 每列不同，则 自变量 = 列 = y
-        Alpha_nxny = np.arcsin(sin_Alpha_nxny)  # θ<k_small,k>
-        # print(Alpha_nxny[0], Alpha_nxny[1])
-        alpha_nxny = Alpha_nxny + alpha  # θ<k_small,c> = θ<k_small,k> + θ<k,c>
-        n_nxny = 1 / (np.sin(alpha_nxny) ** 2 / n_p ** 2 + np.cos(alpha_nxny) ** 2 / n_s ** 2) ** 0.5
+        n_nxny = n_e_nxny if p == "z" or p == "e" or p == "c" else n_o_nxny
         k_nxny = 2 * math.pi * size_PerPixel / (lam / 1000 / n_nxny)  # 不仅 kz，连 k 现在 都是个 椭球面了
         # Set("k_" + str(k).split('.')[-1], k_nxny) # 用值 来做名字：k 的 值 的 小数点 后的 nums 做为 str ！
 
-        n_inc = 1 / (np.sin(alpha_inc) ** 2 / n_p ** 2 + np.cos(alpha_inc) ** 2 / n_s ** 2) ** 0.5
-        # 基波 传播方向 上 的 折射率
+        theta_c_inc, phi_c_inc = \
+            Cal_theta_phi_c_inc(theta_z_crystal, phi_z_crystal, phi_c_crystal,  # %% 算 theta_c_inc，phi_c_inc
+                                theta_z_inc, phi_z_inc, phi_c_inc=phi_c_def)
+
+        delta = Cal_delta(n_x, n_y, n_z, theta_c_inc, phi_c_inc, )
+        n_e, n_o = Cal_n_e(n_x, n_y, n_z, theta_c_inc, phi_c_inc, delta, )
+        # print(np.max(n_e), np.max(n_o))
+
+        n_inc = n_e if p == "z" or p == "e" or p == "c" else n_o # 基波 传播方向 上 的 折射率
         k_inc = 2 * math.pi * size_PerPixel / (lam / 1000 / n_inc)  # 后得到 中心波矢（基波 传播方向 上） 大小
-    else:
-        n = get_n(is_air, lam, T, p)
-        n_inc = n_nxny = n
-        k = 2 * math.pi * size_PerPixel / (lam / 1000 / n)  # lam / 1000 即以 mm 为单位
-        k_inc = k_nxny = k
+
+        # print(np.max(np.abs(k_nxny)), k_inc)
+    else:  # KTP 有所谓 的 o 光么？
+        n_inc = n_nxny = get_n(is_air, lam, T, p)
+        k_inc = k_nxny = 2 * math.pi * size_PerPixel / (lam / 1000 / n_inc)  # lam / 1000 即以 mm 为单位
+
+    # if inspect.stack()[1][3] == "pump_pic_or_U" or inspect.stack()[1][3] == "pump_pic_or_U2":
+    # print(n_inc, n_nxny)
     return n_inc, n_nxny, k_inc, k_nxny
+
+
+# %%
+
+def Cal_theta_phi_z_inc(theta_x, theta_y, ):
+    from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy
+    kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )
+    kx = - kx  # 即以 k 为 z 轴正向的 右手系 下的值（且已经 归一化 or 单位化）
+
+    theta_z_inc = math.acos(kz)
+    phi_z_inc = math.atan2(ky, kx)
+
+    return theta_z_inc, phi_z_inc
+
+
+def Cal_theta_phi_c_inc(theta_z_crystal, phi_z_crystal, phi_c_crystal,
+                        theta_z_inc, phi_z_inc, **kwargs):
+    # theta_c_inc = theta_z_inc - theta_z_crystal  #  没那么简单！
+    # phi_c_inc = phi_z_inc - phi_z_crystal
+    # print(phi_z_crystal, phi_c_crystal)
+
+    # 边的五元素公式
+    cos_theta_c_inc = np.cos(theta_z_crystal) * np.cos(theta_z_inc) + \
+                      np.sin(theta_z_crystal) * np.sin(theta_z_inc) * np.cos(phi_z_crystal - phi_z_inc)
+    cos_theta_c_inc = np.where(np.abs(cos_theta_c_inc) <= 1, cos_theta_c_inc, np.sign(cos_theta_c_inc))
+    theta_c_inc = np.arccos(cos_theta_c_inc)
+    # 角的五元素公式
+    cos_phi_c_inc = (np.sin(theta_z_crystal) * np.cos(theta_z_inc) - \
+                     np.cos(theta_z_crystal) * np.sin(theta_z_inc) * np.cos(phi_z_crystal - phi_z_inc)) / \
+                    np.sin(theta_c_inc)
+    cos_phi_c_inc = np.where(np.sin(theta_c_inc) != 0, cos_phi_c_inc,
+                             kwargs.get("phi_c_inc", math.pi))  # 分母（极角 为 0 时，无法定义 相位奇点 phi）
+    # print(np.max(np.abs(cos_phi_c_inc)))
+    cos_phi_c_inc = np.where(np.abs(cos_phi_c_inc) <= 1, cos_phi_c_inc,
+                             np.sign(cos_phi_c_inc))  # 计算的 精度误差 可能导致 cos_phi_c_inc > 1
+    # print(np.max(np.abs(cos_theta_c_inc)), np.max(np.abs(cos_phi_c_inc)))
+    # print(np.max(np.abs(np.max(np.abs(cos_theta_c_inc)))), np.sign(np.max(np.abs(cos_phi_c_inc))))
+    phi_c_inc = np.arccos(cos_phi_c_inc) - phi_c_crystal
+    # print(np.max(np.abs(theta_c_inc)), np.max(np.abs(phi_c_inc)))
+    return theta_c_inc, phi_c_inc
+
+
+# %% biaxis 双轴晶体 折射率曲面 计算
+
+def Cal_cot_Omega(n_x, n_y, n_z, ):
+    cot_Omega = (n_z / n_x) * ((n_y ** 2 - n_x ** 2) / (n_z ** 2 - n_y ** 2)) ** 0.5
+    return cot_Omega
+
+
+def Cal_delta(n_x, n_y, n_z, theta, phi, ):
+    cot_Omega = Cal_cot_Omega(n_x, n_y, n_z, )
+
+    # print(np.max(theta), np.max(phi))
+    numerator = (cot_Omega ** 2) * np.sin(theta) ** 2 - np.cos(theta) ** 2 * np.cos(phi) ** 2 \
+                + np.sin(phi) ** 2
+    denominator = np.cos(theta) * np.sin(2 * phi)
+
+    # cot_2_delta = numerator / denominator
+    # tan_2_delta = 1 / cot_2_delta
+    tan_2_delta = denominator / numerator
+    # print(np.min(numerator))
+    delta = np.arctan2(tan_2_delta, 1) / 2
+    # delta = np.arctan(tan_2_delta) / 2
+    # print(np.max(delta))
+    return delta
+
+
+def Cal_n_e(n_x, n_y, n_z, theta, phi, delta, ):
+    # print(np.max(theta) / math.pi * 180, np.max(phi) / math.pi * 180, np.max(delta) / math.pi * 180)
+
+    factor_1 = np.cos(phi) ** 2 / n_x ** 2 + np.sin(phi) ** 2 / n_y ** 2
+    Factor_1 = factor_1 * np.cos(theta) ** 2 + np.sin(theta) ** 2 / n_z ** 2
+    factor_2 = np.sin(phi) ** 2 / n_x ** 2 + np.cos(phi) ** 2 / n_y ** 2
+    factor_3 = 1 / 2 * (1 / n_x ** 2 - 1 / n_y ** 2) * np.sin(2 * phi) * np.cos(theta)
+
+    n_e_Squared_devided_by_1 = Factor_1 * np.cos(delta) ** 2 + factor_2 * np.sin(delta) ** 2 \
+                               - factor_3 * np.sin(2 * delta)
+    n_o_Squared_devided_by_1 = Factor_1 * np.sin(delta) ** 2 + factor_2 * np.cos(delta) ** 2 \
+                               + factor_3 * np.sin(2 * delta)
+
+    n_e = 1 / n_e_Squared_devided_by_1 ** 0.5
+    n_o = 1 / n_o_Squared_devided_by_1 ** 0.5
+
+    # print(np.max(n_e), np.max(n_o))
+
+
+    return n_e, n_o
 
 
 # %%

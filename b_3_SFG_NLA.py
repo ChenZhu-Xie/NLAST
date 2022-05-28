@@ -94,31 +94,32 @@ def SFG_NLA(U_name="",
 
     # %%
     ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    # if ray_tag == "f":
+    U2_name = kwargs.get("U2_name", U_name)
+    img2_full_name = kwargs.get("img2_full_name", img_full_name)
+    is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
+    # %%
+    z_pump2 = kwargs.get("z_pump2", z_pump)
+    is_LG_2 = kwargs.get("is_LG_2", is_LG)
+    is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
+    is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
+    # %%
+    l2 = kwargs.get("l2", l)
+    p2 = kwargs.get("p2", p)
+    theta2_x = kwargs.get("theta2_x", theta_x)
+    theta2_y = kwargs.get("theta2_y", theta_y)
+    # %%
+    is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
+    is_H_l2 = kwargs.get("is_H_l2", is_H_l)
+    is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
+    is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
+    # %%
+    w0_2 = kwargs.get("w0_2", w0)
+    lam2 = kwargs.get("lam2", lam1)
+    is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
+    T2 = kwargs.get("T2", T)
+    polar2 = kwargs.get("polar2", 'e')
     if ray_tag == "f":
-        U2_name = kwargs.get("U2_name", U_name)
-        img2_full_name = kwargs.get("img2_full_name", img_full_name)
-        is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
-        # %%
-        z_pump2 = kwargs.get("z_pump2", z_pump)
-        is_LG_2 = kwargs.get("is_LG_2", is_LG)
-        is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
-        is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
-        # %%
-        l2 = kwargs.get("l2", l)
-        p2 = kwargs.get("p2", p)
-        theta2_x = kwargs.get("theta2_x", theta_x)
-        theta2_y = kwargs.get("theta2_y", theta_y)
-        # %%
-        is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
-        is_H_l2 = kwargs.get("is_H_l2", is_H_l)
-        is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
-        is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
-        # %%
-        w0_2 = kwargs.get("w0_2", w0)
-        lam2 = kwargs.get("lam2", lam1)
-        is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
-        T2 = kwargs.get("T2", T)
-        polar2 = kwargs.get("polar2", 'e')
         # %%
         pump2_keys = kwargs["pump2_keys"]
         # %%
@@ -236,8 +237,8 @@ def SFG_NLA(U_name="",
                                                              theta_x, theta2_x,
                                                              theta_y, theta2_y,
                                                              **kwargs)
-    print(n1_inc, n2_inc, n3_inc)
-    print(n1_inc + n2_inc - 2 * n3_inc)
+    # print(n1_inc, n2_inc, n3_inc)
+    # print(n1_inc + n2_inc - 2 * n3_inc)
 
     # %%
 
@@ -435,13 +436,13 @@ def SFG_NLA(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",  # 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray
-         "img_full_name": "lena1.png",
+         "img_full_name": "lena2.png",
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
-         "is_LG": 0, "is_Gauss": 1, "is_OAM": 0,
-         "l": 0, "p": 0,
-         "theta_x": 0, "theta_y": 0,
+         "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
+         "l": 10, "p": 0,
+         "theta_x": 1.5, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -459,11 +460,11 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 0.9, "w0": 0.3,
-         "z0": 5,
+         "U_NonZero_size": 0.9, "w0": 0.05,
+         "z0": 3,
          # %%
-         "lam1": 1.064, "is_air_pump": 0, "is_air": 2, "T": 50,
-         "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 50,
+         "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
@@ -492,7 +493,7 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 0,
+         "is_colorbar_on": 1, "is_energy": 1,
          # %%
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
@@ -500,7 +501,8 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "gamma_x": 90, "polar": "o",
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # deff 最高： 90, ~, 24.3 ；1994 ：68.8, ~, 90
+         "polar": "o",
          "ray": "3", "polar3": "o",
          }
 
@@ -511,16 +513,16 @@ if __name__ == '__main__':
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
-            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
-            "l2": 0, "p2": 0,
-            "theta2_x": 0, "theta2_y": 0,
+            "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
+            "l2": 10, "p2": 0,
+            "theta2_x": 1.5, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.3,
+            "w0_2": 0.05,
             # %%
-            "lam2": 1.064, "is_air_pump2": 0, "T2": 40,
+            "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})

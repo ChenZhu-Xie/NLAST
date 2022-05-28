@@ -206,7 +206,7 @@ if __name__ == '__main__':
          "U1_0_NonZero_size": 1, "w0": 0,  # 传递函数 是 等倾干涉图...
          "z": 0, "dz_expect": 0,  # z 越大，描边能量不变，但会越糊；dz_expect 越大，描边 能量越高，但也越糊
          # %%
-         "lam1": 1, "is_air_pump": 0, "is_air": 0, "T": 25,
+         "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
          # %%
          "is_save": 0, "is_save_txt": 0, "dpi": 100,
          # %%
@@ -229,7 +229,8 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "gamma_y": 90, "polar": "e",
+         "theta_z": 90, "phi_z": 22.5, "phi_c": 22.5,
+         "polar": "e",
          }
 
     kwargs = init_GLV_DICT(**kwargs)

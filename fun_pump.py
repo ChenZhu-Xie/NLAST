@@ -145,7 +145,6 @@ def OAM_profile_G(Ix=0, Iy=0,
 def incline_profile(Ix=0, Iy=0,
                     U=0, k_inc=0,
                     theta_x=1, theta_y=0, ):
-    theta_y = - theta_y  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
     # 在空气中 倾斜，还是 在晶体中 倾斜，取决于 k 中的 n 是空气 还是 晶体的 折射率：
     # 同样的 倾角，n 不同，则积累的 空域 倾斜相位 梯度 不同
     # 其中 k 是 k 或 k_nxny，其正中 是 倒空间 正中
@@ -153,29 +152,13 @@ def incline_profile(Ix=0, Iy=0,
     # if type(k) != float and type(k) != np.float64 and type(k) != int:  # 如果 是 array，则 只取中心级 的 k
     #     k = k[Iy // 2, Ix // 2]  # 取中心级 的 k
     theta_x = theta_x / 180 * math.pi
-    theta_y = theta_y / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
-    # %%  球面三角（xz 面 + yz 面，二者的 法向 相对于 z 轴 的 偏角）
-    # %%  现实：无论先转 theta_x 还是先转 theta_y
-    kz = k_inc * math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小
-    # %%  现实 1：先转 theta_x 再转 theta_y
-    ky = k_inc * math.cos(theta_x) * math.sin(theta_y)
-    kx = k_inc * math.sin(theta_x)
-    # %%  现实 2：先转 theta_y 再转 theta_x
-    # ky = k_inc * math.sin(theta_y)
-    # kx = k_inc * math.sin(theta_x) * math.cos(theta_y)
-    # %%  非现实（实际上 直接规定 kx,ky，导致 kz 可能为负...，因此不可归一化，何况也不是正交的）
-    # kx, ky = k_inc * np.sin(theta_x), k_inc * np.sin(theta_y)
-    # kz = (k_inc ** 2 - kx ** 2 - ky ** 2) ** 0.5
+    theta_y = - theta_y / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
+
+    kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )
+    kx, ky, kz = k_inc * kx, k_inc * ky, k_inc * kz
+    # print(kx, ky, kz)
+
     # %%
-    # 但这个 k 其实 只是 中心 k；或者说，上述 隐含了 球面 折射率 方程...
-    # 椭球的话，kx,ky 的关系似乎得用 tan，但 tan 只在小角有效；45 度 就 1:1 了，也不对
-    # kx, ky = k * np.tan(theta_x), k * np.tan(theta_y)
-    # %%  球坐标系（需借助 上述的 kx, ky, kz 以得到 极角 theta、方位角 phi）
-    # kx = k_inc * math.sin(theta) * math.cos(phi)  # 球作标系 转 直角坐标，恰好 完全与 球面三角法 相反
-    # ky = k_inc * math.sin(theta) * math.sin(phi)  # 原因是 轴 - 面内 的 2 个 角，即 极角 - 方位角
-    # kz = k_inc * math.cos(theta)  #  极角 = 90⁰ - 面-面 夹角、方位角 = 面-面 夹角
-    # 即 theta = 90⁰ - theta_x，phi = theta_y 对应 先转 theta_x 再转 theta_y，且 kx, ky, kz 对应 kz, ky, kx
-    # 即 theta = 90⁰ - theta_y，phi = theta_x 对应 先转 theta_y 再转 theta_x，且 kx, ky, kz 对应 kz, kx, ky
 
     mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
     # k_shift = (k**2 - Kx**2 - Ky**2 + 0j )**0.5
@@ -188,6 +171,33 @@ def incline_profile(Ix=0, Iy=0,
 # 则 对于 第 1 个参数 而言，对于 不同的 第 1 个参数，都 引入了 相同的 倾斜相位。
 # 也就是 对于 同一列 的 不同的行，其 倾斜相位 是相同的
 # 因此 倾斜相位 也 只与 列 相关，也就是 只与 第 2 个参数 有关，所以 与 x 有关。
+
+def Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, ):
+    # %%  球面三角（xz 面 + yz 面，二者的 法向 相对于 z 轴 的 偏角）
+    # kz 轴，选的是 左手系 的 + z，右手系的 - z 轴，theta_x， theta_y 也是 基于此轴正向 读的值。
+    # %%  现实：无论先转 theta_x 还是先转 theta_y
+    kz = math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小（对于 右手系，是 - kz）
+    # %%  现实 1：先转 theta_x 再转 theta_y
+    ky = math.cos(theta_x) * math.sin(theta_y)
+    kx = math.sin(theta_x)
+    # %%  现实 2：先转 theta_y 再转 theta_x
+    # ky = k_inc * math.sin(theta_y)
+    # kx = k_inc * math.sin(theta_x) * math.cos(theta_y)
+    # %%  非现实（实际上 直接规定 kx,ky，导致 kz 可能为负...，因此不可归一化，何况也不是正交的）
+    # kx, ky = k_inc * np.sin(theta_x), k_inc * np.sin(theta_y)
+    # kz = (k_inc ** 2 - kx ** 2 - ky ** 2) ** 0.5
+    # %%
+    # 但这个 k 其实 只是 中心 k；或者说，上述 隐含了 球面 折射率 方程...
+    # 椭球的话，kx,ky 的关系似乎得用 tan，但 tan 只在小角有效；45 度 就 1:1 了，也不对
+    # kx, ky = k * np.tan(theta_x), k * np.tan(theta_y)
+    # %%  球坐标系（理应 先借助 上述 kx,ky,kz 以得 极角 theta = f(kx,ky,kz)、方位角 phi = f(kx,ky)；
+    # 但现可直接 theta = f(theta_x)、phi = f(theta_y)，但这又限制于 以 kx 或 ky 为 z 轴的 左或右手坐标系，而没法以 kz 为 z 轴）
+    # kx = k_inc * math.sin(theta) * math.cos(phi)  # 球作标系 转 直角坐标，恰好 完全与 球面三角法 相反
+    # ky = k_inc * math.sin(theta) * math.sin(phi)  # 原因是 轴 - 面内 的 2 个 角，即 极角 - 方位角
+    # kz = k_inc * math.cos(theta)  #  极角 = 90⁰ - 面-面 夹角、方位角 = 面-面 夹角
+    # 即 theta = 90⁰ - theta_x，phi = theta_y 对应 先转 theta_x 再转 theta_y，且 kx, ky, kz 对应 kz, ky, kx，极 z 轴 是 x 轴；phi 正：右手系
+    # 即 theta = 90⁰ - theta_y，phi = theta_x 对应 先转 theta_y 再转 theta_x，且 kx, ky, kz 对应 kz, kx, ky，极 z 轴 是 y 轴；phi 反：左手系
+    return kx, ky, kz
 
 # %%
 # 对输入场 频域 引入 额外倾斜相位
@@ -215,6 +225,7 @@ def propagation_profile_G(Ix=0, Iy=0, size_PerPixel=0.77,
     g_shift = fft2(U)
 
     kz_shift, mesh_kx_ky_shift = Cal_kz(Ix, Iy, k)
+
     i_z0 = z / size_PerPixel
     H_z0_shift = np.power(math.e, kz_shift * i_z0 * 1j)
 
@@ -265,6 +276,8 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
          is_colorbar_on=1, is_energy=0,
          # %%
          **kwargs, ):
+    # print(Up)
+
     # %%
     # file_name = os.path.splitext(file_full_name)[0]
     # img_name_extension = os.path.splitext(file_full_name)[1]  # 都能获取了

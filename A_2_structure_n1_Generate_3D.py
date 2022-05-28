@@ -305,7 +305,7 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1,
          # %%
-         "lam1": 0.8, "is_air_pump_structure": 0, "is_air": 0, "T": 25,
+         "lam1": 0.8, "is_air_pump_structure": 1, "is_air": 0, "T": 25,
          # %%
          "Tx": 18, "Ty": 10, "Tz": 0,
          "mx": 1, "my": 0, "mz": 1,

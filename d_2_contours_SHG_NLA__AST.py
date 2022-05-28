@@ -274,8 +274,8 @@ if __name__ == '__main__':
          "U_NonZero_size": 1, "w0": 0.3,
          "z_AST": 3, "z_NLA": 5,
          # %%
-         "lam1": 0.8, "is_air_pump": 0, "is_air": 0, "T": 25,
-         "lam_structure": 1, "is_air_pump_structure": 0, "T_structure": 25,
+         "lam1": 0.8, "is_air_pump": 1, "is_air": 0, "T": 25,
+         "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1,
          "is_linear_convolution": 0,
@@ -310,7 +310,8 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "gamma_y": 90, "polar": "e",
+         "theta_z": 90, "phi_z": 22.5, "phi_c": 22.5,
+         "polar": "e",
          "polar3": "e",
          }
 
