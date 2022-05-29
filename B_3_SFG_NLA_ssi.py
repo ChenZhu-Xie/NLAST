@@ -86,31 +86,32 @@ def SFG_NLA_ssi(U_name="",
 
     # %%
     ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    # if ray_tag == "f":
+    U2_name = kwargs.get("U2_name", U_name)
+    img2_full_name = kwargs.get("img2_full_name", img_full_name)
+    is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
+    # %%
+    z_pump2 = kwargs.get("z_pump2", z_pump)
+    is_LG_2 = kwargs.get("is_LG_2", is_LG)
+    is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
+    is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
+    # %%
+    l2 = kwargs.get("l2", l)
+    p2 = kwargs.get("p2", p)
+    theta2_x = kwargs.get("theta2_x", theta_x)
+    theta2_y = kwargs.get("theta2_y", theta_y)
+    # %%
+    is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
+    is_H_l2 = kwargs.get("is_H_l2", is_H_l)
+    is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
+    is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
+    # %%
+    w0_2 = kwargs.get("w0_2", w0)
+    lam2 = kwargs.get("lam2", lam1)
+    is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
+    T2 = kwargs.get("T2", T)
+    polar2 = kwargs.get("polar2", 'e')
     if ray_tag == "f":
-        U2_name = kwargs.get("U2_name", U_name)
-        img2_full_name = kwargs.get("img2_full_name", img_full_name)
-        is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
-        # %%
-        z_pump2 = kwargs.get("z_pump2", z_pump)
-        is_LG_2 = kwargs.get("is_LG_2", is_LG)
-        is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
-        is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
-        # %%
-        l2 = kwargs.get("l2", l)
-        p2 = kwargs.get("p2", p)
-        theta2_x = kwargs.get("theta2_x", theta_x)
-        theta2_y = kwargs.get("theta2_y", theta_y)
-        # %%
-        is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
-        is_H_l2 = kwargs.get("is_H_l2", is_H_l)
-        is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
-        is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
-        # %%
-        w0_2 = kwargs.get("w0_2", w0)
-        lam2 = kwargs.get("lam2", lam1)
-        is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
-        T2 = kwargs.get("T2", T)
-        polar2 = kwargs.get("polar2", 'e')
         # %%
         pump2_keys = kwargs["pump2_keys"]
         # %%
@@ -425,7 +426,7 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 22.5, "phi_c": 22.5,
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
          "polar": "e",
          "ray": "2", "polar3": "e",
          }

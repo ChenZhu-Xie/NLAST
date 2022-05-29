@@ -11,10 +11,7 @@ from fun_linear import Cal_kz
 
 def U_Drop_n_sigma(U, n, is_energy):
     
-    if is_energy == 0:
-        U_amp = np.abs(U)
-    else:
-        U_amp = np.abs(U)**2
+    U_amp = np.abs(U) if is_energy != 1 else np.abs(U) ** 2
     # U_phase = np.angle(U)
     U_amp_mean = np.mean(U_amp)
     U_amp_std = np.std(U_amp)

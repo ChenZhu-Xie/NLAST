@@ -145,10 +145,11 @@ def structure_n1_3D(U_name="",
         mod_name_list = []
     if is_stripe == 2.2:
         from fun_CGH import structure_nonrect_n1_Generate_2D
-        if structure_xy_mode == 'x':
-            Ix_structure, Iy_structure = sheets_num, Get("Iy")
-        elif structure_xy_mode == 'y':
-            Ix_structure, Iy_structure = Get("Ix"), sheets_num
+        # if structure_xy_mode == 'x':
+        #     Ix_structure, Iy_structure = sheets_num, Get("Iy")
+        # elif structure_xy_mode == 'y':
+        #     Ix_structure, Iy_structure = Get("Ix"), sheets_num
+        Ix_structure, Iy_structure = sheets_num, Get("Iy")
         modulation_lie_down, folder_address = \
             structure_nonrect_n1_Generate_2D(z_pump,
                                              is_LG, is_Gauss, is_OAM,
@@ -228,11 +229,12 @@ def structure_n1_3D(U_name="",
                     mod_name_list.append("n1_" + "tran_shift_" + str(for_th))
 
             elif is_stripe == 2 or is_stripe == 2.1 or is_stripe == 2.2:  # 躺下 的 插值算法 & 直接 CGH 算法
-                if structure_xy_mode == 'x':
-                    modulation_squared_new = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))  # 按行复制 多行，成一个方阵
-                elif structure_xy_mode == 'y':
-                    modulation_squared_new = np.tile(modulation_lie_down[:, for_th], (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
-                    # 注意 modulation_lie_down[:, for_th] 提取出来，是一行，所以用 (iy, 1) 而不是 (1, iy)
+                # if structure_xy_mode == 'x':
+                #     modulation_squared_new = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))  # 按行复制 多行，成一个方阵
+                # elif structure_xy_mode == 'y':
+                #     modulation_squared_new = np.tile(modulation_lie_down[:, for_th], (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
+                #     # 注意 modulation_lie_down[:, for_th] 提取出来，是一行，所以用 (iy, 1) 而不是 (1, iy)
+                modulation_squared_new = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
                 m = modulation_squared_new
                 # m = (modulation_squared_new > 0.5).astype(np.int8())  #  插值后 会变得连续，得 重新 二值化
 

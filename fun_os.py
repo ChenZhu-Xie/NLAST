@@ -942,8 +942,8 @@ def U_slices_plot_save(folder_address,
                        is_colorbar_on, is_energy,
                        # %%
                        X, Y, **kwargs, ):  # args 是 X 和 Y， is_save_txt、is_no_data_save
-    U_YZ_amp = np.abs(U_YZ)
-    U_XZ_amp = np.abs(U_XZ)
+    U_YZ_amp = np.abs(U_YZ) if is_energy != 1 else np.abs(U_YZ) ** 2
+    U_XZ_amp = np.abs(U_XZ) if is_energy != 1 else np.abs(U_XZ) ** 2
     U_YZ_XZ_amp_max = np.max([np.max(U_YZ_amp), np.max(U_XZ_amp)])
     U_YZ_XZ_amp_min = np.min([np.min(U_YZ_amp), np.min(U_XZ_amp)])
 
@@ -1063,10 +1063,10 @@ def U_selects_plot_save(folder_address,
                         z_1, z_2, z_f, z_e,
                         **kwargs, ):  # kwargs 是 is_save_txt、is_no_data_save
 
-    U_1_amp = np.abs(U_1)
-    U_2_amp = np.abs(U_2)
-    U_f_amp = np.abs(U_f)
-    U_e_amp = np.abs(U_e)
+    U_1_amp = np.abs(U_1) if is_energy != 1 else np.abs(U_1) ** 2
+    U_2_amp = np.abs(U_2) if is_energy != 1 else np.abs(U_2) ** 2
+    U_f_amp = np.abs(U_f) if is_energy != 1 else np.abs(U_f) ** 2
+    U_e_amp = np.abs(U_e) if is_energy != 1 else np.abs(U_e) ** 2
     if is_show_structure_face == 1:
         U_amps_max = np.max([np.max(U_1_amp), np.max(U_2_amp),
                              np.max(U_f_amp), np.max(U_e_amp)])
@@ -1266,8 +1266,8 @@ def U_amps_z_plot_save(folder_address,
                        z, **kwargs, ):  # 必须要传 z 序列、is_animated 进来；kwargs 是 is_save_txt, is_no_data_save
     # 其实不用传 z 进来，直接用 z_stored[-1] 就行，不过这样保险点
 
-    U_amp_max = np.max(U)
-    U_amp_min = np.min(U)
+    U_amp_max = np.max(U) if is_energy != 1 else np.max(U) ** 2  # U 已经是 amp 了
+    U_amp_min = np.min(U) if is_energy != 1 else np.min(U) ** 2
 
     # global imgs_address_list, titles_list
     imgs_address_list = []
@@ -1376,7 +1376,7 @@ def U_phases_z_plot_save(folder_address,
                          duration, fps, loop,
                          z, **kwargs, ):  # 必须要传 z 序列、is_animated 进来， # args 是 is_save_txt、is_no_data_save
 
-    U_phase_max = np.max(U)
+    U_phase_max = np.max(U)  # U 已经是 phase 了
     U_phase_min = np.min(U)
 
     # global imgs_address_list, titles_list

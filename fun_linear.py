@@ -8,9 +8,10 @@ Created on Wed Dec 22 21:37:19 2021
 # %%
 
 import math
+
 import numpy as np
+
 from fun_array_Generate import mesh_shift
-import time
 
 
 # %%
@@ -70,9 +71,8 @@ def KTP_n(lam, T, p="z"):
     return n
 
 
-lam = 1.064 / 2
-T = 25
-
+# lam = 1.064 / 2
+# T = 25
 
 # print("LN_ne = {}".format(LN_n(lam, T, "e")))
 # print("LN_no = {}".format(LN_n(lam, T, "o")))

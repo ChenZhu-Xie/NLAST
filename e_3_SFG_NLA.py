@@ -436,13 +436,13 @@ def SFG_NLA(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",  # 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray
-         "img_full_name": "spaceship2.png",
+         "img_full_name": "lena2.png",
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
          "l": 10, "p": 0,
-         "theta_x": 2.5, "theta_y": 0,
+         "theta_x": 1.5, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -501,7 +501,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # deff 最高： 90, ~, 24.3 ；1994 ：68.8, ~, 90
          "polar": "o",
          "ray": "3", "polar3": "o",
          }
@@ -515,7 +515,7 @@ if __name__ == '__main__':
             "z_pump2": 0,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
             "l2": 10, "p2": 0,
-            "theta2_x": 2.5, "theta2_y": 0,
+            "theta2_x": 1.5, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,

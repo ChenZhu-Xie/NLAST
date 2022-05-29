@@ -105,31 +105,32 @@ def SFG_SSF_SSI(U_name="",
 
     # %%
     ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    # if ray_tag == "f":
+    U2_name = kwargs.get("U2_name", U_name)
+    img2_full_name = kwargs.get("img2_full_name", img_full_name)
+    is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
+    # %%
+    z_pump2 = kwargs.get("z_pump2", z_pump)
+    is_LG_2 = kwargs.get("is_LG_2", is_LG)
+    is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
+    is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
+    # %%
+    l2 = kwargs.get("l2", l)
+    p2 = kwargs.get("p2", p)
+    theta2_x = kwargs.get("theta2_x", theta_x)
+    theta2_y = kwargs.get("theta2_y", theta_y)
+    # %%
+    is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
+    is_H_l2 = kwargs.get("is_H_l2", is_H_l)
+    is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
+    is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
+    # %%
+    w0_2 = kwargs.get("w0_2", w0)
+    lam2 = kwargs.get("lam2", lam1)
+    is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
+    T2 = kwargs.get("T2", T)
+    polar2 = kwargs.get("polar2", 'e')
     if ray_tag == "f":
-        U2_name = kwargs.get("U2_name", U_name)
-        img2_full_name = kwargs.get("img2_full_name", img_full_name)
-        is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
-        # %%
-        z_pump2 = kwargs.get("z_pump2", z_pump)
-        is_LG_2 = kwargs.get("is_LG_2", is_LG)
-        is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
-        is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
-        # %%
-        l2 = kwargs.get("l2", l)
-        p2 = kwargs.get("p2", p)
-        theta2_x = kwargs.get("theta2_x", theta_x)
-        theta2_y = kwargs.get("theta2_y", theta_y)
-        # %%
-        is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
-        is_H_l2 = kwargs.get("is_H_l2", is_H_l)
-        is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
-        is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
-        # %%
-        w0_2 = kwargs.get("w0_2", w0)
-        lam2 = kwargs.get("lam2", lam1)
-        is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
-        T2 = kwargs.get("T2", T)
-        polar2 = kwargs.get("polar2", 'e')
         # %%
         pump2_keys = kwargs["pump2_keys"]
         # %%
@@ -311,10 +312,12 @@ def SFG_SSF_SSI(U_name="",
         mod_name_list = []
     if is_stripe == 2.2:
         from fun_CGH import structure_nonrect_chi2_Generate_2D
-        if structure_xy_mode == 'x':
-            Ix_structure, Iy_structure = len(mj_structure), Get("Iy")
-        elif structure_xy_mode == 'y':
-            Ix_structure, Iy_structure = Get("Ix"), len(mj_structure)
+        # if structure_xy_mode == 'x':
+        #     Ix_structure, Iy_structure = len(mj_structure), Get("Iy")
+        # elif structure_xy_mode == 'y':
+        #     Ix_structure, Iy_structure = Get("Ix"), len(mj_structure)
+        Ix_structure, Iy_structure = len(mj_structure), Get("Iy")
+        # print(Ix_structure, Iy_structure)
         modulation_lie_down, folder_address = \
             structure_nonrect_chi2_Generate_2D(z_pump_Structure,
                                                is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
@@ -435,12 +438,13 @@ def SFG_SSF_SSI(U_name="",
                         mod_name_list.append("χ2_" + "tran_shift_" + str(for_th))
 
                 elif is_stripe == 2 or is_stripe == 2.1 or is_stripe == 2.2:
-                    if structure_xy_mode == 'x':
-                        modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
-                        # 按行复制 多行，成一个方阵
-                    elif structure_xy_mode == 'y':
-                        modulation_squared_z = np.tile(modulation_lie_down[:, for_th],
-                                                       (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
+                    # if structure_xy_mode == 'x':
+                    #     modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
+                    #     # 按行复制 多行，成一个方阵
+                    # elif structure_xy_mode == 'y':
+                    #     modulation_squared_z = np.tile(modulation_lie_down[:, for_th],
+                    #                                    (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
+                    modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
 
                     if for_th in for_th_stored:
                         m_list.append(modulation_squared_z)
@@ -617,7 +621,7 @@ if __name__ == '__main__':
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
          "U_NonZero_size": 1, "w0": 0.3,
-         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
+         "L0_Crystal": 2, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 1, "z0_section_2_expect": 1,
          "X": 0, "Y": 0,
@@ -625,12 +629,12 @@ if __name__ == '__main__':
          "is_bulk": 0, "is_no_backgroud": 0,
          "is_stored": 0, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
          # %%
-         "lam1": 1, "is_air_pump": 1, "is_air": 2, "T": 25,
+         "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%
-         "Tx": 18, "Ty": 10, "Tz": "2*lc",
-         "mx": 1, "my": 0, "mz": 0,
+         "Tx": 18, "Ty": 10, "Tz": 8,
+         "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 2.2, "is_NLAST": 0,
          # %%
          # 生成横向结构
@@ -670,7 +674,7 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 22.5, "phi_c": 22.5,
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
          "polar": "o",
          "ray": "3", "polar3": "o",
          }
