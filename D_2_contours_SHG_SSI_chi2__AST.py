@@ -228,7 +228,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
     # 先倍频 z_AST 后衍射 z_SSI
 
     kwargs_SSI = copy.deepcopy(kwargs)
-    kwargs_SSI.update({"ray": "2", })
+    kwargs_SSI.update({"ray": kwargs.get("ray", "2"), })
     U2_z_SSI, G2_z_SSI, ray2_z_SSI, method_and_way2_z_SSI, U_key2_z_SSI = \
         SFG_NLA_SSI(*args_SSI(z_SSI), **kwargs_SSI, ) if is_NLA == 1 else \
             SFG_SSF_SSI(*args_SSI(z_SSI), **kwargs_SSI, )
@@ -253,7 +253,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
                                   is_phase_only)
 
     U2_Z_ADD = U1_z_SSI + U2_z_AST
-    kwargs.update({"ray": "2", })
+    kwargs.update({"ray": kwargs.get("ray", "2"), })
     init_GLV_rmw("", "a", "ADD", "SSI", **kwargs)
     fset("U", U2_Z_ADD)
 
@@ -358,7 +358,10 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
+         # LN 25 度 ：90, ~, ~
          "polar": "e",
          "polar3": "e",
          }

@@ -291,7 +291,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     # 先倍频 z1 后衍射 z2
 
     kwargs_ssi = copy.deepcopy(kwargs)
-    kwargs_ssi.update({"ray": "2", })
+    kwargs_ssi.update({"ray": kwargs.get("ray", "2"), })
     U2_z1, G2_z1, ray2_z1, method_and_way2_z1, U_key2_z1 = \
         SFG_NLA_ssi(*args_ssi(z1), **kwargs_ssi, ) if is_NLA == 1 else \
             SFG_SSF_ssi(*args_ssi(z1), **kwargs_ssi, )
@@ -307,7 +307,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     Z = z1 + z2
 
     kwargs_ssi = copy.deepcopy(kwargs)
-    kwargs_ssi.update({"ray": "2", })
+    kwargs_ssi.update({"ray": kwargs.get("ray", "2"), })
     U2_Z, G2_Z, ray2_Z, method_and_way2_Z, U_key2_Z = \
         SFG_NLA_ssi(*args_ssi(Z), ) if is_NLA == 1 else \
             SFG_SSF_ssi(*args_ssi(Z), **kwargs_ssi, )
@@ -322,7 +322,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                                   is_phase_only)
 
     U2_Z_ADD = U1_z2 + U2_z2
-    kwargs.update({"ray": "2", })
+    kwargs.update({"ray": kwargs.get("ray", "2"), })
     init_GLV_rmw("", "a", "ADD", "ssi", **kwargs)  # 主要是用于 之后 compare 里 fkey 获取 U_title 或 U_name 用
     fset("U", U2_Z_ADD)
     fset("G", fft2(U2_Z_ADD))
@@ -469,7 +469,10 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
+         # LN 25 度 ：90, ~, ~
          "polar": "e",
          "polar3": "e",
          }

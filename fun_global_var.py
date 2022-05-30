@@ -744,7 +744,9 @@ def end_SSI(g_shift, is_energy, n_sigma=3, **kwargs, ):
         fset("G", fft2(fget("U")))
     else:
         fset("G", dget("G"))
+        # print(np.max(np.abs(dget("G") / Get("size_PerPixel") ** 2)))
         fset("U", ifft2(fget("G")))
+        # print(np.max(np.abs(fft2(fget("U")) / Get("size_PerPixel") ** 2)))
     fset("H", fget("G") / np.max(np.abs(fget("G"))) / (g_shift / np.max(np.abs(g_shift))))
     if n_sigma > 0:
         # 扔掉 amp 偏离 amp 均值 3 倍于 总体 标准差 以外 的 数据，保留 剩下的 3 倍 以内的 数据。

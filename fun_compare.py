@@ -51,29 +51,32 @@ def U_compare(U, U_0, U_0_title, z,
            img_name_extension,
            is_save_txt,
            # %%
-           1, size_PerPixel, # 自己 colorbar
+           1, size_PerPixel, # sample = 1
            0, dpi, size_fig, # 不 save
            cmap_2d, ticks_num, is_contourf,
            is_title_on, is_axes_on, is_mm,
            fontsize, font,
-           is_colorbar_on, is_energy,
+           is_colorbar_on, is_energy,  # 自己 colorbar
            # %%
            z=z, is_no_data_save=1, )
 
-    U_energy_print(U, fkey(ugHGU), is_print,
+    # %%
+    U_title = kwargs["U_title"] if "U_title" in kwargs else fkey(ugHGU)
+
+    U_energy_print(U, U_title, is_print,
                    z=z, )
 
     U_plot("",
-           U, fkey(ugHGU),
+           U, U_title,
            img_name_extension,
            is_save_txt,
            # %%
-           1, size_PerPixel, # 自己 colorbar
+           1, size_PerPixel, # sample = 1
            0, dpi, size_fig, # 不 save
            cmap_2d, ticks_num, is_contourf,
            is_title_on, is_axes_on, is_mm,
            fontsize, font,
-           is_colorbar_on, is_energy,
+           is_colorbar_on, is_energy,  # 自己 colorbar
            # %%
            z=z, is_no_data_save=1, )
 
@@ -83,8 +86,12 @@ def U_compare(U, U_0, U_0_title, z,
         is_save = 1
 
     if is_amp_relative == 1: # 归一化
+        # print(np.max(np.abs(U)), np.max(np.abs(U_0)))
         U_norm = U/np.max(np.abs(U)) if np.max(np.abs(U)) != 0 else U
         U_0_norm = U_0 / np.max(np.abs(U_0)) if np.max(np.abs(U_0)) != 0 else U_0
+    else:
+        U_norm = U
+        U_0_norm = U_0
 
     # %%
     # 对比 U 与 U_0 的 绝对误差 1
@@ -93,7 +100,7 @@ def U_compare(U, U_0, U_0_title, z,
     is_print and print(tree_print(add_level=2) + info)
 
     U_error = U_norm - U_0_norm
-    U_error_name = fkey(ugHGU) + "_error"
+    U_error_name = U_title + "_error"
     folder_address = U_plot_save(U_error, U_error_name, is_print,
                                  img_name_extension,
                                  # %%
@@ -128,12 +135,12 @@ def U_compare(U, U_0, U_0_title, z,
     # print(U_amp_error_energy)
     U_error_energy = U_amp_error_energy / U_0_norm_energy
     # print(U_error_energy)
-    U_custom_print(U_error_energy, fkey(ugHGU), "relative_error", is_print,
+    U_custom_print(U_error_energy, U_title, "relative_error", is_print,
                    z=z, is_end=1)
 
-    # U_custom_print(U_energy_error, fkey(ugHGU), "relative_error", is_print,
+    # U_custom_print(U_energy_error, U_title, "relative_error", is_print,
     #                z=z, )
-    # U_custom_print(U_energy_error / U_0_energy, fkey(ugHGU), "error_coefficient", is_print,
+    # U_custom_print(U_energy_error / U_0_energy, U_title, "error_coefficient", is_print,
     #                z=z, is_end=1)
 
     U_energy = np.sum(np.abs(U) ** 2)

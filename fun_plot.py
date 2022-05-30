@@ -93,6 +93,7 @@ def gan_ticks(Max, ticks_num, Min=0, is_centered=0, **kwargs):
 
 def mjrFormatter_sci(x, pos):
     x_str = format(x, '.1e')
+    # print(x_str)
     e_before = x_str.split('e')[0]
     e_after = x_str.split('e')[1]
     # sci = e_before + " × " + "$10^{{{0}}}$".format("%.f" % int(e_after))  # "%.f" 是 四舍五入 取整
@@ -615,9 +616,9 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
-        if np.max(np.abs([float(str) for str in cticklabels])) >= 1e3 or np.max(
-                np.abs([float(str) for str in cticklabels])) < 1e-2:
-            cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+            if np.max(np.abs([float(str) for str in cticklabels])) >= 1e3 or np.max(
+                    np.abs([float(str) for str in cticklabels])) < 1e-2:
+                cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
         cb.set_label(clabel, fontsize=fontsize, fontdict=font)  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
     array2D_title = array2D_title if is_energy != 1 else array2D_title + "_Squared"
@@ -843,9 +844,9 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
-        if np.max(np.abs([float(str) for str in cticklabels])) >= 1e3 or np.max(
-                np.abs([float(str) for str in cticklabels])) < 1e-2:
-            cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+            if np.max(np.abs([float(str) for str in cticklabels])) >= 1e3 or np.max(
+                    np.abs([float(str) for str in cticklabels])) < 1e-2:
+                cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
         cb.set_label(clabel, fontsize=fontsize, fontdict=font)  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
     img_title = img_title if is_energy != 1 else img_title + "_Squared"
@@ -996,9 +997,9 @@ def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
-        if np.max(np.abs([float(str) for str in cticklabels])) >= 1e3 or np.max(
-                np.abs([float(str) for str in cticklabels])) < 1e-2:
-            cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
+            if np.max(np.abs([float(str) for str in cticklabels])) >= 1e3 or np.max(
+                    np.abs([float(str) for str in cticklabels])) < 1e-2:
+                cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
         cb.set_label(clabel, fontsize=fontsize, fontdict=font)  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
     img_title = img_title if is_energy != 1 else img_title + "_Squared"

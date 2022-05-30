@@ -655,7 +655,7 @@ def U_error_plot(folder_address,
     from fun_global_var import fkey
 
     U_amp_error = np.abs(U) - np.abs(U_0)
-    U_phase_error = np.abs(U) - np.angle(U_0)
+    U_phase_error = np.angle(U) - np.angle(U_0)
 
     U_amp_error_plot_address = U_amp_error_plot(folder_address,
                                                 U_amp_error, fkey(ugHGU),
@@ -790,7 +790,7 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
     U_rsd_print(U_amp_error, U_amp_error_name, is_print,
                 **kwargs, )
 
-    U_phase_error = np.abs(U) - np.angle(U_0)
+    U_phase_error = np.angle(U) - np.angle(U_0)
     U_phase_error_name = fkey(ugHGU) + "_phase_error"
     if is_print == 1:
         kwargs["is_end"] = 1

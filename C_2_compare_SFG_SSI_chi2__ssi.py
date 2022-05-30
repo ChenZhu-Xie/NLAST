@@ -111,7 +111,7 @@ def compare_SFG_SSI__ssi(U_name_Structure="",
     # %%
 
     kwargs_ssi = copy.deepcopy(kwargs)
-    kwargs_ssi.update({"ray": "2", })
+    kwargs_ssi.update({"ray": kwargs.get("ray", "2"), })
     U2_ssi, G2_ssi, ray2_ssi, method_and_way2_ssi, U_key2_ssi = \
         A_3_to_B_3_SFG_NLA_ssi(U_name_Structure,
                                is_phase_only_Structure,
@@ -255,7 +255,7 @@ def compare_SFG_SSI__ssi(U_name_Structure="",
          Gz_max_Enhance, match_mode, ]
 
     kwargs_SSI = copy.deepcopy(kwargs)
-    kwargs_SSI.update({"ray": "2", })
+    kwargs_SSI.update({"ray": kwargs.get("ray", "2"), })
     U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
         SFG_NLA_SSI(*args_SSI, **kwargs_SSI, ) if is_NLA == 1 else \
             SFG_SSF_SSI(*args_SSI, **kwargs_SSI, )
@@ -340,7 +340,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 2.66, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 0.5,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 0.5,
          # %%
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
@@ -396,9 +396,12 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
+         # LN 25 度 ：90, ~, ~
          "polar": "e",
-         "polar3": "e",
+         "ray": "3", "polar3": "e",
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1

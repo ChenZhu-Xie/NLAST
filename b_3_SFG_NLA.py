@@ -88,6 +88,7 @@ def SFG_NLA(U_name="",
             Gz_max_Enhance=1, match_mode=1,
             # %%
             **kwargs, ):
+    # print(kwargs)
     # %%
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
@@ -347,6 +348,7 @@ def SFG_NLA(U_name="",
 
             if is_sum_Gm == 0:
                 addition_dict = {"Tz": Tz if is_NLAST_sum else None}  # 若 is_NLAST_sum 有且非 0，则 Tz
+                # print(Gz,iz, Const,)
                 dset("G", G3_z_modulation_NLAST(k1, k2, k3,
                                                 modulation_squared, U_0, U2_0, iz, Const,
                                                 Gz=Gz, is_customized=1, **addition_dict, ))
@@ -430,19 +432,32 @@ def SFG_NLA(U_name="",
                    # %%                          何况 一般默认 is_self_colorbar = 1...
                    z0, is_end=1, )
 
-    return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
+    import inspect
+    if inspect.stack()[1][3] == "SFG_NLA_reverse":
+        from fun_statistics import find_Kxyz
+        from fun_linear import fft2
+        K1_z, K1_xy = find_Kxyz(fft2(U_0), k1)
+        K2_z, K2_xy = find_Kxyz(fft2(U2_0), k2)
+        kiizQ = K1_z + K2_z + Gz
+        # print(np.max(np.abs(fft2(fget("U")) / Get("size_PerPixel") ** 2)))
+
+        return fget("U"), U_0, U2_0, modulation_squared, k1_inc, k2_inc, \
+               theta_x, theta_y, theta2_x, theta2_y, kiizQ, \
+               k1, k2, k3, Const, iz, Gz
+    else:
+        return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",  # 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray
-         "img_full_name": "spaceship2.png",
+         "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 10, "p": 0,
-         "theta_x": 2.5, "theta_y": 0,
+         "l": 0, "p": 0,
+         "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -460,10 +475,10 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 0.9, "w0": 0.05,
+         "U_NonZero_size": 0.9, "w0": 0.1,
          "z0": 3,
          # %%
-         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 50,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
@@ -501,7 +516,10 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
+         # LN 25 度 ：90, ~, ~
          "polar": "o",
          "ray": "3", "polar3": "o",
          }
@@ -514,13 +532,13 @@ if __name__ == '__main__':
             # %%
             "z_pump2": 0,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 10, "p2": 0,
-            "theta2_x": 2.5, "theta2_y": 0,
+            "l2": 0, "p2": 0,
+            "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.05,
+            "w0_2": 0.1,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',

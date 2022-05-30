@@ -10,7 +10,7 @@ import math
 import numpy as np
 import scipy.stats
 import inspect
-from fun_os import img_squared_bordered_Read, U_Read, U_read_only, U_dir, U_plot_save
+from fun_os import img_squared_bordered_Read, U_Read, U_dir, U_plot_save
 from fun_global_var import Get, init_accu, tree_print
 from fun_img_Resize import img_squared_Resize
 from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase

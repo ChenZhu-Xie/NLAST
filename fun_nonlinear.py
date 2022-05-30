@@ -529,6 +529,133 @@ def gan_factor_in(cos_num_expect, nums_to_omite):
     return bj_left
 
 
+def gan_G3_z_sinc_reverse(k1, k2, k3, U3_z, is_no_backgroud,
+                          const, iz, Gz, **kwargs):  # 3.4
+    # print(Gz,iz, const,)
+    G3_z = fft2(U3_z) / Get("size_PerPixel") ** 2
+    # print(np.max(np.abs(G3_z)))
+    Ix, Iy = G3_z.shape[0], G3_z.shape[1]
+    # print(kwargs)
+    if "U_0" in kwargs:  # mod_0
+        U1_0 = U2_0 = kwargs["U_0"]
+        Cal_target = "mod"
+    elif "U1_0" in kwargs and "U2_0" in kwargs:  # mod_2
+        U1_0, U2_0 = kwargs["U1_0"], kwargs["U2_0"]
+        Cal_target = "mod"
+    elif "U1_0" in kwargs and \
+            (("k2_inc" in kwargs and "theta2_x" in kwargs and "theta2_y" in kwargs) or "kiizQ" in kwargs):
+        U1_0 = kwargs["U1_0"]
+        modulation = kwargs.get("mod", np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud)
+        Cal_target = "U2_0"
+    elif "U2_0" in kwargs and \
+            (("k1_inc" in kwargs and "theta_x" in kwargs and "theta_y" in kwargs) or "kiizQ" in kwargs):
+        U2_0 = kwargs["U2_0"]
+        modulation = kwargs.get("mod", np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud)
+        Cal_target = "U1_0"
+    elif "mod" in kwargs and \
+            (("k1_inc" in kwargs and "theta_x" in kwargs and "theta_y" in kwargs) or "kiizQ" in kwargs):
+        modulation = kwargs["mod"]
+        Cal_target = "U_0"
+    elif ("k1_inc" in kwargs and "theta_x" in kwargs and "theta_y" in kwargs and
+          "k2_inc" in kwargs and "theta2_x" in kwargs and "theta2_y" in kwargs) or "kiizQ" in kwargs:
+        Cal_target = "U_half_z_Squared_modulated"
+
+    k1_z, mesh_k1_x_k1_y = Cal_kz(Ix, Iy, k1)
+    k2_z, mesh_k2_x_k1_y = Cal_kz(Ix, Iy, k2)
+    k3_z, mesh_k3_x_k3_y = Cal_kz(Ix, Iy, k3)
+
+    if "kiizQ" in kwargs:
+        kiizQ = kwargs["kiizQ"]
+    else:
+        from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy
+        if Cal_target == "mod":
+            K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
+            K2_z, K2_xy = find_Kxyz(fft2(U2_0), k2)
+        elif Cal_target == "U2_0":
+            k2_inc = kwargs["k2_inc"]
+            theta2_x = kwargs["theta2_x"]
+            theta2_y = kwargs["theta2_y"]
+            K1_z, K1_xy = find_Kxyz(fft2(U1_0), k1)
+            k2x, k2y, k2z = Cal_Unit_kxkykz_based_on_theta_xy(theta2_x, theta2_y, )
+            K2_x, K2_y, K2_z = k2_inc * k2x, k2_inc * k2y, k2_inc * k2z
+        elif Cal_target == "U1_0":
+            k1_inc = kwargs["k1_inc"]
+            theta_x = kwargs["theta_x"]
+            theta_y = kwargs["theta_y"]
+            K2_z, K2_xy = find_Kxyz(fft2(U2_0), k2)
+            k1x, k1y, k1z = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )
+            K1_x, K1_y, K1_z = k1_inc * k1x, k1_inc * k1y, k1_inc * k1z
+        elif Cal_target == "U_0":
+            k1_inc = kwargs["k1_inc"]
+            theta_x = kwargs["theta_x"]
+            theta_y = kwargs["theta_y"]
+            k1x, k1y, k1z = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )
+            K1_x, K1_y, K1_z = k1_inc * k1x, k1_inc * k1y, k1_inc * k1z
+            K2_z = K1_z
+        elif Cal_target == "U_half_z_Squared_modulated":
+            k1_inc = kwargs["k1_inc"]
+            k2_inc = kwargs["k2_inc"]
+            theta_x = kwargs["theta_x"]
+            theta_y = kwargs["theta_y"]
+            theta2_x = kwargs["theta2_x"]
+            theta2_y = kwargs["theta2_y"]
+            k1x, k1y, k1z = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )
+            K1_x, K1_y, K1_z = k1_inc * k1x, k1_inc * k1y, k1_inc * k1z
+            k2x, k2y, k2z = Cal_Unit_kxkykz_based_on_theta_xy(theta2_x, theta2_y, )
+            K2_x, K2_y, K2_z = k2_inc * k2x, k2_inc * k2y, k2_inc * k2z
+
+        kiizQ = K1_z + K2_z + Gz
+
+    # print(kiizQ)
+    dkiizQ = kiizQ - k3_z
+    denominator = kiizQ + k3_z
+    inside_sinc = dkiizQ / 2 * iz
+    sinc_denominator = (kiizQ + k3_z) / 2
+
+    G1_U_half_z_Squared_modulated = G3_z / const \
+                                    / (np.sinc(inside_sinc / np.pi) / sinc_denominator) \
+                                    / math.e ** (Gz * iz * 1j) \
+                                    / math.e ** (k3_z * iz / 2 * 1j) \
+                                    / (1j * iz)
+
+    # print(np.max(np.abs(G1_U_half_z_Squared_modulated)))
+    # print(np.max(np.abs(np.sinc(inside_sinc / np.pi) / sinc_denominator)))
+    # print(np.min(np.abs(np.sinc(inside_sinc / np.pi) / sinc_denominator)))
+    # print(np.min(np.abs(math.e ** (Gz * iz * 1j) \
+    #                     * math.e ** (k3_z * iz / 2 * 1j) \
+    #                     * (1j * iz))))
+
+    # print(Cal_target)
+    if Cal_target == "mod":
+        modulation = ifft2(G1_U_half_z_Squared_modulated) / (Uz_AST(U1_0, k1, iz / 2) * Uz_AST(U2_0, k2, iz / 2))
+        return modulation
+    elif Cal_target == "U2_0":
+        U2_half_z = ifft2(G1_U_half_z_Squared_modulated) / (modulation * Uz_AST(U1_0, k1, iz / 2))
+        U2_0 = Uz_AST(U2_half_z, k2, - iz / 2)
+        return U2_0
+    elif Cal_target == "U1_0":
+        U1_half_z = ifft2(G1_U_half_z_Squared_modulated) / (modulation * Uz_AST(U2_0, k2, iz / 2))
+        U1_0 = Uz_AST(U1_half_z, k1, - iz / 2)
+        return U1_0
+    elif Cal_target == "U_0":
+        U_half_z_Squared = ifft2(G1_U_half_z_Squared_modulated) / modulation
+        # print(np.max(np.abs(U_half_z_Squared)))
+        # print(U_half_z_Squared)
+        U_half_z = U_half_z_Squared ** 0.5
+        # print(np.max(np.abs(U_half_z)))
+        # print(U_half_z)  # 多值：数学上，复数 开根号 与 实数一样，会有正负 2 个值。
+        # 而且 还可能 有 (1+i)**2 与 (1-i)**2 都 = 2i 的 情况：只有 虚部 反向。
+        # 在 np 中，开根号 会取 一二 象限的值，即保证 虚部 为正 这一支（0 ~ π），丢弃 3、4 象限 的 分支（虚部 为负）。
+        # 这将导致 原本正确的 U_half_z 每个像素点上，均可能有 虚部为负（0 ~ 2π），但被 np 强制 格式化 为 （0 ~ π），从而 相位 被打乱。
+        # 倍频 开方 有这个问题，但 和频 就 不存在 这个问题：有一支 的 泵浦 复振幅 是知道的。
+        U_0 = Uz_AST(U_half_z, k1, - iz / 2)
+        # print(np.max(np.abs(U_0)))
+        return U_0
+    elif Cal_target == "U_half_z_Squared_modulated":
+        U_half_z_Squared_modulated = ifft2(G1_U_half_z_Squared_modulated)
+        return U_half_z_Squared_modulated
+
+
 # %%
 
 def G3_z_modulation_NLAST(k1, k2, k3,
@@ -726,6 +853,12 @@ def G3_z_modulation_NLAST(k1, k2, k3,
 
         elif Big_version == 3:
             G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) * Uz_AST(U2_0, k2, iz / 2))
+            # print(np.max(np.abs(ifft2(G1_U_half_z_Squared_modulated) / modulation)))
+            # print(ifft2(G1_U_half_z_Squared_modulated) / modulation)
+            # print(np.max(np.abs(Uz_AST(U1_0, k1, iz / 2))))
+            # print(Uz_AST(U1_0, k1, iz / 2))  # 多值
+            # print(Uz_AST(U2_0, k2, iz / 2))
+            # print(np.max(np.abs(U1_0)))
             if Cal_version == 1:
                 molecule = G1_U_half_z_Squared_modulated \
                            * math.e ** (Gz * iz * 1j) \
@@ -795,6 +928,7 @@ def G3_z_modulation_NLAST(k1, k2, k3,
                                * (1j * iz)
                     denominator = k3_z
                 elif Cal_version >= 4:
+                    # print(kiizQ)
                     sinc_denominator = (kiizQ + k3_z) / 2
                     molecule = G1_U_half_z_Squared_modulated \
                                * np.sinc(inside_sinc / np.pi) / sinc_denominator \
@@ -802,9 +936,16 @@ def G3_z_modulation_NLAST(k1, k2, k3,
                                * math.e ** (k3_z * iz / 2 * 1j) \
                                * (1j * iz)
                     denominator = 1
+                    # print(np.max(np.abs(G1_U_half_z_Squared_modulated)))
+                    # print(np.max(np.abs(np.sinc(inside_sinc / np.pi) / sinc_denominator)))
+                    # print(np.min(np.abs(np.sinc(inside_sinc / np.pi) / sinc_denominator)))
+                    # print(np.min(np.abs(math.e ** (Gz * iz * 1j) \
+                    #                     * math.e ** (k3_z * iz / 2 * 1j) \
+                    #                     * (1j * iz))))
                 if Cal_version == 6:
                     molecule *= correction_factor
             G3_z = const * molecule / denominator
+            # print(np.max(np.abs(G3_z)))
 
         elif Big_version == 4:
             if Cal_version == 0:
@@ -859,6 +1000,8 @@ def G3_z_modulation_NLAST(k1, k2, k3,
             G3_z = match + dismatch
 
         return G3_z * Get("size_PerPixel") ** 2
+        # return gan_G3_z_sinc_reverse(k1, k2, k3, ifft2(G3_z * Get("size_PerPixel") ** 2), 0,
+        #                              const, iz, Gz, mod=modulation, kiizQ=kiizQ, )
 
 
 def G3_z_NLAST(k1, k2, k3, Gx, Gy, Gz,

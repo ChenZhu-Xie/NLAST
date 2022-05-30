@@ -183,7 +183,7 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
          Gz_max_Enhance, match_mode, ]
 
     kwargs_SSI = copy.deepcopy(kwargs)
-    kwargs_SSI.update({"ray": "2", })
+    kwargs_SSI.update({"ray": kwargs.get("ray", "2"), })
     U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
         SFG_NLA_SSI(*args_SSI, **kwargs_SSI, ) if is_NLA == 1 else \
             SFG_SSF_SSI(*args_SSI, **kwargs_SSI, )
@@ -263,9 +263,9 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
     kwargs_EVV = copy.deepcopy(kwargs)
     # print(kwargs)
     if abs(is_stored) == 1:
-        kwargs_EVV.update({"ray": "2", "zj_EVV": Get("z_stored"), })
+        kwargs_EVV.update({"ray": kwargs.get("ray", "2"), "zj_EVV": Get("z_stored"), })
     else:
-        kwargs_EVV.update({"ray": "2", })
+        kwargs_EVV.update({"ray": kwargs.get("ray", "2"), })
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SFG_NLA_EVV(*args_EVV, **kwargs_EVV, )
     # 如果 is_stored == 1 或 -1，则把 SSI 或 ssi 生成的 z_stored 传进 SFG_NLA_EVV 作为 他的 zj，方便 比较。不画图 则传 -1 进去。
@@ -284,6 +284,11 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
         img_squared_bordered_Read(img_full_name,
                                   U_NonZero_size, dpi,
                                   is_phase_only)
+
+    # %%
+    if kwargs.get('ray', "2") == "3":  #  防止 l2 关键字 进 U_twin_energy_error_plot_save 等， 与 line2 冲突
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")
 
     if is_output_error_EVV != 1:
         # %%
@@ -495,7 +500,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 10, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "L0_Crystal": 2, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -516,7 +521,7 @@ if __name__ == '__main__':
          "is_linear_convolution": 0,
          # %%
          "Tx": 18.769, "Ty": 20, "Tz": 6.9,
-         "mx": 1, "my": 0, "mz": 1,
+         "mx": 1, "my": 0, "mz": 0,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
          "is_save": 2, "is_save_txt": 0, "dpi": 100,
@@ -554,19 +559,22 @@ if __name__ == '__main__':
          "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          "ax_yscale": 'linear',
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
+         # LN 25 度 ：90, ~, ~
          "polar": "e",
-         "polar3": "e",
+         "ray": "3", "polar3": "e",
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
-            "img2_full_name": "lena.png",
+            "img2_full_name": "spaceship2.png",
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
-            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
+            "is_LG_2": 0, "is_Gauss_2": 0, "is_OAM_2": 0,
             "l2": 0, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%

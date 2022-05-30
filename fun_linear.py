@@ -100,7 +100,7 @@ def get_n(is_air, lam, T, p):
 def Cal_n(size_PerPixel,
           is_air,
           lam, T, p="e", **kwargs):
-    if is_air != 1:
+    if is_air != 1 and type(kwargs.get("phi_z", 0)) != str:
 
         # %%
         # 基波 与 倍频 都同享 同一个 theta_x：二者 的 中心波矢 k 差不多 共线，尽管 二次谐波 的 中心 k 还与 结构关系很大，甚至没有 中心 k 一说
@@ -155,7 +155,7 @@ def Cal_n(size_PerPixel,
         # %%
         sin_theta_z_inc_nxny = (mesh_kx_ky_shift[:, :, 0] ** 2 + mesh_kx_ky_shift[:, :, 1] ** 2) ** 0.5 / k_inc
         # 注意 是 kx,ky 或 nx,ny 的 函数（这里 假设了 k 附近的 采样点 分布 是个球面？那这也不准：k_inc 从一开始，就不是个 标量）
-        theta_z_inc_nxny = np.arcsin(sin_theta_z_inc_nxny)
+        theta_z_inc_nxny = np.arcsin(sin_theta_z_inc_nxny)  # 类比 Cal_theta_phi_z_inc 中的 theta_z_inc = math.acos(kz)
         phi_z_inc_nxny = np.arctan2(- mesh_kx_ky_shift[:, :, 1], - mesh_kx_ky_shift[:, :, 0])
         # phi_z_inc_nxny = np.arctan((- mesh_kx_ky_shift[:, :, 1]) / (- mesh_kx_ky_shift[:, :, 0]))  # 需要 变换到 直角坐标系下
         # print(np.max(theta_z_inc_nxny), np.max(phi_z_inc_nxny), np.min(phi_z_inc_nxny))

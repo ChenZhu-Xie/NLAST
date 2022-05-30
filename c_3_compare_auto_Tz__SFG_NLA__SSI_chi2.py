@@ -381,6 +381,10 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
                                    format(array_dkQ[i], Get("F_E")), format(U0_energy[i], Get("F_E")),
                                    format(U_energy[i], Get("F_E")), ))
 
+    if kwargs.get('ray', "2") == "3":  #  防止 l2 关键字 进 U_twin_energy_error_plot_save 等， 与 line2 冲突
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")
+
     GU_error_energy_plot_save(G0_energy, G_energy, G_error_energy,
                               U0_energy, U_energy, U_error_energy,
                               img_name_extension, is_save_txt,
@@ -483,7 +487,10 @@ if __name__ == '__main__':
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          "ax_yscale": 'linear',
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
+         # LN 25 度 ：90, ~, ~
          "polar": "e",
          "ray": '3', "polar3": "e",
          }

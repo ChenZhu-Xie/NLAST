@@ -111,7 +111,7 @@ def compare_SFG_NLA__ssi(U_name_Structure="",
     # %%
 
     kwargs_ssi = copy.deepcopy(kwargs)
-    kwargs_ssi.update({"ray": "2", })
+    kwargs_ssi.update({"ray": kwargs.get("ray", "2"), })
     U2_ssi, G2_ssi, ray2_ssi, method_and_way2_ssi, U_key2_ssi = \
         A_3_to_B_3_SFG_NLA_ssi(U_name_Structure,
                                is_phase_only_Structure,
@@ -185,7 +185,7 @@ def compare_SFG_NLA__ssi(U_name_Structure="",
                                **kwargs_ssi, )
 
     kwargs_NLA = copy.deepcopy(kwargs)
-    kwargs_NLA.update({"ray": "2", })
+    kwargs_NLA.update({"ray": kwargs.get("ray", "2"), })
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SFG_NLA(U_name,
                 img_full_name,
@@ -327,7 +327,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 2.66, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -344,7 +344,7 @@ if __name__ == '__main__':
          "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
-         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 1,
+         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
          "Tx": 10.769, "Ty": 20, "Tz": 6.9,
@@ -384,15 +384,18 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
+         # LN 25 度 ：90, ~, ~
          "polar": "e",
-         "polar3": "e",
+         "ray": "3", "polar3": "e",
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
-            "img2_full_name": "lena.png",
+            "img2_full_name": "spaceship.png",
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,

@@ -182,13 +182,13 @@ def compare_SFG_NLA__SSI(U_name_Structure="",
          Gz_max_Enhance, match_mode, ]
 
     kwargs_SSI = copy.deepcopy(kwargs)
-    kwargs_SSI.update({"ray": "2", })
+    kwargs_SSI.update({"ray": kwargs.get("ray", "2"), })
     U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
         SFG_NLA_SSI(*args_SSI, **kwargs_SSI, ) if is_NLA == 1 else \
             SFG_SSF_SSI(*args_SSI, **kwargs_SSI, )
 
     kwargs_NLA = copy.deepcopy(kwargs)
-    kwargs_NLA.update({"ray": "2", })
+    kwargs_NLA.update({"ray": kwargs.get("ray", "2"), })
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SFG_NLA(U_name,
                 img_full_name,
@@ -388,15 +388,18 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,  # KTP deff 最高： 90, ~, 24.3 ———— 1994 ：68.8, ~, 90 ———— LN ：90, ~, ~
+         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
+         # LN 25 度 ：90, ~, ~
          "polar": "e",
-         "polar3": "e",
+         "ray": "3", "polar3": "e",
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
-            "img2_full_name": "lena.png",
+            "img2_full_name": "spaceship.png",
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
