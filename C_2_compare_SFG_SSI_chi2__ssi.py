@@ -319,8 +319,8 @@ if __name__ == '__main__':
          "is_phase_only_Structure": 0,
          # %%
          "z_pump_Structure": 0,
-         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
-         "l_Structure": 1, "p_Structure": 0,
+         "is_LG_Structure": 0, "is_Gauss_Structure": 0, "is_OAM_Structure": 0,
+         "l_Structure": 0, "p_Structure": 0,
          "theta_x_Structure": 0, "theta_y_Structure": 0,
          # %%
          "is_random_phase_Structure": 0,
@@ -339,7 +339,7 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%---------------------------------------------------------------------
          # %%
-         "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
+         "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
          "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 0.5,
          # %%
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
@@ -355,15 +355,15 @@ if __name__ == '__main__':
          "is_bulk": 0, "is_no_backgroud": 0,
          "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
          # %%
-         "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
-         "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
+         "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
+         "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 20,
-         "mx": 1, "my": 0, "mz": 1,
+         "Tx": 18.769, "Ty": 20, "Tz": 7,
+         "mx": 0, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
-         "is_save": 1, "is_save_txt": 0, "dpi": 100,
+         "is_save": 2, "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -371,14 +371,14 @@ if __name__ == '__main__':
          "sample": 1, "ticks_num": 6, "is_contourf": 0,
          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
          # %%
-         "fontsize": 9,
+         "fontsize": 10,
          "font": {'family': 'serif',
                   'style': 'normal',  # 'normal', 'italic', 'oblique'
                   'weight': 'normal',
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1,
+         "is_colorbar_on": 1, "is_energy": 0,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
@@ -394,7 +394,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          # %%
          "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
          # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
@@ -407,18 +407,18 @@ if __name__ == '__main__':
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
-            "img2_full_name": "lena.png",
+            "img2_full_name": "lena1.png",
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
-            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
-            "l2": 0, "p2": 0,
+            "is_LG_2": 2, "is_Gauss_2": 1, "is_OAM_2": 1,
+            "l2": 2, "p2": 2,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.3,
+            "w0_2": 0.2,
             # %%
             "lam2": 1, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',

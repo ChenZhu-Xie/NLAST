@@ -359,7 +359,7 @@ if __name__ == '__main__':
          "sample": 1, "ticks_num": 6, "is_contourf": 0,
          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
          # %%
-         "fontsize": 9,
+         "fontsize": 10,
          "font": {'family': 'serif',
                   'style': 'normal',  # 'normal', 'italic', 'oblique'
                   'weight': 'normal',

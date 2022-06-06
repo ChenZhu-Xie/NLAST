@@ -312,6 +312,7 @@ def U_energy_print(U_receive, U_name, is_print,  # 外面的 **kwargs 可能传�
     U_full_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0,
                                                                                  **kwargs, )  # 不加 序列号 # 要有 method （诸如 'AST'）
 
+    # print(kwargs.get("is_end", 0))
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=-1) + U_full_name + ".total_energy = {}"
                        .format(format(np.sum(np.abs(U_receive) ** 2), Get("F_E"))))  # 重新调用 该方法时，无论如何都不存在 level + 1 的需求。
     kwargs.pop("is_end", None);

@@ -58,8 +58,7 @@ def Cal_lc_SHG(k1_inc, k3_inc, Tz, size_PerPixel,
     # print(type(Tz) != np.float64)
     # print(type(Tz) != float) # float = np.float ≠ np.float64
 
-    if (type(Tz) != float and type(Tz) != np.float64
-        and type(Tz) != int) or Tz <= 0:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
+    if kwargs.get("is_cover_Tz", False) >= 1:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
         Tz = 2 * lc  # Unit: μm
 
     return dk, lc, Tz
@@ -101,13 +100,25 @@ def args_SFG(k1_inc, k3_inc, size_PerPixel,
     is_first = int(init_accu(info, 1) <= call_times_limit)  # 若第一次调用 args_SFG，则 is_first 为 1，否则为 0
     is_Print = is_print * is_first  # 两个 得都 非零，才 print
 
+    if Get(info) == 1:
+        from fun_global_var import Set
+        if (type(Tz) != float and type(Tz) != np.float64
+            and type(Tz) != int) or Tz <= 0:
+            Set("is_cover_Tz", 1)
+        else:
+            Set("is_cover_Tz", False)
+        # print(Get("is_cover_Tz"))
+
     info = "参数_SHG"
     is_Print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
+    # is_cover_Tz = Get("is_cover_Tz") if is_first == 1 else False
+    is_cover_Tz = Get("is_cover_Tz")
+
     dk, lc, Tz = Cal_lc_SHG(k1_inc, k3_inc, Tz, size_PerPixel,
-                            is_Print, **kwargs)
+                            is_Print, is_cover_Tz=is_cover_Tz, **kwargs)
 
     Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                             Tx, Ty, Tz, size_PerPixel,
@@ -674,7 +685,7 @@ def G3_z_modulation_NLAST(k1, k2, k3,
         k2_z, mesh_k2_x_k1_y = Cal_kz(U2_0.shape[0], U2_0.shape[1], k2)
         k3_z, mesh_k3_x_k3_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k3)
 
-        Big_version = 5 if is_customized == 1 else 3
+        Big_version = 1 if is_customized == 1 else 3
         Cal_version = 1 if is_customized == 1 else 4
         Res_version = 1 if is_customized == 1 else 1
         # print(str(Big_version) + '.' + str(Cal_version) + "\n")
@@ -1010,7 +1021,7 @@ def G3_z_NLAST(k1, k2, k3, Gx, Gy, Gz,
     Ix, Iy = U1_0.shape[0], U1_0.shape[1]
     k3_z, mesh_k3_x_k3_y = Cal_kz(Ix, Iy, k3)
 
-    Big_version = 5
+    Big_version = 1
     Cal_version = 1
     Res_version = 1
     # print(str(Big_version) + '.' + str(Cal_version) + "\n")

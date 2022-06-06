@@ -543,7 +543,7 @@ if __name__ == '__main__':
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
-         "is_LG": 0, "is_Gauss": 1, "is_OAM": 0,
+         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
          "l": 0, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
@@ -556,15 +556,15 @@ if __name__ == '__main__':
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
-         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
-         "l_Structure": 1, "p_Structure": 0,
+         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 0,
+         "l_Structure": 0, "p_Structure": 0,
          "theta_x_Structure": 0, "theta_y_Structure": 0,
          # %%
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 0.9, "w0": 0.1,
-         "L0_Crystal": 2.66, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
+         "U_NonZero_size": 1, "w0": 0,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 1, "z0_section_2_expect": 1,
          "X": 0, "Y": 0,
@@ -577,8 +577,8 @@ if __name__ == '__main__':
          "deff": 30,
          # %%
          "Tx": 18.769, "Ty": 20, "Tz": 0,
-         "mx": 1, "my": 1, "mz": 1,
-         "is_stripe": 2.2, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+         "mx": 0, "my": 0, "mz": 1,
+         "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
          # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
          # %%
          # 生成横向结构
@@ -596,7 +596,7 @@ if __name__ == '__main__':
          "sample": 1, "ticks_num": 6, "is_contourf": 0,
          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
          # %%
-         "fontsize": 7,
+         "fontsize": 10,
          "font": {'family': 'serif',
                   'style': 'normal',  # 'normal', 'italic', 'oblique'
                   'weight': 'normal',
@@ -605,7 +605,7 @@ if __name__ == '__main__':
          # %%
          "is_colorbar_on": 1, "is_energy": 0,
          # %%
-         "plot_group": "Ga", "is_animated": 1,
+         "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %%
          "is_plot_3d_XYz": 0, "is_plot_selective": 0,
@@ -617,7 +617,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          # %%
          "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
          # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
@@ -630,18 +630,18 @@ if __name__ == '__main__':
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
-            "img2_full_name": "lena.png",
+            "img2_full_name": "spaceship2.png",
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
-            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
-            "l2": 0, "p2": 0,
+            "is_LG_2": 2, "is_Gauss_2": 1, "is_OAM_2": 1,
+            "l2": 2, "p2": 2,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.3,
+            "w0_2": 0.2,
             # %%
             "lam2": 1, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',

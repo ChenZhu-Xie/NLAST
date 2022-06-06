@@ -666,7 +666,7 @@ def pump_pic_or_U2(U2_name="",
                                            theta_x=theta2_x,
                                            theta_y=theta2_y, **kwargs)
 
-            kwargs["is_end"] = 1
+            kwargs["is_end"] = 1 if is_first == 1 else 0
             U2, g2_shift = pump(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
                                 U2, w0_2, k2_inc, k2, z_pump2,
                                 is_LG_2, is_Gauss_2, is_OAM_2,

@@ -511,13 +511,13 @@ def SFG_NLA_EVV(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-         "img_full_name": "spaceship2.png",
+         "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 10, "p": 0,
-         "theta_x": 0, "theta_y": 3,
+         "l": 3, "p": 0,
+         "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -535,17 +535,17 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 0.9, "w0": 0.05,
-         "z0": 3, "sheets_stored_num": 10,
+         "U_NonZero_size": 1, "w0": 0.05,
+         "z0": 15, "sheets_stored_num": 10,
          # %%
-         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 60,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
-         "deff": 30, "is_fft": 1, "fft_mode": 0,
+         "deff": 30, "is_fft": 1, "fft_mode": 1,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 20, "Ty": 20, "Tz": 0,
-         "mx": 0, "my": 0, "mz": 0,
+         "Tx": 13, "Ty": 20, "Tz": 0,
+         "mx": 1, "my": 0, "mz": 0,
          # %%
          # 生成横向结构
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
@@ -555,7 +555,7 @@ if __name__ == '__main__':
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
          "is_stored": 1, "is_energy_evolution_on": 1,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 1, "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -563,7 +563,7 @@ if __name__ == '__main__':
          "sample": 1, "ticks_num": 6, "is_contourf": 0,
          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
          # %%
-         "fontsize": 9,
+         "fontsize": 10,
          "font": {'family': 'serif',
                   'style': 'normal',  # 'normal', 'italic', 'oblique'
                   'weight': 'normal',
@@ -594,13 +594,13 @@ if __name__ == '__main__':
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
-            "img2_full_name": "lena.png",
+            "img2_full_name": "lena1.png",
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 10, "p2": 0,
-            "theta2_x": 0, "theta2_y": 3,
+            "l2": 3, "p2": 0,
+            "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,

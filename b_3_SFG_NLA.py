@@ -475,8 +475,8 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 0.9, "w0": 0.1,
-         "z0": 3,
+         "U_NonZero_size": 1, "w0": 0.1,
+         "z0": 10,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
@@ -484,8 +484,8 @@ if __name__ == '__main__':
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 30, "Ty": 30, "Tz": 3,
-         "mx": 0, "my": 0, "mz": 0,
+         "Tx": 20, "Ty": 30, "Tz": 3,
+         "mx": 1, "my": 0, "mz": 0,
          # %%
          # 生成横向结构
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
@@ -501,7 +501,7 @@ if __name__ == '__main__':
          "ticks_num": 6, "is_contourf": 0,
          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
          # %%
-         "fontsize": 7,
+         "fontsize": 10,
          "font": {'family': 'serif',
                   'style': 'normal',  # 'normal', 'italic', 'oblique'
                   'weight': 'normal',

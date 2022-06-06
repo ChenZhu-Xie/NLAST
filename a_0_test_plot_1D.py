@@ -125,20 +125,20 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
 if __name__ == '__main__':
     kwargs = \
         {"test_target": -1, # 自动化了，不用填这个参数了
-         "Data_Seq": 33,
+         "Data_Seq": 461,
          "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
-         "U_NonZero_size": 0.9,
+         "U_NonZero_size": 1,
          # %%
          "is_save": 0, "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "color_1d2": 'r',
          # %%
-         "sample": 1, "ticks_num": 7,
+         "sample": 1, "ticks_num": 6,
          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
          # %%
-         "fontsize": 9,
+         "fontsize": 10,
          "font": {'family': 'serif',
                'style': 'normal',  # 'normal', 'italic', 'oblique'
                'weight': 'normal',
@@ -150,8 +150,8 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "is_end": -1,
          # %%
-         "size_fig_x_scale": 10, "size_fig_y_scale": 3,
-         "ax_yscale": '', }
+         "size_fig_x_scale": 10, "size_fig_y_scale": 2,
+         "ax_yscale": 'linear', "xticklabels_rotate": 45, }
 
     kwargs = init_GLV_DICT(**kwargs)
     plot_1D_test(**kwargs)

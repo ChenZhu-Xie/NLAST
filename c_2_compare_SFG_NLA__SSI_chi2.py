@@ -99,6 +99,7 @@ def compare_SFG_NLA__SSI(U_name_Structure="",
                          is_NLA=1, is_amp_relative=1,
                          # %%
                          **kwargs, ):
+    # print(kwargs)
     # %%
     info = "利用 SHG 对比：NLA 与 SSI"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -310,8 +311,8 @@ if __name__ == '__main__':
          "is_phase_only_Structure": 0,
          # %%
          "z_pump_Structure": 0,
-         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 0,
-         "l_Structure": 0, "p_Structure": 0,
+         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
+         "l_Structure": 2, "p_Structure": 0,
          "theta_x_Structure": 0, "theta_y_Structure": 0,
          # %%
          "is_random_phase_Structure": 0,
@@ -330,8 +331,8 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%---------------------------------------------------------------------
          # %%
-         "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
+         "L0_Crystal": 3, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -351,7 +352,7 @@ if __name__ == '__main__':
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 10, "Ty": 20, "Tz": 0,
+         "Tx": 18.769, "Ty": 20, "Tz": 0,
          "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
@@ -360,10 +361,10 @@ if __name__ == '__main__':
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
          # %%
-         "sample": 1, "ticks_num": 6, "is_contourf": 0,
+         "sample": 1, "ticks_num": 7, "is_contourf": 0,
          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
          # %%
-         "fontsize": 9,
+         "fontsize": 10,
          "font": {'family': 'serif',
                   'style': 'normal',  # 'normal', 'italic', 'oblique'
                   'weight': 'normal',
@@ -399,20 +400,20 @@ if __name__ == '__main__':
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
-            "img2_full_name": "spaceship.png",
+            "img2_full_name": "lena1.png",
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
-            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 0,
+            "is_LG_2": 0, "is_Gauss_2": 0, "is_OAM_2": 0,
             "l2": 0, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.3,
+            "w0_2": 0,
             # %%
-            "lam2": 1, "is_air_pump2": 1, "T2": 25,
+            "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
