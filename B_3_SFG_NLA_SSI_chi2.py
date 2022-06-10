@@ -12,8 +12,8 @@ import math
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_SSI
-from fun_linear import fft2, ifft2
-from fun_nonlinear import Info_find_contours_SHG, G3_z_modulation_NLAST
+from fun_linear import ifft2
+from fun_nonlinear import G3_z_modulation_NLAST
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
@@ -77,7 +77,7 @@ def SFG_NLA_SSI(U_name="",
                 color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
                 elev=10, azim=-65, alpha=2,
                 # %%
-                sample=2, ticks_num=6, is_contourf=0,
+                sample=1, ticks_num=6, is_contourf=0,
                 is_title_on=1, is_axes_on=1, is_mm=1,
                 # %%
                 fontsize=9,
@@ -95,7 +95,7 @@ def SFG_NLA_SSI(U_name="",
                 is_plot_3d_XYz=0, is_plot_selective=0,
                 is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
                 # %%
-                is_print=1, is_contours=1, n_TzQ=1,
+                is_print=1, is_contours=0, n_TzQ=1,
                 Gz_max_Enhance=1, match_mode=1,
                 # %%
                 **kwargs, ):
@@ -279,11 +279,11 @@ def SFG_NLA_SSI(U_name="",
 
     # %%
 
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
-                                                                          L0_Crystal, size_PerPixel,
-                                                                          deff_structure_length_expect,
-                                                                          is_print, is_contours, n_TzQ, Gz_max_Enhance,
-                                                                          match_mode, )
+    # L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
+    #                                                                       L0_Crystal, size_PerPixel,
+    #                                                                       deff_structure_length_expect,
+    #                                                                       is_print, is_contours, n_TzQ, Gz_max_Enhance,
+    #                                                                       match_mode, )
 
     # %%
 
@@ -300,6 +300,9 @@ def SFG_NLA_SSI(U_name="",
                     z0_section_1_expect, z0_section_2_expect,
                     is_stripe, mx, my, Tx, Ty, Tz, Duty_Cycle_z, structure_xy_mode,
                     is_print)
+
+    # print(dizj)
+    # print(zj)
 
     # %%
 
@@ -533,19 +536,32 @@ def SFG_NLA_SSI(U_name="",
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
-    return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
+    import inspect
+    if inspect.stack()[1][3] == "SFG_NLA_reverse":
+        from fun_statistics import find_Kxyz
+        from fun_linear import fft2
+        K1_z, K1_xy = find_Kxyz(fft2(U_0), k1)
+        K2_z, K2_xy = find_Kxyz(fft2(U2_0), k2)
+        kiizQ = K1_z + K2_z + Gz
+        # print(np.max(np.abs(fft2(fget("U")) / Get("size_PerPixel") ** 2)))
+
+        return fget("U"), U_0, U2_0, modulation_squared, k1_inc, k2_inc, \
+               theta_x, theta_y, theta2_x, theta2_y, kiizQ, \
+               k1, k2, k3, const, Iz, Gz
+    else:
+        return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-         "img_full_name": "lena1.png",
+         "img_full_name": "spaceship2.png",
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
-         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
-         "l": 0, "p": 0,
-         "theta_x": 0, "theta_y": 0,
+         "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
+         "l": 10, "p": 0,
+         "theta_x": 1.5, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -563,21 +579,21 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0,
-         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
-         "SSI_zoomout_times": 1, "sheets_stored_num": 10,
+         "U_NonZero_size": 1, "w0": 0.1,
+         "L0_Crystal": 10, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
+         "SSI_zoomout_times": 1, "sheets_stored_num": 15,
          "z0_section_1_expect": 1, "z0_section_2_expect": 1,
          "X": 0, "Y": 0,
          # %%
          "is_bulk": 0, "is_no_backgroud": 0,
          "is_stored": 1, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
          # %%
-         "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
-         "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 50,
+         "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 0,
-         "mx": 0, "my": 0, "mz": 1,
+         "Tx": 18.769, "Ty": 20, "Tz": 100,
+         "mx": 0, "my": 0, "mz": 0,
          "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
          # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
          # %%
@@ -588,12 +604,12 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 1, "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
          # %%
-         "sample": 1, "ticks_num": 6, "is_contourf": 0,
+         "sample": 1, "ticks_num": 7, "is_contourf": 0,
          "is_title_on": 1, "is_axes_on": 1, "is_mm": 1,
          # %%
          "fontsize": 10,
@@ -603,7 +619,7 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 0,
+         "is_colorbar_on": 1, "is_energy": 1,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
@@ -619,12 +635,12 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
-         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         "theta_z": 90, "phi_z": 90, "phi_c": 24.3,  # LN 的 phi_c 为什么 不能填 0
+         # KTP 25 度 ：deff 最高 ： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "e",
-         "ray": "3", "polar3": "e",
+         "polar": "o",
+         "ray": "3", "polar3": "o",
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
@@ -634,16 +650,16 @@ if __name__ == '__main__':
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
-            "is_LG_2": 2, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 2, "p2": 2,
-            "theta2_x": 0, "theta2_y": 0,
+            "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
+            "l2": 10, "p2": 0,
+            "theta2_x": 1.5, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.2,
+            "w0_2": 0.1,
             # %%
-            "lam2": 1, "is_air_pump2": 1, "T2": 25,
+            "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
@@ -706,7 +722,7 @@ if __name__ == '__main__':
     #             color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
     #             elev=10, azim=-65, alpha=2,
     #             # %%
-    #             sample=2, ticks_num=6, is_contourf=0,
+    #             sample=1, ticks_num=6, is_contourf=0,
     #             is_title_on=1, is_axes_on=1, is_mm=1,
     #             # %%
     #             fontsize=9,

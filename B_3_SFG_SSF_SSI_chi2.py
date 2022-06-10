@@ -77,7 +77,7 @@ def SFG_SSF_SSI(U_name="",
                 color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
                 elev=10, azim=-65, alpha=2,
                 # %%
-                sample=2, ticks_num=6, is_contourf=0,
+                sample=1, ticks_num=6, is_contourf=0,
                 is_title_on=1, is_axes_on=1, is_mm=1,
                 # %%
                 fontsize=9,
@@ -277,11 +277,11 @@ def SFG_SSF_SSI(U_name="",
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
-    L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
-                                                                          L0_Crystal, size_PerPixel,
-                                                                          deff_structure_length_expect,
-                                                                          is_print, is_contours, n_TzQ, Gz_max_Enhance,
-                                                                          match_mode, )
+    # L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
+    #                                                                       L0_Crystal, size_PerPixel,
+    #                                                                       deff_structure_length_expect,
+    #                                                                       is_print, is_contours, n_TzQ, Gz_max_Enhance,
+    #                                                                       match_mode, )
 
     # %%
 
@@ -759,7 +759,7 @@ if __name__ == '__main__':
     #              color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
     #              elev=10, azim=-65, alpha=2,
     #              # %%
-    #              sample=2, ticks_num=6, is_contourf=0,
+    #              sample=1, ticks_num=6, is_contourf=0,
     #              is_title_on=1, is_axes_on=1, is_mm=1,
     #              # %%
     #              fontsize=9,

@@ -125,7 +125,7 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
 if __name__ == '__main__':
     kwargs = \
         {"test_target": -1, # 自动化了，不用填这个参数了
-         "Data_Seq": 461,
+         "Data_Seq": 460,
          "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%

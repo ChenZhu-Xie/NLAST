@@ -76,7 +76,7 @@ def Cal_GxGyGz(mx, my, mz,
     Gy = - Gy  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系（这里 转后，其他地方 就不用 转了）
 
     is_print and print(tree_print(add_level=-1) +
-                       "mx = {} μm, my = {} μm, mz = {} μm".format(mx, my, mz))
+                       "mx = {}, my = {}, mz = {}".format(mx, my, mz))
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) +
                        "Tx = {} μm, Ty = {} μm, Tz = {} μm".format(Tx, Ty, Tz))
 
@@ -250,7 +250,7 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
     Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,  # 利用 新的 Tz，更新 新的 Gz
                           mx, my, mz,
                           Tx, Ty, Tz,
-                          is_print, k2_inc=k2_inc, )
+                          is_print, k2_inc=k2_inc, is_end=kwargs.get("is_end", 0))
 
     # %%  利用 更新后的 Gz，给出 更新后的 k3 系列
 
@@ -621,17 +621,39 @@ def gan_G3_z_sinc_reverse(k1, k2, k3, U3_z, is_no_backgroud,
     dkiizQ = kiizQ - k3_z
     denominator = kiizQ + k3_z
     inside_sinc = dkiizQ / 2 * iz
-    sinc_denominator = (kiizQ + k3_z) / 2
+    # print(np.max(np.abs(inside_sinc)))
 
+    Sinc = np.sinc(inside_sinc / np.pi)
+    # Sinc = Sinc * 0.2 + 0.8
+
+    # Shorter = 1  # Min 的 变矮倍数 > 1，如 np.pi
+    # Min = np.where(np.abs(inside_sinc) > np.arcsin(1 / Shorter), 1 / Shorter / np.abs(inside_sinc), Sinc) # 0.1
+    # Sinc = np.where(np.abs(Sinc) >= Min, Sinc, Min * np.sign(Sinc))
+
+    # Sinc = 1
+    # Sinc = math.e ** (- inside_sinc ** 2 / 6)
+    # Sinc = 1 / (1 + np.abs(inside_sinc))
+    # Sinc = 1 / (1 + np.abs(inside_sinc)) * 0.5 + 0.5
+    # Sinc = np.sign(np.sinc(inside_sinc / np.pi))
+    # print(np.min(np.abs(Sinc)))
+
+    sinc_denominator = (kiizQ + k3_z) / 2
     G1_U_half_z_Squared_modulated = G3_z / const \
-                                    / (np.sinc(inside_sinc / np.pi) / sinc_denominator) \
+                                    / (Sinc / sinc_denominator) \
                                     / math.e ** (Gz * iz * 1j) \
                                     / math.e ** (k3_z * iz / 2 * 1j) \
                                     / (1j * iz)
 
+    # sinc_denominator = kiizQ + k3_z
+    # G1_U_half_z_Squared_modulated = G3_z / const \
+    #                                 / (Sinc / sinc_denominator) \
+    #                                 / math.e ** (Gz * iz / 2 * 1j) \
+    #                                 / math.e ** (k3_z * iz / 2 * 1j) \
+    #                                 / (1j * iz)
+
     # print(np.max(np.abs(G1_U_half_z_Squared_modulated)))
-    # print(np.max(np.abs(np.sinc(inside_sinc / np.pi) / sinc_denominator)))
-    # print(np.min(np.abs(np.sinc(inside_sinc / np.pi) / sinc_denominator)))
+    # print(np.max(np.abs(Sinc / sinc_denominator)))
+    # print(np.min(np.abs(Sinc / sinc_denominator)))
     # print(np.min(np.abs(math.e ** (Gz * iz * 1j) \
     #                     * math.e ** (k3_z * iz / 2 * 1j) \
     #                     * (1j * iz))))
@@ -646,7 +668,11 @@ def gan_G3_z_sinc_reverse(k1, k2, k3, U3_z, is_no_backgroud,
         return U2_0
     elif Cal_target == "U1_0":
         U1_half_z = ifft2(G1_U_half_z_Squared_modulated) / (modulation * Uz_AST(U2_0, k2, iz / 2))
+        # Sinc = np.sign(np.sinc(inside_sinc / np.pi))
+        # U1_half_z = ifft2(fft2(U1_half_z) * Sinc)
         U1_0 = Uz_AST(U1_half_z, k1, - iz / 2)
+        # Sinc = np.sign(np.sinc(inside_sinc / np.pi))
+        # U1_0 = ifft2(fft2(U1_0) * Sinc)
         return U1_0
     elif Cal_target == "U_0":
         U_half_z_Squared = ifft2(G1_U_half_z_Squared_modulated) / modulation
@@ -685,7 +711,7 @@ def G3_z_modulation_NLAST(k1, k2, k3,
         k2_z, mesh_k2_x_k1_y = Cal_kz(U2_0.shape[0], U2_0.shape[1], k2)
         k3_z, mesh_k3_x_k3_y = Cal_kz(U1_0.shape[0], U1_0.shape[1], k3)
 
-        Big_version = 1 if is_customized == 1 else 3
+        Big_version = 5 if is_customized == 1 else 3
         Cal_version = 1 if is_customized == 1 else 4
         Res_version = 1 if is_customized == 1 else 1
         # print(str(Big_version) + '.' + str(Cal_version) + "\n")
@@ -724,6 +750,14 @@ def G3_z_modulation_NLAST(k1, k2, k3,
                    * math.e ** (Gz * iz * 1j) \
                    * math.e ** (k3_z * iz / 2 * 1j) \
                    * (1j * iz)
+
+            # sinc_denominator = kiizQ + k3_z
+            # G1_U_half_z_Squared_modulated = fft2(modulation * Uz_AST(U1_0, k1, iz / 2) * Uz_AST(U2_0, k2, iz / 2))
+            # sinc = const * G1_U_half_z_Squared_modulated \
+            #        * np.sinc(inside_sinc / np.pi) / sinc_denominator \
+            #        * math.e ** (Gz * iz / 2 * 1j) \
+            #        * math.e ** (k3_z * iz / 2 * 1j) \
+            #        * (1j * iz)
 
             return sinc
 

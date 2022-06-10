@@ -75,7 +75,7 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
                              color_1d='b', color_1d2='r', cmap_2d='viridis', cmap_3d='rainbow',
                              elev=10, azim=-65, alpha=2,
                              # %%
-                             sample=2, ticks_num=6, is_contourf=0,
+                             sample=1, ticks_num=6, is_contourf=0,
                              is_title_on=1, is_axes_on=1, is_mm=1,
                              # %%
                              fontsize=9,
@@ -501,7 +501,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 3, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -521,7 +521,7 @@ if __name__ == '__main__':
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 6.9,
+         "Tx": 18.769, "Ty": 20, "Tz": 11.873,
          "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
@@ -540,7 +540,7 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1,
+         "is_colorbar_on": 1, "is_energy": 0,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,

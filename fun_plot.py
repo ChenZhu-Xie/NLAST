@@ -111,7 +111,7 @@ def convert_inf_to_min(array):  # 防止 绘图 纵坐标 遇 inf 无法解析�
     return np.array(list)  # 转成数组
 
 
-def plot_1d(zj, sample=2, size_PerPixel=0.007,
+def plot_1d(zj, sample=1, size_PerPixel=0.007,
             # %%
             array1D=0, array1D_address=os.path.dirname(os.path.abspath(__file__)), array1D_title='',
             # %%
@@ -496,7 +496,7 @@ def add_right_cax(ax, pad, width):
     return cax
 
 
-def plot_2d(zj, sample=2, size_PerPixel=0.007,
+def plot_2d(zj, sample=1, size_PerPixel=0.007,
             # %%
             array2D=0, array2D_address=os.path.dirname(os.path.abspath(__file__)), array2D_title='',
             # %%
@@ -662,7 +662,7 @@ def plot_2d(zj, sample=2, size_PerPixel=0.007,
     # plt.close() # 关闭 fig（似乎 spyder 和 pycharm 的 scitific mode 自动就 close 了，内存本身就 不会上去）
 
 
-def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
+def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
                 # %%
                 U_YZ=0, U_XZ=0, U_1=0, U_2=0,
                 U_structure_front=0, U_structure_end=0, is_show_structure_face=1,
@@ -887,7 +887,7 @@ def plot_3d_XYZ(zj, sample=2, size_PerPixel=0.007,
             # fig.savefig(img_address, transparent = True, bbox_inches='tight', pad_inches=0) # 包含图例，且无白边
 
 
-def plot_3d_XYz(zj, sample=2, size_PerPixel=0.007,
+def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
                 U_z_stored=0, z_stored=[],
                 # %%
                 img_address=os.path.dirname(os.path.abspath(__file__)), img_title='',

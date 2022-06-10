@@ -74,7 +74,7 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
                               color_1d='b', color_1d2='r', cmap_2d='viridis', cmap_3d='rainbow',
                               elev=10, azim=-65, alpha=2,
                               # %%
-                              sample=2, ticks_num=6, is_contourf=0,
+                              sample=1, ticks_num=6, is_contourf=0,
                               is_title_on=1, is_axes_on=1, is_mm=1,
                               # %%
                               fontsize=9,
@@ -501,13 +501,13 @@ if __name__ == '__main__':
          "Gz_max_Enhance": 1, "match_mode": 1,
          # %% 该程序 独有 -------------------------------
          "is_NLA": 1, "is_amp_relative": 1,
-         "num_data_points": 4, "center_times": 1.5, "shift_right": 0,
+         "num_data_points": 40, "center_times": 1.5, "shift_right": 0,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 4,
-         "ax_yscale": 'linea',
+         "ax_yscale": 'linear', "xticklabels_rotate": 45,
          # %%
          "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
          # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）

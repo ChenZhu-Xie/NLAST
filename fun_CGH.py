@@ -301,7 +301,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                                                        is_print,
                                                                        theta_x, theta2_x,
                                                                        theta_y, theta2_y,
-                                                                       **kwargs)
+                                                                       is_end=1, **kwargs)
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = 1 - is_no_backgroud - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation

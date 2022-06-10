@@ -68,7 +68,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure="",
                        color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
                        elev=10, azim=-65, alpha=2,
                        # %%
-                       sample=2, ticks_num=6, is_contourf=0,
+                       sample=1, ticks_num=6, is_contourf=0,
                        is_title_on=1, is_axes_on=1, is_mm=1,
                        # %%
                        fontsize=9,

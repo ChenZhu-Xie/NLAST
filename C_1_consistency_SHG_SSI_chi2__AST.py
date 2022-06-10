@@ -75,7 +75,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
                              # %% 不关心
                              cmap_3d='rainbow', elev=10, azim=-65, alpha=2,
                              # %%
-                             sample=2, ticks_num=6, is_contourf=0,
+                             sample=1, ticks_num=6, is_contourf=0,
                              is_title_on=1, is_axes_on=1, is_mm=1,
                              # %%
                              fontsize=9,
@@ -472,7 +472,7 @@ if __name__ == '__main__':
     #                          # %% 不关心
     #                          cmap_3d='rainbow', elev=10, azim=-65, alpha=2,
     #                          # %%
-    #                          sample=2, ticks_num=6, is_contourf=0,
+    #                          sample=1, ticks_num=6, is_contourf=0,
     #                          is_title_on=1, is_axes_on=1, is_mm=1,
     #                          # %%
     #                          fontsize=9,

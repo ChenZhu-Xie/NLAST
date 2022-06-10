@@ -478,7 +478,7 @@ if __name__ == '__main__':
          "U_NonZero_size": 1, "w0": 0.1,
          "z0": 10,
          # %%
-         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,

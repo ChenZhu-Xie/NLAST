@@ -72,7 +72,7 @@ def A_3_to_B_3_SFG_NLA_ssi(U_name_Structure="",
                            color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
                            elev=10, azim=-65, alpha=2,
                            # %%
-                           sample=2, ticks_num=6, is_contourf=0,
+                           sample=1, ticks_num=6, is_contourf=0,
                            is_title_on=1, is_axes_on=1, is_mm=1,
                            # %%
                            fontsize=9,
@@ -410,7 +410,7 @@ if __name__ == '__main__':
     #                        color_1d='b', cmap_2d='viridis', cmap_3d='rainbow',
     #                        elev=10, azim=-65, alpha=2,
     #                        # %%
-    #                        sample=2, ticks_num=6, is_contourf=0,
+    #                        sample=1, ticks_num=6, is_contourf=0,
     #                        is_title_on=1, is_axes_on=1, is_mm=1,
     #                        # %%
     #                        fontsize=9,

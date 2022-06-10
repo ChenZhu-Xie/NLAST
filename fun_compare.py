@@ -135,7 +135,7 @@ def U_compare(U, U_0, U_0_title, z,
     # print(U_amp_error_energy)
     U_error_energy = U_amp_error_energy / U_0_norm_energy
     # print(U_error_energy)
-    U_custom_print(U_error_energy, U_title, "relative_error", is_print,
+    U_custom_print(U_error_energy, U_title, "distribution_error", is_print,
                    z=z, is_end=1)
 
     # U_custom_print(U_energy_error, U_title, "relative_error", is_print,

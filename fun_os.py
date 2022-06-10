@@ -498,7 +498,7 @@ def U_amp_error_plot(folder_address,
     # %%
 
     plot_2d(zj, sample, size_PerPixel,
-            np.abs(U), U_amp_error_plot_address, U_amp_error_title,
+            U, U_amp_error_plot_address, U_amp_error_title,
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, is_propagation,
@@ -572,7 +572,7 @@ def U_phase_error_plot(folder_address,
     # %%
 
     plot_2d(zj, sample, size_PerPixel,
-            np.angle(U), U_phase_error_plot_address, U_phase_error_title,
+            U, U_phase_error_plot_address, U_phase_error_title,
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf,
             is_title_on, is_axes_on, is_mm, is_propagation,
@@ -807,6 +807,10 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
 
     # %%
     # 绘图：U
+
+    cmap_2d = "RdBu"
+    # diverging colormaps:
+    # "coolwarm", "bwr", "seismic", "Spectral", "RdBu", "RdYIBu"
 
     U_amp_error_plot_address, U_phase_error_plot_address = U_error_plot(folder_address,
                                                                         U, U_0, ugHGU,
