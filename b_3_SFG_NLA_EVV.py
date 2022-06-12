@@ -12,9 +12,9 @@ import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST
+from fun_linear import init_AST, ifft2
 from fun_nonlinear import accurate_args_SFG, Eikz, C_m, Cal_dk_zQ_SFG, Cal_roll_xy, G3_z_modulation_NLAST, \
-    G3_z_NLAST, G3_z_NLAST_false, Info_find_contours_SHG, G3_z_modulation_3D_NLAST
+    G3_z_NLAST, G3_z_NLAST_false, G3_z_modulation_3D_NLAST
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, Set, Get, init_GLV_rmw, init_EVV, Fun3, end_SSI, \
@@ -92,6 +92,8 @@ def SFG_NLA_EVV(U_name="",
                 # %%
                 is_print=1, is_contours=1, n_TzQ=1,
                 Gz_max_Enhance=1, match_mode=1,
+                # %% 该程序 独有 -------------------------------
+                is_EVV_SSI=1,
                 # %%
                 **kwargs, ):
     # %%
@@ -314,6 +316,15 @@ def SFG_NLA_EVV(U_name="",
     zj = kwargs.get("zj_EVV", np.linspace(0, z0, sheets_stored_num + 1))  # 防止 后续函数 接收的 kwargs 里 出现 关键字 zj 后重名
     # kwargs.pop("zj", None) # 防止 后续函数 接收的 kwargs 里 出现 关键字 zj 后重名
     izj = zj / size_PerPixel
+    # print(izj)
+    if is_EVV_SSI == 1:
+        izj_delay_dz = [0] + list(izj)
+        dizj = list(np.array(izj_delay_dz)[1:] - np.array(izj_delay_dz)[:-1])  # 为循环 里使用
+        izj_delay_dz.pop(-1) # 可 pop 可不 pop 掉 最后一个元素，反正没啥用
+        # dizj = [izj[0] - 0] + dizj
+        # Set("is_EVV_SSI", 1)
+        # print(izj_delay_dz)
+        # print(dizj)
     Set("zj", zj)
     Set("izj", izj)
 
@@ -323,6 +334,10 @@ def SFG_NLA_EVV(U_name="",
              sheets_stored_num, sheets_stored_num,
              iz, size_PerPixel, )
 
+    if is_EVV_SSI == 1:
+        def H3_zdz(diz):
+            return np.power(math.e, k3_z * diz * 1j)
+
     def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
@@ -331,6 +346,30 @@ def SFG_NLA_EVV(U_name="",
         # 但这里的又是必须存在的，因为之后得用它来在 fun2 里累加。。
         # 所以最多也是之后的 Fun3 中的 sset 可以不必存在
 
+        if is_EVV_SSI == 1:
+            iz = izj_delay_dz[for_th2]
+            H1_z = np.power(math.e, k1_z * iz * 1j)
+            G1_z = g_shift * H1_z
+            U_z = ifft2(G1_z)
+
+            if ray_tag == "f":
+                H2_z = np.power(math.e, k2_z * iz * 1j)
+                G2_z = g2 * H2_z
+                U2_z = ifft2(G2_z)
+            else:
+                G2_z = G1_z
+                U2_z = U_z
+            diz = dizj[for_th2]
+        else:
+            iz = izj[for_th2]
+            G1_z = g_shift
+            U_z = U_0
+            G2_z = g2
+            U2_z = U2_0
+            diz = iz
+        # print(iz)
+        # print(diz)
+
         # for_th2 == 0 时也要算，因为 zj[0] 不一定是 0：外部可能传入 zj
         if is_fft == 0:
 
@@ -338,7 +377,7 @@ def SFG_NLA_EVV(U_name="",
                 mz) * deff * 1e-12  # pm / V 转换成 m / V
             integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
 
-            g2_rotate_180 = Rotate_180(g2)
+            G2_rotate_180 = Rotate_180(G2_z)
 
             def fun1(for_th, fors_num, *args, **kwargs, ):
                 for n3_y in range(Iy):
@@ -352,22 +391,22 @@ def SFG_NLA_EVV(U_name="",
                                                  Ix, Iy,
                                                  for_th, n3_y, )
 
-                    g2_shift_dk_x_dk_y = Roll_xy(g2_rotate_180,
+                    G2_shift_dk_x_dk_y = Roll_xy(G2_rotate_180,
                                                  roll_x, roll_y,
                                                  is_linear_convolution, )
 
                     integrate_z0[for_th, n3_y] = np.sum(
-                        g_shift * g2_shift_dk_x_dk_y * Eikz(dk_zQ * izj[for_th2]) * izj[for_th2] * size_PerPixel \
+                        G1_z * G2_shift_dk_x_dk_y * Eikz(dk_zQ * diz) * diz * size_PerPixel \
                         * (2 / (dk_zQ / k3_z[for_th, n3_y] + 2)))
 
             my_thread(10, Ix,
                       fun1, noop, noop,
                       is_ordered=1, is_print=is_print, )
 
-            g3_z = const * integrate_z0 / k3_z * size_PerPixel
+            G3_z = const * integrate_z0 / k3_z * size_PerPixel
 
             Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                g3_z * np.power(math.e, k3_z * izj[for_th2] * 1j))
+                G3_z * np.power(math.e, k3_z * diz * 1j))
 
         else:
 
@@ -380,7 +419,7 @@ def SFG_NLA_EVV(U_name="",
                     addition_dict = {"Tz": Tz if is_NLAST_sum else None}  # 若 is_NLAST_sum 有且非 0，则 Tz
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                         G3_z_modulation_NLAST(k1, k2, k3,
-                                              modulation_squared, U_0, U2_0, izj[for_th2], Const,
+                                              modulation_squared, U_z, U2_z, diz, Const,
                                               Gz=Gz, is_customized=1, **addition_dict, ))
                 elif is_sum_Gm == 1:
                     def fun1(for_th, fors_num, *args, **kwargs, ):
@@ -391,7 +430,7 @@ def SFG_NLA_EVV(U_name="",
                         # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
                         Const = (k3_inc / size_PerPixel / n3_inc) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
                         G3_z0_Gm = G3_z_modulation_NLAST(k1, k2, k3,
-                                                         modulation_squared, U_0, U2_0, izj[for_th2], Const,
+                                                         modulation_squared, U_z, U2_z, diz, Const,
                                                          Gz=Gz_m, is_customized=1, ) if m_z != 0 else 0
                         return G3_z0_Gm
 
@@ -409,8 +448,8 @@ def SFG_NLA_EVV(U_name="",
                 else:
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                         G3_z_modulation_3D_NLAST(k1, k2, k3,
-                                                 modulation_squared, U_0, U2_0,
-                                                 izj[for_th2], Const,
+                                                 modulation_squared, U_z, U2_z,
+                                                 diz, Const,
                                                  Tz=Tz, ))
 
             elif fft_mode == 1:
@@ -418,7 +457,7 @@ def SFG_NLA_EVV(U_name="",
                 if is_sum_Gm == 0:
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                         G3_z_NLAST(k1, k2, k3, Gx, Gy, Gz,
-                                   U_0, U2_0, izj[for_th2], Const,
+                                   U_z, U2_z, diz, Const,
                                    is_linear_convolution, ))
                 else:
                     def fun1(for_th, fors_num, *args, **kwargs, ):
@@ -429,7 +468,7 @@ def SFG_NLA_EVV(U_name="",
                         # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
                         Const = (k3_inc / size_PerPixel / n3_inc) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
                         G3_z0_Gm = G3_z_NLAST(k1, k2, k3, Gx_m, Gy, Gz,
-                                              U_0, U2_0, izj[for_th2], Const,
+                                              U_z, U2_z, diz, Const,
                                               is_linear_convolution, ) if m_x != 0 else 0
                         return G3_z0_Gm
 
@@ -448,14 +487,21 @@ def SFG_NLA_EVV(U_name="",
 
                 Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
                     G3_z_NLAST_false(k1, k2, k3, Gx, Gy, Gz,
-                                     U_0, U2_0, izj[for_th2], Const,
+                                     U_z, U2_z, diz, Const,
                                      is_linear_convolution, ))
 
         return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
 
     def Fun2(for_th2, fors_num, G3_zm, *args, **kwargs, ):
 
-        dset("G", G3_zm)  # 主要是为了 end_SSI 中的 dget("G") 而存在的，否则 直接 返回 G3_zm 了
+        # print(dizj[for_th2])
+        # print(np.sum(np.abs(dget("G"))))
+        if is_EVV_SSI == 1:
+            dset("G", dget("G") * H3_zdz(dizj[for_th2]) + G3_zm)  # is_EVV_SSI == 1 时， 此时 G3_zm 是 dG3_zdz
+        else:
+            dset("G", G3_zm)  # 主要是为了 end_SSI 中的 dget("G") 而存在的，否则 直接 返回 G3_zm 了
+        # print(np.sum(np.abs(dget("G"))))
+        # dset("G", G3_zm)
 
         return dget("G")
 
@@ -545,7 +591,7 @@ if __name__ == '__main__':
          "is_linear_convolution": 0,
          # %%
          "Tx": 13, "Ty": 20, "Tz": 0,
-         "mx": 1, "my": 0, "mz": 0,
+         "mx": 1, "my": 0, "mz": 1,
          # %%
          # 生成横向结构
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
@@ -553,9 +599,9 @@ if __name__ == '__main__':
          # %%
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
-         "is_stored": 1, "is_energy_evolution_on": 1,
+         "is_stored": 0, "is_energy_evolution_on": 1,
          # %%
-         "is_save": 1, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -577,6 +623,8 @@ if __name__ == '__main__':
          # %%
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
+         # %% 该程序 独有 -------------------------------
+         "is_EVV_SSI": 0,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,

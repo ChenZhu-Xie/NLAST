@@ -96,6 +96,8 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
                              is_print=1, is_contours=1, n_TzQ=1,
                              Gz_max_Enhance=1, match_mode=1,
                              # %%
+                             is_EVV_SSI=1,
+                             # %%
                              is_NLA=1, is_amp_relative=1,
                              is_energy_normalized=2, is_output_error_EVV=0,
                              # %%
@@ -258,7 +260,9 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
          loop, duration, fps,
          # %%
          is_print, is_contours, n_TzQ,
-         Gz_max_Enhance, match_mode, ]
+         Gz_max_Enhance, match_mode,
+         # %%
+         is_EVV_SSI, ]
 
     # print(Get("z_stored"))
     kwargs_EVV = copy.deepcopy(kwargs)
@@ -501,7 +505,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
-         "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         "L0_Crystal": 5, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -521,8 +525,8 @@ if __name__ == '__main__':
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 11.873,
-         "mx": 1, "my": 0, "mz": 1,
+         "Tx": 18.769, "Ty": 20, "Tz": 6.9, # 11.873
+         "mx": 1, "my": 0, "mz": 0,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
          "is_save": 2, "is_save_txt": 0, "dpi": 100,
@@ -540,7 +544,7 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 0,
+         "is_colorbar_on": 1, "is_energy": 1,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
@@ -550,6 +554,8 @@ if __name__ == '__main__':
          # %%
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
+         # %%
+         "is_EVV_SSI": 1,
          # %% 该程序 独有 -------------------------------
          "is_NLA": 1, "is_amp_relative": 1,
          "is_energy_normalized": 2, "is_output_error_EVV": 1,

@@ -227,7 +227,7 @@ def slice_ssi(L0_Crystal, Duty_Cycle_z,
     z0 = L0_Crystal
 
     izj = zj / size_PerPixel  # 为循环 里使用
-    dizj = izj[1:] - izj[:-1]  # 为循环 里使用
+    dizj = izj[1:] - izj[:-1]  # 为循环 里使用（array 才能 相减）
     # print(dizj*size_PerPixel)
     # print(len(dizj))
 
@@ -467,7 +467,7 @@ def cal_zj_izj_dizj_mj(zj_structure, mj_structure, z0_structure_frontface, z0_st
     # print(zj)
 
     izj = zj / size_PerPixel  # 为循环 里使用
-    dizj = izj[1:] - izj[:-1]  # 为循环 里使用
+    dizj = izj[1:] - izj[:-1]  # 为循环 里使用（array 才能 相减）
     # print(dizj * size_PerPixel)
     # print(len(dizj))
 

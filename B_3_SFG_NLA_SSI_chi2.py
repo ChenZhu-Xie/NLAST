@@ -555,7 +555,7 @@ def SFG_NLA_SSI(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-         "img_full_name": "spaceship2.png",
+         "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -604,7 +604,7 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1,
          # %%
-         "is_save": 1, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -646,7 +646,7 @@ if __name__ == '__main__':
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
-            "img2_full_name": "spaceship2.png",
+            "img2_full_name": "lena1.png",
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
