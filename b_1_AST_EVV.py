@@ -7,9 +7,12 @@ Created on Sun Dec 26 22:09:04 2021
 
 # %%
 
+import math
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
-from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_AST, Get, fget, fkey, fGHU_plot_save
+from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_AST, Get, Set, init_EVV, \
+    fget, fkey, fGHU_plot_save, dset, dget, Fun3, fU_EVV_plot
+from fun_thread import my_thread
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST
 
@@ -18,42 +21,50 @@ np.seterr(divide='ignore', invalid='ignore')
 
 # %%
 
-def AST(U_name="",
-        img_full_name="Grating.png",
-        is_phase_only=0,
-        # %%
-        z_pump=0,
-        is_LG=0, is_Gauss=0, is_OAM=0,
-        l=0, p=0,
-        theta_x=0, theta_y=0,
-        # %%
-        is_random_phase=0,
-        is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-        # %%
-        U_NonZero_size=1, w0=0.3,
-        z0=1,
-        # %%
-        lam1=0.8, is_air_pump=0, is_air=0, T=25,
-        # %%
-        is_save=0, is_save_txt=0, dpi=100,
-        # %%
-        cmap_2d='viridis',
-        # %%
-        ticks_num=6, is_contourf=0,
-        is_title_on=1, is_axes_on=1, is_mm=1,
-        # %%
-        fontsize=9,
-        font={'family': 'serif',
-              'style': 'normal',  # 'normal', 'italic', 'oblique'
-              'weight': 'normal',
-              'color': 'black',  # 'black','gray','darkred'
-              },
-        # %%
-        is_colorbar_on=1, is_energy=0,
-        # %%
-        is_print=1,
-        # %%
-        **kwargs, ):
+def AST_EVV(U_name="",
+            img_full_name="Grating.png",
+            is_phase_only=0,
+            # %%
+            z_pump=0,
+            is_LG=0, is_Gauss=0, is_OAM=0,
+            l=0, p=0,
+            theta_x=0, theta_y=0,
+            # %%
+            is_random_phase=0,
+            is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+            # %%
+            U_NonZero_size=1, w0=0.3,
+            z0=1,
+            # %%
+            lam1=0.8, is_air_pump=0, is_air=0, T=25,
+            # %%
+            is_save=0, is_save_txt=0, dpi=100,
+            # %%
+            cmap_2d='viridis',
+            # %%
+            ticks_num=6, is_contourf=0,
+            is_title_on=1, is_axes_on=1, is_mm=1,
+            # %%
+            fontsize=9,
+            font={'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+            # %%
+            is_colorbar_on=1, is_energy=0,
+            # %%
+            is_print=1,
+            # %% 该程序 独有 -------------------------------
+            is_EVV_SSI=1, is_stored=1, sheets_stored_num=10,
+            # %%
+            sample=1, is_plot_3d_XYz=0, cmap_3d='rainbow',
+            elev=10, azim=-65, alpha=2,
+            # %%
+            plot_group="UGa", is_animated=1,
+            loop=0, duration=0.033, fps=5,
+            # %%
+            **kwargs, ):
     # %%
 
     if_image_Add_black_border(U_name, img_full_name,
@@ -114,6 +125,61 @@ def AST(U_name="",
                                                    **kwargs)
 
     # %%
+    iz = z0 / size_PerPixel
+    zj = kwargs.get("zj_AST_EVV", np.linspace(0, z0, sheets_stored_num + 1))  # 防止 后续函数 接收的 kwargs 里 出现 关键字 zj 后重名
+    izj = zj / size_PerPixel
+    # print(izj)
+    if is_EVV_SSI == 1:
+        izj_delay_dz = [0] + list(izj)
+        dizj = list(np.array(izj_delay_dz)[1:] - np.array(izj_delay_dz)[:-1])  # 为循环 里使用
+        izj_delay_dz.pop(-1)  # 可 pop 可不 pop 掉 最后一个元素，反正没啥用
+        # dizj = [izj[0] - 0] + dizj
+        # Set("is_EVV_SSI", 1)
+        # print(izj_delay_dz)
+        # print(dizj)
+    Set("zj", zj)
+    Set("izj", izj)
+
+    sheets_stored_num = len(zj) - 1
+    init_EVV(g_shift, U_0,
+             0, is_stored,
+             sheets_stored_num, sheets_stored_num,
+             iz, size_PerPixel, )
+
+    # %%
+
+    def H_zdz(diz):
+        return np.power(math.e, k1_z * diz * 1j)
+
+    def Fun1(for_th2, fors_num2, *args, **kwargs, ):
+
+        if is_EVV_SSI == 1:
+            iz = izj_delay_dz[for_th2]
+            H1_z = H_zdz(iz)
+            G1_z = g_shift * H1_z
+            # U_z = ifft2(G1_z)
+            diz = dizj[for_th2]
+        else:
+            iz = izj[for_th2]
+            G1_z = g_shift
+            # U_z = U_0
+            diz = iz
+
+        G_z = G1_z * H_zdz(diz)
+
+        return G_z
+
+    def Fun2(for_th2, fors_num, G_z, *args, **kwargs, ):
+
+        dset("G", G_z)
+
+        return dget("G")
+
+    my_thread(10, sheets_stored_num + 1,
+              Fun1, Fun2, Fun3,
+              is_ordered=1, is_print=is_print, )
+
+    # %%
 
     end_AST(z0, size_PerPixel,
             g_shift, k1_z, )
@@ -121,7 +187,7 @@ def AST(U_name="",
     fGHU_plot_save(0,  # 默认 全自动 is_auto = 1
                    img_name_extension, is_print,
                    # %%
-                   [], 1, size_PerPixel,
+                   zj, sample, size_PerPixel,
                    is_save, is_save_txt, dpi, size_fig,
                    # %%
                    "b", cmap_2d,
@@ -133,13 +199,36 @@ def AST(U_name="",
                    # %%                          何况 一般默认 is_self_colorbar = 1...
                    z0, is_end=1, )
 
+    # %%
+
+    fU_EVV_plot(img_name_extension,
+                is_save_txt, kwargs.get("is_no_data_save", 0),
+                # %%
+                sample, size_PerPixel,
+                is_save, dpi, size_fig,
+                elev, azim, alpha,
+                # %%
+                cmap_2d, cmap_3d,
+                ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm,
+                fontsize, font,
+                # %%
+                is_colorbar_on, is_energy,
+                # %%
+                plot_group, is_animated,
+                loop, duration, fps,
+                # %%
+                is_plot_3d_XYz,
+                # %%
+                z0, )
+
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-         "img_full_name": "Grating.png",
+         "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -150,12 +239,12 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0.1,
-         "z0": 1,
+         "U_NonZero_size": 1, "w0": 0,
+         "z0": 15,
          # %%
-         "lam1": 0.8, "is_air_pump": 1, "is_air": 0, "T": 25,
+         "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
          # %%
-         "is_save": 1, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_save_txt": 0, "dpi": 100,
          # %%
          "cmap_2d": 'viridis',
          # %%
@@ -172,6 +261,14 @@ if __name__ == '__main__':
          "is_colorbar_on": 1, "is_energy": 0,
          # %%
          "is_print": 1,
+         # %% 该程序 独有 -------------------------------
+         "is_EVV_SSI": 1, "is_stored": 1, "sheets_stored_num": 10,
+         # %%
+         "sample": 1, "is_plot_3d_XYz": 0, "cmap_3d": 'rainbow',
+         "elev": 10, "azim": -65, "alpha": 2,
+         # %%
+         "plot_group": "UGa", "is_animated": 1,
+         "loop": 0, "duration": 0.033, "fps": 5,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
@@ -184,7 +281,7 @@ if __name__ == '__main__':
          }
 
     kwargs = init_GLV_DICT(**kwargs)
-    AST(**kwargs)
+    AST_EVV(**kwargs)
 
     # AST(U_name="",
     #     img_full_name="Grating.png",

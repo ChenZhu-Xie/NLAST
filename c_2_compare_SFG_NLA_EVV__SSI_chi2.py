@@ -525,8 +525,8 @@ if __name__ == '__main__':
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 6.9, # 11.873
-         "mx": 1, "my": 0, "mz": 0,
+         "Tx": 18.769, "Ty": 20, "Tz": 0, # 11.873
+         "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
          "is_save": 2, "is_save_txt": 0, "dpi": 100,
@@ -555,7 +555,7 @@ if __name__ == '__main__':
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
          # %%
-         "is_EVV_SSI": 1,
+         "is_EVV_SSI": 0,
          # %% 该程序 独有 -------------------------------
          "is_NLA": 1, "is_amp_relative": 1,
          "is_energy_normalized": 2, "is_output_error_EVV": 1,

@@ -181,7 +181,7 @@ def Cal_n(size_PerPixel,
         n_e, n_o = Cal_n_e(nx, ny, nz, theta_c_inc, phi_c_inc, delta, )
         # print(np.max(n_e), np.max(n_o))
 
-        n_inc = n_e if p == "z" or p == "e" or p == "c" else n_o # 基波 传播方向 上 的 折射率
+        n_inc = n_e if p == "z" or p == "e" or p == "c" else n_o  # 基波 传播方向 上 的 折射率
         k_inc = 2 * math.pi * size_PerPixel / (lam / 1000 / n_inc)  # 后得到 中心级 大小
 
         # print(np.max(np.abs(k_nxny)), k_inc)
@@ -219,7 +219,7 @@ def Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
     cos_theta_c_inc = np.where(np.abs(cos_theta_c_inc) <= 1, cos_theta_c_inc, np.sign(cos_theta_c_inc))
     theta_c_inc = np.arccos(cos_theta_c_inc)
     # 角的五元素公式
-    cos_phi_c_inc = (np.sin(theta_z_c) * np.cos(theta_z_inc) - \
+    cos_phi_c_inc = (np.sin(theta_z_c) * np.cos(theta_z_inc) -
                      np.cos(theta_z_c) * np.sin(theta_z_inc) * np.cos(phi_z_c - phi_z_inc)) / \
                     np.sin(theta_c_inc)
     cos_phi_c_inc = np.where(np.sin(theta_c_inc) != 0, cos_phi_c_inc,
@@ -240,26 +240,29 @@ def Cal_cot_Omega(nx, ny, nz, ):
     cot_Omega = (nz / nx) * ((ny ** 2 - nx ** 2) / (nz ** 2 - ny ** 2)) ** 0.5
     return cot_Omega
 
+
 def Cal_delta1(nx, ny, nz, theta, phi, ):
     cot_Omega = Cal_cot_Omega(nx, ny, nz, )
     # print(cot_Omega)
     # print(np.max(theta), np.max(phi))
     numerator = np.cos(theta) * np.sin(2 * phi)
     denominator = (cot_Omega ** 2) * np.sin(theta) ** 2 - np.cos(theta) ** 2 * np.cos(phi) ** 2 \
-                + np.sin(phi) ** 2
+                  + np.sin(phi) ** 2
     # cot_2_delta = numerator / denominator
     # tan_2_delta = 1 / cot_2_delta
     tan_2_delta = numerator / denominator if cot_Omega != 0 else 0 / (denominator + 100)
     return tan_2_delta
 
+
 def Cal_delta2(nx, ny, nz, theta, phi, ):
-    numerator = (1/nx - 1/ny) * np.cos(theta) * np.sin(2 * phi)
+    numerator = (1 / nx - 1 / ny) * np.cos(theta) * np.sin(2 * phi)
     denominator = (np.sin(phi) ** 2 / nx ** 2 + np.cos(phi) ** 2 / ny ** 2) - \
                   (np.cos(phi) ** 2 / nx ** 2 + np.sin(phi) ** 2 / ny ** 2) * np.cos(theta) ** 2 - \
                   np.sin(theta) ** 2 / nz ** 2
     # print(denominator)
     tan_2_delta = numerator / denominator if nx != ny else 0 / (denominator + 100)
     return tan_2_delta
+
 
 def Cal_delta(nx, ny, nz, theta, phi, ):
     # tan_2_delta = Cal_delta1(nx, ny, nz, theta, phi, )
@@ -292,13 +295,10 @@ def Cal_n_e(nx, ny, nz, theta, phi, delta, ):
 
     # print(np.max(n_e), np.max(n_o))
 
-
     return n_e, n_o
 
 
-# %%
-
-# 生成 kz 网格
+# %% 生成 kz 网格
 
 def Cal_kz(Ix, Iy, k):  # 不仅 kz，连 k 现在 都是个 椭球面了
     mesh_nx_ny_shift = mesh_shift(Ix, Iy)
@@ -310,6 +310,37 @@ def Cal_kz(Ix, Iy, k):  # 不仅 kz，连 k 现在 都是个 椭球面了
     kz_shift = (k ** 2 - mesh_kx_ky_shift[:, :, 0] ** 2 - mesh_kx_ky_shift[:, :, 1] ** 2 + 0j) ** 0.5
 
     return kz_shift, mesh_kx_ky_shift
+
+
+# %% 透镜 传递函数
+
+def Cal_H_lens(Ix, Iy, size_PerPixel, k, f, Cal_mode=1):
+    mesh_ix_iy_shift = mesh_shift(Ix, Iy)
+    f /= size_PerPixel
+    r_shift = (mesh_ix_iy_shift[:, :, 0] ** 2 + mesh_ix_iy_shift[:, :, 1] ** 2 +
+               f ** 2 + 0j) ** 0.5
+    H_lens = math.e ** (- np.sign(f) * 1j * k * r_shift)
+
+    rho_shift = (mesh_ix_iy_shift[:, :, 0] ** 2 + mesh_ix_iy_shift[:, :, 1] ** 2 + 0j) ** 0.5
+    # H_lens = math.e ** (- np.sign(f) * 1j * k * f) * \
+    #          math.e ** (- np.sign(f) * 1j * k * rho_shift ** 2 / (2 * f))
+    if Cal_mode == 2:
+        H_lens /= np.cos(np.arcsin(rho_shift / abs(f))) ** 3
+
+        # Ix_max, Iy_max = int(np.cos(np.arctan(Ix / abs(f))) * Ix), int(np.cos(np.arctan(Iy / abs(f))) * Iy)
+        # if np.mod(Ix - Ix_max, 2) != 0:
+        #     Ix_max += 1
+        # if np.mod(Iy - Iy_max, 2) != 0:
+        #     Iy_max += 1
+        # import cv2
+        # H_lens = cv2.resize(np.real(H_lens), (Ix_max, Iy_max), interpolation=cv2.INTER_AREA) + \
+        #          cv2.resize(np.imag(H_lens), (Ix_max, Iy_max), interpolation=cv2.INTER_AREA) * 1j
+        #
+        # border_width_x = (Ix - Ix_max) // 2
+        # border_width_y = (Iy - Iy_max) // 2
+        # H_lens = np.pad(H_lens, ((border_width_x, border_width_y), (border_width_x, border_width_y)), 'constant',
+        #                 constant_values=(0, 0))
+    return H_lens
 
 
 # %%

@@ -209,7 +209,7 @@ def consistency_SHG_NLA__AST(img_full_name="Grating.png",
         SFG_NLA(*args_NLA(z1), **kwargs_NLA, )
 
     kwargs_AST = copy.deepcopy(kwargs)
-    kwargs_AST.update({"U": U2_z1, "ray": ray2_z1, })
+    kwargs_AST.update({"U": U2_z1, "ray": ray2_z1, "polar": kwargs_AST["polar3"], })
     U1_z2, G1_z2, ray1_z2, method_and_way1_z2, U_key1_z2 = \
         AST(*args_AST(z2), **kwargs_AST, )
 

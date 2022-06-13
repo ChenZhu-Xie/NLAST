@@ -336,7 +336,11 @@ def SFG_NLA_EVV(U_name="",
 
     if is_EVV_SSI == 1:
         def H3_zdz(diz):
+            # return np.power(math.e, (k1_z + k2_z + Gz) * diz * 1j)
+            # return np.power(math.e, ((k1_z + k2_z + Gz)/2 + k3_z/2) * diz * 1j)
             return np.power(math.e, k3_z * diz * 1j)
+            # return np.power(math.e, k3 * diz * 1j)
+
 
     def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
@@ -551,6 +555,11 @@ def SFG_NLA_EVV(U_name="",
                 # %%
                 z0, )
 
+    import inspect
+    if inspect.stack()[1][3] == "SFG_NLA_EVV__AST_EVV":
+        Set("k3", k3)
+        Set("lam3", lam3)
+
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
@@ -590,7 +599,7 @@ if __name__ == '__main__':
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 13, "Ty": 20, "Tz": 0,
+         "Tx": 13, "Ty": 20, "Tz": 10,
          "mx": 1, "my": 0, "mz": 1,
          # %%
          # 生成横向结构
@@ -624,7 +633,7 @@ if __name__ == '__main__':
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
          # %% 该程序 独有 -------------------------------
-         "is_EVV_SSI": 0,
+         "is_EVV_SSI": 1,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,

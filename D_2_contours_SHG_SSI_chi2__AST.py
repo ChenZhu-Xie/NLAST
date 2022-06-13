@@ -234,7 +234,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
             SFG_SSF_SSI(*args_SSI(z_SSI), **kwargs_SSI, )
 
     kwargs_AST = copy.deepcopy(kwargs)
-    kwargs_AST.update({"U": U2_z_SSI, "ray": ray2_z_SSI, })
+    kwargs_AST.update({"U": U2_z_SSI, "ray": ray2_z_SSI, "polar": kwargs_AST["polar3"], })
     U2_z_AST, G2_z_AST, ray2_z_AST, method_and_way2_z_AST, U_key2_z_AST = \
         AST(*args_AST(z_AST), **kwargs_AST, )
 
