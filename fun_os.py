@@ -955,7 +955,7 @@ def U_slices_plot_save(folder_address,
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
     U_amp_plot_save(folder_address,
-                    U_YZ_amp, U_YZ_name,
+                    np.abs(U_YZ), U_YZ_name,  # 不能是 U_YZ_amp，因为 不能包含平方 np.abs(U_YZ_amp) ** 2，因为 plot_2d 里还会平方
                     img_name_extension,
                     is_save_txt,
                     # %%
@@ -972,7 +972,7 @@ def U_slices_plot_save(folder_address,
                     z=X, **kwargs, )
 
     U_amp_plot_save(folder_address,
-                    U_XZ_amp, U_XZ_name,
+                    np.abs(U_XZ), U_XZ_name,
                     img_name_extension,
                     is_save_txt,
                     # %%
@@ -1084,7 +1084,7 @@ def U_selects_plot_save(folder_address,
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
     U_amp_plot_save(folder_address,
-                    U_1_amp, U_1_name,
+                    np.abs(U_1), U_1_name,  # 不能是 U_1_amp，因为 不能包含平方 np.abs(U_1) ** 2，因为 plot_2d 里还会平方
                     img_name_extension,
                     is_save_txt,
                     # %%
@@ -1101,7 +1101,7 @@ def U_selects_plot_save(folder_address,
                     z=z_1, **kwargs, )
 
     U_amp_plot_save(folder_address,
-                    U_2_amp, U_2_name,
+                    np.abs(U_2), U_2_name,
                     img_name_extension,
                     is_save_txt,
                     # %%
@@ -1119,7 +1119,7 @@ def U_selects_plot_save(folder_address,
 
     if is_show_structure_face == 1:
         U_amp_plot_save(folder_address,
-                        U_f_amp, U_f_name,
+                        np.abs(U_f), U_f_name,
                         img_name_extension,
                         is_save_txt,
                         # %%
@@ -1136,7 +1136,7 @@ def U_selects_plot_save(folder_address,
                         z=z_f, **kwargs, )
 
         U_amp_plot_save(folder_address,
-                        U_e_amp, U_e_name,
+                        np.abs(U_e), U_e_name,
                         img_name_extension,
                         is_save_txt,
                         # %%
@@ -1878,7 +1878,7 @@ def U_SSI_plot(G_stored, G_name,
                plot_group, is_animated,
                loop, duration, fps,
                # %%
-               is_plot_3d_XYz, is_plot_selective,
+               is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
                is_plot_YZ_XZ, is_plot_3d_XYZ,
                # %%
                X, Y,
@@ -1887,30 +1887,31 @@ def U_SSI_plot(G_stored, G_name,
                zj, z_stored, z, ):
     # %%
 
-    U_EVV_plot(G_stored, G_name,
-               U_stored, U_name,
-               img_name_extension,
-               is_save_txt,
-               # %%
-               sample, size_PerPixel,
-               is_save, dpi, size_fig,
-               elev, azim, alpha,
-               # %%
-               cmap_2d, cmap_3d,
-               ticks_num, is_contourf,
-               is_title_on, is_axes_on, is_mm,
-               fontsize, font,
-               # %%
-               is_colorbar_on, is_energy,
-               # %%
-               plot_group, is_animated,
-               loop, duration, fps,
-               # %%
-               is_plot_3d_XYz,
-               # %%
-               zj, z_stored, z,
-               # %%
-               is_no_data_save=is_no_data_save, )
+    if is_plot_EVV == 1:
+        U_EVV_plot(G_stored, G_name,
+                   U_stored, U_name,
+                   img_name_extension,
+                   is_save_txt,
+                   # %%
+                   sample, size_PerPixel,
+                   is_save, dpi, size_fig,
+                   elev, azim, alpha,
+                   # %%
+                   cmap_2d, cmap_3d,
+                   ticks_num, is_contourf,
+                   is_title_on, is_axes_on, is_mm,
+                   fontsize, font,
+                   # %%
+                   is_colorbar_on, is_energy,
+                   # %%
+                   plot_group, is_animated,
+                   loop, duration, fps,
+                   # %%
+                   is_plot_3d_XYz,
+                   # %%
+                   zj, z_stored, z,
+                   # %%
+                   is_no_data_save=is_no_data_save, )
 
     # %%
     p_dir = "GU_XYs"

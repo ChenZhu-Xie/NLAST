@@ -102,7 +102,7 @@ def SFG_NLA_reverse(U_name="",
                     plot_group="UGa", is_animated=1,
                     loop=0, duration=0.033, fps=5,
                     # %%
-                    is_plot_3d_XYz=0, is_plot_selective=0,
+                    is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
                     is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
                     # %%  该程序 独有 -------------------------------
                     Cal_target=1, is_amp_relative=1,
@@ -246,7 +246,7 @@ def SFG_NLA_reverse(U_name="",
          plot_group, is_animated,
          loop, duration, fps,
          # %%
-         is_plot_3d_XYz, is_plot_selective,
+         is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
          is_plot_YZ_XZ, is_plot_3d_XYZ,
          # %%
          is_print, is_contours, n_TzQ,
@@ -494,7 +494,7 @@ if __name__ == '__main__':
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %%
-         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
          "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
          # %% 该程序 独有 -------------------------------
          "Cal_target": "U1", "is_amp_relative": 1,

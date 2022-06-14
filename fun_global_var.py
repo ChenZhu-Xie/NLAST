@@ -601,7 +601,7 @@ def init_SSI(g_shift, U_0,
 def init_EVV(g_shift, U_0,
              is_energy_evolution_on, is_stored,
              sheets_num, sheets_stored_num,
-             Iz, size_PerPixel, ):
+             X, Y, Iz, size_PerPixel, ):
     Ix, Iy = U_0.shape
     Set("Iz", Iz)
 
@@ -609,6 +609,11 @@ def init_EVV(g_shift, U_0,
     Set("is_stored", is_stored)
     Set("sheets_num", sheets_num)  # sheets_num 相关的 是多余的，尽管如此，也选择了 保留着
     Set("sheets_stored_num", sheets_stored_num)
+
+    Set("X", X)
+    Set("Y", Y)
+    Set("th_X", Iy // 2 + int(X / size_PerPixel))
+    Set("th_Y", Ix // 2 - int(Y / size_PerPixel))
 
     # %%
 
@@ -636,6 +641,13 @@ def init_EVV(g_shift, U_0,
 
         sset("G", np.zeros((Ix, Iy, int(sheets_stored_num + 1)), dtype=np.complex128()))
         sset("U", np.zeros((Ix, Iy, int(sheets_stored_num + 1)), dtype=np.complex128()))
+
+    if is_stored == 1:
+        # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
+        YZset("G", np.zeros((Ix, sheets_num + 1), dtype=np.complex128()))
+        XZset("G", np.zeros((Iy, sheets_num + 1), dtype=np.complex128()))
+        YZset("U", np.zeros((Ix, sheets_num + 1), dtype=np.complex128()))
+        XZset("U", np.zeros((Iy, sheets_num + 1), dtype=np.complex128()))
 
 
 # %%
@@ -712,6 +724,35 @@ def Fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
         Get("z_stored")[for_th] = Get("zj")[for_th]
         sget("G")[:, :, for_th] = G_zdz
         sget("U")[:, :, for_th] = U_zdz
+
+    if Get("is_stored") == 1:
+
+        # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
+        YZget("G")[:, for_th] = G_zdz[:, Get("th_X")]
+        # X 增加，则 从 G1_z_shift 中 读取的 列 向右移，也就是 YZ 面向 列 增加的方向（G1_z_shift 的 右侧）移动
+        XZget("G")[:, for_th] = G_zdz[Get("th_Y"), :]
+        # Y 增加，则 从 G1_z_shift 中 读取的 行 向上移，也就是 XZ 面向 行 减小的方向（G1_z_shift 的 上侧）移动
+        YZget("U")[:, for_th] = U_zdz[:, Get("th_X")]
+        XZget("U")[:, for_th] = U_zdz[Get("th_Y"), :]
+
+        if for_th == 0:
+            # 如果 for_th 是 sheet_th_frontface，则把结构 前端面 场分布 储存起来，对应的是 zj[sheets_num_frontface]
+            # print(np.sum(np.abs(U_zdz)**2))
+            setf("G", G_zdz)
+            setf("U", U_zdz)
+        if for_th == len(Get("zj")) - 1:
+            # print(np.sum(np.abs(U_zdz) ** 2))
+            # 如果 for_th 是 sheet_th_endface，则把结构 后端面 场分布 储存起来，对应的是 zj[sheets_num_endface]
+            sete("G", G_zdz)
+            sete("U", U_zdz)
+        if for_th == 0:
+            # 如果 for_th 是 想要观察的 第一个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
+            set1("G", G_zdz)  # 对应的是 zj[sheets_num_sec1]
+            set1("U", U_zdz)
+        if for_th == len(Get("zj")) - 1:
+            # 如果 for_th 是 想要观察的 第二个面 前面那一层的 层序数，则 将储存之于 该层 前面那一层的 后端面（毕竟 算出来的是 z + dz） 分布中
+            set2("G", G_zdz)  # 对应的是 zj[sheets_num_sec2]
+            set2("U", U_zdz)
 
 
 # %%
@@ -811,7 +852,7 @@ def fU_SSI_plot(th_f, th_e,
                 plot_group, is_animated,
                 loop, duration, fps,
                 # %%
-                is_plot_3d_XYz, is_plot_selective,
+                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 z_1, z_2,
@@ -860,7 +901,7 @@ def fU_SSI_plot(th_f, th_e,
                    plot_group, is_animated,
                    loop, duration, fps,
                    # %%
-                   is_plot_3d_XYz, is_plot_selective,
+                   is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
                    is_plot_YZ_XZ, is_plot_3d_XYZ,
                    # %%
                    Get("X"), Get("Y"),  # 这个也可 顺便 设成 global 的，懒得搞
@@ -886,10 +927,11 @@ def fU_EVV_plot(img_name_extension,
                 plot_group, is_animated,
                 loop, duration, fps,
                 # %%
-                is_plot_3d_XYz,
+                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
+                is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 z, ):
-    from fun_os import U_EVV_plot
+    from fun_os import U_EVV_plot, U_SSI_plot
     if abs(Get("is_stored")) == 1:
         Get("sheet_th_stored")[Get("sheets_stored_num")] = Get("sheets_num")
         Get("iz_stored")[Get("sheets_stored_num")] = Get("Iz")  # 把 sheets_stored_num + 1 这最后一次的值 用 z0 的值 覆盖掉
@@ -900,10 +942,49 @@ def fU_EVV_plot(img_name_extension,
     # 另一方面，从外部 传了 zj 进 EVV 后，zj 对应的 图都画好了，结果 这里 又把 最后一张图 覆盖了一下...
 
     if Get("is_stored") == 1:
-        U_EVV_plot(sget("G"), fkey("G"),
+        # 小写的 x,y 表示 电脑中 矩阵坐标系，大写 X,Y 表示 笛卡尔坐标系
+        YZget("G")[:, Get("sheets_num")] = fget("G")[:, Get("th_X")]
+        XZget("G")[:, Get("sheets_num")] = fget("G")[Get("th_Y"), :]
+        YZget("U")[:, Get("sheets_num")] = fget("U")[:, Get("th_X")]
+        XZget("U")[:, Get("sheets_num")] = fget("U")[Get("th_Y"), :]
+
+        # U_EVV_plot(sget("G"), fkey("G"),
+        #            sget("U"), fkey("U"),
+        #            img_name_extension,
+        #            is_save_txt,
+        #            # %%
+        #            sample, size_PerPixel,
+        #            is_save, dpi, size_fig,
+        #            elev, azim, alpha,
+        #            # %%
+        #            cmap_2d, cmap_3d,
+        #            ticks_num, is_contourf,
+        #            is_title_on, is_axes_on, is_mm,
+        #            fontsize, font,
+        #            # %%
+        #            is_colorbar_on, is_energy,
+        #            # %%
+        #            plot_group, is_animated,
+        #            loop, duration, fps,
+        #            # %%
+        #            is_plot_3d_XYz,
+        #            # %%
+        #            Get("zj"), Get("z_stored"), z,
+        #            is_no_data_save=is_no_data_save, )
+
+        U_SSI_plot(sget("G"), fkey("G"),
                    sget("U"), fkey("U"),
+                   YZget("G"), XZget("G"),
+                   YZget("U"), XZget("U"),
+                   get1("G"), get2("G"),
+                   getf("G"), gete("G"),
+                   get1("U"), get2("U"),
+                   getf("U"), gete("U"),
+                   Get("th_X"), Get("th_Y"),
+                   0, len(Get("zj")) - 1,
+                   0, len(Get("zj")) - 1,
                    img_name_extension,
-                   is_save_txt,
+                   is_no_data_save, is_save_txt,
                    # %%
                    sample, size_PerPixel,
                    is_save, dpi, size_fig,
@@ -914,15 +995,18 @@ def fU_EVV_plot(img_name_extension,
                    is_title_on, is_axes_on, is_mm,
                    fontsize, font,
                    # %%
-                   is_colorbar_on, is_energy,
+                   is_colorbar_on, is_energy, 0, # is_show_structure_face = 0
                    # %%
                    plot_group, is_animated,
                    loop, duration, fps,
                    # %%
-                   is_plot_3d_XYz,
+                   is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
+                   is_plot_YZ_XZ, is_plot_3d_XYZ,
                    # %%
-                   Get("zj"), Get("z_stored"), z,
-                   is_no_data_save=is_no_data_save, )
+                   Get("X"), Get("Y"),  # 这个也可 顺便 设成 global 的，懒得搞
+                   Get("zj")[0], Get("zj")[-1],
+                   Get("zj")[0], Get("zj")[-1],
+                   Get("zj"), Get("z_stored"), z, )
 
 
 def GU_error_energy_plot_save(G0_energy, G_energy, G_error_energy,

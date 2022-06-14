@@ -83,7 +83,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure="",
                        plot_group="UGa", is_animated=1,
                        loop=0, duration=0.033, fps=5,
                        # %%
-                       is_plot_3d_XYz=0, is_plot_selective=0,
+                       is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
                        is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
                        # %%
                        is_print=1,
@@ -186,7 +186,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure="",
          plot_group, is_animated,
          loop, duration, fps,
          # %%
-         is_plot_3d_XYz, is_plot_selective,
+         is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
          is_plot_YZ_XZ, is_plot_3d_XYZ,
          # %%
          is_print, ]
@@ -262,7 +262,7 @@ if __name__ == '__main__':
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %%
-         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
          "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
          # %%
          "is_print": 1,

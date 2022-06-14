@@ -58,8 +58,11 @@ def AST_EVV(U_name="",
             # %% 该程序 独有 -------------------------------
             is_EVV_SSI=1, is_stored=1, sheets_stored_num=10,
             # %%
-            sample=1, is_plot_3d_XYz=0, cmap_3d='rainbow',
+            sample=1, cmap_3d='rainbow',
             elev=10, azim=-65, alpha=2,
+            # %%
+            is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
+            X=0, Y=0, is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
             # %%
             plot_group="UGa", is_animated=1,
             loop=0, duration=0.033, fps=5,
@@ -144,7 +147,7 @@ def AST_EVV(U_name="",
     init_EVV(g_shift, U_0,
              0, is_stored,
              sheets_stored_num, sheets_stored_num,
-             iz, size_PerPixel, )
+             X, Y, iz, size_PerPixel, )
 
     # %%
 
@@ -218,7 +221,8 @@ def AST_EVV(U_name="",
                 plot_group, is_animated,
                 loop, duration, fps,
                 # %%
-                is_plot_3d_XYz,
+                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
+                is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 z0, )
 
@@ -258,14 +262,17 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 0,
+         "is_colorbar_on": 1, "is_energy": 1,
          # %%
          "is_print": 1,
          # %% 该程序 独有 -------------------------------
-         "is_EVV_SSI": 1, "is_stored": 1, "sheets_stored_num": 10,
+         "is_EVV_SSI": 0, "is_stored": 1, "sheets_stored_num": 10,
          # %%
-         "sample": 1, "is_plot_3d_XYz": 0, "cmap_3d": 'rainbow',
+         "sample": 1, "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
+         # %%
+         "is_plot_EVV": 0, "is_plot_3d_XYz": 0, "is_plot_selective": 1,
+         "X": 0, "Y": 0, "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,

@@ -14,8 +14,8 @@ from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_ssi
-from fun_linear import init_AST, init_SFG, fft2, ifft2
-from fun_nonlinear import args_SFG
+from fun_linear import init_AST, fft2, ifft2
+from fun_nonlinear import args_SFG, init_SFG
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, sget, skey, fGHU_plot_save, fU_SSI_plot
@@ -72,7 +72,7 @@ def nLA_ssi(U_name="",
             plot_group="UGa", is_animated=1,
             loop=0, duration=0.033, fps=5,
             # %%
-            is_plot_3d_XYz=0, is_plot_selective=0,
+            is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
             is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
             # %%
             is_print=1,
@@ -251,7 +251,7 @@ def nLA_ssi(U_name="",
                 plot_group, is_animated,
                 loop, duration, fps,
                 # %%
-                is_plot_3d_XYz, is_plot_selective,
+                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 z0_1, z0_2,
@@ -313,7 +313,7 @@ if __name__ == '__main__':
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %%
-         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
          "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
          # %%
          "is_print": 1,

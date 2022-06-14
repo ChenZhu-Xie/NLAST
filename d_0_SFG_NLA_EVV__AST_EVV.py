@@ -79,7 +79,10 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                                'color': 'black',  # 'black','gray','darkred'
                                },
                          # %%
-                         is_colorbar_on=1, is_energy=0, is_plot_3d_XYz=0,
+                         is_colorbar_on=1, is_energy=0,
+                         # %%
+                         is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
+                         X=0, Y=0, is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
                          # %%
                          plot_group="UGa", is_animated=1,
                          loop=0, duration=0.033, fps=5,
@@ -159,7 +162,10 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                 # %%
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy, is_plot_3d_XYz,
+                is_colorbar_on, is_energy,
+                # %%
+                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
+                X, Y, is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 plot_group, is_animated,
                 loop, duration, fps,
@@ -185,7 +191,7 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                 U_NonZero_size, w0,
                 z_AST,
                 # %%
-                lam1, is_air_pump, 1, T,  #  后续 线性衍射 过程中， is_air = 1
+                lam1, is_air_pump, 1, T,  # 后续 线性衍射 过程中， is_air = 1
                 # %%
                 is_save, is_save_txt, dpi,
                 # %%
@@ -203,8 +209,11 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                 # %% 该程序 独有 -------------------------------
                 is_EVV_SSI, is_stored, sheets_stored_num,
                 # %%
-                sample, is_plot_3d_XYz, cmap_3d,
+                sample, cmap_3d,
                 elev, azim, alpha,
+                # %%
+                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
+                X, Y, is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 plot_group, is_animated,
                 loop, duration, fps, ]
@@ -212,21 +221,21 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
     kwargs_EVV = copy.deepcopy(kwargs)
     U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
         SFG_NLA_EVV(*args_EVV(L0_Crystal), **kwargs_EVV, )
-        
+
     kwargs_AST = copy.deepcopy(kwargs)
-    kwargs_AST.update({"U": U2_NLA, "ray": ray2_NLA, 
+    kwargs_AST.update({"U": U2_NLA, "ray": ray2_NLA,
                        "lam3": Get("lam3"), "polar": kwargs_AST["polar3"], })
-    
+
     if is_add_lens != 1:
         kwargs_AST.update({"is_end": 1, })
         U1_AST, G1_AST, ray1_AST, method_and_way1_AST, U_key1_AST = \
             AST_EVV(*args_AST(z_AST), **kwargs_AST, )
     else:
         f = z_AST / 2
-        
+
         U1_AST, G1_AST, ray1_AST, method_and_way1_AST, U_key1_AST = \
             AST_EVV(*args_AST(f), **kwargs_AST, )
-    
+
         from fun_nonlinear import init_SFG
         lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
                                                              lam1, 0, T,
@@ -235,7 +244,7 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
         # H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), Get("k3"), z_AST / 2, Cal_mode=1)
         H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), k3, f, Cal_mode=1)
         U1_AST *= H_lens
-    
+
         kwargs_AST.update({"U": U1_AST, "ray": ray1_AST, "is_end": 1, })
         U1_AST, G1_AST, ray1_AST, method_and_way1_AST, U_key1_AST = \
             AST_EVV(*args_AST(f), **kwargs_AST, )
@@ -244,12 +253,12 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-         "img_full_name": "lena2.png",
+         "img_full_name": "lena1.png",
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
-         "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 3, "p": 0,
+         "is_LG": 0, "is_Gauss": 1, "is_OAM": 1,
+         "l": 0, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -261,24 +270,24 @@ if __name__ == '__main__':
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
-         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 0,
-         "l_Structure": 0, "p_Structure": 0,
+         "is_LG_Structure": 0, "is_Gauss_Structure": 1, "is_OAM_Structure": 1,
+         "l_Structure": 1, "p_Structure": 0,
          "theta_x_Structure": 0, "theta_y_Structure": 0,
          # %%
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0.05,
-         "L0_Crystal": 5, "z_AST": 20, "sheets_stored_num": 10,
+         "U_NonZero_size": 1, "w0": 0.3,
+         "L0_Crystal": 0.1, "z_AST": 20, "sheets_stored_num": 100,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
-         "deff": 30, "is_fft": 1, "fft_mode": 1,
+         "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 4, "Ty": 25, "Tz": 0,
-         "mx": 1, "my": 0, "mz": 0,
+         "Tx": 18, "Ty": 25, "Tz": 0,
+         "mx": 0, "my": 0, "mz": 0,
          # %%
          # 生成横向结构
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
@@ -303,7 +312,10 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1, "is_plot_3d_XYz": 0,
+         "is_colorbar_on": 1, "is_energy": 1,
+         # %%
+         "is_plot_EVV": 0, "is_plot_3d_XYz": 0, "is_plot_selective": 1,
+         "X": 0, "Y": 0, "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,
          # %%
          "plot_group": "Ua", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
@@ -333,14 +345,14 @@ if __name__ == '__main__':
             "is_phase_only_2": 0,
             # %%
             "z_pump2": 0,
-            "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 3, "p2": 0,
+            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 1,
+            "l2": 0, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.05,
+            "w0_2": 0.3,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',

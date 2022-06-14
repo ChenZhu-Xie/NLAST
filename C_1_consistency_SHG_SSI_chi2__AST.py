@@ -90,7 +90,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
                              plot_group="UGa", is_animated=1,
                              loop=0, duration=0.033, fps=5,
                              # %% 不关心
-                             is_plot_3d_XYz=0, is_plot_selective=0,
+                             is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
                              is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
                              # %%
                              is_print=1, is_contours=66, n_TzQ=1,
@@ -209,7 +209,7 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
                 plot_group, is_animated,
                 loop, duration, fps,
                 # %%
-                is_plot_3d_XYz, is_plot_selective,
+                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 is_print, is_contours, n_TzQ,
@@ -396,7 +396,7 @@ if __name__ == '__main__':
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %% 不关心
-         "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
          "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 0,
          # %%
          "is_print": 1, "is_contours": 66, "n_TzQ": 1,

@@ -85,7 +85,10 @@ def SFG_NLA_EVV(U_name="",
                       'color': 'black',  # 'black','gray','darkred'
                       },
                 # %%
-                is_colorbar_on=1, is_energy=0, is_plot_3d_XYz=0,
+                is_colorbar_on=1, is_energy=0,
+                # %%
+                is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
+                X=0, Y=0, is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
                 # %%
                 plot_group="UGa", is_animated=1,
                 loop=0, duration=0.033, fps=5,
@@ -332,7 +335,7 @@ def SFG_NLA_EVV(U_name="",
     init_EVV(g_shift, U_0,
              is_energy_evolution_on, is_stored,
              sheets_stored_num, sheets_stored_num,
-             iz, size_PerPixel, )
+             X, Y, iz, size_PerPixel, )
 
     if is_EVV_SSI == 1:
         def H3_zdz(diz):
@@ -551,7 +554,8 @@ def SFG_NLA_EVV(U_name="",
                 plot_group, is_animated,
                 loop, duration, fps,
                 # %%
-                is_plot_3d_XYz,
+                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
+                is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 z0, )
 
@@ -608,7 +612,7 @@ if __name__ == '__main__':
          # %%
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
-         "is_stored": 0, "is_energy_evolution_on": 1,
+         "is_stored": 1, "is_energy_evolution_on": 1,
          # %%
          "is_save": 0, "is_save_txt": 0, "dpi": 100,
          # %%
@@ -625,7 +629,10 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1, "is_plot_3d_XYz": 0,
+         "is_colorbar_on": 1, "is_energy": 1,
+         # %%
+         "is_plot_EVV": 0, "is_plot_3d_XYz": 0, "is_plot_selective": 1,
+         "X": 0, "Y": 0, "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
@@ -633,7 +640,7 @@ if __name__ == '__main__':
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
          # %% 该程序 独有 -------------------------------
-         "is_EVV_SSI": 1,
+         "is_EVV_SSI": 0,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
