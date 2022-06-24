@@ -278,7 +278,7 @@ if __name__ == '__main__':
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
          "U_NonZero_size": 1, "w0": 0.3,
-         "L0_Crystal": 0.1, "z_AST": 20, "sheets_stored_num": 100,
+         "L0_Crystal": 0.1, "z_AST": 1, "sheets_stored_num": 100,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,

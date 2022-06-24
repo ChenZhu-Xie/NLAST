@@ -16,7 +16,7 @@ from fun_linear import fft2, ifft2
 from fun_nonlinear import Eikz, Info_find_contours_SHG
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
-from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
+from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, Set, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
 
 np.seterr(divide='ignore', invalid='ignore')
@@ -590,7 +590,25 @@ def SFG_SSF_SSI(U_name="",
                 z0_1, z0_2,
                 z0_front, z0_end, z0, )
 
-    return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
+    import inspect
+    if inspect.stack()[1][3] == "SFG_NLA_reverse":
+        from fun_statistics import find_Kxyz
+        from fun_linear import fft2
+        K1_z, K1_xy = find_Kxyz(fft2(U_0), k1)
+        K2_z, K2_xy = find_Kxyz(fft2(U2_0), k2)
+        kiizQ = K1_z + K2_z + Gz
+        # print(np.max(np.abs(fft2(fget("U")) / Get("size_PerPixel") ** 2)))
+
+        return fget("U"), U_0, U2_0, modulation_squared, k1_inc, k2_inc, \
+               theta_x, theta_y, theta2_x, theta2_y, kiizQ, \
+               k1, k2, k3, const, Iz, Gz
+    elif inspect.stack()[1][3] == "SFG_NLA_SSI__AST_EVV":
+        Set("k3", k3)
+        Set("lam3", lam3)
+        
+        return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
+    else:
+        return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
 
 if __name__ == '__main__':
