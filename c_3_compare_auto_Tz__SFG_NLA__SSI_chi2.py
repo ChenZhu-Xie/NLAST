@@ -84,7 +84,8 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
                                     'color': 'black',  # 'black','gray','darkred'
                                     },
                               # %%
-                              is_colorbar_on=1, is_energy=1,
+                              is_colorbar_on=1, is_colorbar_log=0,
+                              is_energy=1,
                               # %%
                               plot_group="UGa", is_animated=1,
                               loop=0, duration=0.033, fps=5,
@@ -181,34 +182,34 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
     if ray_tag == "f":
         from fun_pump import pump_pic_or_U2
         U2_0, g2 = pump_pic_or_U2(U2_name,
-                                img2_full_name,
-                                is_phase_only_2,
-                                # %%
-                                z_pump2,
-                                is_LG_2, is_Gauss_2, is_OAM_2,
-                                l2, p2,
-                                theta2_x, theta2_y,
-                                # %%
-                                is_random_phase_2,
-                                is_H_l2, is_H_theta2, is_H_random_phase_2,
-                                # %%
-                                U_NonZero_size, w0_2,
-                                # %%
-                                lam2, is_air_pump, T,
-                                polar2,
-                                # %%
-                                is_save, is_save_txt, dpi,
-                                # %%
-                                ticks_num, is_contourf,
-                                is_title_on, is_axes_on, is_mm,
-                                # %%
-                                fontsize, font,
-                                # %%
-                                is_colorbar_on, is_energy,
-                                # %%
-                                is_print,
-                                # %%
-                                ray_pump='2', **kwargs, )
+                                  img2_full_name,
+                                  is_phase_only_2,
+                                  # %%
+                                  z_pump2,
+                                  is_LG_2, is_Gauss_2, is_OAM_2,
+                                  l2, p2,
+                                  theta2_x, theta2_y,
+                                  # %%
+                                  is_random_phase_2,
+                                  is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                  # %%
+                                  U_NonZero_size, w0_2,
+                                  # %%
+                                  lam2, is_air_pump, T,
+                                  polar2,
+                                  # %%
+                                  is_save, is_save_txt, dpi,
+                                  # %%
+                                  ticks_num, is_contourf,
+                                  is_title_on, is_axes_on, is_mm,
+                                  # %%
+                                  fontsize, font,
+                                  # %%
+                                  is_colorbar_on, is_energy,
+                                  # %%
+                                  is_print,
+                                  # %%
+                                  ray_pump='2', **kwargs, )
     else:
         U2_0, g2 = U_0, g_shift
 
@@ -280,78 +281,79 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
 
     def args_compare_SFG_NLA__SSI(Tz):
         return [
-                    U_name_Structure,
-                    is_phase_only_Structure,
-                    # %%
-                    z_pump_Structure,
-                    is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
-                    l_Structure, p_Structure,
-                    theta_x_Structure, theta_y_Structure,
-                    # %%
-                    is_random_phase_Structure,
-                    is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
-                    # %%
-                    U_name,
-                    img_full_name,
-                    is_phase_only,
-                    # %%
-                    z_pump,
-                    is_LG, is_Gauss, is_OAM,
-                    l, p,
-                    theta_x, theta_y,
-                    # %%
-                    is_random_phase,
-                    is_H_l, is_H_theta, is_H_random_phase,
-                    # %%---------------------------------------------------------------------
-                    # %%
-                    U_NonZero_size, w0, w0_Structure, structure_size_Enlarge,
-                    L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
-                    SSI_zoomout_times, sheets_stored_num,
-                    z0_section_1_expect, z0_section_2_expect,
-                    X, Y,
-                    # %%
-                    Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
-                    structure_xy_mode, Depth,
-                    # %%
-                    is_continuous, is_target_far_field, is_transverse_xy,
-                    is_reverse_xy, is_positive_xy,
-                    # %%
-                    is_bulk, is_no_backgroud,
-                    is_stored, is_show_structure_face, is_energy_evolution_on,
-                    # %%
-                    lam1, is_air_pump, is_air, T,
-                    is_air_pump_structure,
-                    deff, is_fft, fft_mode,
-                    is_sum_Gm, mG,
-                    is_linear_convolution,
-                    # %%
-                    Tx, Ty, Tz,
-                    mx, my, mz,
-                    is_stripe, is_NLAST,
-                    # %%
-                    is_save, is_save_txt, dpi,
-                    # %%
-                    color_1d, cmap_2d, cmap_3d,
-                    elev, azim, alpha,
-                    # %%
-                    sample, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm,
-                    # %%
-                    fontsize, font,
-                    # %%
-                    is_colorbar_on, is_energy,
-                    # %%
-                    plot_group, is_animated,
-                    loop, duration, fps,
-                    # %%
-                    is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
-                    is_plot_YZ_XZ, is_plot_3d_XYZ,
-                    # %%
-                    is_print, is_contours, n_TzQ,
-                    Gz_max_Enhance, match_mode,
-                    # %%
-                    is_NLA, is_amp_relative,
-                ]
+            U_name_Structure,
+            is_phase_only_Structure,
+            # %%
+            z_pump_Structure,
+            is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+            l_Structure, p_Structure,
+            theta_x_Structure, theta_y_Structure,
+            # %%
+            is_random_phase_Structure,
+            is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+            # %%
+            U_name,
+            img_full_name,
+            is_phase_only,
+            # %%
+            z_pump,
+            is_LG, is_Gauss, is_OAM,
+            l, p,
+            theta_x, theta_y,
+            # %%
+            is_random_phase,
+            is_H_l, is_H_theta, is_H_random_phase,
+            # %%---------------------------------------------------------------------
+            # %%
+            U_NonZero_size, w0, w0_Structure, structure_size_Enlarge,
+            L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
+            SSI_zoomout_times, sheets_stored_num,
+            z0_section_1_expect, z0_section_2_expect,
+            X, Y,
+            # %%
+            Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
+            structure_xy_mode, Depth,
+            # %%
+            is_continuous, is_target_far_field, is_transverse_xy,
+            is_reverse_xy, is_positive_xy,
+            # %%
+            is_bulk, is_no_backgroud,
+            is_stored, is_show_structure_face, is_energy_evolution_on,
+            # %%
+            lam1, is_air_pump, is_air, T,
+            is_air_pump_structure,
+            deff, is_fft, fft_mode,
+            is_sum_Gm, mG,
+            is_linear_convolution,
+            # %%
+            Tx, Ty, Tz,
+            mx, my, mz,
+            is_stripe, is_NLAST,
+            # %%
+            is_save, is_save_txt, dpi,
+            # %%
+            color_1d, cmap_2d, cmap_3d,
+            elev, azim, alpha,
+            # %%
+            sample, ticks_num, is_contourf,
+            is_title_on, is_axes_on, is_mm,
+            # %%
+            fontsize, font,
+            # %%
+            is_colorbar_on, is_colorbar_log,
+            is_energy,
+            # %%
+            plot_group, is_animated,
+            loop, duration, fps,
+            # %%
+            is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
+            is_plot_YZ_XZ, is_plot_3d_XYZ,
+            # %%
+            is_print, is_contours, n_TzQ,
+            Gz_max_Enhance, match_mode,
+            # %%
+            is_NLA, is_amp_relative,
+        ]
 
     if ray_tag == "f":
         for key in pump2_keys:
@@ -449,8 +451,11 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%---------------------------------------------------------------------
          # %%
-         "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
+         "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, 
+         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
+         "is_U_NonZero_size_x_structure_side_y": 1,
          "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         # %%
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -474,7 +479,8 @@ if __name__ == '__main__':
          "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
-         "is_save": 2, "is_save_txt": 0, "dpi": 100,
+         "is_save": 2, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "color_1d2": 'r', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -489,7 +495,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1,
+         "is_colorbar_on": 1, "is_colorbar_log": 0,
+         "is_energy": 1,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,

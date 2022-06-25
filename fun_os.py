@@ -840,7 +840,7 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
 def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto_seq_and_z = 1
                   G_energy, is_print,
                   H, H_name,
-                  U, U_name,
+                  U, U_name, # U 容易重名，得在上一级就处理。
                   U_energy,
                   img_name_extension,
                   # %%
@@ -947,10 +947,17 @@ def U_slices_plot_save(folder_address,
                        is_colorbar_on, is_energy,
                        # %%
                        X, Y, **kwargs, ):  # args 是 X 和 Y， is_save_txt、is_no_data_save
-    U_YZ_amp = np.abs(U_YZ) if is_energy != 1 else np.abs(U_YZ) ** 2
-    U_XZ_amp = np.abs(U_XZ) if is_energy != 1 else np.abs(U_XZ) ** 2
-    U_YZ_XZ_amp_max = np.max([np.max(U_YZ_amp), np.max(U_XZ_amp)])
-    U_YZ_XZ_amp_min = np.min([np.min(U_YZ_amp), np.min(U_XZ_amp)])
+    if kwargs.get("is_colorbar_log", 0) == -1:
+        v_kwargs = {}
+    else:
+        U_YZ_amp = np.abs(U_YZ) if is_energy != 1 else np.abs(U_YZ) ** 2
+        U_XZ_amp = np.abs(U_XZ) if is_energy != 1 else np.abs(U_XZ) ** 2
+        U_YZ_XZ_amp_max = np.max([np.max(U_YZ_amp), np.max(U_XZ_amp)])
+        U_YZ_XZ_amp_min = np.min([np.min(U_YZ_amp), np.min(U_XZ_amp)])
+        v_kwargs = {
+            "vmax": U_YZ_XZ_amp_max,
+            "vmin": U_YZ_XZ_amp_min,
+        }
 
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
@@ -967,7 +974,7 @@ def U_slices_plot_save(folder_address,
                     fontsize, font,
                     # %%
                     0, is_colorbar_on, is_energy,
-                    vmax=U_YZ_XZ_amp_max, vmin=U_YZ_XZ_amp_min,
+                    **v_kwargs,
                     # %%
                     z=X, **kwargs, )
 
@@ -984,14 +991,21 @@ def U_slices_plot_save(folder_address,
                     fontsize, font,
                     # %%
                     0, is_colorbar_on, is_energy,
-                    vmax=U_YZ_XZ_amp_max, vmin=U_YZ_XZ_amp_min,
+                    **v_kwargs,
                     # %%
                     z=Y, **kwargs, )
 
-    U_YZ_phase = np.angle(U_YZ)
-    U_XZ_phase = np.angle(U_XZ)
-    U_YZ_XZ_phase_max = np.max([np.max(U_YZ_phase), np.max(U_XZ_phase)])
-    U_YZ_XZ_phase_min = np.min([np.min(U_YZ_phase), np.min(U_XZ_phase)])
+    if kwargs.get("is_colorbar_log", 0) == -1:
+        v_kwargs = {}
+    else:
+        U_YZ_phase = np.angle(U_YZ)
+        U_XZ_phase = np.angle(U_XZ)
+        U_YZ_XZ_phase_max = np.max([np.max(U_YZ_phase), np.max(U_XZ_phase)])
+        U_YZ_XZ_phase_min = np.min([np.min(U_YZ_phase), np.min(U_XZ_phase)])
+        v_kwargs = {
+            "vmax": U_YZ_XZ_phase_max,
+            "vmin": U_YZ_XZ_phase_min,
+        }
 
     U_phase_plot_save(folder_address,
                       U_YZ_phase, U_YZ_name,
@@ -1006,7 +1020,7 @@ def U_slices_plot_save(folder_address,
                       fontsize, font,
                       # %%
                       0, is_colorbar_on,
-                      vmax=U_YZ_XZ_phase_max, vmin=U_YZ_XZ_phase_min,
+                      **v_kwargs,
                       # %%
                       z=X, **kwargs, )
 
@@ -1023,7 +1037,7 @@ def U_slices_plot_save(folder_address,
                       fontsize, font,
                       # %%
                       0, is_colorbar_on,
-                      vmax=U_YZ_XZ_phase_max, vmin=U_YZ_XZ_phase_min,
+                      **v_kwargs,
                       # %%
                       z=Y, **kwargs, )
 
@@ -1068,18 +1082,25 @@ def U_selects_plot_save(folder_address,
                         z_1, z_2, z_f, z_e,
                         **kwargs, ):  # kwargs 是 is_save_txt、is_no_data_save
 
-    U_1_amp = np.abs(U_1) if is_energy != 1 else np.abs(U_1) ** 2
-    U_2_amp = np.abs(U_2) if is_energy != 1 else np.abs(U_2) ** 2
-    U_f_amp = np.abs(U_f) if is_energy != 1 else np.abs(U_f) ** 2
-    U_e_amp = np.abs(U_e) if is_energy != 1 else np.abs(U_e) ** 2
-    if is_show_structure_face == 1:
-        U_amps_max = np.max([np.max(U_1_amp), np.max(U_2_amp),
-                             np.max(U_f_amp), np.max(U_e_amp)])
-        U_amps_min = np.min([np.min(U_1_amp), np.min(U_2_amp),
-                             np.min(U_f_amp), np.min(U_e_amp)])
+    if kwargs.get("is_colorbar_log", 0) == -1:
+        v_kwargs = {}
     else:
-        U_amps_max = np.max([np.max(U_1_amp), np.max(U_2_amp)])
-        U_amps_min = np.min([np.min(U_1_amp), np.min(U_2_amp)])
+        U_1_amp = np.abs(U_1) if is_energy != 1 else np.abs(U_1) ** 2
+        U_2_amp = np.abs(U_2) if is_energy != 1 else np.abs(U_2) ** 2
+        U_f_amp = np.abs(U_f) if is_energy != 1 else np.abs(U_f) ** 2
+        U_e_amp = np.abs(U_e) if is_energy != 1 else np.abs(U_e) ** 2
+        if is_show_structure_face == 1:
+            U_amps_max = np.max([np.max(U_1_amp), np.max(U_2_amp),
+                                 np.max(U_f_amp), np.max(U_e_amp)])
+            U_amps_min = np.min([np.min(U_1_amp), np.min(U_2_amp),
+                                 np.min(U_f_amp), np.min(U_e_amp)])
+        else:
+            U_amps_max = np.max([np.max(U_1_amp), np.max(U_2_amp)])
+            U_amps_min = np.min([np.min(U_1_amp), np.min(U_2_amp)])
+        v_kwargs = {
+            "vmax": U_amps_max,
+            "vmin": U_amps_min,
+        }
 
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
@@ -1096,7 +1117,7 @@ def U_selects_plot_save(folder_address,
                     fontsize, font,
                     # %%
                     0, is_colorbar_on, is_energy,
-                    vmax=U_amps_max, vmim=U_amps_min,
+                    **v_kwargs,
                     # %%
                     z=z_1, **kwargs, )
 
@@ -1113,7 +1134,7 @@ def U_selects_plot_save(folder_address,
                     fontsize, font,
                     # %%
                     0, is_colorbar_on, is_energy,
-                    vmax=U_amps_max, vmin=U_amps_min,
+                    **v_kwargs,
                     # %%
                     z=z_2, **kwargs, )
 
@@ -1131,7 +1152,7 @@ def U_selects_plot_save(folder_address,
                         fontsize, font,
                         # %%
                         0, is_colorbar_on, is_energy,
-                        vmax=U_amps_max, vmin=U_amps_min,
+                        **v_kwargs,
                         # %%
                         z=z_f, **kwargs, )
 
@@ -1148,22 +1169,29 @@ def U_selects_plot_save(folder_address,
                         fontsize, font,
                         # %%
                         0, is_colorbar_on, is_energy,
-                        vmax=U_amps_max, vmin=U_amps_min,
+                        **v_kwargs,
                         # %%
                         z=z_e, **kwargs, )
 
-    U_1_phase = np.angle(U_1)
-    U_2_phase = np.angle(U_2)
-    U_f_phase = np.angle(U_f)
-    U_e_phase = np.angle(U_e)
-    if is_show_structure_face == 1:
-        U_phases_max = np.max([np.max(U_1_phase), np.max(U_2_phase),
-                               np.max(U_f_phase), np.max(U_e_phase)])
-        U_phases_min = np.min([np.min(U_1_phase), np.min(U_2_phase),
-                               np.min(U_f_phase), np.min(U_e_phase)])
+    if kwargs.get("is_colorbar_log", 0) == -1:
+        v_kwargs = {}
     else:
-        U_phases_max = np.max([np.max(U_1_phase), np.max(U_2_phase)])
-        U_phases_min = np.min([np.min(U_1_phase), np.min(U_2_phase)])
+        U_1_phase = np.angle(U_1)
+        U_2_phase = np.angle(U_2)
+        U_f_phase = np.angle(U_f)
+        U_e_phase = np.angle(U_e)
+        if is_show_structure_face == 1:
+            U_phases_max = np.max([np.max(U_1_phase), np.max(U_2_phase),
+                                   np.max(U_f_phase), np.max(U_e_phase)])
+            U_phases_min = np.min([np.min(U_1_phase), np.min(U_2_phase),
+                                   np.min(U_f_phase), np.min(U_e_phase)])
+        else:
+            U_phases_max = np.max([np.max(U_1_phase), np.max(U_2_phase)])
+            U_phases_min = np.min([np.min(U_1_phase), np.min(U_2_phase)])
+        v_kwargs = {
+            "vmax": U_phases_max,
+            "vmin": U_phases_min,
+        }
 
     U_phase_plot_save(folder_address,
                       U_1_phase, U_1_name,
@@ -1178,7 +1206,7 @@ def U_selects_plot_save(folder_address,
                       fontsize, font,
                       # %%
                       0, is_colorbar_on,
-                      vmax=U_phases_max, vmin=U_phases_min,
+                      **v_kwargs,
                       # %%
                       z=z_1, **kwargs, )
 
@@ -1195,7 +1223,7 @@ def U_selects_plot_save(folder_address,
                       fontsize, font,
                       # %%
                       0, is_colorbar_on,
-                      vmax=U_phases_max, vmin=U_phases_min,
+                      **v_kwargs,
                       # %%
                       z=z_2, **kwargs, )
 
@@ -1213,7 +1241,7 @@ def U_selects_plot_save(folder_address,
                           fontsize, font,
                           # %%
                           0, is_colorbar_on,
-                          vmax=U_phases_max, vmin=U_phases_min,
+                          **v_kwargs,
                           # %%
                           z=z_f, **kwargs, )
 
@@ -1230,7 +1258,7 @@ def U_selects_plot_save(folder_address,
                           fontsize, font,
                           # %%
                           0, is_colorbar_on,
-                          vmax=U_phases_max, vmin=U_phases_min,
+                          **v_kwargs,
                           # %%
                           z=z_e, **kwargs, )
     kwargs["is_no_data_save"] = is_no_data_save
@@ -1268,12 +1296,17 @@ def U_amps_z_plot_save(folder_address,
                        # %%
                        z_stored, is_animated,
                        duration, fps, loop,
-                       z, **kwargs, ):  # 必须要传 z 序列、is_animated 进来；kwargs 是 is_save_txt, is_no_data_save
+                       z, **kwargs, ):  # 必须要传 z 序列、is_animated 进来；kwargs 是 is_save_txt, is_no_data_save、is_colorbar_log
     # 其实不用传 z 进来，直接用 z_stored[-1] 就行，不过这样保险点
-
-    U_amp_max = np.max(U) if is_energy != 1 else np.max(U) ** 2  # U 已经是 amp 了
-    U_amp_min = np.min(U) if is_energy != 1 else np.min(U) ** 2
-
+    if kwargs.get("is_colorbar_log", 0) == -1:
+        v_kwargs = {}
+    else:
+        U_amp_max = np.max(U) if is_energy != 1 else np.max(U) ** 2  # U 已经是 amp 了
+        U_amp_min = np.min(U) if is_energy != 1 else np.min(U) ** 2
+        v_kwargs = {
+            "vmax": U_amp_max,
+            "vmin": U_amp_min,
+        }
     # global imgs_address_list, titles_list
     imgs_address_list = []
     titles_list = []
@@ -1294,7 +1327,7 @@ def U_amps_z_plot_save(folder_address,
                                                           fontsize, font,
                                                           # %%
                                                           0, is_colorbar_on, is_energy,
-                                                          vmax=U_amp_max, vmin=U_amp_min,
+                                                          **v_kwargs,
                                                           # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                                                           # %%
                                                           z=z_stored[sheet_stored_th], **kwargs, )
@@ -1379,11 +1412,16 @@ def U_phases_z_plot_save(folder_address,
                          # %%
                          z_stored, is_animated,
                          duration, fps, loop,
-                         z, **kwargs, ):  # 必须要传 z 序列、is_animated 进来， # args 是 is_save_txt、is_no_data_save
-
-    U_phase_max = np.max(U)  # U 已经是 phase 了
-    U_phase_min = np.min(U)
-
+                         z, **kwargs, ):  # 必须要传 z 序列、is_animated 进来， # args 是 is_save_txt、is_no_data_save、is_colorbar_log
+    if kwargs.get("is_colorbar_log", 0) == -1:
+        v_kwargs = {}
+    else:
+        U_phase_max = np.max(U)  # U 已经是 phase 了
+        U_phase_min = np.min(U)
+        v_kwargs = {
+            "vmax": U_phase_max,
+            "vmin": U_phase_min,
+        }
     # global imgs_address_list, titles_list
     imgs_address_list = []
     titles_list = []
@@ -1404,7 +1442,7 @@ def U_phases_z_plot_save(folder_address,
                                                                 # %%
                                                                 0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
                                                                 # %%
-                                                                vmax=U_phase_max, vmin=U_phase_min,
+                                                                **v_kwargs,
                                                                 z=z_stored[sheet_stored_th], **kwargs, )
         imgs_address_list.append(U_phase_plot_address)
         titles_list.append(U_phase_title)  # 每张图片都用单独list的形式加入到图片序列中
@@ -1486,7 +1524,7 @@ def U_amp_plot_save_3d_XYz(folder_address,
                            # %%
                            zj, z_stored, **kwargs, ):
     # args 是 z 或 ()，但 z 可从 z_stored 中 提取，所以这里 省略了 *args，外面不用传 z 进来（得保证 z 是最后一个）
-    # kwargs 是 is_no_data_save， is_save_txt
+    # kwargs 是 is_no_data_save， is_save_txt， is_colorbar_log
 
     U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U_name, folder_address, img_name_extension,
                                                                    z=z_stored[-1], )
@@ -1734,7 +1772,7 @@ def U_EVV_plot(G_stored, G_name,
                # %%
                zj, z_stored, z,
                # %%
-               **kwargs, ):  # kwargs 是 is_no_data_save， is_save_txt
+               **kwargs, ):  # kwargs 是 is_no_data_save， is_save_txt， is_colorbar_log
     p_dir = 'GU_XY(z)'
     # -------------------------
     if ("G" in plot_group and "a" in plot_group):
@@ -1873,7 +1911,8 @@ def U_SSI_plot(G_stored, G_name,
                is_title_on, is_axes_on, is_mm,
                fontsize, font,
                # %%
-               is_colorbar_on, is_energy, is_show_structure_face,
+               is_colorbar_on, is_colorbar_log,
+               is_energy, is_show_structure_face,
                # %%
                plot_group, is_animated,
                loop, duration, fps,
@@ -1911,7 +1950,8 @@ def U_SSI_plot(G_stored, G_name,
                    # %%
                    zj, z_stored, z,
                    # %%
-                   is_no_data_save=is_no_data_save, )
+                   is_no_data_save=is_no_data_save,
+                   is_colorbar_log=is_colorbar_log, )
 
     # %%
     p_dir = "GU_XYs"
@@ -1946,7 +1986,8 @@ def U_SSI_plot(G_stored, G_name,
                                     # %%
                                     z_1, z_2, z_f, z_e,
                                     # %%
-                                    is_no_data_save=is_no_data_save, )
+                                    is_no_data_save=is_no_data_save,
+                                    is_colorbar_log=is_colorbar_log, )
 
         # %%
 
@@ -1977,7 +2018,8 @@ def U_SSI_plot(G_stored, G_name,
                                     # %%
                                     z_1, z_2, z_f, z_e,
                                     # %%
-                                    is_no_data_save=is_no_data_save, )
+                                    is_no_data_save=is_no_data_save,
+                                    is_colorbar_log=is_colorbar_log, )
 
     # %%
 
@@ -2010,7 +2052,8 @@ def U_SSI_plot(G_stored, G_name,
                                    # %%
                                    X, Y,
                                    # %%
-                                   is_no_data_save=is_no_data_save, )
+                                   is_no_data_save=is_no_data_save,
+                                   is_colorbar_log=is_colorbar_log, )
 
         # %%
 
@@ -2038,7 +2081,8 @@ def U_SSI_plot(G_stored, G_name,
                                    # %%
                                    X, Y,
                                    # %%
-                                   is_no_data_save=is_no_data_save, )
+                                   is_no_data_save=is_no_data_save,
+                                   is_colorbar_log=is_colorbar_log, )
 
         if is_plot_3d_XYZ == 1:
             # %%
@@ -2047,6 +2091,14 @@ def U_SSI_plot(G_stored, G_name,
             # 绘制 G1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_amp（现在 可以 任选位置 了）
 
             if ("G" in plot_group and "a" in plot_group):
+                if is_colorbar_log == -1:
+                    v_kwargs = {}
+                else:
+                    v_kwargs = {
+                        "vmax": np.max([G_YZ_XZ_amp_max, G_amps_max]),
+                        "vmin": np.min([G_YZ_XZ_amp_min, G_amps_min]),
+                    }
+
                 suffix = "_XYZ"
                 folder_address = U_dir(G_name + suffix + "_amp", is_save,
                                        z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
@@ -2073,14 +2125,22 @@ def U_SSI_plot(G_stored, G_name,
                                                             # %%
                                                             zj, z=z,
                                                             is_no_data_save=is_no_data_save,
+                                                            is_colorbar_log=is_colorbar_log,
                                                             # %%
-                                                            vmax=np.max([G_YZ_XZ_amp_max, G_amps_max]),
-                                                            vmin=np.min([G_YZ_XZ_amp_min, G_amps_min]), )
+                                                            **v_kwargs, )
 
             # %%
             # 绘制 G1_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_phase
 
             if ("G" in plot_group and "p" in plot_group):
+                if is_colorbar_log == -1:
+                    v_kwargs = {}
+                else:
+                    v_kwargs = {
+                        "vmax": np.max([G_YZ_XZ_phase_max, G_phases_max]),
+                        "vmin": np.min([G_YZ_XZ_phase_min, G_phases_min]),
+                    }
+
                 suffix = "_XYZ"
                 folder_address = U_dir(G_name + suffix + "_phase", is_save,
                                        z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
@@ -2107,14 +2167,22 @@ def U_SSI_plot(G_stored, G_name,
                                                                 # %%
                                                                 zj, z=z,
                                                                 is_no_data_save=is_no_data_save,
+                                                                is_colorbar_log=is_colorbar_log,
                                                                 # %%
-                                                                vmax=np.max([G_YZ_XZ_phase_max, G_phases_max]),
-                                                                vmin=np.min([G_YZ_XZ_phase_min, G_phases_min]), )
+                                                                **v_kwargs, )
 
             # %%
             # 绘制 U0_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 U0_amp
 
             if ("U" in plot_group and "a" in plot_group):
+                if is_colorbar_log == -1:
+                    v_kwargs = {}
+                else:
+                    v_kwargs = {
+                        "vmax": np.max([U_YZ_XZ_amp_max, U_amps_max]),
+                        "vmin": np.min([U_YZ_XZ_amp_min, U_amps_min]),
+                    }
+
                 suffix = "_XYZ"
                 folder_address = U_dir(U_name + suffix + "_amp", is_save,
                                        z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
@@ -2141,14 +2209,22 @@ def U_SSI_plot(G_stored, G_name,
                                                             # %%
                                                             zj, z=z,
                                                             is_no_data_save=is_no_data_save,
+                                                            is_colorbar_log=is_colorbar_log,
                                                             # %%
-                                                            vmax=np.max([U_YZ_XZ_amp_max, U_amps_max]),
-                                                            vmin=np.min([U_YZ_XZ_amp_min, U_amps_min]), )
+                                                            **v_kwargs, )
 
             # %%
             # 绘制 U0_phase 的 侧面 3D 分布图，以及 初始 和 末尾的 U0_phase
 
             if ("U" in plot_group and "p" in plot_group):
+                if is_colorbar_log == -1:
+                    v_kwargs = {}
+                else:
+                    v_kwargs = {
+                        "vmax": np.max([U_YZ_XZ_phase_max, U_phases_max]),
+                        "vmin": np.min([U_YZ_XZ_phase_min, U_phases_min]),
+                    }
+
                 suffix = "_XYZ"
                 folder_address = U_dir(U_name + suffix + "_phase", is_save,
                                        z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
@@ -2175,9 +2251,9 @@ def U_SSI_plot(G_stored, G_name,
                                                                 # %%
                                                                 zj, z=z,
                                                                 is_no_data_save=is_no_data_save,
+                                                                is_colorbar_log=is_colorbar_log,
                                                                 # %%
-                                                                vmax=np.max([U_YZ_XZ_phase_max, U_phases_max]),
-                                                                vmin=np.min([U_YZ_XZ_phase_min, U_phases_min]), )
+                                                                **v_kwargs, )
 
 
 # %%
@@ -2769,11 +2845,17 @@ def Info_img(img_full_name):
 
 # %%
 
-def img_squared_Read(img_full_name, U_NonZero_size):
+def img_squared_Read(img_full_name, U_NonZero_size, **kwargs, ):
     img_name, img_name_extension, img_address, folder_address, img_squared_address, img_squared_bordered_address \
         = Info_img(img_full_name)
     img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
-    size_PerPixel = U_NonZero_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
+    if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
+        size_PerPixel = U_NonZero_size / img_squared.shape[1]  # 如果 由图的 x 向 列数（宽度）与 U_NonZero_size 决定 像素点 的 尺寸
+        # size_PerPixel = size_PerPixel_x
+    else:
+        size_PerPixel = U_NonZero_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
+        # size_PerPixel = size_PerPixel_y
+    # Size_PerPixel 统一以 图片 y 行向 为准
 
     init_Set("img_name_extension", img_name_extension)
 
@@ -2787,20 +2869,30 @@ def img_squared_Read(img_full_name, U_NonZero_size):
 
 def img_squared_bordered_Read(img_full_name,
                               U_NonZero_size, dpi,
-                              is_phase_only, ):
+                              is_phase_only, **kwargs, ):
     img_name, img_name_extension, img_address, folder_address, \
     img_squared_address, img_squared_bordered_address, \
-    img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size)
+    img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size, **kwargs, )
 
     img_squared_bordered = cv2.imdecode(np.fromfile(img_squared_bordered_address, dtype=np.uint8),
                                         0)  # 按 相对路径 + 灰度图 读取图片
-    size_fig = img_squared_bordered.shape[0] / dpi
     Ix, Iy = img_squared_bordered.shape[0], img_squared_bordered.shape[1]
 
     if is_phase_only == 1:
         U = np.power(math.e, (img_squared_bordered.astype(np.complex128()) / 255 * 2 * math.pi - math.pi) * 1j)  # 变成相位图
     else:
         U = img_squared_bordered.astype(np.complex128)
+
+    if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
+        size_fig = Iy / dpi  # 由 x 向 列数 决定
+        U_NonZero_size_y = U_NonZero_size  #  U_NonZero_size_y 等于 U_NonZero_size_x = img_squared 对应的 U_NonZero_size
+        init_Set("U_NonZero_side", U_NonZero_size_y)
+    else:
+        size_fig = Ix / dpi  # size_fig 默认 也由 y 向 行数 决定。
+        # U_NonZero_size != size_PerPixel * Ix
+        # 而有 U_NonZero_size == size_PerPixel * img_squared.shape[0]，已经是 squared 之后的了，所以直接
+        U_NonZero_size_x = U_NonZero_size  # 以致于 从图片 img_squared_bordered_Read 里 读到的 U 总是 方的，但走 U_Read 就不是了
+        init_Set("U_NonZero_side", U_NonZero_size_x)
 
     init_Set("Ix", Ix)
     init_Set("Iy", Iy)
@@ -2837,17 +2929,26 @@ def U_read_only(U_name, is_save_txt):
 
 def U_Read(U_name, img_full_name,
            U_NonZero_size, dpi,
-           is_save_txt, ):
+           is_save_txt, **kwargs, ):
     U = U_read_only(U_name, is_save_txt)
-    size_fig = U.shape[0] / dpi
     Ix, Iy = U.shape[0], U.shape[1]
 
     img_name, img_name_extension, img_address, folder_address, \
     img_squared_address, img_squared_bordered_address, \
-    img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size)
+    img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size, **kwargs, )
 
-    size_PerPixel = U_NonZero_size / Ix  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
-    # 覆盖 img_squared_Read 所得到的 size_PerPixel
+    if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
+        size_fig = Iy / dpi  # 由 x 向 列数 决定
+        size_PerPixel = U_NonZero_size / Iy  # size_PerPixel = size_PerPixel_x
+        U_NonZero_size_y = size_PerPixel * Ix  # U_NonZero_size == size_PerPixel * Ix
+        init_Set("U_NonZero_side", U_NonZero_size_y)
+    else:
+        size_fig = Ix / dpi  # size_fig、size_PerPixel 默认 由 y 向 行数 决定。
+        size_PerPixel = U_NonZero_size / Ix  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
+        # Size_PerPixel 统一以 图片 y 行向 为准： size_PerPixel = size_PerPixel_y
+        # 覆盖 img_squared_Read 所得到的 size_PerPixel
+        U_NonZero_size_x = size_PerPixel * Iy  # U_NonZero_size == size_PerPixel * Ix
+        init_Set("U_NonZero_side", U_NonZero_size_x)
 
     init_Set("Ix", Ix)
     init_Set("Iy", Iy)

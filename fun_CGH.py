@@ -225,8 +225,8 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
-    Ix_structure, Iy_structure, deff_structure_size, \
-    border_width, img_squared_resize_full_name, img_squared_resize, \
+    Ix_structure, Iy_structure, deff_structure_size_x, deff_structure_size_y, \
+    border_width_x, border_width_y, img_squared_resize_full_name, img_squared_resize, \
     U_0_structure, g_shift_structure = pump_pic_or_U_structure(U_structure_name,
                                                                img_full_name,
                                                                is_phase_only,
@@ -361,8 +361,10 @@ def structure_chi2_Generate_2D(U_structure_name="",
     #                 suffix="", **kwargs, )
 
     modulation = 1 - is_no_backgroud - Depth * structure
-    modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant',
+    # print(modulation.shape, border_width_x, border_width_y)  # ((行前, 行后) 填充行, (列前, 列后) 填充列)
+    modulation_squared = np.pad(modulation, ((border_width_x, border_width_x), (border_width_y, border_width_y)), 'constant',
                                 constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
+    # print(modulation_squared.shape)
 
     name = "χ2_modulation_squared"
     full_name = method + " - " + name
@@ -415,7 +417,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     modulation_opposite = 1 - is_no_backgroud - Depth * structure_opposite
     modulation_opposite_squared = np.pad(modulation_opposite,
-                                         ((border_width, border_width), (border_width, border_width)), 'constant',
+                                         ((border_width_x, border_width_x), (border_width_y, border_width_y)), 'constant',
                                          constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
 
     name = "χ2_modulation_opposite_squared"
@@ -702,8 +704,8 @@ def structure_n1_Generate_2D(U_structure_name="",
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
-    Ix_structure, Iy_structure, deff_structure_size, \
-    border_width, img_squared_resize_full_name, img_squared_resize, \
+    Ix_structure, Iy_structure, deff_structure_size_x, deff_structure_size_y, \
+    border_width_x, border_width_y, img_squared_resize_full_name, img_squared_resize, \
     U_0_structure, g_shift_structure = pump_pic_or_U_structure(U_structure_name,
                                                                img_full_name,
                                                                is_phase_only,
@@ -811,7 +813,7 @@ def structure_n1_Generate_2D(U_structure_name="",
     #                 suffix="", **kwargs, )
 
     modulation = n1_inc - Depth * structure
-    modulation_squared = np.pad(modulation, ((border_width, border_width), (border_width, border_width)), 'constant',
+    modulation_squared = np.pad(modulation, ((border_width_x, border_width_x), (border_width_y, border_width_y)), 'constant',
                                 constant_values=(n1_inc, n1_inc))
 
     name = "n1_modulation_squared"
@@ -865,7 +867,7 @@ def structure_n1_Generate_2D(U_structure_name="",
 
     modulation_opposite = n1_inc - Depth * structure_opposite
     modulation_opposite_squared = np.pad(modulation_opposite,
-                                         ((border_width, border_width), (border_width, border_width)), 'constant',
+                                         ((border_width_x, border_width_x), (border_width_y, border_width_y)), 'constant',
                                          constant_values=(n1_inc, n1_inc))
 
     name = "n1_modulation_opposite_squared"

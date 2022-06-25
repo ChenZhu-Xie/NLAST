@@ -79,7 +79,8 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                                'color': 'black',  # 'black','gray','darkred'
                                },
                          # %%
-                         is_colorbar_on=1, is_energy=0,
+                         is_colorbar_on=1, is_colorbar_log=0,
+                         is_energy=0,
                          # %%
                          is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
                          X=0, Y=0, is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
@@ -162,7 +163,8 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                 # %%
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy,
+                is_colorbar_on, is_colorbar_log,
+                is_energy,
                 # %%
                 is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
                 X, Y, is_plot_YZ_XZ, is_plot_3d_XYZ,
@@ -203,7 +205,8 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                 # %%
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy,
+                is_colorbar_on, is_colorbar_log,
+                is_energy,
                 # %%
                 is_print,
                 # %% 该程序 独有 -------------------------------
@@ -266,7 +269,8 @@ if __name__ == '__main__':
          # %%
          # 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Enlarge": 0.1,
+         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
+         "is_U_NonZero_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
@@ -297,7 +301,8 @@ if __name__ == '__main__':
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
          "is_stored": 1, "is_energy_evolution_on": 1,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -312,7 +317,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1,
+         "is_colorbar_on": 1, "is_colorbar_log": 0, 
+         "is_energy": 1,
          # %%
          "is_plot_EVV": 0, "is_plot_3d_XYz": 0, "is_plot_selective": 1,
          "X": 0, "Y": 0, "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,

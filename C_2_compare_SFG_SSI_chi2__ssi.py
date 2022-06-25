@@ -84,7 +84,8 @@ def compare_SFG_SSI__ssi(U_name_Structure="",
                                'color': 'black',  # 'black','gray','darkred'
                                },
                          # %%
-                         is_colorbar_on=1, is_energy=1,
+                         is_colorbar_on=1, is_colorbar_log=0,
+                         is_energy=1,
                          # %%
                          plot_group="UGa", is_animated=1,
                          loop=0, duration=0.033, fps=5,
@@ -169,7 +170,8 @@ def compare_SFG_SSI__ssi(U_name_Structure="",
                                # %%
                                fontsize, font,
                                # %%
-                               is_colorbar_on, is_energy,
+                               is_colorbar_on, is_colorbar_log,
+                               is_energy,
                                # %%
                                plot_group, is_animated,
                                loop, duration, fps,
@@ -243,7 +245,8 @@ def compare_SFG_SSI__ssi(U_name_Structure="",
          # %%
          fontsize, font,
          # %%
-         is_colorbar_on, is_energy,
+         is_colorbar_on, is_colorbar_log,
+         is_energy,
          # %%
          plot_group, is_animated,
          loop, duration, fps,
@@ -266,7 +269,7 @@ def compare_SFG_SSI__ssi(U_name_Structure="",
     size_PerPixel, size_fig, Ix, Iy, U = \
         img_squared_bordered_Read(img_full_name,
                                   U_NonZero_size, dpi,
-                                  is_phase_only)
+                                  is_phase_only, **kwargs, )
 
     # %%
     # 对比 G2_NLA 与 G2_ssi 的 （绝对）误差
@@ -339,7 +342,9 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%---------------------------------------------------------------------
          # %%
-         "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
+         "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, 
+         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
+         "is_U_NonZero_size_x_structure_side_y": 1,
          "L0_Crystal": 1.1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 0.5,
          # %%
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
@@ -363,7 +368,8 @@ if __name__ == '__main__':
          "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
-         "is_save": 2, "is_save_txt": 0, "dpi": 100,
+         "is_save": 2, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -378,7 +384,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 0,
+         "is_colorbar_on": 1, "is_colorbar_log": 0, 
+         "is_energy": 0,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,

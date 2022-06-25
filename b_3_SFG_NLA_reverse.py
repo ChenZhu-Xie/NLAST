@@ -79,7 +79,8 @@ def SFG_NLA_reverse(U_name="",
                           'color': 'black',  # 'black','gray','darkred'
                           },
                     # %%
-                    is_colorbar_on=1, is_energy=0,
+                    is_colorbar_on=1, is_colorbar_log=0,
+                    is_energy=0,
                     # %%
                     is_print=1, is_contours=1, n_TzQ=1,
                     Gz_max_Enhance=1, match_mode=1,
@@ -241,7 +242,8 @@ def SFG_NLA_reverse(U_name="",
          # %%
          fontsize, font,
          # %%
-         is_colorbar_on, is_energy,
+         is_colorbar_on, is_colorbar_log,
+         is_energy,
          # %%
          plot_group, is_animated,
          loop, duration, fps,
@@ -426,7 +428,8 @@ if __name__ == '__main__':
          # %%
          # 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Enlarge": 0.19,
+         "structure_size_Enlarge": 0.19, "structure_side_Enlarger": 0,
+         "is_U_NonZero_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
@@ -456,7 +459,8 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "cmap_2d": 'viridis',
          # %%
@@ -470,7 +474,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 0,
+         "is_colorbar_on": 1, "is_colorbar_log": 0, 
+         "is_energy": 0,
          # %%
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,

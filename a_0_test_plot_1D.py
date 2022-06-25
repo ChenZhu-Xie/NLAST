@@ -66,7 +66,7 @@ def plot_1D_test(test_target=3, is_energy_normalized=0,
     size_PerPixel, size_fig, Ix, Iy, U = \
         img_squared_bordered_Read(img_full_name,
                                   U_NonZero_size, dpi,
-                                  is_phase_only)
+                                  is_phase_only, **kwargs, )
 
     if test_func == "U_energy_plot_save":
         U_energy_plot_save(U_list[index+0], U_name_no_suffix_list[index+0],
@@ -131,7 +131,8 @@ if __name__ == '__main__':
          # %%
          "U_NonZero_size": 1,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "color_1d2": 'r',
          # %%

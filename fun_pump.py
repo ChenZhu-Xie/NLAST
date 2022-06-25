@@ -199,6 +199,7 @@ def Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, ):
     # 即 theta = 90⁰ - theta_y，phi = theta_x 对应 先转 theta_y 再转 theta_x，且 kx, ky, kz 对应 kz, kx, ky，极 z 轴 是 y 轴；phi 反：左手系
     return kx, ky, kz
 
+
 # %%
 # 对输入场 频域 引入 额外倾斜相位
 
@@ -509,7 +510,7 @@ def pump_pic_or_U(U_name="",
         size_PerPixel, size_fig, Ix, Iy, U = \
             img_squared_bordered_Read(img_full_name,
                                       U_NonZero_size, dpi,
-                                      is_phase_only)
+                                      is_phase_only, **kwargs, )
 
         if "U" in kwargs:
             U = kwargs["U"]
@@ -549,7 +550,7 @@ def pump_pic_or_U(U_name="",
                                                     img_full_name,
                                                     U_NonZero_size,
                                                     dpi,
-                                                    is_save_txt, )
+                                                    is_save_txt, **kwargs, )
     g_shift = fft2(U)
 
     return img_name, img_name_extension, img_squared, \
@@ -609,39 +610,46 @@ def pump_pic_or_U2(U2_name="",
         img2_name, img2_name_extension, img2_squared, \
         size_PerPixel_2, size_fig_2, I2x, I2y, U2 = img_squared_bordered_Read(img2_full_name,
                                                                               U_NonZero_size, dpi,
-                                                                              is_phase_only_2)
+                                                                              is_phase_only_2, **kwargs, )
     else:
         img2_name, img2_name_extension, img2_squared, \
         size_PerPixel_2, size_fig_2, I2x, I2y, U2 = U_Read(U2_name,  # 需要 用 U_Read 覆盖 size_PerPixel 等 Set 的 值
                                                            img2_full_name,
                                                            U_NonZero_size,
                                                            dpi,
-                                                           is_save_txt, )
+                                                           is_save_txt, **kwargs, )
 
     # %%
     # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
 
     U2_NonZero_size_Enlarge = 0
-    U2_NonZero_size = U_NonZero_size * (1 + U2_NonZero_size_Enlarge)
-    is_Print and print(tree_print() + "U2_NonZero_size = {} mm".format(U2_NonZero_size))
+    if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
+        U2_NonZero_size = U_NonZero_size * (1 + U2_NonZero_size_Enlarge)
+        U2_NonZero_size_y = Get("U_NonZero_side") * (1 + U2_NonZero_size_Enlarge)
+    else:
+        U2_NonZero_size = Get("U_NonZero_side") * (1 + U2_NonZero_size_Enlarge)
+        U2_NonZero_size_y = U_NonZero_size * (1 + U2_NonZero_size_Enlarge)
+    is_Print and print(tree_print() + "U2_NonZero_size_x = {} mm".format(U2_NonZero_size_y))
+    is_Print and print(tree_print() + "U2_NonZero_size_y = {} mm".format(U2_NonZero_size))
 
-    I2x_NonZero, I2y_NonZero, deff_structure_size = Cal_IxIy(Get("Ix"), Get("Iy"),
-                                                             U2_NonZero_size, Get("size_PerPixel"),
-                                                             is_Print)
+    I2x_NonZero, I2y_NonZero, deff_structure_size_x, deff_structure_size_y = \
+        Cal_IxIy(Get("Ix"), Get("Iy"),
+                 U2_NonZero_size, U2_NonZero_size_y,
+                 Get("size_PerPixel"), is_Print)
 
     # %%
     # 需要先将 目标 U2_NonZero = img2_squared 给 放大 或 缩小 到 与 I2x_NonZero, I2y_NonZero 相同，才能开始 之后的工作
     # 最终结果就是 img2_squared_resize 与 img_squared 尺寸相同，也就是 I2x_NonZero, I2y_NonZero = Ix_NonZero, Iy_NonZero
 
-    border_width, img2_squared_resize_full_name, img2_squared_resize = \
+    border_width_x, border_width_y, img2_squared_resize_full_name, img2_squared_resize = \
         img_squared_Resize(img2_full_name, img2_squared,
-                           I2x_NonZero, I2y_NonZero, Get("Ix"),
+                           I2x_NonZero, I2y_NonZero, Get("Ix"), Get("Iy"),
                            is_Print, )
 
     # %% 补零后 再拿进去 Pump
 
-    img2_squared_resize_bordered = np.pad(img2_squared_resize, ((border_width, border_width),
-                                                                (border_width, border_width)),
+    img2_squared_resize_bordered = np.pad(img2_squared_resize, ((border_width_x, border_width_x),
+                                                                (border_width_y, border_width_y)),
                                           'constant', constant_values=(0, 0))
 
     # %%
@@ -682,8 +690,9 @@ def pump_pic_or_U2(U2_name="",
                                 **kwargs, )
 
     if ((type(U2_name) == str) and U2_name != "") or "U2" in kwargs:
-        U2 = cv2.resize(np.real(U2), (Get("Ix"), Get("Iy")), interpolation=cv2.INTER_AREA) + \
-             cv2.resize(np.imag(U2), (Get("Ix"), Get("Iy")), interpolation=cv2.INTER_AREA) * 1j
+        U2 = cv2.resize(np.real(U2), (Get("Iy"), Get("Ix")), interpolation=cv2.INTER_AREA) + \
+             cv2.resize(np.imag(U2), (Get("Iy"), Get("Ix")), interpolation=cv2.INTER_AREA) * 1j
+        # 使用cv2.imread()读取图片之后,数据的形状和维度布局是(H,W,C),但是使用函数cv2.resize()进行缩放时候,传入的目标形状是(W,H)
         # U2 必须 resize 为 Ix, Iy 大小；
         # 但 cv2 、 skimage.transform 中 resize 都能处理 图片 和 float64，
         # 但似乎 没有东西 能直接 处理 complex128，但可 分别处理 实部和虚部，再合并为 complex128
@@ -745,31 +754,55 @@ def pump_pic_or_U_structure(U_structure_name="",
         img_name, img_name_extension, img_squared, \
         size_PerPixel, size_fig, Ix, Iy, U = img_squared_bordered_Read(img_full_name,
                                                                        U_NonZero_size, dpi,
-                                                                       is_phase_only)
+                                                                       is_phase_only, **kwargs, )
+        if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
+            U_NonZero_size_y = U_NonZero_size
+        else:
+            # U_NonZero_size != size_PerPixel * Ix
+            # 而有 U_NonZero_size == size_PerPixel * img_squared.shape[0]，已经是 squared 之后的了，所以直接
+            U_NonZero_size_x = U_NonZero_size  # 以致于 从图片 img_squared_bordered_Read 里 读到的 U 总是 方的，但走 U_Read 就不是了
     else:
         img_name, img_name_extension, img_squared, \
         size_PerPixel, size_fig, Ix, Iy, U = U_Read(U_structure_name,  # 需要 用 U_Read 覆盖 size_PerPixel 等 Set 的 值
                                                     img_full_name,
                                                     U_NonZero_size,
                                                     dpi,
-                                                    is_save_txt, )
+                                                    is_save_txt, **kwargs, )
+        if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
+            U_NonZero_size_y = size_PerPixel * Ix
+        else:
+            U_NonZero_size_x = size_PerPixel * Iy  # U_NonZero_size == size_PerPixel * Ix
 
     # %%
     # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
 
-    deff_structure_size_expect = U_NonZero_size * (1 + structure_size_Enlarge)
-    is_Print and print(tree_print() + "deff_structure_size_expect = {} mm".format(deff_structure_size_expect))
+    if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
+        deff_structure_size_x_expect = U_NonZero_size * (1 + structure_size_Enlarge)
+        deff_structure_size_y_expect = U_NonZero_size_y * (1 + structure_size_Enlarge +
+                                                           kwargs.get("structure_side_Enlarger", 0))
+    else:
+        # deff_structure_size_x_expect = U_NonZero_size_x * (
+        #             1 + kwargs.get("structure_side_Enlarge", structure_size_Enlarge))  # 绝对（1 次缩放）
+        # deff_structure_size_x_expect = U_NonZero_size_x * (1 + structure_size_Enlarge) * \
+        #                                (1 + kwargs.get("structure_side_Enlarger", 0))  # 相对（2 次缩放，连乘）
+        deff_structure_size_x_expect = U_NonZero_size_x * (1 + structure_size_Enlarge +
+                                                           kwargs.get("structure_side_Enlarger", 0))  # 相对（2 次缩放，连加）
+        deff_structure_size_y_expect = U_NonZero_size * (1 + structure_size_Enlarge)
+    is_Print and print(tree_print() + "deff_structure_size_x_expect = {} mm".format(deff_structure_size_x_expect))
+    is_Print and print(tree_print() + "deff_structure_size_y_expect = {} mm".format(deff_structure_size_y_expect))
 
-    Ix_structure, Iy_structure, deff_structure_size = Cal_IxIy(Ix, Iy,
-                                                               deff_structure_size_expect, size_PerPixel,
-                                                               is_Print)
+    Ix_structure, Iy_structure, deff_structure_size_x, deff_structure_size_y = \
+        Cal_IxIy(Ix, Iy,
+                 deff_structure_size_x_expect,
+                 deff_structure_size_y_expect,
+                 size_PerPixel, is_Print)
 
     # %%
     # 需要先将 目标 U_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix_structure, Iy_structure 相同，才能开始 之后的工作
 
-    border_width, img_squared_resize_full_name, img_squared_resize = \
+    border_width_x, border_width_y, img_squared_resize_full_name, img_squared_resize = \
         img_squared_Resize(img_full_name, img_squared,
-                           Ix_structure, Iy_structure, Ix,
+                           Ix_structure, Iy_structure, Ix, Iy,
                            is_Print, )
 
     if (type(U_structure_name) != str) or U_structure_name == "":
@@ -813,8 +846,9 @@ def pump_pic_or_U_structure(U_structure_name="",
                                                   **kwargs, )
 
     if ((type(U_structure_name) == str) and U_structure_name != "") or "U_structure" in kwargs:
-        U_structure = cv2.resize(np.real(U), (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA) + \
-                      cv2.resize(np.imag(U), (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA) * 1j
+        U_structure = cv2.resize(np.real(U), (Iy_structure, Ix_structure), interpolation=cv2.INTER_AREA) + \
+                      cv2.resize(np.imag(U), (Iy_structure, Ix_structure), interpolation=cv2.INTER_AREA) * 1j
+        # 使用cv2.imread()读取图片之后,数据的形状和维度布局是(H,W,C),但是使用函数cv2.resize()进行缩放时候,传入的目标形状是(W,H)
         # U 必须 resize 为 Ix_structure, Iy_structure 大小；
         # 但 cv2 、 skimage.transform 中 resize 都能处理 图片 和 float64，
         # 但似乎 没有东西 能直接 处理 complex128，但可 分别处理 实部和虚部，再合并为 complex128
@@ -822,6 +856,6 @@ def pump_pic_or_U_structure(U_structure_name="",
 
     return img_name, img_name_extension, img_squared, \
            size_PerPixel, size_fig, Ix, Iy, \
-           Ix_structure, Iy_structure, deff_structure_size, \
-           border_width, img_squared_resize_full_name, img_squared_resize, \
+           Ix_structure, Iy_structure, deff_structure_size_x, deff_structure_size_y, \
+           border_width_x, border_width_y, img_squared_resize_full_name, img_squared_resize, \
            U_structure, g_shift_structure

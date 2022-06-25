@@ -52,7 +52,8 @@ def AST_EVV(U_name="",
                   'color': 'black',  # 'black','gray','darkred'
                   },
             # %%
-            is_colorbar_on=1, is_energy=0,
+            is_colorbar_on=1, is_colorbar_log=0,
+            is_energy=0,
             # %%
             is_print=1,
             # %% 该程序 独有 -------------------------------
@@ -200,12 +201,14 @@ def AST_EVV(U_name="",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z0, is_end=1, )
+                   z0,
+                   # %%
+                   is_end=1, **kwargs, )
 
     # %%
 
     fU_EVV_plot(img_name_extension,
-                is_save_txt, kwargs.get("is_no_data_save", 0),
+                is_save_txt,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -216,7 +219,8 @@ def AST_EVV(U_name="",
                 is_title_on, is_axes_on, is_mm,
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy,
+                is_colorbar_on, is_colorbar_log,
+                is_energy,
                 # %%
                 plot_group, is_animated,
                 loop, duration, fps,
@@ -224,7 +228,9 @@ def AST_EVV(U_name="",
                 is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
-                z0, )
+                z0,
+                # %%
+                **kwargs, )
 
     return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
@@ -248,7 +254,8 @@ if __name__ == '__main__':
          # %%
          "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "cmap_2d": 'viridis',
          # %%
@@ -262,7 +269,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1,
+         "is_colorbar_on": 1, "is_colorbar_log": 0,
+         "is_energy": 1,
          # %%
          "is_print": 1,
          # %% 该程序 独有 -------------------------------

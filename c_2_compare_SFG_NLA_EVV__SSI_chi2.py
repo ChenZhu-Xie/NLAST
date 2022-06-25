@@ -85,7 +85,8 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
                                    'color': 'black',  # 'black','gray','darkred'
                                    },
                              # %%
-                             is_colorbar_on=1, is_energy=1,
+                             is_colorbar_on=1, is_colorbar_log=0,
+                             is_energy=1,
                              # %%
                              plot_group="UGa", is_animated=1,
                              loop=0, duration=0.033, fps=5,
@@ -173,7 +174,8 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
          # %%
          fontsize, font,
          # %%
-         is_colorbar_on, is_energy,
+         is_colorbar_on, is_colorbar_log,
+         is_energy,
          # %%
          plot_group, is_animated,
          loop, duration, fps,
@@ -254,7 +256,8 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
          # %%
          fontsize, font,
          # %%
-         is_colorbar_on, is_energy,
+         is_colorbar_on, is_colorbar_log,
+         is_energy,
          # %%
          is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
          X, Y, is_plot_YZ_XZ, is_plot_3d_XYZ,
@@ -291,7 +294,7 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
     size_PerPixel, size_fig, Ix, Iy, U = \
         img_squared_bordered_Read(img_full_name,
                                   U_NonZero_size, dpi,
-                                  is_phase_only)
+                                  is_phase_only, **kwargs, )
 
     # %%
     if kwargs.get('ray', "2") == "3":  #  防止 l2 关键字 进 U_twin_energy_error_plot_save 等， 与 line2 冲突
@@ -507,8 +510,11 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%---------------------------------------------------------------------
          # %%
-         "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, "structure_size_Enlarge": 0.1,
+         "U_NonZero_size": 1, "w0": 0, "w0_Structure": 0, 
+         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
+         "is_U_NonZero_size_x_structure_side_y": 1,
          "L0_Crystal": 5, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
+         # %%
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 0, "z0_section_2_expect": 0,
          "X": 0, "Y": 0,
@@ -532,7 +538,8 @@ if __name__ == '__main__':
          "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 0, "is_NLAST": 1,
          # %%
-         "is_save": 2, "is_save_txt": 0, "dpi": 100,
+         "is_save": 2, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "color_1d2": 'r', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -547,7 +554,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1,
+         "is_colorbar_on": 1, "is_colorbar_log": 0, 
+         "is_energy": 1,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,

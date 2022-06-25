@@ -67,7 +67,8 @@ def nLA_ssi(U_name="",
                   'color': 'black',  # 'black','gray','darkred'
                   },
             # %%
-            is_colorbar_on=1, is_energy=0,
+            is_colorbar_on=1, is_colorbar_log=0,
+            is_energy=0,
             # %%
             plot_group="UGa", is_animated=1,
             loop=0, duration=0.033, fps=5,
@@ -229,13 +230,15 @@ def nLA_ssi(U_name="",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z0, is_end=1, )
+                   z0,
+                   # %%
+                   is_end=1, **kwargs, )
 
     # %%
 
     fU_SSI_plot(sheets_num_frontface, sheets_num_endface,
                 img_name_extension,
-                kwargs.get("is_no_data_save", 0), is_save_txt,
+                is_save_txt,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -246,7 +249,8 @@ def nLA_ssi(U_name="",
                 is_title_on, is_axes_on, is_mm,
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy, is_show_structure_face,
+                is_colorbar_on, is_colorbar_log,
+                is_energy, is_show_structure_face,
                 # %%
                 plot_group, is_animated,
                 loop, duration, fps,
@@ -255,7 +259,9 @@ def nLA_ssi(U_name="",
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 z0_1, z0_2,
-                z0_front, z0_end, z0, )
+                z0_front, z0_end, z0,
+                # %%
+                **kwargs, )
 
     if abs(is_stored) != 1:
         return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
@@ -293,7 +299,8 @@ if __name__ == '__main__':
          "Tx": 10, "Ty": 10, "Tz": "2*lc",
          "mx": 0, "my": 0, "mz": 0,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -308,7 +315,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 0,
+         "is_colorbar_on": 1, "is_colorbar_log": 0,
+         "is_energy": 0,
          # %%
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,

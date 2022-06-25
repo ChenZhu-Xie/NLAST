@@ -333,9 +333,9 @@ def Cal_H_lens(Ix, Iy, size_PerPixel, k, f, Cal_mode=1):
         # if np.mod(Iy - Iy_max, 2) != 0:
         #     Iy_max += 1
         # import cv2
-        # H_lens = cv2.resize(np.real(H_lens), (Ix_max, Iy_max), interpolation=cv2.INTER_AREA) + \
-        #          cv2.resize(np.imag(H_lens), (Ix_max, Iy_max), interpolation=cv2.INTER_AREA) * 1j
-        #
+        # H_lens = cv2.resize(np.real(H_lens), (Iy_max, Ix_max), interpolation=cv2.INTER_AREA) + \
+        #          cv2.resize(np.imag(H_lens), (Iy_max, Ix_max), interpolation=cv2.INTER_AREA) * 1j
+        # # 使用cv2.imread()读取图片之后,数据的形状和维度布局是(H,W,C),但是使用函数cv2.resize()进行缩放时候,传入的目标形状是(W,H)
         # border_width_x = (Ix - Ix_max) // 2
         # border_width_y = (Iy - Iy_max) // 2
         # H_lens = np.pad(H_lens, ((border_width_x, border_width_y), (border_width_x, border_width_y)), 'constant',

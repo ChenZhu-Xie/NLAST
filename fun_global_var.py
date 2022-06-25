@@ -812,6 +812,8 @@ def fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
                    z, **kwargs, ):
     from fun_os import GHU_plot_save
 
+    if "U" in kwargs:
+        kwargs.pop("U") # U 容易重名，得在这一级就处理，这样下级的 args 都不用改。
     GHU_plot_save(fget("G"), fkey("G"), is_energy_evolution_on,  # 这边 要省事 免代入 的话，得确保 提前 传入 ray,way,method 三个参数
                   eget("G"), is_print,
                   fget("H"), fkey("H"),  # 以及 传入 GHU 这三个 小东西
@@ -836,7 +838,7 @@ def fGHU_plot_save(is_energy_evolution_on,  # 默认 全自动 is_auto = 1
 
 def fU_SSI_plot(th_f, th_e,
                 img_name_extension,
-                is_no_data_save, is_save_txt,
+                is_save_txt,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -847,7 +849,8 @@ def fU_SSI_plot(th_f, th_e,
                 is_title_on, is_axes_on, is_mm,
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy, is_show_structure_face,
+                is_colorbar_on, is_colorbar_log,
+                is_energy, is_show_structure_face,
                 # %%
                 plot_group, is_animated,
                 loop, duration, fps,
@@ -856,7 +859,7 @@ def fU_SSI_plot(th_f, th_e,
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 z_1, z_2,
-                z_f, z_e, z, ):
+                z_f, z_e, z, **kwargs, ):
     from fun_os import U_SSI_plot
 
     if abs(Get("is_stored")) == 1:
@@ -885,7 +888,7 @@ def fU_SSI_plot(th_f, th_e,
                    Get("sheet_th_sec1"), Get("sheet_th_sec2"),
                    th_f, th_e,
                    img_name_extension,
-                   is_no_data_save, is_save_txt,
+                   kwargs.get("is_no_data_save", 0), is_save_txt,
                    # %%
                    sample, size_PerPixel,
                    is_save, dpi, size_fig,
@@ -896,7 +899,8 @@ def fU_SSI_plot(th_f, th_e,
                    is_title_on, is_axes_on, is_mm,
                    fontsize, font,
                    # %%
-                   is_colorbar_on, is_energy, is_show_structure_face,
+                   is_colorbar_on, is_colorbar_log,
+                   is_energy, is_show_structure_face,
                    # %%
                    plot_group, is_animated,
                    loop, duration, fps,
@@ -911,7 +915,7 @@ def fU_SSI_plot(th_f, th_e,
 
 
 def fU_EVV_plot(img_name_extension,
-                is_save_txt, is_no_data_save,
+                is_save_txt,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -922,7 +926,8 @@ def fU_EVV_plot(img_name_extension,
                 is_title_on, is_axes_on, is_mm,
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy,
+                is_colorbar_on, is_colorbar_log,
+                is_energy,
                 # %%
                 plot_group, is_animated,
                 loop, duration, fps,
@@ -930,7 +935,7 @@ def fU_EVV_plot(img_name_extension,
                 is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
-                z, ):
+                z, **kwargs, ):
     from fun_os import U_EVV_plot, U_SSI_plot
     if abs(Get("is_stored")) == 1:
         Get("sheet_th_stored")[Get("sheets_stored_num")] = Get("sheets_num")
@@ -984,7 +989,7 @@ def fU_EVV_plot(img_name_extension,
                    0, len(Get("zj")) - 1,
                    0, len(Get("zj")) - 1,
                    img_name_extension,
-                   is_no_data_save, is_save_txt,
+                   kwargs.get("is_no_data_save", 0), is_save_txt,
                    # %%
                    sample, size_PerPixel,
                    is_save, dpi, size_fig,
@@ -995,7 +1000,8 @@ def fU_EVV_plot(img_name_extension,
                    is_title_on, is_axes_on, is_mm,
                    fontsize, font,
                    # %%
-                   is_colorbar_on, is_energy, 0, # is_show_structure_face = 0
+                   is_colorbar_on, is_colorbar_log,
+                   is_energy, 0, # is_show_structure_face = 0
                    # %%
                    plot_group, is_animated,
                    loop, duration, fps,

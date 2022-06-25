@@ -155,7 +155,8 @@ if __name__ == '__main__':
          # %%
          "lam1": 0.8, "is_air_pump": 1, "is_air": 0, "T": 25,
          # %%
-         "is_save": 1, "is_save_txt": 0, "dpi": 100,
+         "is_save": 1, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "cmap_2d": 'viridis',
          # %%

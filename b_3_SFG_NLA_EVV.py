@@ -85,7 +85,8 @@ def SFG_NLA_EVV(U_name="",
                       'color': 'black',  # 'black','gray','darkred'
                       },
                 # %%
-                is_colorbar_on=1, is_energy=0,
+                is_colorbar_on=1, is_colorbar_log=0,
+                is_energy=0,
                 # %%
                 is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
                 X=0, Y=0, is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
@@ -533,12 +534,14 @@ def SFG_NLA_EVV(U_name="",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z0, is_end=1, )
+                   z0,
+                   # %%
+                   is_end=1, **kwargs, )
 
     # %%
 
     fU_EVV_plot(img_name_extension,
-                is_save_txt, kwargs.get("is_no_data_save", 0),
+                is_save_txt,
                 # %%
                 sample, size_PerPixel,
                 is_save, dpi, size_fig,
@@ -549,7 +552,8 @@ def SFG_NLA_EVV(U_name="",
                 is_title_on, is_axes_on, is_mm,
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy,
+                is_colorbar_on, is_colorbar_log,
+                is_energy,
                 # %%
                 plot_group, is_animated,
                 loop, duration, fps,
@@ -557,7 +561,9 @@ def SFG_NLA_EVV(U_name="",
                 is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
-                z0, )
+                z0,
+                # %%
+                **kwargs, )
 
     import inspect
     if inspect.stack()[1][3] == "SFG_NLA_EVV__AST_EVV":
@@ -583,7 +589,8 @@ if __name__ == '__main__':
          # %%
          # 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Enlarge": 0.1,
+         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
+         "is_U_NonZero_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
@@ -614,7 +621,8 @@ if __name__ == '__main__':
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
          "is_stored": 1, "is_energy_evolution_on": 1,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -629,7 +637,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1,
+         "is_colorbar_on": 1, "is_colorbar_log": 0,
+         "is_energy": 1,
          # %%
          "is_plot_EVV": 0, "is_plot_3d_XYz": 0, "is_plot_selective": 1,
          "X": 0, "Y": 0, "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,

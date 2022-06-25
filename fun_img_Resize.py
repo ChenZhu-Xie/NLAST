@@ -153,7 +153,7 @@ def if_image_Add_black_border(U_name, img_full_name,
 # 需要先将 目标 U_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix_structure, Iy_structure 相同，才能开始 之后的工作
 
 def img_squared_Resize(img_full_name, img_squared,
-                       Ix_structure, Iy_structure, Ix,
+                       Ix_structure, Iy_structure, Ix, Iy,
                        is_print=1, **kwargs):
     img_name, img_name_extension, img_address, folder_address, img_squared_address, img_squared_bordered_address \
         = Info_img(img_full_name)
@@ -161,7 +161,8 @@ def img_squared_Resize(img_full_name, img_squared,
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "图片裁剪")
     kwargs.pop("is_end", 0)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    img_squared_resize = cv2.resize(img_squared, (Ix_structure, Iy_structure), interpolation=cv2.INTER_AREA)
+    img_squared_resize = cv2.resize(img_squared, (Iy_structure, Ix_structure), interpolation=cv2.INTER_AREA)
+    # 使用cv2.imread()读取图片之后,数据的形状和维度布局是(H,W,C),但是使用函数cv2.resize()进行缩放时候,传入的目标形状是(W,H)
     img_squared_resize_full_name = "1. " + img_name + "_squared" + "_resize" + img_name_extension
     img_squared_resize_address = folder_address + "\\" + img_squared_resize_full_name
     # cv2.imwrite(img_squared_resize_address, img_squared_resize) # 保存 img_squared_resize，但不能有 中文路径
@@ -170,12 +171,25 @@ def img_squared_Resize(img_full_name, img_squared,
 
     img_squared_resize_bordered_full_name = "2. " + img_name + "_squared" + "_resize" + "_bordered" + img_name_extension
     img_squared_resize_bordered_address = folder_address + "\\" + img_squared_resize_bordered_full_name
-    border_width = (Ix - Ix_structure) // 2
-    image_Border(img_squared_resize_address, img_squared_resize_bordered_address, loc='a', width=border_width,
+    border_width_x = (Ix - Ix_structure) // 2
+    border_width_y = (Iy - Iy_structure) // 2
+    # 上下加边框 border_width_x
+    image_Border(img_squared_resize_address, img_squared_resize_bordered_address, loc='t', width=border_width_x,
                  color=(0, 0, 0, 255))
+    image_Border(img_squared_resize_bordered_address, img_squared_resize_bordered_address, loc='b', width=border_width_x,
+                 color=(0, 0, 0, 255))
+    # 左右加边框 border_width_y
+    image_Border(img_squared_resize_bordered_address, img_squared_resize_bordered_address, loc='r', width=border_width_y,
+                 color=(0, 0, 0, 255))
+    image_Border(img_squared_resize_bordered_address, img_squared_resize_bordered_address, loc='l', width=border_width_y,
+                 color=(0, 0, 0, 255))
+    # 上: 't' or 'top'
+    # 右: 'r' or 'rigth'
+    # 下: 'b' or 'bottom'
+    # 左: 'l' or 'left'
     img_squared_resize_bordered = cv2.imdecode(np.fromfile(img_squared_resize_bordered_address, dtype=np.uint8),
                                                0)  # 按 相对路径 + 灰度图 读取图片
     is_print and print(tree_print(1) + "structure_squared.shape = img_squared_resize_bordered.shape = {}"
                        .format(img_squared_resize_bordered.shape))
 
-    return border_width, img_squared_resize_full_name, img_squared_resize
+    return border_width_x, border_width_y, img_squared_resize_full_name, img_squared_resize

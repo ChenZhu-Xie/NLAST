@@ -84,7 +84,8 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                                    'color': 'black',  # 'black','gray','darkred'
                                    },
                              # %%
-                             is_colorbar_on=1, is_energy=1,
+                             is_colorbar_on=1, is_colorbar_log=0,
+                             is_energy=1,
                              # %% 不关心
                              plot_group="UGa", is_animated=1,
                              loop=0, duration=0.033, fps=5,
@@ -263,7 +264,8 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                 # %%
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy,
+                is_colorbar_on, is_colorbar_log,
+                is_energy,
                 # %%
                 plot_group, is_animated,
                 loop, duration, fps,
@@ -311,7 +313,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     size_PerPixel, size_fig, Ix, Iy, U = \
         img_squared_bordered_Read(img_full_name,
                                   U_NonZero_size, dpi,
-                                  is_phase_only)
+                                  is_phase_only, **kwargs, )
 
     U2_Z_ADD = U1_z_ssi + U2_z_AST
     kwargs.update({"ray": kwargs.get("ray", "2"), })
@@ -349,7 +351,8 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %% 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Enlarge": 0.1,
+         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
+         "is_U_NonZero_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
@@ -384,7 +387,8 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis',
          # %% 不关心
@@ -400,7 +404,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 1,
+         "is_colorbar_on": 1, "is_colorbar_log": 0, 
+         "is_energy": 1,
          # %% 不关心
          "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,

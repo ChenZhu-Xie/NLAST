@@ -141,19 +141,26 @@ def Cal_Iz(diz, zj_endface,
 # 定义 调制区域 的 横向实际像素、调制区域 的 实际横向尺寸
 
 def Cal_IxIy(I1_x, I1_y,
-             deff_structure_size_expect, size_PerPixel,
-             is_print=1, **kwargs):
-    Ix, Iy = int(deff_structure_size_expect / size_PerPixel), int(deff_structure_size_expect / size_PerPixel)
+             deff_structure_size_x_expect,
+             deff_structure_size_y_expect,
+             size_PerPixel, is_print=1, **kwargs):
+    Ix, Iy = int(deff_structure_size_y_expect / size_PerPixel), int(deff_structure_size_x_expect / size_PerPixel)
     # Ix, Iy 需要与 I1_x, I1_y 同奇偶性，这样 加边框 才好加（对称地加 而不用考虑 左右两边加的量 可能不一样）
     Ix, Iy = Ix + np.mod(I1_x - Ix, 2), Iy + np.mod(I1_y - Iy, 2)
-    deff_structure_size = Ix * size_PerPixel  # Unit: mm 不包含 边框，调制区域 的 实际横向尺寸
-    is_print and print(
-        tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_size = {} mm".format(
-            deff_structure_size))
+    deff_structure_size_x = Iy * size_PerPixel  # Unit: mm 不包含 边框，调制区域 的 实际横向尺寸
+    deff_structure_size_y = Ix * size_PerPixel  # Unit: mm 不包含 边框，调制区域 的 实际横向尺寸
+    import inspect
+    if inspect.stack()[1][3] == "pump_pic_or_U_structure":
+        is_print and print(
+            tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_size_x = {} mm".format(
+                deff_structure_size_x))
+        is_print and print(
+            tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_size_y = {} mm".format(
+                deff_structure_size_y))
     kwargs.pop("is_end", None);
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    return Ix, Iy, deff_structure_size
+    return Ix, Iy, deff_structure_size_x, deff_structure_size_y
 
 
 # %%

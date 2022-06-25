@@ -42,6 +42,7 @@ def structure_chi2_3D(U_name="",
                       # %%
                       is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
                       is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=1,
+                      is_bulk=1,
                       # %%
                       lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
                       # %%
@@ -50,7 +51,6 @@ def structure_chi2_3D(U_name="",
                       is_stripe=0,
                       # %%
                       is_save=0, is_save_txt=0, dpi=100,
-                      is_bulk=1,
                       # %%
                       cmap_2d='viridis',
                       # %%
@@ -327,7 +327,9 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0, "structure_size_Enlarge": 0.1,
+         "U_NonZero_size": 1, "w0": 0,
+         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
+         "is_U_NonZero_size_x_structure_side_y": 1,
          "deff_structure_length_expect": 1,
          # %%
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
@@ -335,6 +337,7 @@ if __name__ == '__main__':
          # %%
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
+         "is_bulk": 0,
          # %%
          "lam1": 0.8, "is_air_pump_structure": 1, "is_air": 0, "T": 25,
          # %%
@@ -342,8 +345,8 @@ if __name__ == '__main__':
          "mx": 1, "my": 0, "mz": 1,
          "is_stripe": 2.2,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
-         "is_bulk": 0,
+         "is_save": 0, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
          # %%
          "cmap_2d": 'viridis',
          # %%

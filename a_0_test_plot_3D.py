@@ -21,7 +21,9 @@ def plot_3D_test(test_target=3,
                  # %%
                  U_NonZero_size=0.9,
                  # %%
-                 is_save=0, is_save_txt=0, dpi=100,
+                 is_save=0,
+                 is_save_txt=0, dpi=100,
+                 # %%
                  is_show_structure_face=0, is_print=1,
                  # %%
                  cmap_3d='rainbow',
@@ -37,7 +39,8 @@ def plot_3D_test(test_target=3,
                        'color': 'black',  # 'black','gray','darkred'
                        },
                  # %%
-                 is_colorbar_on=1, is_energy=0,
+                 is_colorbar_on=1, is_colorbar_log=0,
+                 is_energy=0,
                  # %%
                  **kwargs, ):
     # %%
@@ -69,7 +72,7 @@ def plot_3D_test(test_target=3,
     size_PerPixel, size_fig, Ix, Iy, U = \
         img_squared_bordered_Read(img_full_name,
                                   U_NonZero_size, dpi,
-                                  is_phase_only)
+                                  is_phase_only, **kwargs, )
 
     if test_func == "U_amp_plot_save_3d_XYz":
         U_amp_plot_save_3d_XYz(folder_new_address,
@@ -88,7 +91,8 @@ def plot_3D_test(test_target=3,
                                is_colorbar_on, is_energy,
                                # %%
                                U_list[index+1], U_list[index+2],
-                               is_no_data_save=kwargs.get("is_no_data_save", 0), **kwargs, )
+                               is_colorbar_log=is_colorbar_log,
+                               **kwargs, )
     elif test_func == "U_phase_plot_save_3d_XYz":
         U_phase_plot_save_3d_XYz(folder_new_address,
                                  U_list[index+0], U_name_list[index+0],
@@ -106,8 +110,16 @@ def plot_3D_test(test_target=3,
                                  is_colorbar_on,
                                  # %%
                                  U_list[index+1], U_list[index+2],
-                                 is_no_data_save=kwargs.get("is_no_data_save", 0), **kwargs, )
+                                 is_colorbar_log=is_colorbar_log,
+                                 **kwargs, )
     elif test_func == "U_amp_plot_save_3d_XYZ":
+        if is_colorbar_log == -1:
+            v_kwargs = {}
+        else:
+            v_kwargs = {
+                "vmax": U_list[index+3][0],
+                "vmin": U_list[index+3][1],
+            }
         U_amp_plot_save_3d_XYZ(folder_new_address,
                                U_name_no_suffix_list[index+0],
                                U_list[index+0][0], U_list[index+0][1],
@@ -130,11 +142,16 @@ def plot_3D_test(test_target=3,
                                is_colorbar_on, is_energy, is_show_structure_face,
                                # %%
                                U_list[index+2], z=U_list[index+2][-1],
-                               is_no_data_save=kwargs.get("is_no_data_save", 0),
                                # %%
-                               vmax=U_list[index+3][0],
-                               vmin=U_list[index+3][1], )
+                               **v_kwargs, **kwargs, )
     elif test_func == "U_phase_plot_save_3d_XYZ":
+        if is_colorbar_log == -1:
+            v_kwargs = {}
+        else:
+            v_kwargs = {
+                "vmax": U_list[index+3][0],
+                "vmin": U_list[index+3][1],
+            }
         U_phase_plot_save_3d_XYZ(folder_new_address,
                                  U_name_no_suffix_list[index + 0],
                                  U_list[index + 0][0], U_list[index + 0][1],
@@ -157,10 +174,8 @@ def plot_3D_test(test_target=3,
                                  is_colorbar_on, is_show_structure_face,
                                  # %%
                                  U_list[index + 2], z=U_list[index + 2][-1],
-                                 is_no_data_save=kwargs.get("is_no_data_save", 0),
                                  # %%
-                                 vmax=U_list[index + 3][0],
-                                 vmin=U_list[index + 3][1], )
+                                 **v_kwargs, **kwargs, )
 
 
 if __name__ == '__main__':
@@ -172,7 +187,9 @@ if __name__ == '__main__':
          # %%
          "U_NonZero_size": 0.9,
          # %%
-         "is_save": 0, "is_save_txt": 0, "dpi": 100,
+         "is_save": 0, "is_no_data_save": 0,
+         "is_save_txt": 0, "dpi": 100,
+         # %%
          "is_show_structure_face": 1, "is_print": 1,
          # %%
          "cmap_3d": 'rainbow',
@@ -188,7 +205,8 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 0,
+         "is_colorbar_on": 1, "is_colorbar_log": 0,
+         "is_energy": 0,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "is_end": -1, }
