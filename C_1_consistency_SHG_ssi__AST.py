@@ -35,7 +35,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                              is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                              # %% 生成横向结构
                              U_name_Structure='',
-                             structure_size_Enlarge=0.1,
+                             structure_size_Shrink=0.1,
                              is_phase_only_Structure=0,
                              # %%
                              w0_Structure=0, z_pump_Structure=0,
@@ -46,7 +46,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                              is_random_phase_Structure=0,
                              is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                              # %%
-                             U_NonZero_size=1, w0=0.3,
+                             U_size=1, w0=0.3,
                              z1=1, z2=2,
                              # %% 不关心
                              z0_structure_frontface_expect=0, deff_structure_length_expect=10,
@@ -129,7 +129,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                                  is_random_phase,
                                  is_H_l, is_H_theta, is_H_random_phase,
                                  # %%
-                                 U_NonZero_size, w0,
+                                 U_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
                                  kwargs.get("polar", "e"),
@@ -162,7 +162,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                       is_random_phase_Structure,
                       is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                       # %%
-                      U_NonZero_size, w0_Structure, structure_size_Enlarge,
+                      U_size, w0_Structure, structure_size_Shrink,
                       deff_structure_length_expect,
                       # %%
                       Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
@@ -209,7 +209,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                 is_random_phase,
                 is_H_l, is_H_theta, is_H_random_phase,
                 # %%
-                U_NonZero_size, w0,
+                U_size, w0,
                 z_AST,
                 # %%
                 lam1, is_air_pump, is_air, T,
@@ -241,7 +241,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                 is_random_phase,
                 is_H_l, is_H_theta, is_H_random_phase,
                 # %%
-                U_NonZero_size, w0,
+                U_size, w0,
                 z_ssi, z0_structure_frontface_expect, deff_structure_length_expect,
                 Duty_Cycle_z, ssi_zoomout_times, sheets_stored_num,
                 z0_section_1_expect, z0_section_2_expect,
@@ -320,7 +320,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, U = \
         img_squared_bordered_Read(img_full_name,
-                                  U_NonZero_size, dpi,
+                                  U_size, dpi,
                                   is_phase_only, **kwargs, )
 
     U2_Z_ADD = U1_z2 + U2_z2
@@ -391,6 +391,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
 if __name__ == '__main__':
     kwargs = \
         {"img_full_name": "Grating.png",
+         "U_pixels_x": 0, "U_pixels_y": 0,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -402,8 +403,8 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %% 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
-         "is_U_NonZero_size_x_structure_side_y": 1,
+         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "is_U_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
@@ -414,7 +415,7 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0.3,
+         "U_size": 1, "w0": 0.3,
          "z1": 1, "z2": 2,
          # %% 不关心
          "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 10,
@@ -497,7 +498,7 @@ if __name__ == '__main__':
     #                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
     #                          # %% 生成横向结构
     #                          U_name_Structure='',
-    #                          structure_size_Enlarge=0.1,
+    #                          structure_size_Shrink=0.1,
     #                          is_phase_only_Structure=0,
     #                          # %%
     #                          w0_Structure=0, z_pump_Structure=0,
@@ -508,7 +509,7 @@ if __name__ == '__main__':
     #                          is_random_phase_Structure=0,
     #                          is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
     #                          # %%
-    #                          U_NonZero_size=1, w0=0.3,
+    #                          U_size=1, w0=0.3,
     #                          z1=1, z2=2,
     #                          # %% 不关心
     #                          z0_structure_frontface_expect=0, deff_structure_length_expect=10,

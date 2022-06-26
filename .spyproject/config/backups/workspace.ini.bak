@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['E_2_SFG_NLA_SSI_chi2__AST_EVV_OAM.py', 'b_3_SFG_NLA_EVV.py', 'B_3_SFG_NLA_SSI_chi2.py', 'e_1_SFG_NLA_EVV__AST_EVV_LuRongEr.py', 'e_1_SFG_NLA_EVV__AST_EVV_Parallelogram.py', 'B_3_SFG_SSF_SSI_chi2.py']
+recent_files = []
 
 [main]
 version = 0.2.0

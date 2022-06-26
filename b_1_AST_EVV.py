@@ -33,7 +33,7 @@ def AST_EVV(U_name="",
             is_random_phase=0,
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
-            U_NonZero_size=1, w0=0.3,
+            U_size=1, w0=0.3,
             z0=1,
             # %%
             lam1=0.8, is_air_pump=0, is_air=0, T=25,
@@ -98,7 +98,7 @@ def AST_EVV(U_name="",
                                  is_random_phase,
                                  is_H_l, is_H_theta, is_H_random_phase,
                                  # %%
-                                 U_NonZero_size, w0,
+                                 U_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
                                  # %%
@@ -239,6 +239,7 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
          "img_full_name": "lena1.png",
+         "U_pixels_x": 0, "U_pixels_y": 0,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -249,7 +250,7 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0,
+         "U_size": 1, "w0": 0,
          "z0": 15,
          # %%
          "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
@@ -282,7 +283,7 @@ if __name__ == '__main__':
          "is_plot_EVV": 0, "is_plot_3d_XYz": 0, "is_plot_selective": 1,
          "X": 0, "Y": 0, "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,
          # %%
-         "plot_group": "UGa", "is_animated": 1,
+         "plot_group": "Ua", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
@@ -310,7 +311,7 @@ if __name__ == '__main__':
     #     is_random_phase=0,
     #     is_H_l=0, is_H_theta=0, is_H_random_phase=0,
     #     # %%
-    #     U_NonZero_size=1, w0=0.1,
+    #     U_size=1, w0=0.1,
     #     z0=1,
     #     # %%
     #     lam1=0.8, is_air_pump=0, is_air=0, T=25,

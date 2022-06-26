@@ -44,7 +44,7 @@ def compare_SFG_NLA__ssi(U_name_Structure="",
                          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                          # %%---------------------------------------------------------------------
                          # %%
-                         U_NonZero_size=0.5, w0=0.1, w0_Structure=50, structure_size_Enlarge=0.1,
+                         U_size=0.5, w0=0.1, w0_Structure=50, structure_size_Shrink=0.1,
                          L0_Crystal=2, z0_structure_frontface_expect=0.5, deff_structure_length_expect=1,
                          sheets_stored_num=10,
                          z0_section_1_expect=1, z0_section_2_expect=1,
@@ -138,7 +138,7 @@ def compare_SFG_NLA__ssi(U_name_Structure="",
                                is_H_l, is_H_theta, is_H_random_phase,
                                # %%---------------------------------------------------------------------
                                # %%
-                               U_NonZero_size, w0, w0_Structure, structure_size_Enlarge,
+                               U_size, w0, w0_Structure, structure_size_Shrink,
                                L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
                                sheets_stored_num,
                                z0_section_1_expect, z0_section_2_expect,
@@ -203,7 +203,7 @@ def compare_SFG_NLA__ssi(U_name_Structure="",
                 # %%
                 # 生成横向结构
                 U_name_Structure,
-                structure_size_Enlarge,
+                structure_size_Shrink,
                 is_phase_only_Structure,
                 # %%
                 w0_Structure, z_pump_Structure,
@@ -214,7 +214,7 @@ def compare_SFG_NLA__ssi(U_name_Structure="",
                 is_random_phase_Structure,
                 is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                 # %%
-                U_NonZero_size, w0,
+                U_size, w0,
                 L0_Crystal,
                 # %%
                 lam1, is_air_pump, is_air, T,
@@ -254,7 +254,7 @@ def compare_SFG_NLA__ssi(U_name_Structure="",
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, U = \
         img_squared_bordered_Read(img_full_name,
-                                  U_NonZero_size, dpi,
+                                  U_size, dpi,
                                   is_phase_only, **kwargs, )
 
     # %%
@@ -317,6 +317,7 @@ if __name__ == '__main__':
          # %%
          "U_name": "",
          "img_full_name": "lena1.png",
+         "U_pixels_x": 0, "U_pixels_y": 0,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -328,9 +329,9 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%---------------------------------------------------------------------
          # %%
-         "U_NonZero_size": 0.9, "w0": 0.3, "w0_Structure": 0, 
-         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
-         "is_U_NonZero_size_x_structure_side_y": 1,
+         "U_size": 0.9, "w0": 0.3, "w0_Structure": 0, 
+         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "is_U_size_x_structure_side_y": 1,
          "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          # %%
          "sheets_stored_num": 10,
@@ -449,7 +450,7 @@ if __name__ == '__main__':
     #                      is_H_l=0, is_H_theta=0, is_H_random_phase=0,
     #                      # %%---------------------------------------------------------------------
     #                      # %%
-    #                      U_NonZero_size=0.9, w0=0.3, w0_Structure=0, structure_size_Enlarge=0.1,
+    #                      U_size=0.9, w0=0.3, w0_Structure=0, structure_size_Shrink=0.1,
     #                      L0_Crystal=2.66, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
     #                      sheets_stored_num=10,
     #                      z0_section_1_expect=0, z0_section_2_expect=0,

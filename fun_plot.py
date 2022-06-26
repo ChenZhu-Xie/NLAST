@@ -527,10 +527,10 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
     Iz_new = (Iz - 1) * sample + 1  # zj 区间范围 保持不变，分段数 乘以 sample 后，新划分出的 刻度的个数
 
     if is_propagation != 0:
-        ix, iy = zj, range(Ix)
+        ix, iy = zj, range(Iy)
         ix_new, iy_new = np.linspace(zj[0], zj[-1], Iz_new), iy
     else:
-        ix, iy = range(Iy), range(Ix)
+        ix, iy = range(Ix), range(Iy)
         ix_new, iy_new = ix, iy  # 非传播 则 不重/上采样
         # ix_new = np.linspace(0, Ix - 1, Ix*sample) # 非传播 则 不对某个方向，偏爱地 重/上采样
         # iy_new = np.linspace(0, Iy - 1, Iy*sample) # 除非将 另一个方向 也上采样 相同倍数
@@ -701,7 +701,7 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
     Iz = len(zj)
     Iz_new = (Iz - 1) * sample + 1  # zj 区间范围 保持不变，分段数 乘以 sample 后，新划分出的 刻度的个数
 
-    ix, iy = zj, range(Ix)
+    ix, iy = zj, range(Iy)
     ix_new, iy_new = np.linspace(zj[0], zj[-1], Iz_new), iy
 
     kind = 'cubic'  # kind = 0,1,2,3 nono，1 维才可以这么写，2 维只有 'linear', 'cubic', 'quintic'
@@ -724,10 +724,8 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
         U_structure_end = U_structure_end if is_energy != 1 else np.abs(U_structure_end) ** 2
 
     if is_show_structure_face == 1:
-        UXY = np.dstack((U_YZ_new, U_XZ_new))
         UZ = np.dstack((U_1, U_2, U_structure_front, U_structure_end))
     else:
-        UXY = np.dstack((U_YZ_new, U_XZ_new))
         UZ = np.dstack((U_1, U_2))
 
     # %% 插值 end
@@ -804,19 +802,19 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
 
     ax1.view_init(elev=elev, azim=azim);  # 后一个为负 = 绕 z 轴逆时针
 
-    vmax = kwargs.get("vmax", max(np.max(UXY), np.max(UZ)))
-    vmin = kwargs.get("vmin", min(np.min(UXY), np.min(UZ)))
+    vmax = kwargs.get("vmax", max(np.max(U_YZ_new), np.max(U_XZ_new), np.max(UZ)))
+    vmin = kwargs.get("vmin", min(np.max(U_YZ_new), np.max(U_XZ_new), np.min(UZ)))
     # 尽管可以放在 is_self_colorbar == 0 的分支中，但 is_colorbar_on == 1 要用到...
 
-    Ixy = Iy
     if is_self_colorbar == 1:
-        i_Z, i_XY = np.meshgrid(range(Iz_new), range(Ixy))
-        i_XY = i_XY[::-1]
-        img = ax1.scatter3D(i_Z, iX, i_XY, c=U_YZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha))
-        i_XY = i_XY[::-1]
-        img = ax1.scatter3D(i_Z, i_XY, iY, c=U_XZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha))
+        i_Z, i_Y = np.meshgrid(range(Iz_new), range(Iy))
+        i_Y = i_Y[::-1]
+        img = ax1.scatter3D(i_Z, iX, i_Y, c=U_YZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha))
+        i_Z, i_X = np.meshgrid(range(Iz_new), range(Ix))
+        # i_X = i_X[::-1]
+        img = ax1.scatter3D(i_Z, i_X, iY, c=U_XZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha))
 
-        i_X, i_Y = np.meshgrid(range(Iy), range(Ix))
+        i_X, i_Y = np.meshgrid(range(Ix), range(Iy))
         i_Y = i_Y[::-1]
         img = ax1.scatter3D(find_nearest(ix_new, zj[iZ_1])[0], i_X, i_Y, c=U_1, cmap=cmap_3d,
                             # ix_new.tolist().index(zj[iZ_1])
@@ -833,13 +831,14 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
                                 # ix_new.tolist().index(zj[iZ_structure_end])
                                 c=U_structure_end, cmap=cmap_3d, alpha=math.e ** (-1 * alpha))
     else:
-        i_Z, i_XY = np.meshgrid(range(Iz_new), range(Ixy))
-        i_XY = i_XY[::-1]
-        img = ax1.scatter3D(i_Z, iX, i_XY, c=U_YZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha), vmin=vmin, vmax=vmax)
-        i_XY = i_XY[::-1]
-        img = ax1.scatter3D(i_Z, i_XY, iY, c=U_XZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha), vmin=vmin, vmax=vmax)
+        i_Z, i_Y = np.meshgrid(range(Iz_new), range(Iy))
+        i_Y = i_Y[::-1]
+        img = ax1.scatter3D(i_Z, iX, i_Y, c=U_YZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha), vmin=vmin, vmax=vmax)
+        i_Z, i_X = np.meshgrid(range(Iz_new), range(Ix))
+        # i_X = i_X[::-1]
+        img = ax1.scatter3D(i_Z, i_X, iY, c=U_XZ_new, cmap=cmap_3d, alpha=math.e ** (-1 * alpha), vmin=vmin, vmax=vmax)
 
-        i_X, i_Y = np.meshgrid(range(Iy), range(Ix))
+        i_X, i_Y = np.meshgrid(range(Ix), range(Iy))
         i_Y = i_Y[::-1]
         img = ax1.scatter3D(find_nearest(ix_new, zj[iZ_1])[0], i_X, i_Y, c=U_1, cmap=cmap_3d,
                             # ix_new.tolist().index(zj[iZ_1])
@@ -920,7 +919,7 @@ def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
     Iz = len(zj)
     Iz_new = (Iz - 1) * sample + 1  # zj 区间范围 保持不变，分段数 乘以 sample 后，新划分出的 刻度的个数
 
-    ix, iy = zj, range(Ix)
+    ix, iy = zj, range(Iy)
     ix_new, iy_new = np.linspace(zj[0], zj[-1], Iz_new), iy
 
     # %%
@@ -992,7 +991,7 @@ def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
     # ax1.get_proj = lambda: np.dot(Axes3D.get_proj(ax1), np.diag([1, 1/x_stretch_factor, 1/x_stretch_factor, 1/x_stretch_factor]))
 
     if is_self_colorbar == 1:
-        i_X, i_Y = np.meshgrid(range(Iy), range(Ix))
+        i_X, i_Y = np.meshgrid(range(Ix), range(Iy))
         i_Y = i_Y[::-1]
         for sheet_stored_th in range(sheets_stored_num + 1):
             img = ax1.scatter3D(find_nearest(ix_new, z_stored[sheet_stored_th])[0], i_X, i_Y,
@@ -1000,7 +999,7 @@ def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
                                 c=U_z_stored[:, :, sheet_stored_th], cmap=cmap_3d,
                                 alpha=math.e ** -3 * math.e ** (-1 * alpha * sheet_stored_th / sheets_stored_num))
     else:
-        i_X, i_Y = np.meshgrid(range(Iy), range(Ix))
+        i_X, i_Y = np.meshgrid(range(Ix), range(Iy))
         i_Y = i_Y[::-1]
         for sheet_stored_th in range(sheets_stored_num + 1):
             img = ax1.scatter3D(find_nearest(ix_new, z_stored[sheet_stored_th])[0], i_X, i_Y,

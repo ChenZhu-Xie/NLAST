@@ -30,7 +30,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                           is_random_phase=0,
                           is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                           # %%
-                          U_NonZero_size=1, w0=0.3,
+                          U_size=1, w0=0.3,
                           z=1, dz_expect=5,
                           # %%
                           lam1=0.8, is_air_pump=0, is_air=0, T=25,
@@ -79,7 +79,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                 is_random_phase,
                 is_H_l, is_H_theta, is_H_random_phase,
                 # %%
-                U_NonZero_size, w0,
+                U_size, w0,
                 z_AST,
                 # %%
                 lam1, is_air_pump, is_air, T,
@@ -120,7 +120,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                                  is_random_phase,
                                  is_H_l, is_H_theta, is_H_random_phase,
                                  # %%
-                                 U_NonZero_size, w0,
+                                 U_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
                                  kwargs.get("polar", "e"),
@@ -194,6 +194,7 @@ def interference_AST__AST(img_full_name="Grating.png",
 if __name__ == '__main__':
     kwargs = \
         {"img_full_name": "grating.png",
+         "U_pixels_x": 0, "U_pixels_y": 0,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -203,7 +204,7 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U1_0_NonZero_size": 1, "w0": 0,  # 传递函数 是 等倾干涉图...
+         "U1_0_size": 1, "w0": 0,  # 传递函数 是 等倾干涉图...
          "z": 0, "dz_expect": 0,  # z 越大，描边能量不变，但会越糊；dz_expect 越大，描边 能量越高，但也越糊
          # %%
          "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
@@ -250,7 +251,7 @@ if __name__ == '__main__':
     #                       is_random_phase=0,
     #                       is_H_l=0, is_H_theta=0, is_H_random_phase=0,
     #                       # %%
-    #                       U1_0_NonZero_size=1, w0=0,  # 传递函数 是 等倾干涉图...
+    #                       U1_0_size=1, w0=0,  # 传递函数 是 等倾干涉图...
     #                       z=0, dz_expect=0,  # z 越大，描边能量不变，但会越糊；dz_expect 越大，描边 能量越高，但也越糊
     #                       # %%
     #                       lam1=1, is_air_pump=0, is_air=0, T=25,

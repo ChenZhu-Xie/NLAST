@@ -158,7 +158,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                is_random_phase=0,
                                is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                                # %%
-                               U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                               U_0_size=1, w0=0.3, structure_size_Shrink=0.1,
                                Duty_Cycle_x=0.5, Duty_Cycle_y=0.5,
                                structure_xy_mode='x', Depth=2,
                                # %%
@@ -239,7 +239,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                                                is_random_phase,
                                                                is_H_l, is_H_theta, is_H_random_phase,
                                                                # %%
-                                                               U_0_NonZero_size, w0, structure_size_Enlarge,
+                                                               U_0_size, w0, structure_size_Shrink,
                                                                # %%
                                                                lam_structure, is_air_pump_structure, T_structure,
                                                                # %%
@@ -362,8 +362,8 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     modulation = 1 - is_no_backgroud - Depth * structure
     # print(modulation.shape, border_width_x, border_width_y)  # ((行前, 行后) 填充行, (列前, 列后) 填充列)
-    modulation_squared = np.pad(modulation, ((border_width_x, border_width_x), (border_width_y, border_width_y)), 'constant',
-                                constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
+    modulation_squared = np.pad(modulation, ((border_width_x, border_width_x), (border_width_y, border_width_y)),
+                                'constant', constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
     # print(modulation_squared.shape)
 
     name = "χ2_modulation_squared"
@@ -417,8 +417,8 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     modulation_opposite = 1 - is_no_backgroud - Depth * structure_opposite
     modulation_opposite_squared = np.pad(modulation_opposite,
-                                         ((border_width_x, border_width_x), (border_width_y, border_width_y)), 'constant',
-                                         constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
+                                         ((border_width_x, border_width_x), (border_width_y, border_width_y)),
+                                         'constant', constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
 
     name = "χ2_modulation_opposite_squared"
     full_name = method + " - " + name
@@ -557,7 +557,9 @@ def structure_nonrect_chi2_Generate_2D(z_pump=0,
     # %%
     name = "χ2_modulation_lie_down"
     full_name = method + " - " + name
-    is_propa_ax_reverse = 1 if Iy_structure == Get("Iy") else 0
+    # is_propa_ax_reverse = 1 if Iy_structure == Get("Iy") else 0  # 以前是 Get("Iy")
+    is_propa_ax_reverse = 1  # 反正在这里 恒有 Iy_structure == modulation.shape[1]
+    # 所以没必要把 modulation.shape[1] 传进来，以及 与之比较了
     U_amp_plot_save(folder_address,
                     # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                     modulation_lie_down, full_name,
@@ -582,8 +584,8 @@ def structure_nonrect_chi2_Generate_2D(z_pump=0,
 
 # %%
 
-def structure_nonrect_chi2_interp2d_2D(folder_address=1, modulation_squared=1,
-                                       structure_xy_mode='x', sheets_num=1,
+def structure_nonrect_chi2_interp2d_2D(folder_address=1, modulation=1,
+                                       sheets_num=1,
                                        # %%
                                        is_save_txt=0, dpi=100,
                                        # %%
@@ -604,19 +606,20 @@ def structure_nonrect_chi2_interp2d_2D(folder_address=1, modulation_squared=1,
                                        **kwargs, ):
     # %%
     from scipy.interpolate import interp2d
-    ix, iy = range(Get("Iy")), range(Get("Ix"))
+    ix, iy = range(modulation.shape[1]), range(modulation.shape[0])
     # iz = [k for k in range(sheets_num)]
-    iz = np.linspace(0, Get("Ix") - 1, sheets_num)
+    iz = np.linspace(0, modulation.shape[0] - 1, sheets_num)
     kind = 'linear'  # 'linear', 'cubic'
-    f = interp2d(ix, iy, modulation_squared, kind=kind)
-    if structure_xy_mode == 'x':
-        modulation_lie_down = f(ix, iz)  # 行数重排
-    elif structure_xy_mode == 'y':
-        modulation_lie_down = f(iz, iy)  # 列数重排
+    f = interp2d(ix, iy, modulation, kind=kind)
+    # if structure_xy_mode == 'x':
+    #     modulation_lie_down = f(ix, iz)  # 行数重排
+    # elif structure_xy_mode == 'y':
+    #     modulation_lie_down = f(iz, iy)  # 列数重排
+    modulation_lie_down = f(ix, iz)  # 行数重排
     # print(modulation_lie_down.shape)
 
     # 插值后 会变得连续，得 重新 二值化
-    mod_max, mod_min = np.max(modulation_squared), np.min(modulation_squared)
+    mod_max, mod_min = np.max(modulation), np.min(modulation)
     mod_middle = (mod_max + mod_min) / 2
     modulation_lie_down = (modulation_lie_down > mod_middle).astype(np.int8()) * mod_max + \
                           (modulation_lie_down <= mod_middle).astype(np.int8()) * mod_min
@@ -624,7 +627,8 @@ def structure_nonrect_chi2_interp2d_2D(folder_address=1, modulation_squared=1,
     # print(Ix, sheets_num)
     # print(zj_structure)
     mod_name = "χ2_modulation_lie_down"
-    is_propa_ax_reverse = 1 if structure_xy_mode == 'x' else 0
+    # is_propa_ax_reverse = 1 if structure_xy_mode == 'x' else 0
+    is_propa_ax_reverse = 1
     U_amp_plot_save(folder_address,
                     # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                     modulation_lie_down, mod_name,
@@ -659,7 +663,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                              is_random_phase=0,
                              is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                              # %%
-                             U_0_NonZero_size=1, w0=0.3, structure_size_Enlarge=0.1,
+                             U_0_size=1, w0=0.3, structure_size_Shrink=0.1,
                              Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, structure_xy_mode='x', Depth=2,
                              # %%
                              is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
@@ -718,7 +722,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                                                                is_random_phase,
                                                                is_H_l, is_H_theta, is_H_random_phase,
                                                                # %%
-                                                               U_0_NonZero_size, w0, structure_size_Enlarge,
+                                                               U_0_size, w0, structure_size_Shrink,
                                                                # %%
                                                                lam_structure, is_air_pump_structure, T_structure,
                                                                # %%
@@ -813,8 +817,8 @@ def structure_n1_Generate_2D(U_structure_name="",
     #                 suffix="", **kwargs, )
 
     modulation = n1_inc - Depth * structure
-    modulation_squared = np.pad(modulation, ((border_width_x, border_width_x), (border_width_y, border_width_y)), 'constant',
-                                constant_values=(n1_inc, n1_inc))
+    modulation_squared = np.pad(modulation, ((border_width_x, border_width_x), (border_width_y, border_width_y)),
+                                'constant', constant_values=(n1_inc, n1_inc))
 
     name = "n1_modulation_squared"
     full_name = method + " - " + name
@@ -867,8 +871,8 @@ def structure_n1_Generate_2D(U_structure_name="",
 
     modulation_opposite = n1_inc - Depth * structure_opposite
     modulation_opposite_squared = np.pad(modulation_opposite,
-                                         ((border_width_x, border_width_x), (border_width_y, border_width_y)), 'constant',
-                                         constant_values=(n1_inc, n1_inc))
+                                         ((border_width_x, border_width_x), (border_width_y, border_width_y)),
+                                         'constant', constant_values=(n1_inc, n1_inc))
 
     name = "n1_modulation_opposite_squared"
     full_name = method + " - " + name
@@ -1007,7 +1011,8 @@ def structure_nonrect_n1_Generate_2D(z_pump=0,
     # %%
     name = "n1_modulation_lie_down"
     full_name = method + " - " + name
-    is_propa_ax_reverse = 1 if Iy_structure == Get("Iy") else 0
+    # is_propa_ax_reverse = 1 if Iy_structure == Get("Iy") else 0
+    is_propa_ax_reverse = 1
     U_amp_plot_save(folder_address,
                     # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                     modulation_lie_down, full_name,
@@ -1030,8 +1035,8 @@ def structure_nonrect_n1_Generate_2D(z_pump=0,
     return modulation_lie_down, folder_address
 
 
-def structure_nonrect_n1_interp2d_2D(folder_address=1, modulation_squared=1,
-                                     structure_xy_mode='x', sheets_num=1,
+def structure_nonrect_n1_interp2d_2D(folder_address=1, modulation=1,
+                                     sheets_num=1,
                                      # %%
                                      is_save_txt=0, dpi=100,
                                      # %%
@@ -1052,25 +1057,27 @@ def structure_nonrect_n1_interp2d_2D(folder_address=1, modulation_squared=1,
                                      **kwargs, ):
     # %%
     from scipy.interpolate import interp2d
-    ix, iy = range(Get("Iy")), range(Get("Ix"))
+    ix, iy = range(modulation.shape[1]), range(modulation.shape[0])
     # iz = [k for k in range(sheets_num)]
-    iz = np.linspace(0, Get("Ix") - 1, sheets_num)
+    iz = np.linspace(0, modulation.shape[0] - 1, sheets_num)
     kind = 'linear'  # 'linear', 'cubic'
-    f = interp2d(ix, iy, modulation_squared, kind=kind)
-    if structure_xy_mode == 'x':
-        modulation_lie_down = f(ix, iz)  # 行数重排
-    elif structure_xy_mode == 'y':
-        modulation_lie_down = f(iz, iy)  # 列数重排
+    f = interp2d(ix, iy, modulation, kind=kind)
+    # if structure_xy_mode == 'x':
+    #     modulation_lie_down = f(ix, iz)  # 行数重排
+    # elif structure_xy_mode == 'y':
+    #     modulation_lie_down = f(iz, iy)  # 列数重排
+    modulation_lie_down = f(ix, iz)  # 行数重排
 
     # 插值后 会变得连续，得 重新 二值化
-    mod_max, mod_min = np.max(modulation_squared), np.min(modulation_squared)
+    mod_max, mod_min = np.max(modulation), np.min(modulation)
     mod_middle = (mod_max + mod_min) / 2
     modulation_lie_down = (modulation_lie_down > mod_middle).astype(np.int8()) * mod_max + \
                           (modulation_lie_down <= mod_middle).astype(np.int8()) * mod_min
 
     # print(Ix, sheets_num)
     mod_name = "n1_modulation_lie_down"
-    is_propa_ax_reverse = 1 if structure_xy_mode == 'x' else 0
+    # is_propa_ax_reverse = 1 if structure_xy_mode == 'x' else 0
+    is_propa_ax_reverse = 1
     U_amp_plot_save(folder_address,
                     # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                     modulation_lie_down, mod_name,

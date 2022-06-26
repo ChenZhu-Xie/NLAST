@@ -38,7 +38,7 @@ def SFG_SSF_SSI(U_name="",
                 # %%
                 # 生成横向结构
                 U_name_Structure='',
-                structure_size_Enlarge=0.1,
+                structure_size_Shrink=0.1,
                 is_phase_only_Structure=0,
                 # %%
                 w0_Structure=0, z_pump_Structure=0,
@@ -49,7 +49,7 @@ def SFG_SSF_SSI(U_name="",
                 is_random_phase_Structure=0,
                 is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                 # %%
-                U_NonZero_size=1, w0=0.3,
+                U_size=1, w0=0.3,
                 L0_Crystal=5, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
                 SSI_zoomout_times=1, sheets_stored_num=10,
                 z0_section_1_expect=1, z0_section_2_expect=1,
@@ -164,7 +164,7 @@ def SFG_SSF_SSI(U_name="",
                                  is_random_phase,
                                  is_H_l, is_H_theta, is_H_random_phase,
                                  # %%
-                                 U_NonZero_size, w0,
+                                 U_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
                                  # %%
@@ -187,34 +187,34 @@ def SFG_SSF_SSI(U_name="",
     if ray_tag == "f":
         from fun_pump import pump_pic_or_U2
         U2_0, g2 = pump_pic_or_U2(U2_name,
-                                img2_full_name,
-                                is_phase_only_2,
-                                # %%
-                                z_pump2,
-                                is_LG_2, is_Gauss_2, is_OAM_2,
-                                l2, p2,
-                                theta2_x, theta2_y,
-                                # %%
-                                is_random_phase_2,
-                                is_H_l2, is_H_theta2, is_H_random_phase_2,
-                                # %%
-                                U_NonZero_size, w0_2,
-                                # %%
-                                lam2, is_air_pump, T,
-                                polar2,
-                                # %%
-                                is_save, is_save_txt, dpi,
-                                # %%
-                                ticks_num, is_contourf,
-                                is_title_on, is_axes_on, is_mm,
-                                # %%
-                                fontsize, font,
-                                # %%
-                                is_colorbar_on, is_energy,
-                                # %%
-                                is_print,
-                                # %%
-                                ray_pump='2', **kwargs, )
+                                  img2_full_name,
+                                  is_phase_only_2,
+                                  # %%
+                                  z_pump2,
+                                  is_LG_2, is_Gauss_2, is_OAM_2,
+                                  l2, p2,
+                                  theta2_x, theta2_y,
+                                  # %%
+                                  is_random_phase_2,
+                                  is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                  # %%
+                                  U_size, w0_2,
+                                  # %%
+                                  lam2, is_air_pump, T,
+                                  polar2,
+                                  # %%
+                                  is_save, is_save_txt, dpi,
+                                  # %%
+                                  ticks_num, is_contourf,
+                                  is_title_on, is_axes_on, is_mm,
+                                  # %%
+                                  fontsize, font,
+                                  # %%
+                                  is_colorbar_on, is_energy,
+                                  # %%
+                                  is_print,
+                                  # %%
+                                  ray_pump='2', **kwargs, )
     else:
         U2_0, g2 = U_0, g_shift
 
@@ -240,8 +240,8 @@ def SFG_SSF_SSI(U_name="",
                                      is_random_phase_Structure,
                                      is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                                      # %%
-                                     U_NonZero_size, w0_Structure,
-                                     structure_size_Enlarge,
+                                     U_size, w0_Structure,
+                                     structure_size_Shrink,
                                      Duty_Cycle_x, Duty_Cycle_y,
                                      structure_xy_mode, Depth,
                                      # %%
@@ -317,7 +317,8 @@ def SFG_SSF_SSI(U_name="",
         #     Ix_structure, Iy_structure = len(mj_structure), Get("Iy")
         # elif structure_xy_mode == 'y':
         #     Ix_structure, Iy_structure = Get("Ix"), len(mj_structure)
-        Ix_structure, Iy_structure = len(mj_structure), Get("Iy")
+        # Ix_structure, Iy_structure = len(mj_structure), Get("Iy")
+        Ix_structure, Iy_structure = len(mj_structure), modulation.shape[1]
         # print(Ix_structure, Iy_structure)
         modulation_lie_down, folder_address = \
             structure_nonrect_chi2_Generate_2D(z_pump_Structure,
@@ -351,8 +352,8 @@ def SFG_SSF_SSI(U_name="",
                                                **kwargs, )
     elif is_stripe == 2 or is_stripe == 2.1:  # 躺下 的 插值算法
         from fun_CGH import structure_nonrect_chi2_interp2d_2D
-        modulation_lie_down = structure_nonrect_chi2_interp2d_2D(folder_address, modulation_squared,
-                                                                 structure_xy_mode, len(mj_structure),
+        modulation_lie_down = structure_nonrect_chi2_interp2d_2D(folder_address, modulation,
+                                                                 len(mj_structure),
                                                                  # %%
                                                                  is_save_txt, dpi,
                                                                  # %%
@@ -385,6 +386,8 @@ def SFG_SSF_SSI(U_name="",
     # 以 G 算 还是以 U 算、源项 是否 也衍射、k_2z 是否是 matrix 版
     # 用 G 算 会快很多
     # 不管是 G 还是 U，matrix 版的能量 总是要低一些，只不过 U 低得少些，没有数量级差异，而 G 少得很多
+
+    border_width_x, border_width_y = Get("border_width_x"), Get("border_width_y")
 
     def H3_zdz(diz):
         return np.power(math.e, k3_z * diz * 1j)
@@ -425,14 +428,18 @@ def SFG_SSF_SSI(U_name="",
                         modulation_squared_z = modulation_opposite_squared
                 elif is_stripe == 1:
                     if structure_xy_mode == 'x':  # 往右（列） 线性平移 mj[for_th] 像素
-                        modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=1)
+                        modulation_z = np.roll(modulation, mj[for_th], axis=1)
                     elif structure_xy_mode == 'y':  # 往下（行） 线性平移 mj[for_th] 像素
-                        modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=0)
+                        modulation_z = np.roll(modulation, mj[for_th], axis=0)
                     elif structure_xy_mode == 'xy':  # 往右（列） 线性平移 mj[for_th] 像素
-                        modulation_squared_z = np.roll(modulation_squared, mj[for_th], axis=1)
-                        # modulation_squared_z = np.roll(modulation_squared_z, mj[for_th] / (mx * Tx) * (my * Ty), axis=0)
-                        modulation_squared_z = np.roll(modulation_squared_z,
-                                                       int(my * Ty / Tz * (izj[for_th] - Iz_frontface)), axis=0)
+                        modulation_z = np.roll(modulation, mj[for_th], axis=1)
+                        # modulation_z = np.roll(modulation_squared_z, mj[for_th] / (mx * Tx) * (my * Ty), axis=0)
+                        modulation_z = np.roll(modulation_z, int(my * Ty / Tz * (izj[for_th] - Iz_frontface)), axis=0)
+                    modulation_squared_z = np.pad(modulation_z,
+                                                  ((border_width_x, border_width_x),
+                                                   (border_width_y, border_width_y)),
+                                                  'constant',
+                                                  constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
 
                     if for_th in for_th_stored:
                         m_list.append(modulation_squared_z)
@@ -445,7 +452,14 @@ def SFG_SSF_SSI(U_name="",
                     # elif structure_xy_mode == 'y':
                     #     modulation_squared_z = np.tile(modulation_lie_down[:, for_th],
                     #                                    (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
-                    modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
+                    # modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
+                    modulation_new_z = np.tile(modulation_lie_down[for_th], (modulation.shape[0], 1))
+                    # 按行复制 多行，成一个 与 modulation 尺寸相同 的 矩阵
+                    modulation_squared_z = np.pad(modulation_new_z,
+                                                  ((border_width_x, border_width_x),
+                                                   (border_width_y, border_width_y)),
+                                                  'constant',
+                                                  constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
 
                     if for_th in for_th_stored:
                         m_list.append(modulation_squared_z)
@@ -458,6 +472,7 @@ def SFG_SSF_SSI(U_name="",
             modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
 
         if cal_mode[0] == 1:  # 如果以 G 算
+            from fun_linear import fft2
 
             if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
                 if cal_mode[1] == 1:  # 若 源项 也衍射
@@ -611,7 +626,7 @@ def SFG_SSF_SSI(U_name="",
     elif inspect.stack()[1][3] == "SFG_NLA_SSI__AST_EVV":
         Set("k3", k3)
         Set("lam3", lam3)
-        
+
         return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
     else:
         return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
@@ -621,6 +636,7 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
          "img_full_name": "lena1.png",
+         "U_pixels_x": 0, "U_pixels_y": 0,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -633,8 +649,8 @@ if __name__ == '__main__':
          # %%
          # 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
-         "is_U_NonZero_size_x_structure_side_y": 1,
+         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "is_U_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
@@ -645,7 +661,7 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0.3,
+         "U_size": 1, "w0": 0.3,
          "L0_Crystal": 2, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
          "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 1, "z0_section_2_expect": 1,
@@ -659,8 +675,8 @@ if __name__ == '__main__':
          "deff": 30,
          # %%
          "Tx": 18, "Ty": 10, "Tz": 8,
-         "mx": 1, "my": 0, "mz": 1,
-         "is_stripe": 2.2, "is_NLAST": 0,
+         "mx": 1, "my": 1, "mz": 1,
+         "is_stripe": 2.1, "is_NLAST": 0,
          # %%
          # 生成横向结构
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
@@ -749,7 +765,7 @@ if __name__ == '__main__':
     #              # %%
     #              # 生成横向结构
     #              U_name_Structure='',
-    #              structure_size_Enlarge=0.1,
+    #              structure_size_Shrink=0.1,
     #              is_phase_only_Structure=0,
     #              # %%
     #              w0_Structure=0, z_pump_Structure=0,
@@ -760,7 +776,7 @@ if __name__ == '__main__':
     #              is_random_phase_Structure=0,
     #              is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
     #              # %%
-    #              U_NonZero_size=1, w0=0.3,
+    #              U_size=1, w0=0.3,
     #              L0_Crystal=5, z0_structure_frontface_expect=0, deff_structure_length_expect=2,
     #              sheets_stored_num=10, z0_section_1_expect=1, z0_section_2_expect=1,
     #              X=0, Y=0,

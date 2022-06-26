@@ -1440,7 +1440,7 @@ def Info_find_contours_SHG(g1, k1_z, k3_z, dk, Tz, mz,
 # 注：旧版本，已经过时，当时并 未想清楚。
 
 def Info_find_contours(dk, Tz, mz,
-                       U_NonZero_size, w0, z0, size_PerPixel,
+                       U_size, w0, z0, size_PerPixel,
                        is_print=1):
     # %%
     # 描边
@@ -1463,7 +1463,7 @@ def Info_find_contours(dk, Tz, mz,
         if (type(w0) == float or type(w0) == int) and w0 > 0:  # 如果引入了 高斯限制
             wc = w0
         else:
-            wc = U_NonZero_size / 2
+            wc = U_size / 2
 
         # %%
 

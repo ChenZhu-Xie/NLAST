@@ -152,7 +152,7 @@ def Cal_IxIy(I1_x, I1_y,
     import inspect
     if inspect.stack()[1][3] == "pump_pic_or_U_structure":
         is_print and print(
-            tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_size_x = {} mm".format(
+            tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", -1)) + "deff_structure_size_x = {} mm".format(
                 deff_structure_size_x))
         is_print and print(
             tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) + "deff_structure_size_y = {} mm".format(

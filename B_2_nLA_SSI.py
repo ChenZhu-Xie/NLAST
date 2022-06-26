@@ -37,7 +37,7 @@ def nLA_ssi(U_name="",
             is_random_phase=0,
             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
             # %%
-            U_NonZero_size=1, w0=0.3,
+            U_size=1, w0=0.3,
             L0_Crystal=1, z0_structure_frontface_expect=0.5, deff_structure_length_expect=2,
             Duty_Cycle_z=0.5, ssi_zoomout_times=5, sheets_stored_num=10,
             z0_section_1_expect=1, z0_section_2_expect=1,
@@ -110,7 +110,7 @@ def nLA_ssi(U_name="",
                                  is_random_phase,
                                  is_H_l, is_H_theta, is_H_random_phase,
                                  # %%
-                                 U_NonZero_size, w0,
+                                 U_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
                                  # %%
@@ -274,6 +274,7 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
          "img_full_name": "lena.png",
+         "U_pixels_x": 0, "U_pixels_y": 0,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -284,7 +285,7 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0.3,
+         "U_size": 1, "w0": 0.3,
          "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          "Duty_Cycle_z": 0.5, "ssi_zoomout_times": 5, "sheets_stored_num": 10,
          "z0_section_1_expect": 1, "z0_section_2_expect": 1,
@@ -354,7 +355,7 @@ if __name__ == '__main__':
     #         is_random_phase=0,
     #         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
     #         # %%
-    #         U_NonZero_size=1, w0=0.3,
+    #         U_size=1, w0=0.3,
     #         L0_Crystal=1, z0_structure_frontface_expect=0, deff_structure_length_expect=1,
     #         Duty_Cycle_z=0.5, ssi_zoomout_times=5, sheets_stored_num=10,
     #         z0_section_1_expect=1, z0_section_2_expect=1,

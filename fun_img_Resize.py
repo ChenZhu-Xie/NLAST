@@ -111,7 +111,7 @@ def image_Add_black_border(img_full_name="Grating.png",
     img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 绝对路径 + 灰度图 读取图片
     is_print and print(tree_print() + "img_squared.shape = {}".format(img_squared.shape))
 
-    border_width = int(img_squared.shape[0] * border_percentage)
+    border_width = int(img_squared.shape[0] * border_percentage / 2)
     image_Border(img_squared_address, img_squared_bordered_address, loc='a', width=border_width, color=(0, 0, 0, 255))
 
     img_squared_bordered = cv2.imdecode(np.fromfile(img_squared_bordered_address, dtype=np.uint8),
@@ -150,7 +150,7 @@ def if_image_Add_black_border(U_name, img_full_name,
 
 
 # %%
-# 需要先将 目标 U_0_NonZero = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix_structure, Iy_structure 相同，才能开始 之后的工作
+# 需要先将 目标 U_0 = img_squared 给 放大 或 缩小 到 与 全息图（结构） 横向尺寸 Ix_structure, Iy_structure 相同，才能开始 之后的工作
 
 def img_squared_Resize(img_full_name, img_squared,
                        Ix_structure, Iy_structure, Ix, Iy,
@@ -163,13 +163,13 @@ def img_squared_Resize(img_full_name, img_squared,
 
     img_squared_resize = cv2.resize(img_squared, (Iy_structure, Ix_structure), interpolation=cv2.INTER_AREA)
     # 使用cv2.imread()读取图片之后,数据的形状和维度布局是(H,W,C),但是使用函数cv2.resize()进行缩放时候,传入的目标形状是(W,H)
-    img_squared_resize_full_name = "1. " + img_name + "_squared" + "_resize" + img_name_extension
+    img_squared_resize_full_name = "1.1. " + img_name + "_squared" + "_resize" + img_name_extension
     img_squared_resize_address = folder_address + "\\" + img_squared_resize_full_name
     # cv2.imwrite(img_squared_resize_address, img_squared_resize) # 保存 img_squared_resize，但不能有 中文路径
     cv2.imencode(img_squared_resize_address, img_squared_resize)[1].tofile(img_squared_resize_address)
     is_print and print(tree_print() + "img_squared_resize.shape = {}".format(img_squared_resize.shape))
 
-    img_squared_resize_bordered_full_name = "2. " + img_name + "_squared" + "_resize" + "_bordered" + img_name_extension
+    img_squared_resize_bordered_full_name = "2.2. " + img_name + "_squared" + "_resize" + "_bordered" + img_name_extension
     img_squared_resize_bordered_address = folder_address + "\\" + img_squared_resize_bordered_full_name
     border_width_x = (Ix - Ix_structure) // 2
     border_width_y = (Iy - Iy_structure) // 2
@@ -187,9 +187,45 @@ def img_squared_Resize(img_full_name, img_squared,
     # 右: 'r' or 'rigth'
     # 下: 'b' or 'bottom'
     # 左: 'l' or 'left'
+    from fun_global_var import Set
+    Set("border_width_x", border_width_x)
+    Set("border_width_y", border_width_y)
     img_squared_resize_bordered = cv2.imdecode(np.fromfile(img_squared_resize_bordered_address, dtype=np.uint8),
                                                0)  # 按 相对路径 + 灰度图 读取图片
     is_print and print(tree_print(1) + "structure_squared.shape = img_squared_resize_bordered.shape = {}"
                        .format(img_squared_resize_bordered.shape))
 
     return border_width_x, border_width_y, img_squared_resize_full_name, img_squared_resize
+
+# %%
+
+def U_resize(U, U_pixels_x, U_pixels_y, Ix, Iy):
+    if U_pixels_x > 0:
+        U = U_resize_x(U, U_pixels_x, Iy)
+    if U_pixels_y > 0:
+        U = U_resize_y(U, U_pixels_y, Ix)
+    return U
+
+def U_resize_x(U, U_pixels_x, Iy):
+    if U_pixels_x > Iy:  # 如果 U_pixels_x 比 图片宽，则需要 np.pad 填充零
+        one_side_pixels_x = (U_pixels_x - Iy) // 2
+        other_side_pixels_x = (U_pixels_x - Iy) - one_side_pixels_x
+        U = np.pad(U, ((0, 0), (one_side_pixels_x, other_side_pixels_x)),
+                   'constant', constant_values=(0, 0))  # ((行前, 行后) 填充行, (列前, 列后) 填充列)
+    elif U_pixels_x < Iy:  # 如果 U_pixels_x 比 图片窄，则需要 裁剪图片
+        one_side_pixels_x = (Iy - U_pixels_x) // 2
+        other_side_pixels_x = (Iy - U_pixels_x) - one_side_pixels_x
+        U = U[:, one_side_pixels_x:(-other_side_pixels_x)]  # 去掉前 one_side_pixels_x 个，和后 other_side_pixels_x 个 列
+    return U
+
+def U_resize_y(U, U_pixels_y, Ix):
+    if U_pixels_y > Ix:  # 如果 U_pixels_x 比 图片宽，则需要 np.pad 填充零
+        one_side_pixels_y = (U_pixels_y - Ix) // 2
+        other_side_pixels_x = (U_pixels_y - Ix) - one_side_pixels_y
+        U = np.pad(U, ((one_side_pixels_y, other_side_pixels_x), (0, 0)),
+                   'constant', constant_values=(0, 0))  # ((行前, 行后) 填充行, (列前, 列后) 填充列)
+    elif U_pixels_y < Ix:  # 如果 U_pixels_y 比 图片矮，则需要 裁剪图片
+        one_side_pixels_y = (Ix - U_pixels_y) // 2
+        other_side_pixels_x = (Ix - U_pixels_y) - one_side_pixels_y
+        U = U[one_side_pixels_y:(-other_side_pixels_x), :]  # 去掉前 one_side_pixels_y 个，和后 other_side_pixels_x 个 行
+    return U

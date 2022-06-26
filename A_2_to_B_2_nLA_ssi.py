@@ -41,7 +41,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure="",
                        is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                        # %%---------------------------------------------------------------------
                        # %%
-                       U_NonZero_size=0.5, w0=0.1, w0_Structure=5, structure_size_Enlarge=0.1,
+                       U_size=0.5, w0=0.1, w0_Structure=5, structure_size_Shrink=0.1,
                        L0_Crystal=2, z0_structure_frontface_expect=0.5, deff_structure_length_expect=1,
                        sheets_stored_num=10,
                        z0_section_1_expect=1, z0_section_2_expect=1,
@@ -114,7 +114,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure="",
                     is_random_phase_Structure,
                     is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                     # %%
-                    U_NonZero_size, w0_Structure, structure_size_Enlarge,
+                    U_size, w0_Structure, structure_size_Shrink,
                     deff_structure_length_expect,
                     # %%
                     Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
@@ -158,7 +158,7 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure="",
          is_random_phase,
          is_H_l, is_H_theta, is_H_random_phase,
          # %%
-         U_NonZero_size, w0,
+         U_size, w0,
          L0_Crystal, z0_structure_frontface_expect, deff_structure_length_expect,
          Duty_Cycle_z, ssi_zoomout_times, sheets_stored_num,
          z0_section_1_expect, z0_section_2_expect,
@@ -213,6 +213,7 @@ if __name__ == '__main__':
          # %%
          "U_name": "",
          "img_full_name": "l=1.png",
+         "U_pixels_x": 0, "U_pixels_y": 0,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -223,9 +224,9 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%---------------------------------------------------------------------
          # %%
-         "U_NonZero_size": 0.5, "w0": 0.1, "w0_Structure": 5,
-         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
-         "is_U_NonZero_size_x_structure_side_y": 1,
+         "U_size": 0.5, "w0": 0.1, "w0_Structure": 5,
+         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "is_U_size_x_structure_side_y": 1,
          "L0_Crystal": 0.1, "z0_structure_frontface_expect": 0.5, "deff_structure_length_expect": 1,
          # %%
          "sheets_stored_num": 10,
@@ -313,7 +314,7 @@ if __name__ == '__main__':
     #                  is_H_l = 0, is_H_theta = 0, is_H_random_phase = 0,
     #                  #%%---------------------------------------------------------------------
     #                  #%%
-    #                  U_NonZero_size = 0.5, w0 = 0.1, w0_Structure = 5, structure_size_Enlarge = 0.1,
+    #                  U_size = 0.5, w0 = 0.1, w0_Structure = 5, structure_size_Shrink = 0.1,
     #                  L0_Crystal = 0.1, z0_structure_frontface_expect = 0.5, deff_structure_length_expect = 1,
     #                  sheets_stored_num = 10,
     #                  z0_section_1_expect = 0.5, z0_section_2_expect = 0.5,

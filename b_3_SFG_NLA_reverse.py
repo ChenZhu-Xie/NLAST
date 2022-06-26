@@ -35,7 +35,7 @@ def SFG_NLA_reverse(U_name="",
                     # %%
                     # 生成横向结构
                     U_name_Structure='',
-                    structure_size_Enlarge=0.1,
+                    structure_size_Shrink=0.1,
                     is_phase_only_Structure=0,
                     # %%
                     w0_Structure=0, z_pump_Structure=0,
@@ -46,7 +46,7 @@ def SFG_NLA_reverse(U_name="",
                     is_random_phase_Structure=0,
                     is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                     # %%
-                    U_NonZero_size=1, w0=0.3,
+                    U_size=1, w0=0.3,
                     z0=1,
                     # %%
                     lam1=0.8, is_air_pump=0, is_air=0, T=25,
@@ -137,7 +137,7 @@ def SFG_NLA_reverse(U_name="",
                 # %%
                 # 生成横向结构
                 U_name_Structure,
-                structure_size_Enlarge,
+                structure_size_Shrink,
                 is_phase_only_Structure,
                 # %%
                 w0_Structure, z_pump_Structure,
@@ -148,7 +148,7 @@ def SFG_NLA_reverse(U_name="",
                 is_random_phase_Structure,
                 is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                 # %%
-                U_NonZero_size, w0,
+                U_size, w0,
                 z0,
                 # %%
                 lam1, is_air_pump, is_air, T,
@@ -198,7 +198,7 @@ def SFG_NLA_reverse(U_name="",
          # %%
          # 生成横向结构
          U_name_Structure,
-         structure_size_Enlarge,
+         structure_size_Shrink,
          is_phase_only_Structure,
          # %%
          w0_Structure, z_pump_Structure,
@@ -209,7 +209,7 @@ def SFG_NLA_reverse(U_name="",
          is_random_phase_Structure,
          is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
          # %%
-         U_NonZero_size, w0,
+         U_size, w0,
          z0, z0_structure_frontface_expect, deff_structure_length_expect,
          SSI_zoomout_times, sheets_stored_num,
          z0_section_1_expect, z0_section_2_expect,
@@ -416,6 +416,7 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",  # 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray
          "img_full_name": "lena1.png",
+         "U_pixels_x": 0, "U_pixels_y": 0,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -428,8 +429,8 @@ if __name__ == '__main__':
          # %%
          # 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Enlarge": 0.19, "structure_side_Enlarger": 0,
-         "is_U_NonZero_size_x_structure_side_y": 1,
+         "structure_size_Shrink": 0.19, "structure_size_Shrinker": 0,
+         "is_U_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
@@ -440,7 +441,7 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0.3,
+         "U_size": 1, "w0": 0.3,
          "z0": 2,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 50,
@@ -557,7 +558,7 @@ if __name__ == '__main__':
     #         # %%
     #         # 生成横向结构
     #         U_name_Structure='',
-    #         structure_size_Enlarge=0.1,
+    #         structure_size_Shrink=0.1,
     #         is_phase_only_Structure=0,
     #         # %%
     #         w0_Structure=0, z_pump_Structure=0,
@@ -568,7 +569,7 @@ if __name__ == '__main__':
     #         is_random_phase_Structure=0,
     #         is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
     #         # %%
-    #         U_NonZero_size=0.9, w0=0.1,
+    #         U_size=0.9, w0=0.1,
     #         z0=10,
     #         # %%
     #         lam1=1.064, is_air_pump=0, is_air=0, T=25,

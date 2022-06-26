@@ -457,7 +457,7 @@ def U_amp_plot_save(folder_address,
                                                                    **kwargs, )
     # %%
 
-    plot_2d(zj_plot_2d, sample, size_PerPixel, # 防止 kwargs 里 出现 关键字 zj 后重名
+    plot_2d(zj_plot_2d, sample, size_PerPixel,  # 防止 kwargs 里 出现 关键字 zj 后重名
             U, U_amp_plot_address, U_amp_title,
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf,
@@ -531,7 +531,7 @@ def U_phase_plot_save(folder_address,
                                                                          **kwargs, )
     # %%
 
-    plot_2d(zj_plot_2d, sample, size_PerPixel, # 防止 kwargs 里 出现 关键字 zj 后重名
+    plot_2d(zj_plot_2d, sample, size_PerPixel,  # 防止 kwargs 里 出现 关键字 zj 后重名
             U, U_phase_plot_address, U_phase_title,
             is_save, dpi, size_fig,
             cmap_2d, ticks_num, is_contourf,
@@ -840,7 +840,7 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
 def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto_seq_and_z = 1
                   G_energy, is_print,
                   H, H_name,
-                  U, U_name, # U 容易重名，得在上一级就处理。
+                  U, U_name,  # U 容易重名，得在上一级就处理。
                   U_energy,
                   img_name_extension,
                   # %%
@@ -1008,7 +1008,7 @@ def U_slices_plot_save(folder_address,
         }
 
     U_phase_plot_save(folder_address,
-                      U_YZ_phase, U_YZ_name,
+                      np.angle(U_YZ), U_YZ_name,
                       img_name_extension,
                       is_save_txt,
                       # %%
@@ -1025,7 +1025,7 @@ def U_slices_plot_save(folder_address,
                       z=X, **kwargs, )
 
     U_phase_plot_save(folder_address,
-                      U_XZ_phase, U_XZ_name,
+                      np.angle(U_XZ), U_XZ_name,
                       img_name_extension,
                       is_save_txt,
                       # %%
@@ -1057,7 +1057,10 @@ def U_slices_plot_save(folder_address,
     #        is_save, is_save_txt,
     #        z=zj[-1], suffix=suffix, **kwargs, )
 
-    return U_YZ_XZ_amp_max, U_YZ_XZ_amp_min, U_YZ_XZ_phase_max, U_YZ_XZ_phase_min
+    if kwargs.get("is_colorbar_log", 0) == -1:
+        return 0, 0, 0, 0
+    else:
+        return U_YZ_XZ_amp_max, U_YZ_XZ_amp_min, U_YZ_XZ_phase_max, U_YZ_XZ_phase_min
 
 
 # %%
@@ -1194,7 +1197,7 @@ def U_selects_plot_save(folder_address,
         }
 
     U_phase_plot_save(folder_address,
-                      U_1_phase, U_1_name,
+                      np.angle(U_1), U_1_name,
                       img_name_extension,
                       is_save_txt,
                       # %%
@@ -1211,7 +1214,7 @@ def U_selects_plot_save(folder_address,
                       z=z_1, **kwargs, )
 
     U_phase_plot_save(folder_address,
-                      U_2_phase, U_2_name,
+                      np.angle(U_2), U_2_name,
                       img_name_extension,
                       is_save_txt,
                       # %%
@@ -1229,7 +1232,7 @@ def U_selects_plot_save(folder_address,
 
     if is_show_structure_face == 1:
         U_phase_plot_save(folder_address,
-                          U_f_phase, U_f_name,
+                          np.angle(U_f), U_f_name,
                           img_name_extension,
                           is_save_txt,
                           # %%
@@ -1246,7 +1249,7 @@ def U_selects_plot_save(folder_address,
                           z=z_f, **kwargs, )
 
         U_phase_plot_save(folder_address,
-                          U_e_phase, U_e_name,
+                          np.angle(U_e), U_e_name,
                           img_name_extension,
                           is_save_txt,
                           # %%
@@ -1275,7 +1278,10 @@ def U_selects_plot_save(folder_address,
            is_save, is_save_txt,
            z=z_e, **kwargs, )
 
-    return U_amps_max, U_amps_min, U_phases_max, U_phases_min
+    if kwargs.get("is_colorbar_log", 0) == -1:
+        return 0, 0, 0, 0
+    else:
+        return U_amps_max, U_amps_min, U_phases_max, U_phases_min
 
 
 # %%
@@ -1412,7 +1418,8 @@ def U_phases_z_plot_save(folder_address,
                          # %%
                          z_stored, is_animated,
                          duration, fps, loop,
-                         z, **kwargs, ):  # 必须要传 z 序列、is_animated 进来， # args 是 is_save_txt、is_no_data_save、is_colorbar_log
+                         z,
+                         **kwargs, ):  # 必须要传 z 序列、is_animated 进来， # args 是 is_save_txt、is_no_data_save、is_colorbar_log
     if kwargs.get("is_colorbar_log", 0) == -1:
         v_kwargs = {}
     else:
@@ -1667,7 +1674,7 @@ def U_amp_plot_save_3d_XYZ(folder_address,
         suffix = '_zj'
         U_address, ugHGU = U_save(zj, U_name + suffix, folder_address,
                                   is_save, is_save_txt,
-                                  suffix=suffix, **kwargs, ) # 似乎不必储存 z； z 从外面传进来，只是为了名字
+                                  suffix=suffix, **kwargs, )  # 似乎不必储存 z； z 从外面传进来，只是为了名字
 
         suffix = '_vmax_vmin'
         U_address, ugHGU = U_save(np.array([kwargs.get("vmax", 1), kwargs.get("vmin", 0)]), U_name + suffix,
@@ -1736,7 +1743,7 @@ def U_phase_plot_save_3d_XYZ(folder_address,
         suffix = '_zj'
         U_address, ugHGU = U_save(zj, U_name + suffix, folder_address,
                                   is_save, is_save_txt,
-                                  suffix=suffix, **kwargs, ) # 似乎不必储存 z； z 从外面传进来，只是为了名字
+                                  suffix=suffix, **kwargs, )  # 似乎不必储存 z； z 从外面传进来，只是为了名字
 
         suffix = '_vmax_vmin'
         U_address, ugHGU = U_save(np.array([kwargs.get("vmax", 1), kwargs.get("vmin", 0)]), U_name + suffix,
@@ -2292,12 +2299,14 @@ def attr_line_get(line, item_attr_name):  # from line
     else:
         return None  # 等价于 不写 return 即没有 返回值
 
+
 def attrs_line_get(attr_line, *item_attr_names):
     attr_values = []
     for attr_name in item_attr_names:
         attr_values.append(attr_line_get(attr_line, attr_name))
     return attr_values  # attr_values 的顺序 等于 attr_names 的顺序
     # 也就是 attr_names.index("attr_name") = attr_values.index("attr_value")
+
 
 # %%
 
@@ -2491,6 +2500,7 @@ def get_Data_new_attrs(Data_Seq, *attr_names):
             attr_values[attr_names.index("U_address")] = U_new_address
     return attr_values
 
+
 def get_items_new_attr(Data_Seq, is_save_txt, is_print, ):
     # %% 分析 all_data_info.txt
 
@@ -2530,13 +2540,14 @@ def get_items_new_attr(Data_Seq, is_save_txt, is_print, ):
         U_address_list.append(U_new_address)
 
         U_list.append(U)
-        z_list.append(float(z)) # z 不能是 str
+        z_list.append(float(z))  # z 不能是 str
         U_name_no_suffix_list.append(U_name_no_suffix)
 
     Data_Seq = str(Data_Seq) + (("." + str(Get("level_min"))) if '.' not in str(Data_Seq) else '')  # 先转成 str
     index = Data_Seq_list.index(Data_Seq)  # 找到 相应 Data_Seq 的 索引，然后往下读
 
     return folder_new_address, index, U_list, U_name_list, U_name_no_suffix_list, z_list
+
 
 # %%
 
@@ -2845,54 +2856,73 @@ def Info_img(img_full_name):
 
 # %%
 
-def img_squared_Read(img_full_name, U_NonZero_size, **kwargs, ):
+def img_squared_Read(img_full_name, U_size, **kwargs, ):
     img_name, img_name_extension, img_address, folder_address, img_squared_address, img_squared_bordered_address \
         = Info_img(img_full_name)
     img_squared = cv2.imdecode(np.fromfile(img_squared_address, dtype=np.uint8), 0)  # 按 相对路径 + 灰度图 读取图片
-    if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
-        size_PerPixel = U_NonZero_size / img_squared.shape[1]  # 如果 由图的 x 向 列数（宽度）与 U_NonZero_size 决定 像素点 的 尺寸
-        # size_PerPixel = size_PerPixel_x
-    else:
-        size_PerPixel = U_NonZero_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
-        # size_PerPixel = size_PerPixel_y
-    # Size_PerPixel 统一以 图片 y 行向 为准
+
+    # 更新逻辑：无论是 U_read 还是 img_squared_boardered_Read，U_size 都以最大尺寸为主
+    # if kwargs.get("is_U_size_x_structure_side_y", 0) == 1:
+    #     size_PerPixel = U_size / img_squared.shape[1]  # 如果 由图的 x 向 列数（宽度）与 U_size 决定 像素点 的 尺寸
+    #     # size_PerPixel = size_PerPixel_x
+    # else:
+    #     size_PerPixel = U_size / img_squared.shape[0]  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
+    #     # size_PerPixel = size_PerPixel_y
+    # # Size_PerPixel 统一以 图片 y 行向 为准
 
     init_Set("img_name_extension", img_name_extension)
 
     return img_name, img_name_extension, img_address, folder_address, \
            img_squared_address, img_squared_bordered_address, \
-           img_squared, size_PerPixel
+           img_squared
 
 
 # %%
 # 导入 方形，以及 加边框 的 图片
 
 def img_squared_bordered_Read(img_full_name,
-                              U_NonZero_size, dpi,
+                              U_size, dpi,
                               is_phase_only, **kwargs, ):
     img_name, img_name_extension, img_address, folder_address, \
     img_squared_address, img_squared_bordered_address, \
-    img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size, **kwargs, )
+    img_squared = img_squared_Read(img_full_name, U_size, **kwargs, )
 
     img_squared_bordered = cv2.imdecode(np.fromfile(img_squared_bordered_address, dtype=np.uint8),
                                         0)  # 按 相对路径 + 灰度图 读取图片
     Ix, Iy = img_squared_bordered.shape[0], img_squared_bordered.shape[1]
+
+    # 不覆盖 Ix 和 size_fig、size_PerPixel 等，因为 结构是 参照 U_size 的 尺度来生成的，而 U_size 最好不要大到 全图。
+    # 额 no no no，U_size 本来就没大到全图：它在 img_squared_Read 中已经决定了 只与 img_squared 相关。
+    # 但之后 要给出 矩形化后的 U 的 另一条边 U_size_y 和 U_size_x 的长度，以供 外部 调用
+    # 且 Ix, Iy 本来就是 squared 后的 变大了的 尺寸，这里 调整的也是 变大后的，最终的尺寸
+    # 还有，得与 U_read 同步：U_size 干脆都以最大尺寸为主
+    from fun_img_Resize import U_resize
+    img_squared_bordered = U_resize(img_squared_bordered, kwargs.get("U_pixels_x", 0), kwargs.get("U_pixels_y", 0),
+                                    Ix, Iy)
+    Ix, Iy = img_squared_bordered.shape[0], img_squared_bordered.shape[1]  # 覆盖旧的 Ix, Iy
+
+    img_squared_bordered_resize_full_name = "3. " + img_name + "_squared" + "_bordered" + "_resize" + img_name_extension
+    img_squared_bordered_resize_address = folder_address + "\\" + img_squared_bordered_resize_full_name
+    cv2.imencode(img_name_extension, img_squared_bordered)[1].tofile(img_squared_bordered_resize_address)
 
     if is_phase_only == 1:
         U = np.power(math.e, (img_squared_bordered.astype(np.complex128()) / 255 * 2 * math.pi - math.pi) * 1j)  # 变成相位图
     else:
         U = img_squared_bordered.astype(np.complex128)
 
-    if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
+    # 更新逻辑：无论是 U_read 还是 img_squared_boardered_Read，U_size 都以最大尺寸为主
+    if kwargs.get("is_U_size_x_structure_side_y", 0) == 1:
         size_fig = Iy / dpi  # 由 x 向 列数 决定
-        U_NonZero_size_y = U_NonZero_size  #  U_NonZero_size_y 等于 U_NonZero_size_x = img_squared 对应的 U_NonZero_size
-        init_Set("U_NonZero_side", U_NonZero_size_y)
+        size_PerPixel = U_size / Iy
+        U_size_y = size_PerPixel * Ix  # U_size_y 等于 U_size_x = img_squared 对应的 U_size
+        init_Set("U_side", U_size_y)
     else:
         size_fig = Ix / dpi  # size_fig 默认 也由 y 向 行数 决定。
-        # U_NonZero_size != size_PerPixel * Ix
-        # 而有 U_NonZero_size == size_PerPixel * img_squared.shape[0]，已经是 squared 之后的了，所以直接
-        U_NonZero_size_x = U_NonZero_size  # 以致于 从图片 img_squared_bordered_Read 里 读到的 U 总是 方的，但走 U_Read 就不是了
-        init_Set("U_NonZero_side", U_NonZero_size_x)
+        # U_size != size_PerPixel * Ix
+        # 而有 U_size == size_PerPixel * img_squared.shape[0]，已经是 squared 之后的了，所以直接
+        size_PerPixel = U_size / Ix
+        U_size_x = size_PerPixel * Iy  # 以致于 从图片 img_squared_bordered_Read 里 读到的 U 总是 方的，但走 U_Read 就不是了
+        init_Set("U_side", U_size_x)
 
     init_Set("Ix", Ix)
     init_Set("Iy", Iy)
@@ -2928,27 +2958,35 @@ def U_read_only(U_name, is_save_txt):
 # 导入 方形 图片，以及 U
 
 def U_Read(U_name, img_full_name,
-           U_NonZero_size, dpi,
+           U_size, dpi,
            is_save_txt, **kwargs, ):
+    img_name, img_name_extension, img_address, folder_address, \
+    img_squared_address, img_squared_bordered_address, \
+    img_squared = img_squared_Read(img_full_name, U_size, **kwargs, )
+
     U = U_read_only(U_name, is_save_txt)
     Ix, Iy = U.shape[0], U.shape[1]
 
-    img_name, img_name_extension, img_address, folder_address, \
-    img_squared_address, img_squared_bordered_address, \
-    img_squared, size_PerPixel = img_squared_Read(img_full_name, U_NonZero_size, **kwargs, )
+    from fun_img_Resize import U_resize
+    U = U_resize(U, kwargs.get("U_pixels_x", 0), kwargs.get("U_pixels_y", 0), Ix, Iy)
+    Ix, Iy = U.shape[0], U.shape[1]  # 覆盖旧的 Ix, Iy
 
-    if kwargs.get("is_U_NonZero_size_x_structure_side_y", 0) == 1:
+    U_squared_bordered_resize_full_name = "3. " + U_name + "_squared" + "_bordered" + "_resize" + img_name_extension
+    U_squared_bordered_resize_address = folder_address + "\\" + U_squared_bordered_resize_full_name
+    cv2.imencode(img_name_extension, U)[1].tofile(U_squared_bordered_resize_address)
+
+    if kwargs.get("is_U_size_x_structure_side_y", 0) == 1:
         size_fig = Iy / dpi  # 由 x 向 列数 决定
-        size_PerPixel = U_NonZero_size / Iy  # size_PerPixel = size_PerPixel_x
-        U_NonZero_size_y = size_PerPixel * Ix  # U_NonZero_size == size_PerPixel * Ix
-        init_Set("U_NonZero_side", U_NonZero_size_y)
+        size_PerPixel = U_size / Iy  # size_PerPixel = size_PerPixel_x
+        U_size_y = size_PerPixel * Ix  # U_size == size_PerPixel * Ix
+        init_Set("U_side", U_size_y)
     else:
         size_fig = Ix / dpi  # size_fig、size_PerPixel 默认 由 y 向 行数 决定。
-        size_PerPixel = U_NonZero_size / Ix  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
+        size_PerPixel = U_size / Ix  # Unit: mm / 个 每个 像素点 的 尺寸，相当于 △x = △y = △z
         # Size_PerPixel 统一以 图片 y 行向 为准： size_PerPixel = size_PerPixel_y
         # 覆盖 img_squared_Read 所得到的 size_PerPixel
-        U_NonZero_size_x = size_PerPixel * Iy  # U_NonZero_size == size_PerPixel * Ix
-        init_Set("U_NonZero_side", U_NonZero_size_x)
+        U_size_x = size_PerPixel * Iy  # U_size == size_PerPixel * Ix
+        init_Set("U_side", U_size_x)
 
     init_Set("Ix", Ix)
     init_Set("Iy", Iy)

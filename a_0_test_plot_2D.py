@@ -19,7 +19,7 @@ def plot_2D_test(test_target=3,
                  img_full_name="lena1.png",
                  is_phase_only=0,
                  # %%
-                 U_NonZero_size=0.9,
+                 U_size=0.9,
                  # %%
                  is_save=0, is_save_txt=0, dpi=100,
                  # %%
@@ -76,7 +76,7 @@ def plot_2D_test(test_target=3,
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, U = \
         img_squared_bordered_Read(img_full_name,
-                                  U_NonZero_size, dpi,
+                                  U_size, dpi,
                                   is_phase_only, **kwargs, )
 
     if test_func == "U_plot_save":
@@ -204,9 +204,10 @@ if __name__ == '__main__':
         {"test_target": -1,  # 自动化了，不用填这个参数了
          "Data_Seq": 16,
          "img_full_name": "lena1.png",
+         "U_pixels_x": 0, "U_pixels_y": 0,
          "is_phase_only": 0,
          # %%
-         "U_NonZero_size": 0.9,
+         "U_size": 0.9,
          # %%
          "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
@@ -242,7 +243,7 @@ if __name__ == '__main__':
     #              img_full_name="lena1.png",
     #              is_phase_only=0,
     #              # %%
-    #              U_NonZero_size=0.9,
+    #              U_size=0.9,
     #              # %%
     #              is_save=0, is_save_txt=0, dpi=100,
     #              # %%

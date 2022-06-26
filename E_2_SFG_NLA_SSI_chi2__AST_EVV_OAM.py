@@ -34,7 +34,7 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
                          # %%
                          # 生成横向结构
                          U_name_Structure='',
-                         structure_size_Enlarge=0.1,
+                         structure_size_Shrink=0.1,
                          is_phase_only_Structure=0,
                          # %%
                          w0_Structure=0, z_pump_Structure=0,
@@ -45,7 +45,7 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
                          is_random_phase_Structure=0,
                          is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
                          # %%
-                         U_NonZero_size=1, w0=0.3,
+                         U_size=1, w0=0.3,
                          L0_Crystal=1, z_AST=1, sheets_stored_num=10,
                          # %% 不关心
                          z0_structure_frontface_expect=0, deff_structure_length_expect=10,
@@ -128,7 +128,7 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
                 # %%
                 # 生成横向结构
                 U_name_Structure,
-                structure_size_Enlarge,
+                structure_size_Shrink,
                 is_phase_only_Structure,
                 # %%
                 w0_Structure, z_pump_Structure,
@@ -139,7 +139,7 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
                 is_random_phase_Structure,
                 is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                 # %%
-                U_NonZero_size, w0,
+                U_size, w0,
                 z_SFG, z0_structure_frontface_expect, deff_structure_length_expect,
                 SSI_zoomout_times, sheets_stored_num,
                 z0_section_1_expect, z0_section_2_expect,
@@ -197,7 +197,7 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
                 is_random_phase,
                 is_H_l, is_H_theta, is_H_random_phase,
                 # %%
-                U_NonZero_size, w0,
+                U_size, w0,
                 z_AST,
                 # %%
                 lam1, is_air_pump, 1, T,  # 后续 线性衍射 过程中， is_air = 1
@@ -265,6 +265,7 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
          "img_full_name": "lena2.png",
+         "U_pixels_x": 200, "U_pixels_y": 200,
          "is_phase_only": 0,
          # %%
          "z_pump": -5,
@@ -277,8 +278,8 @@ if __name__ == '__main__':
          # %%
          # 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Enlarge": 0.1, "structure_side_Enlarger": 0,
-         "is_U_NonZero_size_x_structure_side_y": 1,
+         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "is_U_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
          "w0_Structure": 0, "z_pump_Structure": 0,
@@ -289,7 +290,7 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_NonZero_size": 1, "w0": 0.05,
+         "U_size": 1, "w0": 0.05,
          "L0_Crystal": 10, "z_AST": 50, "sheets_stored_num": 15,
          # %% 不关心
          "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 10,
@@ -316,7 +317,7 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
          # %%
-         "is_save": 1, "is_no_data_save": 0,
+         "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
@@ -399,7 +400,7 @@ if __name__ == '__main__':
     #             # %%
     #             # 生成横向结构
     #             U_name_Structure='',
-    #             structure_size_Enlarge=0.1,
+    #             structure_size_Shrink=0.1,
     #             is_phase_only_Structure=0,
     #             # %%
     #             w0_Structure=0, z_pump_Structure=0,
@@ -410,7 +411,7 @@ if __name__ == '__main__':
     #             is_random_phase_Structure=0,
     #             is_H_l_Structure=0, is_H_theta_Structure=0, is_H_random_phase_Structure=0,
     #             # %%
-    #             U_NonZero_size=0.9, w0=0.3,
+    #             U_size=0.9, w0=0.3,
     #             z0=10, sheets_stored_num=10,
     #             # %%
     #             lam1=1.064, is_air_pump=0, is_air=0, T=25,
