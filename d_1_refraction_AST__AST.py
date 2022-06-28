@@ -25,7 +25,7 @@ def refraction_AST__AST(img_full_name="Grating.png",
                         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                         # %%
                         U_size=1, w0=0.3,
-                        z1=1, zn=5,
+                        zn=5, z1=1,
                         # %%
                         lam1=0.8, is_air_pump=0, is_air=0, T=25,
                         # %%
@@ -94,24 +94,28 @@ def refraction_AST__AST(img_full_name="Grating.png",
     # %%
     # 先以 n 衍射 zn 后 以 1 衍射 z1
 
-    # U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
-    #     AST(*args_AST(zn, is_air), )
+    kwargs_AST = copy.deepcopy(kwargs)
+    kwargs_AST.update({"ray": "1", })
+    U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
+        AST(*args_AST(zn, is_air), **kwargs_AST, )
 
-    # U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
-    #     AST(*args_AST(z1, 1), U=U_zn, ray=ray_zn, is_end=1, )
+    kwargs_AST = copy.deepcopy(kwargs)
+    kwargs_AST.update({"U": U_zn, "ray": ray_zn, "is_end": 1, })
+    U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
+        AST(*args_AST(z1, 1), **kwargs_AST, )
 
     # %%
     # 先以 1 衍射 z1 后 以 n 衍射 zn
 
-    kwargs_AST = copy.deepcopy(kwargs)
-    kwargs_AST.update({"ray": "1", })
-    U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
-        AST(*args_AST(z1, 1), **kwargs_AST, )
+    # kwargs_AST = copy.deepcopy(kwargs)
+    # kwargs_AST.update({"ray": "1", })
+    # U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
+    #     AST(*args_AST(z1, 1), **kwargs_AST, )
 
-    kwargs_AST = copy.deepcopy(kwargs)
-    kwargs_AST.update({"U": U_z1, "ray": ray_z1, "is_end": 1, })
-    U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
-        AST(*args_AST(zn, is_air), **kwargs_AST, )
+    # kwargs_AST = copy.deepcopy(kwargs)
+    # kwargs_AST.update({"U": U_z1, "ray": ray_z1, "is_end": 1, })
+    # U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
+    #     AST(*args_AST(zn, is_air), **kwargs_AST, )
 
     # %%
 
@@ -124,18 +128,18 @@ if __name__ == '__main__':
          # %%
          "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 1, "p": 1,
-         "theta_x": 1, "theta_y": 0,
+         "l": 10, "p": 0,
+         "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_size": 1, "w0": 0.1,
-         "z1": 5, "zn": 5,
+         "U_size": 1, "w0": 0.05,
+         "zn": 10, "z1": 15, 
          # %%
-         "lam1": 1.5, "is_air_pump": 1, "is_air": 0, "T": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          # %%
-         "is_save": 0, "is_no_data_save": 0,
+         "is_save": 1, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
          # %%
          "cmap_2d": 'viridis',
@@ -157,11 +161,11 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 24.3,
          # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "e",
+         "polar": "o",
          }
 
     kwargs = init_GLV_DICT(**kwargs)
