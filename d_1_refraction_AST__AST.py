@@ -25,7 +25,7 @@ def refraction_AST__AST(img_full_name="Grating.png",
                         is_H_l=0, is_H_theta=0, is_H_random_phase=0,
                         # %%
                         U_size=1, w0=0.3,
-                        zn=5, z1=1,
+                        zn=5, z1=1, is_air_first=0,
                         # %%
                         lam1=0.8, is_air_pump=0, is_air=0, T=25,
                         # %%
@@ -90,32 +90,36 @@ def refraction_AST__AST(img_full_name="Grating.png",
                 is_colorbar_on, is_energy,
                 # %%
                 is_print, ]
+    
+    if is_air_first != 1:
+    
+        # %%
+        # 先以 n 衍射 zn 后 以 1 衍射 z1
+    
+        kwargs_AST = copy.deepcopy(kwargs)
+        kwargs_AST.update({"ray": "1", })
+        U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
+            AST(*args_AST(zn, is_air), **kwargs_AST, )
+    
+        kwargs_AST = copy.deepcopy(kwargs)
+        kwargs_AST.update({"U": U_zn, "ray": ray_zn, "is_end": 1, })
+        U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
+            AST(*args_AST(z1, 1), **kwargs_AST, )
 
-    # %%
-    # 先以 n 衍射 zn 后 以 1 衍射 z1
-
-    kwargs_AST = copy.deepcopy(kwargs)
-    kwargs_AST.update({"ray": "1", })
-    U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
-        AST(*args_AST(zn, is_air), **kwargs_AST, )
-
-    kwargs_AST = copy.deepcopy(kwargs)
-    kwargs_AST.update({"U": U_zn, "ray": ray_zn, "is_end": 1, })
-    U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
-        AST(*args_AST(z1, 1), **kwargs_AST, )
-
-    # %%
-    # 先以 1 衍射 z1 后 以 n 衍射 zn
-
-    # kwargs_AST = copy.deepcopy(kwargs)
-    # kwargs_AST.update({"ray": "1", })
-    # U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
-    #     AST(*args_AST(z1, 1), **kwargs_AST, )
-
-    # kwargs_AST = copy.deepcopy(kwargs)
-    # kwargs_AST.update({"U": U_z1, "ray": ray_z1, "is_end": 1, })
-    # U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
-    #     AST(*args_AST(zn, is_air), **kwargs_AST, )
+    else:
+        
+        # %%
+        # 先以 1 衍射 z1 后 以 n 衍射 zn
+    
+        kwargs_AST = copy.deepcopy(kwargs)
+        kwargs_AST.update({"ray": "1", })
+        U_z1, G_z1, ray_z1, method_and_way_z1, U_key_z1 = \
+            AST(*args_AST(z1, 1), **kwargs_AST, )
+    
+        kwargs_AST = copy.deepcopy(kwargs)
+        kwargs_AST.update({"U": U_z1, "ray": ray_z1, "is_end": 1, })
+        U_zn, G_zn, ray_zn, method_and_way_zn, U_key_zn = \
+            AST(*args_AST(zn, is_air), **kwargs_AST, )
 
     # %%
 
@@ -135,11 +139,11 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
          "U_size": 1, "w0": 0.05,
-         "zn": 10, "z1": 15, 
+         "zn": 10, "z1": 15, "is_air_first": 0,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          # %%
-         "is_save": 1, "is_no_data_save": 0,
+         "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
          # %%
          "cmap_2d": 'viridis',
