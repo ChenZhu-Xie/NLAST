@@ -216,7 +216,7 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                          lam2=lam2, **kwargs)
 
     dk, lc, Tz, \
-    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,  # 先 初步计算 匹配时，Gz 的 试探解
+    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,  # 先 初步计算 匹配时，Gz 的 试探解（dk 与 k3_inc 有关）
                           mx, my, mz,
                           Tx, Ty, Tz,
                           is_print, k2_inc=k2_inc, )

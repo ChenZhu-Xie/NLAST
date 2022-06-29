@@ -127,18 +127,18 @@ def refraction_AST__AST(img_full_name="Grating.png",
 if __name__ == '__main__':
     kwargs = \
         {"img_full_name": "Grating.png",
-         "U_pixels_x": 0, "U_pixels_y": 0,
+         "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
          "l": 10, "p": 0,
-         "theta_x": 0, "theta_y": 0,
+         "theta_x": -1, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_size": 1, "w0": 0.05,
+         "U_size": 2, "w0": 0.05,
          "zn": 10, "z1": 15, "is_air_first": 0,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,

@@ -212,13 +212,14 @@ def SFG_NLA(U_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   **kwargs)
+                                                   is_air_pump=is_air_pump, **kwargs)
 
     if ray_tag == "f":
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
                                                        lam2, is_air, T,
                                                        theta2_x, theta2_y,
-                                                       polar2=polar2, **kwargs)
+                                                       polar2=polar2,
+                                                       is_air_pump=is_air_pump, **kwargs)
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
@@ -237,7 +238,7 @@ def SFG_NLA(U_name="",
                                                              is_print,
                                                              theta_x, theta2_x,
                                                              theta_y, theta2_y,
-                                                             **kwargs)
+                                                             is_air_pump=is_air_pump, **kwargs)
     # print(n1_inc, n2_inc, n3_inc)
     # print(n1_inc + n2_inc - 2 * n3_inc)
 

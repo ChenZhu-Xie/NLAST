@@ -223,13 +223,14 @@ def SFG_NLA_EVV(U_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   **kwargs)
+                                                   is_air_pump=is_air_pump, **kwargs)
 
     if ray_tag == "f":
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
                                                        lam2, is_air, T,
                                                        theta2_x, theta2_y,
-                                                       polar2=polar2, **kwargs)
+                                                       polar2=polar2,
+                                                       is_air_pump=is_air_pump, **kwargs)
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
@@ -248,7 +249,7 @@ def SFG_NLA_EVV(U_name="",
                                                              is_print,
                                                              theta_x, theta2_x,
                                                              theta_y, theta2_y,
-                                                             **kwargs)
+                                                             is_air_pump=is_air_pump, **kwargs)
 
     is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)  # 得写在外面，否则会传进 Fun 等的 kwargs...而这一般是空的
     if fft_mode == 0:

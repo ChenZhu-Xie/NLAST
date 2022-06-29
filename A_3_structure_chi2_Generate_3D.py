@@ -13,7 +13,6 @@ from fun_global_var import Get, init_GLV_DICT, tree_print
 from fun_algorithm import gcd_of_float
 from fun_img_Resize import if_image_Add_black_border
 from fun_SSI import slice_structure_ssi
-from fun_nonlinear import Info_find_contours_SHG
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
 

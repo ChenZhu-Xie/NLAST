@@ -111,7 +111,7 @@ def AST(U_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   **kwargs)
+                                                   is_air_pump=is_air_pump, **kwargs)
 
     # %%
 
