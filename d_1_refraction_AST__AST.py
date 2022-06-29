@@ -49,7 +49,7 @@ def refraction_AST__AST(img_full_name="Grating.png",
                         # %%
                         **kwargs, ):
     # %%
-    info = "利用 折射 检验：AST"
+    info = "利用 折射 检验：AST" # 这个按理说也应该加个 compare 的，但线性过程有点简单，且结果相同、理论自洽与否，很直观就看出来了。
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
@@ -166,7 +166,9 @@ if __name__ == '__main__':
          "border_percentage": 0.1, "is_end": -1,
          # %%
          "theta_z": 90, "phi_z": 90, "phi_c": 24.3,
-         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
+         # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "o",

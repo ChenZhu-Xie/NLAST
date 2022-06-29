@@ -128,10 +128,10 @@ def Cal_n(size_PerPixel,
         ny = get_n(is_air, lam, T, "y")  # n_b, n_o
         nx = get_n(is_air, lam, T, "x")  # n_a
         # print(nx, ny, nz)
-        # %%
+        # %%  计算 实验室坐标系的 z 方向 的 折射率 n_z 和 k_z，作为 kx, ky 网格 所对应的 n_nxny, k_nxny 的 中心、参考、基准
         phi_c_def = math.pi
         theta_c_z, phi_c_z = theta_z_c, phi_c_def - phi_c_c  # 算 实验室坐标系 方向 z 相对 晶轴 c 的 方位角 和 极角
-        # 因为 初始时，晶体的 a,b,c 轴，分别与 -x, y, k 重合；且 极角 只沿 z - x 面内 方向 倾倒 折射率椭球；
+        # 因为 初始时，晶体的 a,b,c 轴，分别与 -x, y, k 重合；且 极角 只沿 z - (-x) 面内 方向 倾倒 折射率椭球；
         # 但按理说 KTP 还能 绕着 自己的 c 轴，自右手系的 a 向 b 旋，多这一个自由度：
         # 事后 在其坐标系下 反向旋转 其他 参照物 即可。
         # print(theta_z_inc, phi_z_inc)
@@ -154,7 +154,7 @@ def Cal_n(size_PerPixel,
 
         # %%
         sin_theta_z_inc_nxny = (mesh_kx_ky_shift[:, :, 0] ** 2 + mesh_kx_ky_shift[:, :, 1] ** 2) ** 0.5 / k_z
-        # 注意 是 kx,ky 或 nx,ny 的 函数（这里 假设了 k 附近的 采样点 分布 是个球面？那这也不准：k_inc 从一开始，就不是个 标量）
+        # 注意 是 kx,ky 或 nx,ny 的 函数（这里 假设了 k 附近的 采样点 分布 是个球面，半径为 k_z。那这也不准：k_inc 从一开始，就不是个 标量）
         theta_z_inc_nxny = np.arcsin(sin_theta_z_inc_nxny)  # 类比 Cal_theta_phi_z_inc 中的 theta_z_inc = math.acos(kz)
         phi_z_inc_nxny = np.arctan2(- mesh_kx_ky_shift[:, :, 1], - mesh_kx_ky_shift[:, :, 0])
         # phi_z_inc_nxny = np.arctan((- mesh_kx_ky_shift[:, :, 1]) / (- mesh_kx_ky_shift[:, :, 0]))  # 需要 变换到 直角坐标系下
@@ -202,7 +202,7 @@ def Cal_theta_phi_z_inc(theta_x, theta_y, ):
     kx = - kx  # 即以 k 为 z 轴正向的 右手系 下的值（且已经 归一化 or 单位化）
 
     theta_z_inc = math.acos(kz)
-    phi_z_inc = math.atan2(ky, kx)
+    phi_z_inc = math.atan2(ky, kx)  # -x, y, z 实验室 坐标系 下 的 方位角
 
     return theta_z_inc, phi_z_inc
 

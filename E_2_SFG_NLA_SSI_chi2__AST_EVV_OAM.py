@@ -249,7 +249,7 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
 
         from fun_nonlinear import init_SFG
         lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
-                                                             lam1, 0, T,
+                                                             lam1, 1, T,
                                                              0, 0, **kwargs)
         from fun_linear import Cal_H_lens
         # H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), Get("k3"), z_AST / 2, Cal_mode=1)
@@ -265,12 +265,12 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
          "img_full_name": "lena1.png",
-         "U_pixels_x": 300, "U_pixels_y": 300,
+         "U_pixels_x": 500, "U_pixels_y": 500,
          "is_phase_only": 0,
          # %%
          "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": -10, "p": 0,
+         "l": 50, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -278,7 +278,7 @@ if __name__ == '__main__':
          # %%
          # 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "structure_size_Shrink": 0, "structure_size_Shrinker": 0,
          "is_U_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
@@ -290,8 +290,8 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_size": 2, "w0": 0.04,
-         "L0_Crystal": 10, "z_AST": 50, "sheets_stored_num": 10,
+         "U_size": 2.5, "w0": 0.04,
+         "L0_Crystal": 10, "z_AST": 20, "sheets_stored_num": 10,
          # %% 不关心
          "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 10,
          "SSI_zoomout_times": 1,
@@ -301,11 +301,11 @@ if __name__ == '__main__':
          "is_bulk": 0, "is_show_structure_face": 0,
          "is_stored": 1, "is_energy_evolution_on": 1,
          # %%
-         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 50,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 100,
+         "Tx": 18.769, "Ty": 20, "Tz": 1000,
          "mx": 0, "my": 0, "mz": 0,
          "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
          # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
@@ -352,8 +352,10 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          # %%
-         "theta_z": 90, "phi_z": 90, "phi_c": 24.3,
-         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
+         # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
+         # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "o",
@@ -368,7 +370,7 @@ if __name__ == '__main__':
             # %%
             "z_pump2": -5,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": -10, "p2": 0,
+            "l2": 50, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
