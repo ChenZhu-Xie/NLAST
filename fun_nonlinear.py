@@ -208,11 +208,11 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
                       **kwargs):
     # %%  给出 试探 Gz
 
-    theta_3x, theta_3y = (theta_x + theta2_x) / 2, (theta_y + theta2_y) / 2  # 先给出 k3_inc 的 试探解，以 初步计算 匹配时的 dk
+    theta3_x, theta3_y = (theta_x + theta2_x) / 2, (theta_y + theta2_y) / 2  # 先给出 k3_inc 的 试探解，以 初步计算 匹配时的 dk
 
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
-                                                         theta_3x, theta_3y,
+                                                         theta3_x, theta3_y,
                                                          lam2=lam2, **kwargs)
 
     dk, lc, Tz, \

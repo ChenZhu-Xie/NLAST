@@ -249,7 +249,7 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
 
         from fun_nonlinear import init_SFG
         lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
-                                                             lam1, 0, T,
+                                                             lam1, 1, T,
                                                              0, 0, **kwargs)
         from fun_linear import Cal_H_lens
         # H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), Get("k3"), z_AST / 2, Cal_mode=1)
@@ -353,7 +353,9 @@ if __name__ == '__main__':
          "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          # %%
          "theta_z": 90, "phi_z": 90, "phi_c": 24.3,
-         # KTP 25 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 24.8 - 2000）
+         # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
+         #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
+         # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "o",
