@@ -103,15 +103,42 @@ def AST(U_name="",
 
     # %%
 
-    if "h" in Get("ray"):  # 如果 ray 中含有 倍频 标识符
-        lam1 = lam1 / 2
+    n_name = "n"
     if "lam3" in kwargs:
         lam1 = kwargs["lam3"]
+        n_name += "_3"
+    elif "h" in Get("ray"):  # 如果 ray 中含有 倍频 标识符
+        lam1 = lam1 / 2
+        n_name += "_2"
+    else:
+        n_name += "_1"
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
                                                    is_air_pump=is_air_pump, **kwargs)
+
+    if is_air != 1:
+        kwargs.pop("U")
+        from fun_os import U_dir
+        folder_address = U_dir(n_name, is_save, **kwargs, )
+        from fun_os import U_amp_plot_save
+        U_amp_plot_save(folder_address,
+                        # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                        n1, n_name,
+                        Get("img_name_extension"),
+                        is_save_txt,
+                        # %%
+                        [], 1, size_PerPixel,
+                        0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                        # %%
+                        cmap_2d, ticks_num, is_contourf,
+                        is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                        fontsize, font,
+                        # %%
+                        0, is_colorbar_on, 0,
+                        # %%
+                        suffix="", **kwargs, )
 
     # %%
 

@@ -123,7 +123,6 @@ def interference_AST__AST(img_full_name="Grating.png",
                                  U_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
-                                 kwargs.get("polar", "e"),
                                  # %%
                                  is_save, is_save_txt, dpi,
                                  cmap_2d,
@@ -143,8 +142,7 @@ def interference_AST__AST(img_full_name="Grating.png",
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y,
-                                                   kwargs.get("polar", "e"), **kwargs)
+                                                   theta_x, theta_y, **kwargs)
 
     # %%
 

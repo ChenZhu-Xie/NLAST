@@ -211,6 +211,10 @@ def structure_chi2_Generate_2D(U_structure_name="",
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
+    is_air_pump = kwargs.get("is_air_pump", 1)
+    if "is_air_pump" in kwargs:
+        kwargs.pop("is_air_pump")
+
     # %%
 
     # %%
@@ -266,13 +270,14 @@ def structure_chi2_Generate_2D(U_structure_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   **kwargs)
+                                                   is_air_pump=is_air_pump, **kwargs)
 
     if ray_tag == "f":
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
                                                        lam2, is_air, T,
                                                        theta2_x, theta2_y,
-                                                       polar2=polar2, **kwargs)
+                                                       polar2=polar2,
+                                                       is_air_pump=is_air_pump, **kwargs)
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
@@ -299,9 +304,10 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                                                        is_contours, n_TzQ,
                                                                        Gz_max_Enhance, match_mode,
                                                                        is_print,
-                                                                       theta_x, theta2_x,
-                                                                       theta_y, theta2_y,
-                                                                       is_end=1, **kwargs)
+                                                                       Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
+                                                                       Get("theta_y"), Get("theta2_y"),
+                                                                       is_end=1,
+                                                                       is_air_pump=is_air_pump, **kwargs)
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = 1 - is_no_backgroud - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
@@ -699,6 +705,10 @@ def structure_n1_Generate_2D(U_structure_name="",
     kwargs.pop("T_structure", None)
     lam_structure = lam1  # 懒得搞 去管 lam_structure 的赋值了
     T_structure = T  # 懒得搞 去管 T 的赋值了
+
+    is_air_pump = kwargs.get("is_air_pump", 1)
+    if "is_air_pump" in kwargs:
+        kwargs.pop("is_air_pump")
     # %%
     info = "n_2D_横向绘制"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -745,19 +755,20 @@ def structure_n1_Generate_2D(U_structure_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   **kwargs)
+                                                   is_air_pump=is_air_pump, **kwargs)
 
     from fun_nonlinear import init_SFG
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
                                                          theta_x, theta_y,
-                                                         **kwargs)
+                                                         is_air_pump=is_air_pump, **kwargs)
 
     dk, lc, Tz, \
     Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
                           mx, my, mz,
                           Tx, Ty, Tz,
-                          is_print, is_end=1, )
+                          is_print, is_end=1,
+                          is_air_pump=is_air_pump, )
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = n1_inc - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation

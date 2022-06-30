@@ -184,7 +184,8 @@ def A_3_to_B_3_SFG_NLA_ssi(U_name_Structure="",
                       is_print, is_contours, n_TzQ,
                       Gz_max_Enhance, match_mode,
                       # %%
-                      g_shift=g_shift, L0_Crystal=L0_Crystal, **kwargs, )
+                      g_shift=g_shift, L0_Crystal=L0_Crystal,
+                      is_air_pump=is_air_pump, **kwargs, )
 
     # %%
     # B_3_NLA_SSI

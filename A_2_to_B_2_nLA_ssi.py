@@ -140,7 +140,9 @@ def A_2_to_B_2_nLA_ssi(U_name_Structure="",
                     # %%
                     is_colorbar_on, is_energy,
                     # %%
-                    is_print, )
+                    is_print,
+                    # %%
+                    is_air_pump=is_air_pump, )
 
     # %%
     # B_3_NLA_SSI

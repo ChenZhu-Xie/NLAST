@@ -130,16 +130,16 @@ if __name__ == '__main__':
          "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
-         "z_pump": 0,
+         "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 10, "p": 0,
-         "theta_x": -1, "theta_y": 0,
+         "l": 50, "p": 0,
+         "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_size": 2, "w0": 0.05,
-         "zn": 10, "z1": 15, "is_air_first": 0,
+         "U_size": 2, "w0": 0.04,
+         "zn": 10, "z1": 0, "is_air_first": 0,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          # %%
@@ -165,7 +165,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "theta_z": 90, "phi_z": 90, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）

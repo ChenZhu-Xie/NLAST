@@ -228,8 +228,8 @@ def SFG_NLA_ssi(U_name="",
                                                                      is_contours, n_TzQ,
                                                                      Gz_max_Enhance, match_mode,
                                                                      is_print,
-                                                                     theta_x, theta2_x,
-                                                                     theta_y, theta2_y,
+                                                                     Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
+                                                                     Get("theta_y"), Get("theta2_y"),
                                                                      is_air_pump=is_air_pump, **kwargs)
 
     # %%

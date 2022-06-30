@@ -44,6 +44,7 @@ def structure_chi2_3D(U_name="",
                       is_bulk=1,
                       # %%
                       lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
+                      is_air_pump=1,
                       # %%
                       Tx=10, Ty=10, Tz="2*lc",
                       mx=0, my=0, mz=0,
@@ -137,7 +138,7 @@ def structure_chi2_3D(U_name="",
                                      is_contours, n_TzQ,
                                      Gz_max_Enhance, match_mode,
                                      # %%
-                                     **kwargs, )
+                                     is_air_pump=is_air_pump, **kwargs, )
     if kwargs.get('ray', "2") == "3":
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
@@ -348,7 +349,8 @@ if __name__ == '__main__':
          "is_bulk": 0,
          # %%
          "lam1": 0.8, "is_air_pump_structure": 1, "is_air": 0, "T": 25,
-         # %%
+         "is_air_pump": 1,
+                     # %%
          "Tx": 30, "Ty": 20, "Tz": 0,
          "mx": 1, "my": 1, "mz": 1,
          "is_stripe": 1,

@@ -247,8 +247,8 @@ def SFG_NLA_EVV(U_name="",
                                                              is_contours, n_TzQ,
                                                              Gz_max_Enhance, match_mode,
                                                              is_print,
-                                                             theta_x, theta2_x,
-                                                             theta_y, theta2_y,
+                                                             Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
+                                                             Get("theta_y"), Get("theta2_y"),
                                                              is_air_pump=is_air_pump, **kwargs)
 
     is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)  # 得写在外面，否则会传进 Fun 等的 kwargs...而这一般是空的
@@ -308,7 +308,7 @@ def SFG_NLA_EVV(U_name="",
                                          Gz_max_Enhance, match_mode,
                                          L0_Crystal=z0, g_shift=g_shift,
                                          # %%
-                                         **kwargs, )
+                                         is_air_pump=is_air_pump, **kwargs, )
         if ray_tag == "f":
             [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
             kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。

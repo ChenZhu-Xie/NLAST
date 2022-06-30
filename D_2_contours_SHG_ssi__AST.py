@@ -130,7 +130,6 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                                  U_size, w0,
                                  # %%
                                  lam1, is_air_pump, T,
-                                 kwargs.get("polar", "e"),
                                  # %%
                                  is_save, is_save_txt, dpi,
                                  cmap_2d,
@@ -189,7 +188,8 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                       is_print, is_contours, n_TzQ,
                       Gz_max_Enhance, match_mode,
                       # %%
-                      g_shift=g_shift, L0_Crystal=max(z_AST, z_ssi), **kwargs, )
+                      g_shift=g_shift, L0_Crystal=max(z_AST, z_ssi),
+                      is_air_pump=is_air_pump, **kwargs, )
 
     # %%
     # 先衍射 z_AST 后倍频 z_ssi

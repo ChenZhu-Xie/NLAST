@@ -118,15 +118,42 @@ def AST_EVV(U_name="",
 
     # %%
 
-    if "h" in Get("ray"):  # 如果 ray 中含有 倍频 标识符
-        lam1 = lam1 / 2
+    n_name = "n"
     if "lam3" in kwargs:
         lam1 = kwargs["lam3"]
+        n_name += "_3"
+    elif "h" in Get("ray"):  # 如果 ray 中含有 倍频 标识符
+        lam1 = lam1 / 2
+        n_name += "_2"
+    else:
+        n_name += "_1"
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
                                                    is_air_pump=is_air_pump, **kwargs)
+    
+    if is_air != 1:
+        kwargs.pop("U")
+        from fun_os import U_dir
+        folder_address = U_dir(n_name, is_save, **kwargs, )
+        from fun_os import U_amp_plot_save
+        U_amp_plot_save(folder_address,
+                        # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                        n1, n_name,
+                        Get("img_name_extension"),
+                        is_save_txt,
+                        # %%
+                        [], 1, size_PerPixel,
+                        0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                        # %%
+                        cmap_2d, ticks_num, is_contourf,
+                        is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                        fontsize, font,
+                        # %%
+                        0, is_colorbar_on, 0,
+                        # %%
+                        suffix="", **kwargs, )
 
     # %%
     iz = z0 / size_PerPixel
@@ -239,21 +266,21 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
          "img_full_name": "lena1.png",
-         "U_pixels_x": 0, "U_pixels_y": 0,
+         "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
-         "z_pump": 0,
-         "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
-         "l": 0, "p": 0,
+         "z_pump": -5,
+         "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
+         "l": 50, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_size": 1, "w0": 0,
-         "z0": 15,
+         "U_size": 3, "w0": 0.04,
+         "z0": 10,
          # %%
-         "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          # %%
          "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
@@ -280,8 +307,8 @@ if __name__ == '__main__':
          "sample": 1, "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
          # %%
-         "is_plot_EVV": 0, "is_plot_3d_XYz": 0, "is_plot_selective": 1,
-         "X": 0, "Y": 0, "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,
+         "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "X": 0, "Y": 0, "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
          # %%
          "plot_group": "Ua", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
@@ -289,13 +316,13 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "e", "ray": "1",
+         "polar": "o", "ray": "1",
          }
 
     kwargs = init_GLV_DICT(**kwargs)

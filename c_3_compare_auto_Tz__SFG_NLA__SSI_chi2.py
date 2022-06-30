@@ -241,8 +241,8 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
                                                                      is_contours, n_TzQ,
                                                                      Gz_max_Enhance, match_mode,
                                                                      is_print,
-                                                                     theta_x, theta2_x,
-                                                                     theta_y, theta2_y,
+                                                                     Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
+                                                                     Get("theta_y"), Get("theta2_y"),
                                                                      **kwargs)
 
     Tc = 2 * lc

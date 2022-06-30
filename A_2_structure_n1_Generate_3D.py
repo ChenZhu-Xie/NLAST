@@ -43,6 +43,7 @@ def structure_n1_3D(U_name="",
                     is_reverse_xy=0, is_positive_xy=1, is_bulk=1,
                     # %%
                     lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
+                    is_air_pump=1,
                     # %%
                     Tx=10, Ty=10, Tz="2*lc",
                     mx=0, my=0, mz=0,
@@ -120,7 +121,7 @@ def structure_n1_3D(U_name="",
                                    # %%
                                    is_print,
                                    # %%
-                                   **kwargs, )
+                                   is_air_pump=is_air_pump, **kwargs, )
 
     # %%
     # 定义 调制区域切片厚度 的 纵向实际像素、调制区域切片厚度 的 实际纵向尺寸
@@ -318,6 +319,7 @@ if __name__ == '__main__':
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_bulk": 0,
          # %%
          "lam1": 0.8, "is_air_pump_structure": 1, "is_air": 0, "T": 25,
+         "is_air_pump": 1,
          # %%
          "Tx": 18, "Ty": 20, "Tz": 0,
          "mx": 1, "my": 1, "mz": 1,

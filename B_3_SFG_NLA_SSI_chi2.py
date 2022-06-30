@@ -273,7 +273,7 @@ def SFG_NLA_SSI(U_name="",
                                      Gz_max_Enhance, match_mode,
                                      L0_Crystal=L0_Crystal, g_shift=g_shift,
                                      # %%
-                                     **kwargs, )
+                                     is_air_pump=is_air_pump, **kwargs, )
     if ray_tag == "f":
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。

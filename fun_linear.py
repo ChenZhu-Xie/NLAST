@@ -149,11 +149,16 @@ def Cal_n(size_PerPixel,
         sin_theta_z_inc_nxny = (mesh_kx_ky_shift[:, :, 0] ** 2 + mesh_kx_ky_shift[:, :, 1] ** 2) ** 0.5 / k_z
         # 注意 是 kx,ky 或 nx,ny 的 函数（这里 假设了 k 附近的 采样点 分布 是个球面，半径为 k_z。那这也不准：k_inc 从一开始，就不是个 标量）
         theta_z_inc_nxny = np.arcsin(sin_theta_z_inc_nxny)  # 类比 Cal_theta_phi_z_inc 中的 theta_z_inc = math.acos(kz)
+        # print(np.min(theta_z_inc_nxny) / math.pi * 180, np.max(theta_z_inc_nxny) / math.pi * 180)
         phi_z_inc_nxny = np.arctan2(- mesh_kx_ky_shift[:, :, 1], - mesh_kx_ky_shift[:, :, 0])
         # phi_z_inc_nxny = np.arctan((- mesh_kx_ky_shift[:, :, 1]) / (- mesh_kx_ky_shift[:, :, 0]))  # 需要 变换到 直角坐标系下
-        # print(np.max(theta_z_inc_nxny), np.max(phi_z_inc_nxny), np.min(phi_z_inc_nxny))
+        # print(np.max(phi_z_inc_nxny) / math.pi * 180, np.min(phi_z_inc_nxny) / math.pi * 180)
+        # print(phi_z_inc_nxny / math.pi * 180)
+        # print(phi_z_inc_nxny[0] / math.pi * 180)
+        # print(phi_z_inc_nxny[Ix//2] / math.pi * 180)
+        # print(phi_z_inc_nxny[Ix-1] / math.pi * 180)
 
-        # 用椭球 精确计算 theta_z_inc_nxny、n_nxny, k_nxny
+        # # 用椭球 精确计算 theta_z_inc_nxny、n_nxny, k_nxny
         # def fun1(for_th, fors_num, *args, **kwargs, ):
         #     for iy in range(Ix):
         #         theta_z_inc_nxny[for_th, iy], = \
@@ -195,6 +200,21 @@ def Cal_n(size_PerPixel,
                                   theta_z_inc, phi_z_inc, phi_c_def)
 
         # print(np.max(np.abs(k_nxny)), k_inc)
+
+        if "set_theta_tag" in kwargs:
+            from fun_global_var import Set
+            theta_x = - math.sin(theta_z_inc) * math.cos(phi_z_inc)
+            theta_y = - math.sin(theta_z_inc) * math.sin(phi_z_inc)
+            theta_x *= 180 / math.pi
+            theta_y *= 180 / math.pi
+            # print(theta_x, theta_y)
+            if kwargs["set_theta_tag"] == 1:
+                Set("theta_x", theta_x)
+                Set("theta_y", theta_y)
+            elif kwargs["set_theta_tag"] == 2:
+                Set("theta2_x", theta_x)
+                Set("theta2_y", theta_y)
+
     else:  # KTP 有所谓 的 o 光么？
         n_inc = n_nxny = get_n(is_air, lam, T, p)
         k_inc = k_nxny = 2 * math.pi * size_PerPixel / (lam / 1000 / n_inc)  # lam / 1000 即以 mm 为单位
@@ -383,23 +403,38 @@ def Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
     # phi_c_inc = phi_z_inc - phi_z_c
     # print(phi_z_c, phi_c_c)
 
-    # 边的五元素公式
+    # 边的余弦定理
     cos_theta_c_inc = np.cos(theta_z_c) * np.cos(theta_z_inc) + \
                       np.sin(theta_z_c) * np.sin(theta_z_inc) * np.cos(phi_z_c - phi_z_inc)
     cos_theta_c_inc = np.where(np.abs(cos_theta_c_inc) <= 1, cos_theta_c_inc, np.sign(cos_theta_c_inc))
     theta_c_inc = np.arccos(cos_theta_c_inc)
-    # 角的五元素公式
-    cos_phi_c_inc = (np.sin(theta_z_c) * np.cos(theta_z_inc) -
-                     np.cos(theta_z_c) * np.sin(theta_z_inc) * np.cos(phi_z_c - phi_z_inc)) / \
-                    np.sin(theta_c_inc)
-    cos_phi_c_inc = np.where(np.sin(theta_c_inc) != 0, cos_phi_c_inc,
-                             np.cos(kwargs.get("phi_c_inc", math.pi)))  # 分母（极角 为 0 时，无法定义 相位奇点 phi）
-    # print(np.max(np.abs(cos_phi_c_inc)))
-    cos_phi_c_inc = np.where(np.abs(cos_phi_c_inc) <= 1, cos_phi_c_inc,
-                             np.sign(cos_phi_c_inc))  # 计算的 精度误差 可能导致 cos_phi_c_inc > 1
-    # print(np.max(np.abs(cos_theta_c_inc)), np.max(np.abs(cos_phi_c_inc)))
-    # print(np.max(np.abs(np.max(np.abs(cos_theta_c_inc)))), np.sign(np.max(np.abs(cos_phi_c_inc))))
-    phi_c_inc = np.arccos(cos_phi_c_inc) - phi_c_c
+
+    # # 边的五元素公式
+    # cos_phi_c_inc = - (np.sin(theta_z_c) * np.cos(theta_z_inc) -
+    #                  np.cos(theta_z_c) * np.sin(theta_z_inc) * np.cos(phi_z_c - phi_z_inc)) / \
+    #                 np.sin(theta_c_inc)
+    # cos_phi_c_inc = np.where(np.sin(theta_c_inc) != 0, cos_phi_c_inc,
+    #                          np.cos(kwargs.get("phi_c_inc", math.pi)))  # 分母（极角 为 0 时，无法定义 相位奇点 phi）
+    # # print(np.max(np.abs(cos_phi_c_inc)))
+    # cos_phi_c_inc = np.where(np.abs(cos_phi_c_inc) <= 1, cos_phi_c_inc,
+    #                          np.sign(cos_phi_c_inc))  # 计算的 精度误差 可能导致 cos_phi_c_inc > 1
+    # # print(cos_phi_c_inc)
+    # # print(np.max(np.abs(cos_theta_c_inc)), np.max(np.abs(cos_phi_c_inc)))
+    # # print(np.max(np.abs(np.max(np.abs(cos_theta_c_inc)))), np.sign(np.max(np.abs(cos_phi_c_inc))))
+    # phi_c_inc = np.arccos(cos_phi_c_inc)
+    # phi_c_inc -= phi_c_c
+
+    # 正弦定理
+    sin_phi_c_inc = - np.sin(theta_z_inc) / np.sin(theta_c_inc) * np.sin(phi_z_c - phi_z_inc)
+    phi_c_inc = np.arcsin(sin_phi_c_inc)
+    phi_c_inc -= phi_c_c
+
+    # print(np.arccos(cos_phi_c_inc) / math.pi * 180)
+    # print(phi_c_inc / math.pi * 180)
+    # print(type(phi_c_inc))
+    # if type(phi_c_inc) == np.ndarray:
+    #     print(phi_c_inc[0] / math.pi * 180)
+    #     # print(phi_c_inc[:, 0] / math.pi * 180)
     # print(np.max(np.abs(theta_c_inc)), np.max(np.abs(phi_c_inc)))
     return theta_c_inc, phi_c_inc
 
@@ -464,6 +499,7 @@ def Cal_n_eo(nx, ny, nz, theta, phi, delta, ):
     n_o = 1 / n_o_Squared_devided_by_1 ** 0.5
 
     # print(np.max(n_e), np.max(n_o))
+    # print(np.min(n_e), np.min(n_o))
 
     return n_e, n_o
 
@@ -539,13 +575,19 @@ def init_AST(Ix, Iy, size_PerPixel,
              lam1, is_air, T,
              theta_x, theta_y,
              **kwargs):
-    p = kwargs["polar2"] if "polar2" in kwargs else kwargs.get("polar", "e")
+    if "polar2" in kwargs:
+        p = kwargs["polar2"]
+        set_theta_tag = 2
+    else:
+        p = kwargs.get("polar", "e")
+        set_theta_tag = 1
 
     n_inc, n, k_inc, k = Cal_n(size_PerPixel,
                                is_air,
                                lam1, T, p=p,
                                theta_x=theta_x,
-                               theta_y=theta_y, **kwargs)
+                               theta_y=theta_y,
+                               set_theta_tag=set_theta_tag, **kwargs)
 
     k_z, k_xy = Cal_kz(Ix, Iy, k)
 
