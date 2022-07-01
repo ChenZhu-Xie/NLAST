@@ -13,7 +13,7 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_SSI
 from fun_linear import fft2, ifft2
-from fun_nonlinear import Eikz, Info_find_contours_SHG
+from fun_nonlinear import Eikz
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, Set, dset, dget, fun3, \
@@ -225,7 +225,7 @@ def SFG_SSF_SSI(U_name="",
             kwargs[key] = locals()[key]
             kwargs["pump2_keys"] = locals()["pump2_keys"]
     n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-    theta3_x, theta3_y, L0_Crystal, deff_structure_length_expect, dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+    L0_Crystal, deff_structure_length_expect, dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0_structure, g_shift_structure, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
         = structure_chi2_Generate_2D(U_name_Structure,
@@ -271,18 +271,12 @@ def SFG_SSF_SSI(U_name="",
                                      deff_structure_length_expect,
                                      is_contours, n_TzQ,
                                      Gz_max_Enhance, match_mode,
-                                     L0_Crystal=L0_Crystal, g_shift=g_shift,
+                                     L0_Crystal=L0_Crystal, g1=g_shift, g2=g2,
                                      # %%
                                      is_air_pump=is_air_pump, **kwargs, )
     if ray_tag == "f":
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
-
-    # L0_Crystal, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
-    #                                                                       L0_Crystal, size_PerPixel,
-    #                                                                       deff_structure_length_expect,
-    #                                                                       is_print, is_contours, n_TzQ, Gz_max_Enhance,
-    #                                                                       match_mode, )
 
     # %%
 
@@ -670,8 +664,8 @@ if __name__ == '__main__':
          "is_bulk": 0, "is_no_backgroud": 0,
          "is_stored": 0, "is_show_structure_face": 1, "is_energy_evolution_on": 1,
          # %%
-         "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
-         "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
+         "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%
          "Tx": 18, "Ty": 10, "Tz": 8,
@@ -717,7 +711,7 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）

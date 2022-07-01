@@ -110,7 +110,8 @@ def Cal_n(size_PerPixel,
 
         # print(kwargs)
         theta_x = kwargs["theta_x"] / 180 * math.pi if "theta_x" in kwargs else 0
-        theta_y = - kwargs["theta_y"] / 180 * math.pi if "theta_y" in kwargs else 0
+        # theta_y = - kwargs["theta_y"] / 180 * math.pi if "theta_y" in kwargs else 0
+        theta_y = kwargs["theta_y"] / 180 * math.pi if "theta_y" in kwargs else 0
         #  初始时，晶体的 a,b,c 轴，分别与 -x, y, k 重合
         theta_z_c = kwargs["theta_z"] / 180 * math.pi if "theta_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 极角
         # （新）"theta_z_c" 为 晶体 c 轴 绕 传播方向 k，从 电脑坐标系 的 -x 轴（实验室 坐标系 的 x 轴）开始，
@@ -162,7 +163,7 @@ def Cal_n(size_PerPixel,
         # def fun1(for_th, fors_num, *args, **kwargs, ):
         #     for iy in range(Ix):
         #         theta_z_inc_nxny[for_th, iy], = \
-        #             solve_refraction_inc_nxny1_x(theta_z_inc_nxny[for_th, iy],
+        #             solve_refraction_inc_nxny_kx(theta_z_inc_nxny[for_th, iy],
         #                                          phi_z_inc_nxny[for_th, iy],
         #                                          mesh_kx_ky_shift[for_th, iy, 0],
         #                                          nx, ny, nz, lam, p, size_PerPixel,
@@ -173,7 +174,7 @@ def Cal_n(size_PerPixel,
         #           is_ordered=1, is_print=0, is_end=1)
 
         # 没法 一次性 解方程组，内存不够
-        # theta_z_inc_nxny = solve_refraction_inc_nxny1_X(theta_z_inc_nxny, phi_z_inc_nxny, mesh_kx_ky_shift[:, :, 0],
+        # theta_z_inc_nxny = solve_refraction_inc_nxny_Kx(theta_z_inc_nxny, phi_z_inc_nxny, mesh_kx_ky_shift[:, :, 0],
         #                                                 nx, ny, nz, lam, p, size_PerPixel,
         #                                                 theta_z_c, phi_z_c, phi_c_c, phi_c_def)
 
@@ -183,21 +184,40 @@ def Cal_n(size_PerPixel,
 
         # %% 算 中心级 相对 实验室坐标系 方向 z 的 方位角 和 极角
 
-        if kwargs.get("is_air_pump", 1) == 1:  # 如果 在空气中 泵浦，则有折射，则 折射定律 算晶体内的 中心级
-            theta_z_inc, phi_z_inc = Cal_theta_phi_z_inc(theta_x, theta_y, )  # 初值 沿用 空气中的 极角 和 方位角
-            # print(theta_z_inc, phi_z_inc)
-            theta_z_inc, = solve_refraction_inc1_x(theta_z_inc, phi_z_inc, theta_x, theta_y,
+        if "k3_inc_x" in kwargs and "k3_inc_y" in kwargs:  # 如果算的是 k3_inc，则需要采取特殊的策略：
+            # 已知的不是 theta3_x 和 theta3_y，而是 k3_inc_x, k3_inc_y，则不能用 Cal_theta_phi_z_inc
+            # 这个不受 is_air_pump 的影响，因为 k3 一直都在晶体内，不是泵浦，所以 与折射定律无关
+            kx, ky = kwargs["k3_inc_x"], kwargs["k3_inc_y"]
+            theta_z_inc = 0  # 初值 认为 是 0
+            phi_z_inc = math.atan2(-ky, -kx)  # -x, y, z 实验室 坐标系 下 的 方位角
+            # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
+            theta_z_inc, = solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
                                                    nx, ny, nz, lam, p, size_PerPixel,
                                                    theta_z_c, phi_z_c, phi_c_c, phi_c_def)
-            # print(theta_z_inc, phi_z_inc)
-            n_inc, k_inc = cal_nk(nx, ny, nz, lam, p, size_PerPixel,
-                                  theta_z_c, phi_z_c, phi_c_c,
-                                  theta_z_inc, phi_z_inc, phi_c_def)
         else:  # 否则 直接沿用 晶体内的 theta_x, theta_y
-            theta_z_inc, phi_z_inc = Cal_theta_phi_z_inc(theta_x, theta_y, )
-            n_inc, k_inc = cal_nk(nx, ny, nz, lam, p, size_PerPixel,
-                                  theta_z_c, phi_z_c, phi_c_c,
-                                  theta_z_inc, phi_z_inc, phi_c_def)
+            if "gp" in kwargs:
+                from fun_statistics import find_Kxyz
+                K_z, K_xy = find_Kxyz(kwargs["gp"], k_nxny)
+                kx, ky = K_xy[0], K_xy[1]
+                theta_z_inc = 0  # 初值 认为 是 0（其实有 K_z 的话，可以 用 atan 等算出来 更准的初值）
+                phi_z_inc = math.atan2(-ky, -kx)  # -x, y, z 实验室 坐标系 下 的 方位角
+                # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
+                theta_z_inc, = solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
+                                                       nx, ny, nz, lam, p, size_PerPixel,
+                                                       theta_z_c, phi_z_c, phi_c_c, phi_c_def)
+            else:
+                theta_z_inc, phi_z_inc = Cal_theta_phi_z_inc(theta_x, theta_y, )  # 初值 沿用 空气中的 极角 和 方位角
+                # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
+                if kwargs.get("is_air_pump", 1) == 1:  # 如果 在空气中 泵浦，则有折射，则 折射定律 算晶体内的 中心级
+                    # 否则 直接沿用 晶体内的 theta_x, theta_y
+                    theta_z_inc, = solve_refraction_inc_kx(theta_z_inc, phi_z_inc, theta_x, theta_y,
+                                                           nx, ny, nz, lam, p, size_PerPixel,
+                                                           theta_z_c, phi_z_c, phi_c_c, phi_c_def)
+
+        # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
+        n_inc, k_inc = cal_nk(nx, ny, nz, lam, p, size_PerPixel,
+                              theta_z_c, phi_z_c, phi_c_c,
+                              theta_z_inc, phi_z_inc, phi_c_def)
 
         # print(np.max(np.abs(k_nxny)), k_inc)
 
@@ -214,6 +234,9 @@ def Cal_n(size_PerPixel,
             elif kwargs["set_theta_tag"] == 2:
                 Set("theta2_x", theta_x)
                 Set("theta2_y", theta_y)
+            elif kwargs["set_theta_tag"] == 3:
+                Set("theta3_x", theta_x)
+                Set("theta3_y", theta_y)
 
     else:  # KTP 有所谓 的 o 光么？
         n_inc = n_nxny = get_n(is_air, lam, T, p)
@@ -226,7 +249,7 @@ def Cal_n(size_PerPixel,
 
 # %%
 
-def solve_refraction_inc_nxny1_x(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
+def solve_refraction_inc_nxny_kx(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
                                  nx, ny, nz, lam, p, size_PerPixel,
                                  theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc_nxny 当公有 常量，折射前后 必然相等
 
@@ -249,7 +272,7 @@ def solve_refraction_inc_nxny1_x(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
     return sol.x
 
 
-def solve_refraction_inc_nxny1_X(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
+def solve_refraction_inc_nxny_Kx(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
                                  nx, ny, nz, lam, p, size_PerPixel,
                                  theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc_nxny 当公有 常量，折射前后 必然相等
     phi_z_inc_nxny = phi_z_inc_nxny.reshape(phi_z_inc_nxny.shape[0] * phi_z_inc_nxny.shape[1])
@@ -274,7 +297,7 @@ def solve_refraction_inc_nxny1_X(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
     return sol.x
 
 
-def solve_refraction_inc1_x(theta_z_inc, phi_z_inc, theta_x, theta_y,
+def solve_refraction_inc_kx(theta_z_inc, phi_z_inc, theta_x, theta_y,
                             nx, ny, nz, lam, p, size_PerPixel,
                             theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc 当公有 常量，折射前后 必然相等
     def your_funcs(X):
@@ -295,7 +318,26 @@ def solve_refraction_inc1_x(theta_z_inc, phi_z_inc, theta_x, theta_y,
     return sol.x
 
 
-def solve_refraction_inc1_y(theta_z_inc, phi_z_inc, theta_x, theta_y,
+def solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
+                            nx, ny, nz, lam, p, size_PerPixel,
+                            theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc 当公有 常量，折射前后 必然相等
+    def your_funcs(X):
+        theta_z_inc, = X
+
+        f = [cal_nk(nx, ny, nz, lam, p, size_PerPixel,
+                    theta_z_c, phi_z_c, phi_c_c,
+                    theta_z_inc, phi_z_inc, phi_c_def)[1] * math.sin(theta_z_inc) * math.cos(phi_z_inc) \
+             - (- kx)]
+
+        return f
+
+    from scipy.optimize import root
+    sol = root(your_funcs, [theta_z_inc])
+    # print(sol)
+    return sol.x
+
+
+def solve_refraction_inc_ky(theta_z_inc, phi_z_inc, theta_x, theta_y,
                             nx, ny, nz, lam, p, size_PerPixel,
                             theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc 当公有 常量，折射前后 必然相等
     def your_funcs(X):
@@ -316,7 +358,7 @@ def solve_refraction_inc1_y(theta_z_inc, phi_z_inc, theta_x, theta_y,
     return sol.x
 
 
-def solve_refraction_inc2(theta_z_inc, phi_z_inc, theta_x, theta_y,
+def solve_refraction_inc_kxky(theta_z_inc, phi_z_inc, theta_x, theta_y,
                           nx, ny, nz, lam, p, size_PerPixel,
                           theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc 当未知量，这样计算量 会稍大，但更 general：可验证 横向动量守恒
     def your_funcs(X):
@@ -390,6 +432,7 @@ def Cal_theta_phi_z_inc(theta_x, theta_y, ):
     from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy
     kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )
     kx = - kx  # 即以 k 为 z 轴正向的 右手系 下的值（且已经 归一化 or 单位化）
+    # ky = - ky  # 之前 theta_y = - kwargs["theta_y"] 给 搞成电脑坐标系下的了，所以 ky 也得取负 变成 y 轴向上...
 
     theta_z_inc = math.acos(kz)
     phi_z_inc = math.atan2(ky, kx)  # -x, y, z 实验室 坐标系 下 的 方位角

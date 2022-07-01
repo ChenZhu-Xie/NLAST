@@ -269,8 +269,8 @@ if __name__ == '__main__':
          "is_phase_only": 0,
          # %%
          "z_pump": -5,
-         "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 50, "p": 0,
+         "is_LG": 0, "is_Gauss": 1, "is_OAM": 1,
+         "l": -10, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -290,7 +290,7 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_size": 3, "w0": 0.05,
+         "U_size": 3, "w0": 0.1,
          "L0_Crystal": 10, "z_AST": 20, "sheets_stored_num": 10,
          # %% 不关心
          "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 10,
@@ -317,7 +317,7 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
          # %%
-         "is_save": 0, "is_no_data_save": 0,
+         "is_save": 1, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
@@ -369,14 +369,14 @@ if __name__ == '__main__':
             "is_phase_only_2": 0,
             # %%
             "z_pump2": -5,
-            "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": -50, "p2": 0,
+            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 1,
+            "l2": 10, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.05,
+            "w0_2": 0.1,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',

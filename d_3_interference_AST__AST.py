@@ -10,7 +10,7 @@ Created on Mon Nov  1 14:38:57 2021
 import copy
 import math
 import numpy as np
-from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_STD, fGHU_plot_save
+from fun_global_var import init_GLV_DICT, tree_print, Get, init_GLV_rmw, end_STD, fGHU_plot_save
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST
@@ -142,11 +142,15 @@ def interference_AST__AST(img_full_name="Grating.png",
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
-                                                   theta_x, theta_y, **kwargs)
+                                                   theta_x, theta_y,
+                                                   is_air_pump=is_air_pump,
+                                                   gp=g_shift, **kwargs)
 
     # %%
-
-    dz_min = math.pi / (k1 / size_PerPixel)
+    from fun_nonlinear import gan_k_vector
+    k1_inc_z = gan_k_vector(k1_inc, Get("theta_x"), Get("theta_y"), )[-1]
+    
+    dz_min = math.pi / (k1_inc_z / size_PerPixel)  # 按理是 k1_inc_z 而不是 k1_inc，比如 斜入射 的时候。
     is_print and print(tree_print() + "dz_min = {} mm".format(dz_min))
 
     delay_min_nums = dz_expect // dz_min
@@ -205,7 +209,7 @@ if __name__ == '__main__':
          "U1_0_size": 1, "w0": 0,  # 传递函数 是 等倾干涉图...
          "z": 0, "dz_expect": 0,  # z 越大，描边能量不变，但会越糊；dz_expect 越大，描边 能量越高，但也越糊
          # %%
-         "lam1": 1, "is_air_pump": 1, "is_air": 0, "T": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
          # %%
          "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
@@ -229,7 +233,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）

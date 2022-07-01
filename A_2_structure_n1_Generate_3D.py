@@ -82,7 +82,7 @@ def structure_n1_3D(U_name="",
     # %%
 
     n1_inc, n1, k1_inc, k1, k1_z_shift, lam3, n3_inc, n3, k3_inc, k3, k3_z_shift, \
-    dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+    dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
     size_PerPixel, U_0, g_shift, \
     structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
         = structure_n1_Generate_2D(U_name,

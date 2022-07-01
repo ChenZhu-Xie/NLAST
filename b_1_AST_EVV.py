@@ -131,10 +131,12 @@ def AST_EVV(U_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   is_air_pump=is_air_pump, **kwargs)
+                                                   is_air_pump=is_air_pump,
+                                                   gp=g_shift, **kwargs)
     
     if is_air != 1:
-        kwargs.pop("U")
+        if "U" in kwargs:
+            kwargs.pop("U")
         from fun_os import U_dir
         folder_address = U_dir(n_name, is_save, **kwargs, )
         from fun_os import U_amp_plot_save
@@ -269,7 +271,7 @@ if __name__ == '__main__':
          "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
-         "z_pump": -5,
+         "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
          "l": 50, "p": 0,
          "theta_x": 0, "theta_y": 0,
@@ -282,7 +284,7 @@ if __name__ == '__main__':
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          # %%
-         "is_save": 0, "is_no_data_save": 0,
+         "is_save": 1, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
          # %%
          "cmap_2d": 'viridis',
@@ -297,7 +299,7 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_colorbar_log": 0,
+         "is_colorbar_on": 1, "is_colorbar_log": -1,
          "is_energy": 1,
          # %%
          "is_print": 1,

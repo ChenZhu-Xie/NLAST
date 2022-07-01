@@ -188,7 +188,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
                       is_print, is_contours, n_TzQ,
                       Gz_max_Enhance, match_mode,
                       # %%
-                      g_shift=g_shift, L0_Crystal=max(z_AST, z_ssi),
+                      g1=g_shift, g2=g_shift, L0_Crystal=max(z_AST, z_ssi),
                       is_air_pump=is_air_pump, **kwargs, )
 
     # %%
@@ -375,7 +375,7 @@ if __name__ == '__main__':
          "is_stored": 0, "is_show_structure_face": 0, "is_energy_evolution_on": 1,
          # %%
          "lam1": 0.8, "is_air_pump": 1, "is_air": 0, "T": 25,
-         "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
+         "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%
          "Tx": 10, "Ty": 10, "Tz": "2*lc",
@@ -424,7 +424,7 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）

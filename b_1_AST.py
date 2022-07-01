@@ -116,10 +116,12 @@ def AST(U_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   is_air_pump=is_air_pump, **kwargs)
+                                                   is_air_pump=is_air_pump,
+                                                   gp=g_shift, **kwargs)
 
     if is_air != 1:
-        kwargs.pop("U")
+        if "U" in kwargs:
+            kwargs.pop("U")
         from fun_os import U_dir
         folder_address = U_dir(n_name, is_save, **kwargs, )
         from fun_os import U_amp_plot_save
@@ -173,7 +175,7 @@ if __name__ == '__main__':
          "z_pump": 0,
          "is_LG": 0, "is_Gauss": 0, "is_OAM": 0,
          "l": 0, "p": 0,
-         "theta_x": 0, "theta_y": 0,
+         "theta_x": 1, "theta_y": 1,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -205,7 +207,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）

@@ -14,7 +14,7 @@ from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST
 from fun_nonlinear import accurate_args_SFG, Eikz, C_m, Cal_dk_zQ_SFG, Cal_roll_xy, \
-    G3_z_modulation_NLAST, G3_z_modulation_3D_NLAST, G3_z_NLAST, G3_z_NLAST_false, Info_find_contours_SHG
+    G3_z_modulation_NLAST, G3_z_modulation_3D_NLAST, G3_z_NLAST, G3_z_NLAST_false
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_SSI, Get, dset, dget, fget, fkey, fGHU_plot_save
@@ -52,7 +52,7 @@ def SFG_NLA(U_name="",
             U_size=1, w0=0.3,
             z0=1,
             # %%
-            lam1=0.8, is_air_pump=0, is_air=0, T=25,
+            lam1=1.064, is_air_pump=0, is_air=0, T=25,
             is_air_pump_structure=0,
             deff=30, is_fft=1, fft_mode=0,
             is_sum_Gm=0, mG=0,
@@ -212,24 +212,26 @@ def SFG_NLA(U_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   is_air_pump=is_air_pump, **kwargs)
+                                                   is_air_pump=is_air_pump,
+                                                   gp=g_shift, **kwargs)
 
     if ray_tag == "f":
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
                                                        lam2, is_air, T,
                                                        theta2_x, theta2_y,
                                                        polar2=polar2,
-                                                       is_air_pump=is_air_pump, **kwargs)
+                                                       is_air_pump=is_air_pump,
+                                                       gp=g2, **kwargs)
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
-    theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-    dk, lc, Tz, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                              lam1, lam2, is_air, T,
                                                              k1_inc, k2_inc,
-                                                             g_shift, k1_z,
+                                                             k1, k2, k1_z,
                                                              z0, z0,
                                                              mx, my, mz,
                                                              Tx, Ty, Tz,
@@ -238,7 +240,8 @@ def SFG_NLA(U_name="",
                                                              is_print,
                                                              Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
                                                              Get("theta_y"), Get("theta2_y"),
-                                                             is_air_pump=is_air_pump, **kwargs)
+                                                             is_air_pump=is_air_pump,
+                                                             g1=g_shift, g2=g2, **kwargs)
     # print(n1_inc, n2_inc, n3_inc)
     # print(n1_inc + n2_inc - 2 * n3_inc)
 
@@ -247,6 +250,7 @@ def SFG_NLA(U_name="",
     iz = z0 / size_PerPixel
 
     is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)
+    # print(is_fft, is_NLAST_sum)
     if is_fft == 0:
 
         const = (k3_inc / size_PerPixel / n3_inc) ** 2 * C_m(mx) * C_m(my) * C_m(mz) * deff * 1e-12  # pm / V 转换成 m / V
@@ -294,7 +298,7 @@ def SFG_NLA(U_name="",
                     kwargs[key] = locals()[key]
                     kwargs["pump2_keys"] = locals()["pump2_keys"]
             n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-            theta3_x, theta3_y, z0, deff_structure_length_expect, dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+            z0, deff_structure_length_expect, dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
             size_PerPixel, U_0_structure, g_shift_structure, \
             structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
                 = structure_chi2_Generate_2D(U_name_Structure,
@@ -340,7 +344,7 @@ def SFG_NLA(U_name="",
                                              deff_structure_length_expect,
                                              is_contours, n_TzQ,
                                              Gz_max_Enhance, match_mode,
-                                             L0_Crystal=z0, g_shift=g_shift,
+                                             L0_Crystal=z0, g1=g_shift, g2=g2,
                                              # %%
                                              is_air_pump=is_air_pump, **kwargs, )
             if ray_tag == "f":
@@ -481,14 +485,14 @@ if __name__ == '__main__':
          "U_size": 1, "w0": 0.1,
          "z0": 10,
          # %%
-         "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
-         "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
+         "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
+         "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
          "Tx": 20, "Ty": 30, "Tz": 3,
-         "mx": 1, "my": 0, "mz": 0,
+         "mx": 0, "my": 0, "mz": 0,
          # %%
          # 生成横向结构
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
@@ -514,13 +518,13 @@ if __name__ == '__main__':
          # %%
          "is_colorbar_on": 1, "is_energy": 1,
          # %%
-         "is_print": 1, "is_contours": 0, "n_TzQ": 1,
+         "is_print": 1, "is_contours": 66, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）

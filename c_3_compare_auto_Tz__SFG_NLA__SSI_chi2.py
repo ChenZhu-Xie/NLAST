@@ -218,23 +218,26 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   **kwargs)
+                                                   is_air_pump=is_air_pump,
+                                                   gp=g_shift, **kwargs)
 
     if ray_tag == "f":
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
                                                        lam2, is_air, T,
                                                        theta2_x, theta2_y,
-                                                       polar2=polar2, **kwargs)
+                                                       polar2=polar2,
+                                                       is_air_pump=is_air_pump,
+                                                       gp=g2, **kwargs)
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
-    theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-    dk, lc, Tz, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     L0_Crystal, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                                      lam1, lam2, is_air, T,
                                                                      k1_inc, k2_inc,
-                                                                     g_shift, k1_z,
+                                                                     k1, k2, k1_z,
                                                                      L0_Crystal, deff_structure_length_expect,
                                                                      mx, my, mz,
                                                                      Tx, Ty, Tz,
@@ -243,7 +246,7 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
                                                                      is_print,
                                                                      Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
                                                                      Get("theta_y"), Get("theta2_y"),
-                                                                     **kwargs)
+                                                                     g1=g_shift, g2=g2, **kwargs)
 
     Tc = 2 * lc
 
@@ -255,16 +258,16 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
     # print(Tz, Tc)
     if Tz != Tc:
         Gz = 2 * math.pi * mz / (Tz / 1000)  # Tz / 1000 即以 mm 为单位
-        delta_k = abs(dk / size_PerPixel + Gz)  # Unit: 1 / mm
+        delta_k = abs(dk_z / size_PerPixel + Gz)  # Unit: 1 / mm
     else:
-        delta_k = abs(dk / size_PerPixel) / samples_zoomout_times  # delta_k 是 恒正的
+        delta_k = abs(dk_z / size_PerPixel) / samples_zoomout_times  # delta_k 是 恒正的
 
     # 这里的 shift_right “往右移” 是指 图 往右，左加右减，则 对应 自变量 x 是做差，所以下面是 - shift_right
     # x 不要 减 太多了，也就是 图不要 往右 移太多，否则 Tz 可能 出现负数
     array_1d = np.arange(0, ticks_Num, 1) - (ticks_Num - 1) // 2 - shift_right  # 尺子整体 更偏右一点，这样负的不多，防止 Tz 出现负数
 
     array_dkQ = array_1d * delta_k
-    array_Gz = array_dkQ - dk / size_PerPixel  # Unit: 1 / mm
+    array_Gz = array_dkQ - dk_z / size_PerPixel  # Unit: 1 / mm
     array_Tz = 2 * math.pi * mz / array_Gz  # Unit: mm
 
     array_dkQ /= 1000  # Unit: 1 / μm
@@ -452,7 +455,7 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%---------------------------------------------------------------------
          # %%
-         "U_size": 1, "w0": 0, "w0_Structure": 0, 
+         "U_size": 1, "w0": 0, "w0_Structure": 0,
          "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
          "is_U_size_x_structure_side_y": 1,
          "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
@@ -517,7 +520,7 @@ if __name__ == '__main__':
          "size_fig_x_scale": 10, "size_fig_y_scale": 4,
          "ax_yscale": 'linear', "xticklabels_rotate": 45,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）

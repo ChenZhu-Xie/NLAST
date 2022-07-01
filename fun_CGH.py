@@ -216,8 +216,6 @@ def structure_chi2_Generate_2D(U_structure_name="",
         kwargs.pop("is_air_pump")
 
     # %%
-
-    # %%
     info = "χ2_2D_横向绘制"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
@@ -286,18 +284,17 @@ def structure_chi2_Generate_2D(U_structure_name="",
     # elif inspect.stack()[1][3] == "SFG_NLA_SSI" or inspect.stack()[1][3] == "SFG_SSF_SSI":
     # else:
 
-    g_shift = kwargs["g_shift"] if "g_shift" in kwargs else g_shift_structure
+    # %%
     z0 = kwargs["L0_Crystal"] if "L0_Crystal" in kwargs else deff_structure_length_expect
-    kwargs.pop("g_shift", None)
     kwargs.pop("L0_Crystal", None)
 
-    theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-    dk, lc, Tz, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0_recommend, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                                        lam1, lam2, is_air, T,
                                                                        k1_inc, k2_inc,
-                                                                       g_shift, k1_z,
+                                                                       k1, k2, k1_z,
                                                                        z0, deff_structure_length_expect,
                                                                        mx, my, mz,
                                                                        Tx, Ty, Tz,
@@ -448,7 +445,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
                     suffix="", **kwargs, )
 
     return n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-           theta3_x, theta3_y, z0_recommend, deff_structure_length_expect, dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+           z0_recommend, deff_structure_length_expect, dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
            size_PerPixel, U_0_structure, g_shift_structure, \
            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
 
@@ -757,18 +754,17 @@ def structure_n1_Generate_2D(U_structure_name="",
                                                    theta_x, theta_y,
                                                    is_air_pump=is_air_pump, **kwargs)
 
-    from fun_nonlinear import init_SFG
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
-                                                         lam1, is_air, T,
-                                                         theta_x, theta_y,
-                                                         is_air_pump=is_air_pump, **kwargs)
-
-    dk, lc, Tz, \
-    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, is_end=1,
-                          is_air_pump=is_air_pump, )
+    dk_z, lc, Tz, \
+    Gx, Gy, Gz, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = \
+        args_SFG(Ix, Iy, size_PerPixel,
+                 is_air, T, lam1, lam1,
+                 k1, k1_inc, k1, k1_inc,
+                 theta_x, theta_y, theta_x, theta_y,
+                 mx, my, mz,
+                 Tx, Ty, Tz,
+                 is_print, is_end=1,
+                 is_air_pump=is_air_pump, **kwargs)
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = n1_inc - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
@@ -907,7 +903,7 @@ def structure_n1_Generate_2D(U_structure_name="",
                     suffix="", **kwargs, )
 
     return n1_inc, n1, k1_inc, k1, k1_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-           dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+           dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
            size_PerPixel, U_0_structure, g_shift_structure, \
            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
 

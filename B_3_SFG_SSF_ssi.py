@@ -15,7 +15,7 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_ssi
 from fun_linear import init_AST, fft2, ifft2
-from fun_nonlinear import Eikz, accurate_args_SFG, Info_find_contours_SHG
+from fun_nonlinear import Eikz, accurate_args_SFG
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
@@ -169,34 +169,34 @@ def SFG_SSF_ssi(U_name="",
     if ray_tag == "f":
         from fun_pump import pump_pic_or_U2
         U2_0, g2 = pump_pic_or_U2(U2_name,
-                                img2_full_name,
-                                is_phase_only_2,
-                                # %%
-                                z_pump2,
-                                is_LG_2, is_Gauss_2, is_OAM_2,
-                                l2, p2,
-                                theta2_x, theta2_y,
-                                # %%
-                                is_random_phase_2,
-                                is_H_l2, is_H_theta2, is_H_random_phase_2,
-                                # %%
-                                U_size, w0_2,
-                                # %%
-                                lam2, is_air_pump, T,
-                                polar2,
-                                # %%
-                                is_save, is_save_txt, dpi,
-                                # %%
-                                ticks_num, is_contourf,
-                                is_title_on, is_axes_on, is_mm,
-                                # %%
-                                fontsize, font,
-                                # %%
-                                is_colorbar_on, is_energy,
-                                # %%
-                                is_print,
-                                # %%
-                                ray_pump='2', **kwargs, )
+                                  img2_full_name,
+                                  is_phase_only_2,
+                                  # %%
+                                  z_pump2,
+                                  is_LG_2, is_Gauss_2, is_OAM_2,
+                                  l2, p2,
+                                  theta2_x, theta2_y,
+                                  # %%
+                                  is_random_phase_2,
+                                  is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                  # %%
+                                  U_size, w0_2,
+                                  # %%
+                                  lam2, is_air_pump, T,
+                                  polar2,
+                                  # %%
+                                  is_save, is_save_txt, dpi,
+                                  # %%
+                                  ticks_num, is_contourf,
+                                  is_title_on, is_axes_on, is_mm,
+                                  # %%
+                                  fontsize, font,
+                                  # %%
+                                  is_colorbar_on, is_energy,
+                                  # %%
+                                  is_print,
+                                  # %%
+                                  ray_pump='2', **kwargs, )
     else:
         U2_0, g2 = U_0, g_shift
 
@@ -205,24 +205,26 @@ def SFG_SSF_ssi(U_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   is_air_pump=is_air_pump, **kwargs)
+                                                   is_air_pump=is_air_pump,
+                                                   gp=g_shift, **kwargs)
 
     if ray_tag == "f":
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
                                                        lam2, is_air, T,
                                                        theta2_x, theta2_y,
                                                        polar2=polar2,
-                                                       is_air_pump=is_air_pump, **kwargs)
+                                                       is_air_pump=is_air_pump,
+                                                       gp=g2, **kwargs)
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
-    theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-    dk, lc, Tz, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     L0_Crystal, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                                      lam1, lam2, is_air, T,
                                                                      k1_inc, k2_inc,
-                                                                     g_shift, k1_z,
+                                                                     k1, k2, k1_z,
                                                                      L0_Crystal, deff_structure_length_expect,
                                                                      mx, my, mz,
                                                                      Tx, Ty, Tz,
@@ -231,7 +233,8 @@ def SFG_SSF_ssi(U_name="",
                                                                      is_print,
                                                                      Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
                                                                      Get("theta_y"), Get("theta2_y"),
-                                                                     is_air_pump=is_air_pump, **kwargs)
+                                                                     is_air_pump=is_air_pump,
+                                                                     g1=g_shift, g2=g2, **kwargs)
 
     # %%
 
@@ -496,7 +499,7 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）

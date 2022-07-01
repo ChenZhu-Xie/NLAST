@@ -131,18 +131,20 @@ def nLA_ssi(U_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   **kwargs)
+                                                   is_air_pump=is_air_pump,
+                                                   gp=g_shift, **kwargs)
 
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
-                                                         lam1, is_air, T,
-                                                         theta_x, theta_y,
-                                                         **kwargs)
-
-    dk, lc, Tz, \
-    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, )
+    dk_z, lc, Tz, \
+    Gx, Gy, Gz, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy \
+        = args_SFG(Ix, Iy, size_PerPixel,
+                   is_air, T, lam1, lam1,
+                   k1, k1_inc, k1, k1_inc,
+                   theta_x, theta_y, theta_x, theta_y,
+                   mx, my, mz,
+                   Tx, Ty, Tz,
+                   is_print,
+                   g1=g_shift, g2=g_shift, **kwargs)
 
     # %%
 
@@ -332,7 +334,7 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）

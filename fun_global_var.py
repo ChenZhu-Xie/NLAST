@@ -324,9 +324,12 @@ def tree_print(is_end=0, add_level=0):  # 默认 is_end = 0 ，即 默认 该层
         # ex_dir 没有 子分支 ==> ex_dir 的 is_end = 1，但 ex_dir 有子分支 ≠≠> ex_dir 的 is_end = 0
         # 每个 def 里，最后一个 tree_print 的 is_end 必为 1，但 第一个 tree_print 的 is_end 是否为 1，需要给；中间的其他 tree_print 的 is_end 默认为 0 。
         # 如果 def 里只有 1 个 tree_print，它既是 最后一个，也是第一个，但默认 它是最后一个。
+    # print(Get("dirs" + suffix_2)) # 少缩进了，看这个。
     if len(Get("dirs" + suffix_2)) == 0:  # 如果 储存了 is_end=1 的 dirs 是 单层中括号 []，给里面加个 子[]，方便后面的 往 子[] 里加东西
         Set("dirs" + suffix_2, [[]])
-    if Get("ex_is_end") == 0 and Get("level_print") == ex_level + 1:  # 如果 上一层/个 还有 同级，且 level + 1 了
+    if Get("ex_is_end") == 0 and Get("level_print") == ex_level + 1 and Get("ex_add_level") != 1:  
+        # 如果 上一层/个 还有 同级，且 level + 1 了，
+        # 并且 上一个 add_level 不是 1（即 level + 1 不是通过 同一路径 下的强制 提升得来的）
         # print("find") # 该分隔符判断，得在 下面的 is_end = 1 判断 之前：先看前一个的 is_end 判断 是否分隔，再看自己的 is_end，判断是否 is_end 数 + 1
         if Get("dirs" + suffix_2)[-1] != []:  # 且最末 没有 空容器，则最末 另起一个 空容器（加上分隔符，分开）
             Get("dirs" + suffix_2).append(
@@ -334,6 +337,8 @@ def tree_print(is_end=0, add_level=0):  # 默认 is_end = 0 ，即 默认 该层
     if is_end == 1:  # is_end 可以为 -1，表示 最末一个 最靠外的 层级
         # 此时 必须 不让 is_end 积累数加 1，否则 会多一次 shift + tab 前向缩进；但又得用 "└── ", "     " 来显示其和其子层级。
         Get("dirs" + suffix_2)[-1].append(dir)  # 只给最末一个容器里加 is_end=0 的 dir
+        # print(len(Get("dirs" + suffix_2)[-1])) 
+        # print(Get("dirs" + suffix_2))
     # print(is_end, Get("ex_is_end"), ";", Get("level_print"), ex_level)
 
     Set("next_level", 0)  # 及时 回归 子 dir 的 第一个 tree_print 默认不 level + 1 的原则（浪费了 强制缩进 的 机会，是不给补的，所以在 所有 if 外
@@ -349,6 +354,8 @@ def tree_print(is_end=0, add_level=0):  # 默认 is_end = 0 ，即 默认 该层
     # 最后才设置这些“上一次”的东西
     Set("ex_dir" + suffix_1, dir)  # 把这次调用该 print 的 路径，覆盖 之前的，方便 inform 下次是否应该 level + 1
     Set("ex_is_end", is_end)  # 储存 is_end，方便下次用 这一次的
+    Set("ex_add_level", add_level)
+    # print(Get("level_print"), is_end)
     return info_tree_print(Get("level_print"), is_end, )
 
 

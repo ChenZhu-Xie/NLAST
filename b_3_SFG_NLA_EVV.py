@@ -223,24 +223,26 @@ def SFG_NLA_EVV(U_name="",
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y,
-                                                   is_air_pump=is_air_pump, **kwargs)
+                                                   is_air_pump=is_air_pump,
+                                                   gp=g_shift, **kwargs)
 
     if ray_tag == "f":
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
                                                        lam2, is_air, T,
                                                        theta2_x, theta2_y,
                                                        polar2=polar2,
-                                                       is_air_pump=is_air_pump, **kwargs)
+                                                       is_air_pump=is_air_pump,
+                                                       gp=g2, **kwargs)
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
-    theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-    dk, lc, Tz, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                              lam1, lam2, is_air, T,
                                                              k1_inc, k2_inc,
-                                                             g_shift, k1_z,
+                                                             k1, k2, k1_z,
                                                              z0, z0,
                                                              mx, my, mz,
                                                              Tx, Ty, Tz,
@@ -249,7 +251,8 @@ def SFG_NLA_EVV(U_name="",
                                                              is_print,
                                                              Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
                                                              Get("theta_y"), Get("theta2_y"),
-                                                             is_air_pump=is_air_pump, **kwargs)
+                                                             is_air_pump=is_air_pump,
+                                                             g1=g_shift, g2=g2, **kwargs)
 
     is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)  # 得写在外面，否则会传进 Fun 等的 kwargs...而这一般是空的
     if fft_mode == 0:
@@ -260,7 +263,7 @@ def SFG_NLA_EVV(U_name="",
                 kwargs[key] = locals()[key]
                 kwargs["pump2_keys"] = locals()["pump2_keys"]
         n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-        theta3_x, theta3_y, z0, deff_structure_length_expect, dk, lc, Tz, Gx, Gy, Gz, folder_address, \
+        z0, deff_structure_length_expect, dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
         size_PerPixel, U_0_structure, g_shift_structure, \
         structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
             = structure_chi2_Generate_2D(U_name_Structure,
@@ -306,7 +309,7 @@ def SFG_NLA_EVV(U_name="",
                                          deff_structure_length_expect,
                                          is_contours, n_TzQ,
                                          Gz_max_Enhance, match_mode,
-                                         L0_Crystal=z0, g_shift=g_shift,
+                                         L0_Crystal=z0, g1=g_shift, g2=g2,
                                          # %%
                                          is_air_pump=is_air_pump, **kwargs, )
         if ray_tag == "f":
@@ -325,7 +328,7 @@ def SFG_NLA_EVV(U_name="",
     if is_EVV_SSI == 1:
         izj_delay_dz = [0] + list(izj)
         dizj = list(np.array(izj_delay_dz)[1:] - np.array(izj_delay_dz)[:-1])  # 为循环 里使用
-        izj_delay_dz.pop(-1) # 可 pop 可不 pop 掉 最后一个元素，反正没啥用
+        izj_delay_dz.pop(-1)  # 可 pop 可不 pop 掉 最后一个元素，反正没啥用
         # dizj = [izj[0] - 0] + dizj
         # Set("is_EVV_SSI", 1)
         # print(izj_delay_dz)
@@ -345,7 +348,6 @@ def SFG_NLA_EVV(U_name="",
             # return np.power(math.e, ((k1_z + k2_z + Gz)/2 + k3_z/2) * diz * 1j)
             return np.power(math.e, k3_z * diz * 1j)
             # return np.power(math.e, k3 * diz * 1j)
-
 
     def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
@@ -607,7 +609,7 @@ if __name__ == '__main__':
          "z0": 15, "sheets_stored_num": 10,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
-         "lam_structure": 1, "is_air_pump_structure": 1, "T_structure": 25,
+         "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30, "is_fft": 1, "fft_mode": 1,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
@@ -658,14 +660,14 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 1,
          # %%
-         "theta_z": 90, "phi_z": 0, "phi_c": 24.3,
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "o",
-         "ray": "3", "polar3": "o", 
+         "ray": "3", "polar3": "o",
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1

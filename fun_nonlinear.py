@@ -46,14 +46,12 @@ def C_m(m):
 
 # %%
 
-def Cal_lc_SHG(k1_inc, k3_inc, Tz, size_PerPixel,
+def Cal_lc_SHG(Gz, Tz, size_PerPixel,
                is_print=1, **kwargs):
-    k2_inc = kwargs.get("k2_inc", k1_inc)
-
-    dk = k1_inc + k2_inc - k3_inc  # Unit: 无量纲
-    lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: μm
+    dk_z = - Gz  # Unit: 无量纲
+    lc = math.pi / abs(dk_z) * size_PerPixel * 1000  # Unit: μm
     is_print and print(tree_print(kwargs.get("is_end", 0), kwargs.get("add_level", 0)) +
-                       "lc = {} μm, Tc = {} μm".format(lc, lc * 2))
+                       "dk_z = {} / μm, lc = {} μm, Tc = {} μm".format(dk_z / size_PerPixel / 1000, lc, lc * 2))
 
     # print(type(Tz) != np.float64)
     # print(type(Tz) != float) # float = np.float ≠ np.float64
@@ -61,7 +59,7 @@ def Cal_lc_SHG(k1_inc, k3_inc, Tz, size_PerPixel,
     if kwargs.get("is_cover_Tz", False) >= 1:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
         Tz = 2 * lc  # Unit: μm
 
-    return dk, lc, Tz
+    return dk_z, lc, Tz
 
 
 # %%
@@ -89,18 +87,22 @@ def Cal_GxGyGz(mx, my, mz,
 
 # %%
 
-def args_SFG(k1_inc, k3_inc, size_PerPixel,
+def args_SFG(Ix, Iy, size_PerPixel,
+             is_air, T, lam1, lam2,
+             k1, k1_inc, k2, k2_inc,
+             theta_x, theta_y, theta2_x, theta2_y,
              mx, my, mz,
              Tx, Ty, Tz,
              is_print, **kwargs):
     import inspect
-    call_times_limit = 3 if inspect.stack()[1][3] == "accurate_args_SFG" else 1
+    call_times_limit = 1 if inspect.stack()[1][3] == "accurate_args_SFG" else 1
 
     info = "args_SFG"
-    is_first = int(init_accu(info, 1) <= call_times_limit)  # 若第一次调用 args_SFG，则 is_first 为 1，否则为 0
+    is_first = int(
+        init_accu(info, 1) <= call_times_limit)  # 若调用 args_SFG 的次数 在 call_times_limit 以内，则 is_first 为 1，否则为 0
     is_Print = is_print * is_first  # 两个 得都 非零，才 print
 
-    if Get(info) == 1:
+    if Get(info) == 1:  # 第一次进入时，确定该次，以及后续进入时，是否均 覆盖 Tz
         from fun_global_var import Set
         if (type(Tz) != float and type(Tz) != np.float64
             and type(Tz) != int) or Tz <= 0:
@@ -117,14 +119,24 @@ def args_SFG(k1_inc, k3_inc, size_PerPixel,
     # is_cover_Tz = Get("is_cover_Tz") if is_first == 1 else False
     is_cover_Tz = Get("is_cover_Tz")
 
-    dk, lc, Tz = Cal_lc_SHG(k1_inc, k3_inc, Tz, size_PerPixel,
-                            is_Print, is_cover_Tz=is_cover_Tz, **kwargs)
+    # %%
+
+    Gx, Gy, Gz, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = \
+        Gan_Gz(Ix, Iy, size_PerPixel,
+               mx, my, Tx, Ty,
+               is_air, T, lam1, lam2,
+               k1, k1_inc, k2, k2_inc,
+               theta_x, theta_y, theta2_x, theta2_y, **kwargs)
+
+    dk_z, lc, Tz = Cal_lc_SHG(Gz, Tz, size_PerPixel,
+                              is_Print, is_cover_Tz=is_cover_Tz, **kwargs)
 
     Gx, Gy, Gz = Cal_GxGyGz(mx, my, mz,
                             Tx, Ty, Tz, size_PerPixel,
                             is_Print, is_end=1)
-    return dk, lc, Tz, \
-           Gx, Gy, Gz
+    return dk_z, lc, Tz, \
+           Gx, Gy, Gz, \
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy
 
 
 # %%
@@ -196,7 +208,7 @@ def cal_theta3_xy(k1_inc, theta1_x, theta1_y,
 def accurate_args_SFG(Ix, Iy, size_PerPixel,
                       lam1, lam2, is_air, T,
                       k1_inc, k2_inc,
-                      g_shift, k1_z,
+                      k1, k2, k1_z,
                       z0, deff_structure_length_expect,
                       mx, my, mz,
                       Tx, Ty, Tz,
@@ -207,66 +219,74 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
                       theta_y, theta2_y,
                       **kwargs):
     # %%  给出 试探 Gz
+    is_end = kwargs.get("is_end", 0)
+    if "is_end" in kwargs:
+        kwargs.pop("is_end")
 
-    theta3_x, theta3_y = (theta_x + theta2_x) / 2, (theta_y + theta2_y) / 2  # 先给出 k3_inc 的 试探解，以 初步计算 匹配时的 dk
+    dk_z, lc, Tz, \
+    Gx, Gy, Gz, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = \
+        args_SFG(Ix, Iy, size_PerPixel,
+                 is_air, T, lam1, lam2,
+                 k1, k1_inc, k2, k2_inc,
+                 theta_x, theta_y, theta2_x, theta2_y,
+                 mx, my, mz,
+                 Tx, Ty, Tz,
+                 is_print, **kwargs)
 
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
-                                                         lam1, is_air, T,
-                                                         theta3_x, theta3_y,
-                                                         lam2=lam2, **kwargs)
-
-    dk, lc, Tz, \
-    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,  # 先 初步计算 匹配时，Gz 的 试探解（dk 与 k3_inc 有关）
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, k2_inc=k2_inc, )
-
-    # %%  利用 试探 Gz，给出 较准确 Gz
-
-    theta3_x, theta3_y = cal_theta3_xy(k1_inc, theta_x, theta_y,  # 利用 非匹配时 准确的 Gz 更新 更准确的 theta3_x, theta3_y
-                                       k2_inc, theta2_x, theta2_y,
-                                       Gx, Gy, Gz, k3_inc, )
-
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,  # 更新 更准确的 k3_inc
-                                                         lam1, is_air, T,
-                                                         theta3_x, theta3_y,
-                                                         lam2=lam2, **kwargs)
-
-    dk, lc, Tz, \
-    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,  # 更新 更准确的 dk
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, k2_inc=k2_inc, )
-
-    # %%  利用 较准确 Gz，给出 更新后的 Gz
     # 提供描边信息，并覆盖值
 
-    z0, Tz, deff_structure_length_expect = Info_find_contours_SHG(g_shift, k1_z, k3_z, dk, Tz, mz,
-                                                                  z0, size_PerPixel, deff_structure_length_expect,
-                                                                  is_print, is_contours, n_TzQ, Gz_max_Enhance,
-                                                                  match_mode, )  # 传入准确的 dk，得到 新的 Tz
+    z0, Tz, Gz, deff_structure_length_expect = Info_find_contours_SHG(k1_z, k3_z, dk_z, Tz, mz,
+                                                                      z0, size_PerPixel, deff_structure_length_expect,
+                                                                      is_print, is_contours, n_TzQ, Gz_max_Enhance,
+                                                                      match_mode, is_end=is_end, **kwargs)  # 传入准确的 dk，得到 新的 Tz 并覆盖 Tz
+    # 尽管 Gz 更新了，但 k3_z 等系列 不会因此改变（正因如此 才有期望的 大周期 振荡），所以后续 无需处理 k3 系列
 
-    dk, lc, Tz, \
-    Gx, Gy, Gz = args_SFG(k1_inc, k3_inc, size_PerPixel,  # 利用 新的 Tz，更新 新的 Gz
-                          mx, my, mz,
-                          Tx, Ty, Tz,
-                          is_print, k2_inc=k2_inc, is_end=kwargs.get("is_end", 0))
-
-    # %%  利用 更新后的 Gz，给出 更新后的 k3 系列
-
-    theta3_x, theta3_y = cal_theta3_xy(k1_inc, theta_x, theta_y,  # 利用 新的 Gz，更新 新的 theta3_x, theta3_y
-                                       k2_inc, theta2_x, theta2_y,
-                                       Gx, Gy, Gz, k3_inc, )
-
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,  # 利用 新的 theta3_x, theta3_y，更新 k3 系列
-                                                         lam1, is_air, T,
-                                                         theta3_x, theta3_y,
-                                                         lam2=lam2, **kwargs)
-
-    return theta3_x, theta3_y, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-           dk, lc, Tz, \
+    return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+           dk_z, lc, Tz, \
            Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
+
+
+def Gan_Gz(Ix, Iy, size_PerPixel,
+           mx, my, Tx, Ty,
+           is_air, T, lam1, lam2,
+           k1, k1_inc, k2, k2_inc,
+           theta_x, theta_y, theta2_x, theta2_y, **kwargs):
+    Gx, Gy, k3_inc_x, k3_inc_y, k3_inc_z_minus_Gz = Gan_k3_vector(Tx, Ty, mx, my,
+                                                                  k1, k1_inc, k2, k2_inc, size_PerPixel,
+                                                                  theta2_x, theta2_y, theta_x, theta_y, **kwargs)
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
+                                                         lam1, is_air, T,
+                                                         theta_x, theta_y,  # 传入的 theta_x, theta_y 是什么 不重要
+                                                         lam2=lam2,  # 对于 k3_x，不会看这两个参数，而只看 k3_x, k3_y
+                                                         k3_inc_x=k3_inc_x, k3_inc_y=k3_inc_y, **kwargs)
+    k3_inc_z = (k3_inc ** 2 - k3_inc_x ** 2 - k3_inc_y ** 2 + 0j) ** 0.5
+    Gz = k3_inc_z - k3_inc_z_minus_Gz
+    Gz = np.real(Gz)
+    return Gx, Gy, Gz, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy
+
+
+def Gan_k3_vector(Tx, Ty, mx, my,
+                  k1, k1_inc, k2, k2_inc, size_PerPixel,
+                  theta2_x, theta2_y, theta_x, theta_y, **kwargs):
+    Gx = 2 * math.pi * mx * size_PerPixel / (Tx / 1000)  # Tz / 1000 即以 mm 为单位
+    Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000)  # Tz / 1000 即以 mm 为单位
+    Gy = - Gy  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系（这里 转是为了 统一 ky 和 Gy 都向下为正，计算结果才正确）
+    # 中心级情况
+    k1_x, k1_y, k1_z = gan_k_vector(k1_inc, theta_x, theta_y, )
+    k2_x, k2_y, k2_z = gan_k_vector(k2_inc, theta2_x, theta2_y, )
+    if "g1" in kwargs:
+        # 实际 平均情况
+        K1_z, K1_xy = find_Kxyz(kwargs["g1"], k1)
+        k1_x, k1_y, k1_z = K1_xy[0], K1_xy[1], K1_z
+    if "g2" in kwargs:
+        K2_z, K2_xy = find_Kxyz(kwargs["g2"], k2)
+        k2_x, k2_y, k2_z = K2_xy[0], K2_xy[1], K2_z
+    # print(k1_x, k1_y)
+    # print(Gx, Gy)  # 输入时，若 Gx, theta_x 同号，则若跑程序到这里，Gx, k1_x 也同号，则没问题。
+    k3_x, k3_y, k3_z_minus_Gz = k1_x + k2_x + Gx, k1_y + k2_y + Gy, k1_z + k2_z  # 动量守恒
+    return Gx, Gy, k3_x, k3_y, k3_z_minus_Gz
 
 
 # %%
@@ -1295,7 +1315,7 @@ def G3_z_NLAST_false(k1, k2, k3, Gx, Gy, Gz,
 # %%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 
-def Info_find_contours_SHG(g1, k1_z, k3_z, dk, Tz, mz,
+def Info_find_contours_SHG(k1_z, k3_z, dk_z, Tz, mz,
                            z0, size_PerPixel, deff_structure_length_expect,
                            is_print=1, is_contours=1, n_TzQ=1,
                            Gz_max_Enhance=1, match_mode=1, **kwargs):
@@ -1315,28 +1335,38 @@ def Info_find_contours_SHG(g1, k1_z, k3_z, dk, Tz, mz,
 
         # dk = 2 * np.max(np.abs(k1_z)) - np.max(np.abs(k3_z))
         # print(k3_z[0,0])
-        is_Print and print(tree_print() + "dk = {} / μm, {}".format(dk / size_PerPixel / 1000, dk))
-        lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: um
+
+        # 在算 dk 时，已经 print 了 dk 了，下面就不用再 print 了
+        # is_Print and print(tree_print() + "dk = {} / μm, {}".format(dk / size_PerPixel / 1000, dk))
+
+        lc = math.pi / abs(dk_z) * size_PerPixel * 1000  # Unit: um
+        # 非空气中，dk 一般不可能 = 0，所以一般不可能有 lc = "∞"，但 lcQ 就不一定了
         # print("相干长度 = {} μm".format(lc))
         # print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
         # print("畴宽_max = 相干长度 = {} μm <= 畴宽 = {} μm ".format(lc, Tz/2))
-        if (type(Tz) != float and type(Tz) != np.float64
-            and type(Tz) != int) or Tz <= 0:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
-            Tz = 2 * lc  # Unit: um
+
+        # 在算 dk 时，已经覆盖了 Tz = 0 了，下面就不用再覆盖 Tz 了
+        # if (type(Tz) != float and type(Tz) != np.float64
+        #     and type(Tz) != int) or Tz <= 0:  # 如果 传进来的 Tz 既不是 float 也不是 int，或者 Tz <= 0，则给它 安排上 2*lc
+        #     Tz = 2 * lc  # Unit: um
 
         Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000)  # Tz / 1000 即以 mm 为单位
 
-        dkQ = dk + Gz
-        lcQ = math.pi / abs(dkQ) * size_PerPixel  # Unit: mm
-        # print("相干长度_Q = {} mm".format(lcQ))
-        TzQ = 2 * lcQ
+        dkQ = dk_z + Gz  # 它等于 0 时，不算 lcQ
+        if dkQ != 0:
+            lcQ = math.pi / abs(dkQ) * size_PerPixel  # Unit: mm
+            # print("相干长度_Q = {} mm".format(lcQ))
+            TzQ = 2 * lcQ
+        else:
+            lcQ = "∞"
+            TzQ = "∞"
 
         # %%
 
         # print("k3_z_min = {} / μm, k1_z_min = {} / μm".format(np.min(np.abs(k3_z))/size_PerPixel/1000, np.min(np.abs(k1_z))/size_PerPixel/1000))
         # print(np.abs(k3_z))
-        if match_mode == 1:
-            ix, iy, scale, energy_fraction = Find_energy_Dropto_fraction(g1, 2 / 3, 0.1)
+        if match_mode == 1 and "g_shift" in kwargs:
+            ix, iy, scale, energy_fraction = Find_energy_Dropto_fraction(kwargs["g_shift"], 2 / 3, 0.1)
             Gz_max = np.abs(k3_z[ix, 0]) - 2 * np.abs(k1_z[ix, 0])
             is_Print and print(tree_print() + "scale = {}, energy_fraction = {}".format(scale, energy_fraction))
         else:
@@ -1348,7 +1378,7 @@ def Info_find_contours_SHG(g1, k1_z, k3_z, dk, Tz, mz,
                 abs(Gz_max) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         # print("Tz_min = {} μm".format(Tz_min))
 
-        dkQ_max = dk + Gz_max
+        dkQ_max = dk_z  + Gz_max
         lcQ_min = math.pi / abs(dkQ_max) * size_PerPixel
         # print("lcQ_min = {} mm".format(lcQ_min))
         TzQ_min = 2 * lcQ_min
@@ -1396,7 +1426,7 @@ def Info_find_contours_SHG(g1, k1_z, k3_z, dk, Tz, mz,
             is_Print and print(tree_print() + "z0     = {} mm".format(z0))
 
             dkQ_exp = math.pi / lcQ_exp * size_PerPixel
-            Gz_exp = dkQ_exp - dk
+            Gz_exp = dkQ_exp - dk_z
             Tz_exp = 2 * math.pi * mz * size_PerPixel / (
                     abs(Gz_exp) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
             is_Print and print(tree_print() + "Tz_min = {} μm".format(Tz_min))
@@ -1422,6 +1452,7 @@ def Info_find_contours_SHG(g1, k1_z, k3_z, dk, Tz, mz,
     else:
         z0_recommend = z0
         Tz_recommend = Tz
+    Gz_recommend = 2 * math.pi * mz * size_PerPixel / (Tz_recommend / 1000)  # Tz / 1000 即以 mm 为单位
 
     if is_contours != -1:  # 等于 -1 则 不额外覆盖 deff_structure_sheet_expect 的值
         # if deff_structure_length_expect <= z0_recommend + deff_structure_sheet_expect / 1000:
@@ -1432,21 +1463,21 @@ def Info_find_contours_SHG(g1, k1_z, k3_z, dk, Tz, mz,
     is_Print and print(tree_print(1) + "deff_structure_length_expect = {} mm".format(deff_structure_length_expect))
     # 无论 deff_structure_sheet_expect 的值 被覆盖 与否，都需要 print，为的是 加个 is_end=1 在这。
 
-    return z0_recommend, Tz_recommend, deff_structure_length_expect
+    return z0_recommend, Tz_recommend, Gz_recommend, deff_structure_length_expect
 
 
 # %%
 # 提供 查找 边缘的，参数的 提示 or 帮助信息 msg
 # 注：旧版本，已经过时，当时并 未想清楚。
 
-def Info_find_contours(dk, Tz, mz,
+def Info_find_contours(dk_z, Tz, mz,
                        U_size, w0, z0, size_PerPixel,
                        is_print=1):
     # %%
     # 描边
     if is_print == 1:  # 由于这个 函数不 return，只提供信息；因此 如果不 print，相当于什么都没做
 
-        lc = math.pi / abs(dk) * size_PerPixel * 1000  # Unit: um
+        lc = math.pi / abs(dk_z) * size_PerPixel * 1000  # Unit: um
         # print("相干长度 = {} μm".format(lc))
         # print("Tz_max = {} μm <= 畴宽 = {} μm ".format(lc*2, Tz))
         # print("畴宽_max = 相干长度 = {} μm <= 畴宽 = {} μm ".format(lc, Tz/2))
@@ -1455,7 +1486,7 @@ def Info_find_contours(dk, Tz, mz,
 
         Gz = 2 * math.pi * mz * size_PerPixel / (Tz / 1000)  # Tz / 1000 即以 mm 为单位
 
-        dkQ = dk + Gz
+        dkQ = dk_z + Gz
         lcQ = math.pi / abs(dkQ) * size_PerPixel  # Unit: mm
         # print("相干长度_Q = {} mm".format(lcQ))
         TzQ = 2 * lcQ
@@ -1478,13 +1509,13 @@ def Info_find_contours(dk, Tz, mz,
         print("相干长度_Q     = {} mm".format(lcQ))
 
         dkQ_max_abs = math.pi / lcQ_min * size_PerPixel
-        Gz_max = dkQ_max_abs - dk
+        Gz_max = dkQ_max_abs - dk_z
         Tz_min = 2 * math.pi * mz * size_PerPixel / (
                 abs(Gz_max) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         print("Tz_min = {} μm".format(Tz_min))
 
         dkQ_exp_abs = math.pi / lcQ_exp * size_PerPixel
-        Gz_exp = dkQ_exp_abs - dk
+        Gz_exp = dkQ_exp_abs - dk_z
         Tz_exp = 2 * math.pi * mz * size_PerPixel / (
                 abs(Gz_exp) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         print("Tz_exp = {} μm # ==> 3.最后调 Tz = Tz_exp ".format(Tz_exp))
