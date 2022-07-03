@@ -188,7 +188,7 @@ def interference_AST__AST(img_full_name="Grating.png",
                    # %%
                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                    # %%                          何况 一般默认 is_self_colorbar = 1...
-                   z, is_end=1, )
+                   z, is_end=1, **kwargs, )
 
     # %%
 
