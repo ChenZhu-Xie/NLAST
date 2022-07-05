@@ -22,10 +22,10 @@ def Step_U(U, mode,
            Duty_Cycle_x, Duty_Cycle_y,
            is_positive_xy):
     if mode == 'x':
-        return (U > (2 * is_positive_xy - 1) * np.cos(Duty_Cycle_x * math.pi)).astype(
+        return (U >= (2 * is_positive_xy - 1) * np.cos(Duty_Cycle_x * math.pi)).astype(
             np.int8())  # uint8 会导致 之后 structure 和 modulation 也变成 无符号 整形，以致于 在 0 - 1 时 变成 255 而不是 -1...
     elif mode == 'y':
-        return (U > (2 * is_positive_xy - 1) * np.cos(Duty_Cycle_y * math.pi)).astype(
+        return (U >= (2 * is_positive_xy - 1) * np.cos(Duty_Cycle_y * math.pi)).astype(
             np.int8())  # uint8 会导致 之后 structure 和 modulation 也变成 无符号 整形，以致于 在 0 - 1 时 变成 255 而不是 -1...
 
 

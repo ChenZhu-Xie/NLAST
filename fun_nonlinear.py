@@ -161,7 +161,7 @@ def init_SFG(Ix, Iy, size_PerPixel,
 
 # %%
 
-def gan_k_vector(k_inc, theta_x, theta_y, ):
+def gan_k_vector(k_inc, theta_x, theta_y, ):  # 仍是 Cal_Unit_kxkykz_based_on_theta_xy 的 左手系
     # theta_y = - theta_y （之后 用到 theta3_y 的时候 会自动转 theta3_y，所以 这里 就不用 转 theta_y 和 theta2_y 了）
     # theta2_y = - theta2_y 这里只需保证用 标准笛卡尔坐标系下的 theta_y 和 theta2_y 生成 同样笛卡尔坐标系下的 theta3_y 即可
     theta_x = theta_x / 180 * math.pi
@@ -198,8 +198,8 @@ def cal_theta3_xy(k1_inc, theta1_x, theta1_y,
     # theta3_y = math.arcsin(sin_theta3_y)
     tan_theta3_x = k3_x / k3_z_on_Gz  # 信赖 算出的 k3_z_on_Gz，也就是 信赖 上一个 def 传入的 Gz
     tan_theta3_y = k3_y / k3_z_on_Gz
-    theta3_x = math.atan(tan_theta3_x)
-    theta3_y = math.atan(tan_theta3_y)
+    theta3_x = math.atan(tan_theta3_x)  # 由于 gan_k3_vector、gan_k_vector 中没改变 所用的 Cal_Unit_kxkykz_based_on_theta_xy 的坐标系
+    theta3_y = math.atan(tan_theta3_y)  # 所以这个 theta3_x, theta3_y 还是在 左手系 下。
     return theta3_x, theta3_y
 
 
@@ -274,11 +274,13 @@ def Gan_k3_vector(Tx, Ty, mx, my,
     Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000)  # Tz / 1000 即以 mm 为单位
     Gy = - Gy  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系（这里 转是为了 统一 ky 和 Gy 都向下为正，计算结果才正确）
     # 中心级情况
-    k1_x, k1_y, k1_z = gan_k_vector(k1_inc, theta_x, theta_y, )
+    k1_x, k1_y, k1_z = gan_k_vector(k1_inc, theta_x, theta_y, )  # gan_k_vector 产生的是 左手系，y 轴 向上
     k2_x, k2_y, k2_z = gan_k_vector(k2_inc, theta2_x, theta2_y, )
+    k1_y *= -1  # y 轴 向下 读出的 ky
+    k2_y *= -1  # y 轴 向下（图片 坐标系）
     if "g1" in kwargs:
         # 实际 平均情况
-        K1_z, K1_xy = find_Kxyz(kwargs["g1"], k1)
+        K1_z, K1_xy = find_Kxyz(kwargs["g1"], k1)  # 产生的是 电脑/图片 y 向下 坐标系的
         k1_x, k1_y, k1_z = K1_xy[0], K1_xy[1], K1_z
     if "g2" in kwargs:
         K2_z, K2_xy = find_Kxyz(kwargs["g2"], k2)
@@ -286,7 +288,7 @@ def Gan_k3_vector(Tx, Ty, mx, my,
     # print(k1_x, k1_y)
     # print(Gx, Gy)  # 输入时，若 Gx, theta_x 同号，则若跑程序到这里，Gx, k1_x 也同号，则没问题。
     k3_x, k3_y, k3_z_minus_Gz = k1_x + k2_x + Gx, k1_y + k2_y + Gy, k1_z + k2_z  # 动量守恒
-    return Gx, Gy, k3_x, k3_y, k3_z_minus_Gz
+    return Gx, Gy, k3_x, k3_y, k3_z_minus_Gz  #  最终传入 的是 Cal_n，而 Cal_n 里要的是 图片坐标系 下的，所以 就产生了 图片坐标下的 k3x, k3y
 
 
 # %%

@@ -227,12 +227,14 @@ def AST_EVV(U_name="",
         # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
 
         kwargs["polar"] = "o"
-        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, D_uo = init_AST_pro(*args_init_AST, g_p, p_p,
+        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo = init_AST_pro(*args_init_AST, g_p, p_p, is_print,
+                                                                            is_end2=-1,
                                                                             **kwargs_init_AST, **kwargs)
 
         # %%  晶体 abc 坐标系 -x y z 下的 kxy 网格上 各点的 k 单位矢量： kx 向 左 为正，ky 向 上 为正
         kwargs["polar"] = "e"
-        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, D_ue = init_AST_pro(*args_init_AST, g_p, p_p,
+        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue = init_AST_pro(*args_init_AST, g_p, p_p, is_print,
+                                                                            add_level=1, is_end2=1,
                                                                             **kwargs_init_AST, **kwargs)
 
         # %% 晶体内 o 光 折射率 分布
@@ -346,7 +348,7 @@ def AST_EVV(U_name="",
 
                 Ge_z = G1e_z * He_zdz(diz)
                 Go_z = G1o_z * Ho_zdz(diz)
-                Ga_z = gan_g_eoa(Go_z, Ge_z, D_uo, D_ue, **kwargs_gan_g_eoa)
+                Ga_z = gan_g_eoa(Go_z, Ge_z, E_uo, E_ue, **kwargs_gan_g_eoa)
 
                 return Ga_z
 
@@ -437,7 +439,7 @@ if __name__ == '__main__':
          # %%
          "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 50, "p": 0,
+         "l": -50, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -473,7 +475,7 @@ if __name__ == '__main__':
          # %%
          "is_print": 1,
          # %% 该程序 独有 -------------------------------
-         "is_EVV_SSI": 0, "is_stored": 1, "sheets_stored_num": 10,
+         "is_EVV_SSI": 0, "is_stored": 0, "sheets_stored_num": 10,
          # %%
          "sample": 1, "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,

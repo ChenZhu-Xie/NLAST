@@ -97,6 +97,49 @@ def get_n(is_air, lam, T, p):
 # %%
 # 计算 折射率、波矢
 
+def Cal_based_on_g(nx, ny, nz, lam, p, size_PerPixel,
+                   theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                   k_nxny, g, ):
+    from fun_statistics import find_Kxyz
+    K_z, K_xy = find_Kxyz(g, k_nxny)
+    kx, ky = K_xy[0], K_xy[1]
+    theta_z_inc = 0  # 初值 认为 是 0（其实有 K_z 的话，可以 用 atan 等算出来 更准的初值）
+    # phi_z_inc = atan2(-kx, -ky)  # -x, y, z 实验室 / 旋转前 晶体 c 坐标系 下 的 方位角
+    phi_z_inc = np.arctan2(-ky, -kx)
+    # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
+    theta_z_inc, = solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
+                                           nx, ny, nz, lam, p, size_PerPixel,
+                                           theta_z_c, phi_z_c, phi_c_c, phi_c_def)
+    return theta_z_inc, phi_z_inc
+
+
+def step(X):
+    return (X >= 0).astype(np.int8())
+
+
+def atan2(x, y):  # 与 np.arctan2 输入相反，且返回 0~2π
+    X = np.arctan2(y, x)
+    return (1 - step(X)) * 2 * np.pi + X
+
+
+def theta_phi_z_inc_to_theta_xy_inc(theta_z_inc, phi_z_inc):  # 有问题
+    kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_inc, phi_z_inc)
+    theta_x_inc, theta_y_inc = xyz_to_theta_xy_inc(kx, ky, kz)
+    # theta_x_inc = - np.sin(theta_z_inc) * np.cos(phi_z_inc)  # 晶体 坐标系 c 转到 x右y下 图片 坐标系 或 x右y上 左手 坐标系
+    # theta_y_inc = np.sin(theta_z_inc) * np.sin(phi_z_inc)  # 晶体 坐标系 c 转到 x右y上 左手 坐标系，
+    # 因为 之后会进入 gan_k_vector 中的 Cal_Unit_kxkykz_based_on_theta_xy 中去，所以到 左手系
+    # 其实 所有要用到 theta_x, theta_y 的，在 2 者定义之初，就是 左手系。所以 理所应当 原样输出。
+    return theta_x_inc, theta_y_inc
+
+
+def Gan_refractive_index_ellipsoid(is_air, lam, T):
+    # %%  生成 折射率 椭球的 3 个主轴
+    nz = get_n(is_air, lam, T, "z")  # n_c, n_e
+    ny = get_n(is_air, lam, T, "y")  # n_b, n_o
+    nx = get_n(is_air, lam, T, "x")  # n_a
+    return nx, ny, nz
+
+
 def Cal_n(size_PerPixel,
           is_air,
           lam, T, p="e", **kwargs):
@@ -125,9 +168,7 @@ def Cal_n(size_PerPixel,
         # print(phi_c_c)
 
         # %%  生成 折射率 椭球的 3 个主轴
-        nz = get_n(is_air, lam, T, "z")  # n_c, n_e
-        ny = get_n(is_air, lam, T, "y")  # n_b, n_o
-        nx = get_n(is_air, lam, T, "x")  # n_a
+        nx, ny, nz = Gan_refractive_index_ellipsoid(is_air, lam, T)
         # print(nx, ny, nz)
         # %%  计算 实验室坐标系的 z 方向 的 折射率 n_z 和 k_z，作为 kx, ky 网格 所对应的 n_nxny, k_nxny 的 中心、参考、基准
         phi_c_def = math.pi
@@ -136,7 +177,8 @@ def Cal_n(size_PerPixel,
                           theta_z_c, phi_z_c, phi_c_c,
                           0, 0, phi_c_def,
                           record_delta_name="delta_z")
-
+        from fun_global_var import Set
+        Set("n_z", n_z)
         # %% 生成 mesh
         from fun_global_var import Get
         Ix = kwargs["Ix_structure"] if "Ix_structure" in kwargs else Get("Ix")  # 可能会有 Ix = Ix_structure  从 kwargs 里传进来
@@ -151,7 +193,10 @@ def Cal_n(size_PerPixel,
         sin_theta_z_inc_nxny = (mesh_kx_ky_shift[:, :, 0] ** 2 + mesh_kx_ky_shift[:, :, 1] ** 2) ** 0.5 / k_z
         # 注意 是 kx,ky 或 nx,ny 的 函数（这里 假设了 k 附近的 采样点 分布 是个球面，半径为 k_z。那这也不准：k_inc 从一开始，就不是个 标量）
         theta_z_inc_nxny = np.arcsin(sin_theta_z_inc_nxny)  # 类比 Cal_theta_phi_z_inc 中的 theta_z_inc = math.acos(kz)
+        # 这里用 sin 不用 cos，一方面是 不知道 kz 没法用 arccos；另一方面 约束了 只能算 正向 而非 反向传播 的波 的 极角；
+        # 但极角本身的取值 0~π，约束我们最好用 arccos 的。只是这里 不需要用、且没法用，罢了。
         # print(np.min(theta_z_inc_nxny) / math.pi * 180, np.max(theta_z_inc_nxny) / math.pi * 180)
+        # phi_z_inc_nxny = atan2(- mesh_kx_ky_shift[:, :, 0], - mesh_kx_ky_shift[:, :, 1])
         phi_z_inc_nxny = np.arctan2(- mesh_kx_ky_shift[:, :, 1], - mesh_kx_ky_shift[:, :, 0])
         # phi_z_inc_nxny = np.arctan((- mesh_kx_ky_shift[:, :, 1]) / (- mesh_kx_ky_shift[:, :, 0]))  # 需要 变换到 直角坐标系下
         # print(np.max(phi_z_inc_nxny) / math.pi * 180, np.min(phi_z_inc_nxny) / math.pi * 180)
@@ -189,24 +234,19 @@ def Cal_n(size_PerPixel,
         if "k3_inc_x" in kwargs and "k3_inc_y" in kwargs:  # 如果算的是 k3_inc，则需要采取特殊的策略：
             # 已知的不是 theta3_x 和 theta3_y，而是 k3_inc_x, k3_inc_y，则不能用 Cal_theta_phi_z_inc
             # 这个不受 is_air_pump 的影响，因为 k3 一直都在晶体内，不是泵浦，所以 与折射定律无关
-            kx, ky = kwargs["k3_inc_x"], kwargs["k3_inc_y"]
+            kx, ky = kwargs["k3_inc_x"], kwargs["k3_inc_y"]  # 传入 图片 坐标系 下的 k3x, k3y
             theta_z_inc = 0  # 初值 认为 是 0
-            phi_z_inc = math.atan2(-ky, -kx)  # -x, y, z 实验室 坐标系 下 的 方位角
+            # phi_z_inc = atan2(-kx, -ky)  # -x, y, z 实验室 坐标系 下 的 方位角
+            phi_z_inc = np.arctan2(-ky, -kx)
             # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
             theta_z_inc, = solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
                                                    nx, ny, nz, lam, p, size_PerPixel,
                                                    theta_z_c, phi_z_c, phi_c_c, phi_c_def)
         else:  # 否则 直接沿用 晶体内的 theta_x, theta_y
             if "gp" in kwargs:
-                from fun_statistics import find_Kxyz
-                K_z, K_xy = find_Kxyz(kwargs["gp"], k_nxny)
-                kx, ky = K_xy[0], K_xy[1]
-                theta_z_inc = 0  # 初值 认为 是 0（其实有 K_z 的话，可以 用 atan 等算出来 更准的初值）
-                phi_z_inc = math.atan2(-ky, -kx)  # -x, y, z 实验室 坐标系 下 的 方位角
-                # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
-                theta_z_inc, = solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
-                                                       nx, ny, nz, lam, p, size_PerPixel,
-                                                       theta_z_c, phi_z_c, phi_c_c, phi_c_def)
+                theta_z_inc, phi_z_inc = Cal_based_on_g(nx, ny, nz, lam, p, size_PerPixel,
+                                                        theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                                                        k_nxny, kwargs["gp"], )
             else:
                 theta_z_inc, phi_z_inc = Cal_theta_phi_z_inc(theta_x, theta_y, )  # 初值 沿用 空气中的 极角 和 方位角
                 # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
@@ -226,10 +266,7 @@ def Cal_n(size_PerPixel,
 
         if "set_theta_tag" in kwargs:
             from fun_global_var import Set
-            theta_x = - math.sin(theta_z_inc) * math.cos(phi_z_inc)  # 晶体 坐标系 转到 图片 (kx,ky) 坐标系
-            theta_y = - math.sin(theta_z_inc) * math.sin(phi_z_inc)  # 晶体 坐标系 转到 图片 (kx,ky) 坐标系
-            theta_x *= 180 / math.pi
-            theta_y *= 180 / math.pi
+            theta_x, theta_y = theta_phi_z_inc_to_theta_xy_inc(theta_z_inc, phi_z_inc)
             # print(theta_x, theta_y)
             if kwargs["set_theta_tag"] == 1:
                 Set("theta_x", theta_x)
@@ -252,82 +289,312 @@ def Cal_n(size_PerPixel,
 
 # %%
 
-def Gan_D_vector(p, ki, ki_z, ki_xy, **kwargs):  # i 表示 inc 或 inside 或 p：pump，但不是标量 inc，而是 2 维 数组
-    theta_z_c = kwargs["theta_z"] / 180 * np.pi if "theta_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 极角
-    phi_z_c = kwargs["phi_z"] / 180 * np.pi if "phi_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 方位角
-    # phi_c_c = kwargs["phi_c"] / 180 * np.pi if "phi_c" in kwargs else 0  # 晶体坐标系' 对 晶轴 c（初始晶体坐标系） 的 方位角
-    # D 的方向 与 晶体如何绕 折射率 最长轴 c 轴 自转 无关？ 有关，特别是 k // c 且 双轴晶体时，D 的方向 会随 自转 而转；但 k ⊥ c 时，关系不大。
-    # 这种关系，其实已经 体现在 之前对 ki, ki_z, ki_xy 和 对 delta 的 求解 中了：因为 比如 delta 就与 phi_c_c 有关
-    # %% 旋转前的 晶体 abc 坐标系 -x y z 下的 晶轴方向 的 单位矢量： kx 向 左 为正，ky 向 上 为正
-    kc_ux = np.sin(theta_z_c) * np.cos(phi_z_c)  # kc 和 ki 都省略了 对 z 轴而言：都是 晶体坐标系 下的。
-    kc_uy = np.sin(theta_z_c) * np.sin(phi_z_c)
-    kc_uz = np.cos(theta_z_c)
-    # print(kx_c, ky_c, kz_c)
-    kc_u = np.array([kc_ux, kc_uy, kc_uz])
-    # %% 晶体内 入射场 的 k 的 单位矢量，但参照 旋转前的 晶体坐标系，而非 图片坐标系： kx 向 左 为正，ky 向 上 为正
-    ki_uz, ki_ux, ki_uy = ki_z / ki, - ki_xy[:, :, 0] / ki, - ki_xy[:, :, 1] / ki  # 单位 unit 矢量 的 3 分量
-    # print(ki_ux[0])
-    # print(ki_uy[:, 0])
-    ki_u = np.dstack((ki_ux, ki_uy, ki_uz))  # 是个 2 维 矢量场，先是 2 个 空间维度，后是 3 个 矢量 分量维度。
-    # %% X'' 轴
-    X2 = np.cross(np.cross(ki_u, kc_u), ki_u)  # kie_inc 叉 kc_u，所得的 垂直于 kie_u 和 kc_u 的 法向量，再 叉乘 kie_u
-    # 是个 2 维 矢量场，先是 2 个 空间维度，后是 3 个 矢量 分量维度。
-    # 得到 kie_u 与 kc_u 所形成的 平面 与 ⊥ kie_u 的 平面 的 交线，即尚未主轴化 的，旋转 2 次使 Z'' 同向于 kie_u 的 坐标系 X'' 轴
-    X2_x, X2_y, X2_z = X2[:, :, 0], X2[:, :, 1], X2[:, :, 2]
-    X2_amp = (X2_x ** 2 + X2_y ** 2 + X2_z ** 2) ** 0.5  # 2 维 矢量场 每个场点 的 场的模大小
-    X2_ux, X2_uy, X2_uz = X2_x / X2_amp, X2_y / X2_amp, X2_z / X2_amp  # 归一化 X'' 轴 的 单位矢量
-    # %%
-    from fun_global_var import Get
-    delta = Get("delta_nxny")  # 将 X2e_u 绕 kie_u 轴 逆时针 旋转 α 度，得到 D 的方向（单位矢量）
+def Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_c, phi_z_c):  # 旋转前的 晶体 abc 坐标系 -x y z 下的 球坐标系，到其下的 直角坐标系
+    kx = np.sin(theta_z_c) * np.cos(phi_z_c)
+    ky = np.sin(theta_z_c) * np.sin(phi_z_c)
+    kz = np.cos(theta_z_c)
+    return kx, ky, kz
+
+
+def Gan_k_z_inc_u(is_air, lam, T,
+                  p, size_PerPixel,
+                  theta_x, theta_y,
+                  theta_z_c, phi_z_c,
+                  k_z_inc, k_z_inc_z, k_z_inc_xy,
+                  mode, **kwargs, ):
+    # %% 晶体内 入射场 的 k 的 单位矢量，但参照 旋转前的 晶体坐标系 c，而非 图片坐标系： kx 向 左 为正，ky 向 上 为正
+    if mode < 3:
+        if "gp" in kwargs and mode == 2:
+            phi_c_c = kwargs["phi_c"] / 180 * np.pi if "phi_c" in kwargs else 0  # 晶体坐标系' 对 晶轴 c（初始晶体坐标系） 的 方位角
+            phi_c_def = math.pi
+            # %%  生成 折射率 椭球的 3 个主轴
+            nz = get_n(is_air, lam, T, "z")  # n_c, n_e
+            ny = get_n(is_air, lam, T, "y")  # n_b, n_o
+            nx = get_n(is_air, lam, T, "x")  # n_a
+            theta_z_inc, phi_z_inc = Cal_based_on_g(nx, ny, nz, lam, p, size_PerPixel,
+                                                    theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                                                    k_z_inc, kwargs["gp"], )
+            k_z_inc_ux, k_z_inc_uy, k_z_inc_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_inc, phi_z_inc)
+            k_z_inc_u = np.array([k_z_inc_ux, k_z_inc_uy, k_z_inc_uz])
+        else:
+            if mode == 1:
+                theta_x, theta_y = 0, 0
+            from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy
+            k_z_inc_ux, k_z_inc_uy, k_z_inc_uz = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )  # 产生的是 左手系
+            k_z_inc_ux *= -1  # 现在就换到了 右手 c 系 了
+            k_z_inc_u = np.array([k_z_inc_ux, k_z_inc_uy, k_z_inc_uz])
+            # print(k_z_inc_u)
+    elif mode == 3:
+        k_z_inc_ux, k_z_inc_uy, k_z_inc_uz = \
+            k_z_inc_z / k_z_inc, - k_z_inc_xy[:, :, 0] / k_z_inc, - k_z_inc_xy[:, :, 1] / k_z_inc  # 单位 unit 矢量 的 3 分量
+        # print(k_z_inc_ux[0])
+        # print(k_z_inc_uy[:, 0])
+        k_z_inc_u = np.dstack((k_z_inc_ux, k_z_inc_uy, k_z_inc_uz))  # 是个 2 维 矢量场，先是 2 个 空间维度，后是 3 个 矢量 分量维度。
+    return k_z_inc_u, k_z_inc_ux, k_z_inc_uy, k_z_inc_uz
+
+
+def split_Array_to_xyz(array):
+    if array.shape == (3,):
+        array_x, array_y, array_z = array[0], array[1], array[2]
+    else:
+        array_x, array_y, array_z = array[:, :, 0], array[:, :, 1], array[:, :, 2]
+    return array_x, array_y, array_z
+
+
+def normalize_vector(*args, v=1):
+    if len(args) != 3:
+        vx, vy, vz = split_Array_to_xyz(v)
+    else:
+        vx, vy, vz = args[0], args[1], args[2]
+    v_amp = (vx ** 2 + vy ** 2 + vz ** 2) ** 0.5  # 2 维 矢量场 每个场点 的 场的模大小
+    v_ux, v_uy, v_uz = vx / v_amp, vy / v_amp, vz / v_amp  # 归一化 X'' 轴 的 单位矢量
+    return v_ux, v_uy, v_uz
+
+
+def Apply_T_matrix(delta, axis_x, axis_y, axis_z,
+                   obj_x, obj_y, obj_z, ):
     # %% 旋转矩阵 系数
     a1 = np.cos(delta)
     a2 = 1 - a1
     b1 = np.sin(delta)
     # %% 旋转矩阵 主项
-    T_11 = ki_ux ** 2 * a2 + a1
-    T_22 = ki_uy ** 2 * a2 + a1
-    T_33 = ki_uz ** 2 * a2 + a1
+    T_11 = axis_x ** 2 * a2 + a1
+    T_22 = axis_y ** 2 * a2 + a1
+    T_33 = axis_z ** 2 * a2 + a1
     # %% 旋转矩阵 交叉项
-    T_12 = ki_ux * ki_uy * a2 - ki_uz * b1
-    T_21 = ki_ux * ki_uy * a2 + ki_uz * b1
+    T_12 = axis_x * axis_y * a2 - axis_z * b1
+    T_21 = axis_x * axis_y * a2 + axis_z * b1
 
-    T_13 = ki_ux * ki_uz * a2 + ki_uy * b1
-    T_31 = ki_ux * ki_uz * a2 - ki_uy * b1
+    T_13 = axis_x * axis_z * a2 + axis_y * b1
+    T_31 = axis_x * axis_z * a2 - axis_y * b1
 
-    T_23 = ki_uy * ki_uz * a2 - ki_ux * b1
-    T_32 = ki_uy * ki_uz * a2 + ki_ux * b1
-    # %% 找到 截痕椭圆 的 其中一个主轴 的 方向，即 差不多是 旋转后的 晶体坐标系 的 c 轴方向
-    Dc_ux = T_11 * X2_ux + T_12 * X2_uy + T_13 * X2_uz
-    Dc_uy = T_21 * X2_ux + T_22 * X2_uy + T_23 * X2_uz
-    Dc_uz = T_31 * X2_ux + T_32 * X2_uy + T_33 * X2_uz
+    T_23 = axis_y * axis_z * a2 - axis_x * b1
+    T_32 = axis_y * axis_z * a2 + axis_x * b1
+    # %% 找到 椭圆截痕 的 其中一个主轴 的 方向，即 差不多是 旋转后的 晶体坐标系 c' 的 c' 轴方向（如果 k ⊥ c' 即 n_zz 入射的话）
+    obj_X = T_11 * obj_x + T_12 * obj_y + T_13 * obj_z  # 下标 z，表示 D 是 c 系下的
+    obj_Y = T_21 * obj_x + T_22 * obj_y + T_23 * obj_z
+    obj_Z = T_31 * obj_x + T_32 * obj_y + T_33 * obj_z
+    return obj_X, obj_Y, obj_Z
+
+
+def get_p_theta_xy_from_kwargs(mode, **kwargs):
+    theta_z_c = kwargs["theta_z"] / 180 * np.pi if "theta_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 极角
+    phi_z_c = kwargs["phi_z"] / 180 * np.pi if "phi_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 方位角
     # %%
-    if p == "z" or p == "e" or p == "c":
-        D_ux, D_uy, D_uz = Dc_ux, Dc_uy, Dc_uz
+    from fun_global_var import Get
+    if "polar2" in kwargs:
+        p = kwargs["polar2"]
+        theta_x = Get("theta2_x")  # 注意这里的 theta_x 和 theta_y 得是 （已经算好的）晶体内的，也就是 得通过 Get 得到
+        theta_y = Get("theta2_y")
     else:
-        # %% 将 D_u 再绕 kie_u 轴（轴不变，则 旋转矩阵 中的 ki 等分量 保持 不变） 逆时针 旋转 90 度，得到 另一个 极化 D 的方向（单位矢量）
-        a1 = np.cos(math.pi / 2)
-        a2 = 1 - a1
-        b1 = np.sin(math.pi / 2)
-        # %% 旋转矩阵 主项
-        T_11 = ki_ux ** 2 * a2 + a1
-        T_22 = ki_uy ** 2 * a2 + a1
-        T_33 = ki_uz ** 2 * a2 + a1
-        # %% 旋转矩阵 交叉项
-        T_12 = ki_ux * ki_uy * a2 - ki_uz * b1
-        T_21 = ki_ux * ki_uy * a2 + ki_uz * b1
+        p = kwargs.get("polar", "e")
+        theta_x = Get("theta_x")
+        theta_y = Get("theta_y")
+    # %%
+    if mode == 1:
+        delta = Get("delta_z")
+        # print(delta)
+    elif mode == 2:
+        delta = Get("delta_inc")
+    elif mode == 3:
+        delta = Get("delta_nxny")
+    return p, theta_x, theta_y, \
+           delta, theta_z_c, phi_z_c
 
-        T_13 = ki_ux * ki_uz * a2 + ki_uy * b1
-        T_31 = ki_ux * ki_uz * a2 - ki_uy * b1
 
-        T_23 = ki_uy * ki_uz * a2 - ki_ux * b1
-        T_32 = ki_uy * ki_uz * a2 + ki_ux * b1
-        # %% 找到 截痕椭圆 的 另一个主轴 的 方向
-        D_ux = T_11 * Dc_ux + T_12 * Dc_uy + T_13 * Dc_uz
-        D_uy = T_21 * Dc_ux + T_22 * Dc_uy + T_23 * Dc_uz
-        D_uz = T_31 * Dc_ux + T_32 * Dc_uy + T_33 * Dc_uz
-    D_ux, D_uy, D_uz = np.real(D_ux), np.real(D_uy), np.real(D_uz)
-    D_ux = - D_ux  # 旋转前的 晶体坐标系，变到 笛卡尔 坐标系
-    return np.dstack((D_ux, D_uy, D_uz))
+def merge_array_xyz(array_x, array_y, array_z):
+    if array_x.shape == ():
+        Array = np.array([array_x, array_y, array_z])
+    else:
+        Array = np.dstack([array_x, array_y, array_z])
+    return Array
+
+
+def format_scalar(x):
+    from fun_global_var import Get
+    if x.shape == ():
+        # x = format(x, Get("F_f"))
+        # x = np.sign(x) * float(Get('f_f') % abs(x))  # 为了能 把 e-34 这种都 格式化
+        # x = 0 if abs(x) < 1e-5 else x
+        x = float(Get('f_f') % x)
+    return x
+
+def Gan_D_vector(is_air, lam, T,
+                 size_PerPixel,
+                 k_z_inc, k_z_inc_z, k_z_inc_xy,
+                 mode=1, **kwargs):  # i 表示 inc 或 inside 或 p：pump，但不是标量 inc，而是 2 维 数组
+    p, theta_x, theta_y, \
+    delta, theta_z_c, phi_z_c = get_p_theta_xy_from_kwargs(mode, **kwargs)
+    # %% 算 c 系下的 D
+    # phi_c_c = kwargs["phi_c"] / 180 * np.pi if "phi_c" in kwargs else 0  # 晶体坐标系' 对 晶轴 c（初始晶体坐标系） 的 方位角
+    # D 的方向 与 晶体如何绕 折射率 最长轴 c 轴 自转 无关？ 有关，特别是 k // c 且 双轴晶体时，D 的方向 会随 自转 而转；但 k ⊥ c 时，关系不大。
+    # 这种关系，其实已经 体现在 之前对 k_z_inc, k_z_inc_z, k_z_inc_xy 和 对 delta 的 求解 中了：因为 比如 delta 就与 phi_c_c 有关
+    # %% 旋转前的 晶体 abc 坐标系 -x y z 下的 晶轴 c 方向 的 单位矢量： kx 向 左 为正，ky 向 上 为正
+    k_z_c_ux, k_z_c_uy, k_z_c_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_c, phi_z_c)
+    # k_z_c 和 k_z_inc 都省略了 对 z 轴而言：都是 晶体坐标系 c 下的。
+    # print(kx_c, ky_c, kz_c)
+    k_z_c_u = np.array([k_z_c_ux, k_z_c_uy, k_z_c_uz])
+    # %% 晶体内 入射场 的 k 的 单位矢量，但参照 旋转前的 晶体坐标系 c，而非 图片坐标系： kx 向 左 为正，ky 向 上 为正
+    k_z_inc_u, k_z_inc_ux, k_z_inc_uy, k_z_inc_uz = Gan_k_z_inc_u(is_air, lam, T,
+                                                                  p, size_PerPixel,
+                                                                  theta_x, theta_y,
+                                                                  theta_z_c, phi_z_c,
+                                                                  k_z_inc, k_z_inc_z, k_z_inc_xy,
+                                                                  mode, **kwargs, )
+    # %% X'' 轴
+    X2 = np.cross(np.cross(k_z_inc_u, k_z_c_u),
+                  k_z_inc_u)  # k_z_ince_inc 叉 k_z_c_u，所得的 垂直于 k_z_ince_u 和 k_z_c_u 的 法向量，再 叉乘 k_z_ince_u
+    # 是个 2 维 矢量场，先是 2 个 空间维度，后是 3 个 矢量 分量维度。
+    # 得到 k_z_ince_u 与 k_z_c_u 所形成的 平面 与 ⊥ k_z_ince_u 的 平面 的 交线，即尚未主轴化 的，旋转 2 次使 Z'' 同向于 k_z_ince_u 的 坐标系 X'' 轴
+    X2_ux, X2_uy, X2_uz = normalize_vector(v=X2)
+    # %%  # 将 X2e_u 绕 k_z_ince_u 轴 逆时针 旋转 δ，得到 D 的方向（单位矢量）
+    # %% 旋转矩阵 系数
+    Dz_ux, Dz_uy, Dz_uz = Apply_T_matrix(delta, k_z_inc_ux, k_z_inc_uy, k_z_inc_uz,
+                                         X2_ux, X2_uy, X2_uz, )
+    # if mode == 1:
+    #     print(np.real(Dz_ux), np.real(Dz_uy), np.real(Dz_uz))
+    # %% 选择 椭圆截痕 两个主轴 中的某一个 作为 极化方向
+    if p == "z" or p == "e" or p == "c":
+        D_ux, D_uy, D_uz = Dz_ux, Dz_uy, Dz_uz
+    else:
+        # %% 将 D_u 再绕 k_z_inc_u 轴（轴不变，则 旋转矩阵 中的 k_z_inc 等分量 保持 不变） 逆时针 旋转 90 度，得到 另一个 极化 D 的方向（单位矢量）
+        D_ux, D_uy, D_uz = Apply_T_matrix(math.pi / 2, k_z_inc_ux, k_z_inc_uy, k_z_inc_uz,
+                                          Dz_ux, Dz_uy, Dz_uz, )
+    # %%
+    D_ux, D_uy, D_uz = np.real(D_ux), np.real(D_uy), np.real(D_uz)  # 无下标，表示 D 是 c 系下的
+    # theta_x_D_u, theta_y_D_u = xyz_to_theta_xy_inc(D_ux, D_uy, D_uz)
+    theta_D_u, phi_D_u = xyz_to_theta_phi_vertical(D_ux, D_uy, D_uz)
+
+    theta_D_u = format_scalar(theta_D_u)
+    phi_D_u = format_scalar(phi_D_u)
+
+    # if mode == 1:
+    #     print(D_ux, D_uy, D_uz)
+    # D_uz = - D_uz  # 旋转前的 晶体坐标系 c，变到 笛卡尔 右手 坐标系（+z 反平行于 k 即 传播 的方向）
+    D_ux = - D_ux  # 旋转前的 晶体坐标系 c，变到 笛卡尔 左/右手 坐标系（不变 z 的话，就是左手系）
+    D_u = merge_array_xyz(D_ux, D_uy, D_uz)
+    return D_u, theta_D_u, phi_D_u
+
+
+def xyz_to_theta_phi(kx, ky, kz):  # kx, ky, kz, theta_z, phi_z 都是相对 未旋转前 的 c 系的
+    theta_z = np.arccos(kz / (kx ** 2 + ky ** 2 + kz ** 2) ** 0.5)  # Dz_u
+    # arccos 的 值域 才是 0~π，并且 极化 D 的方向很可能超出 π/2，所以必须用 arccos，不能用 arctan 或 arcsin
+    # phi_z = atan2(ky, kx)
+    phi_z = np.arctan2(ky, kx)
+    return theta_z, phi_z
+
+
+def xyz_to_theta_phi_vertical(kx, ky, kz):  # 未旋转前 的 c 系下的 kx,ky,kz，
+    theta_z, phi_z = xyz_to_theta_phi(kx, ky, kz)
+    # phi_z -= math.pi / 2  # 变到 绕 c 轴 顺时针 旋转 90 度 的 偏振片 右手系 下 的 theta_z, phi_z
+    phi_z = math.pi - phi_z  # 变到 左手系 下 的 theta_z, phi_z
+    theta_z *= 180 / np.pi
+    phi_z *= 180 / np.pi
+    return theta_z, phi_z
+
+
+def xyz_to_theta_xy_inc(kx, ky, kz):  # 晶体 c 系下的 kx, ky, kz，到 x右y上 的 左手系，
+    kx = -kx  # 将 kx, ky, kz 转换到 左手系，方便生成 同一 左手系 下的 theta_x, theta_y
+    theta_x_inc = np.arcsin(kx)
+    theta_y_inc = np.arctan(ky / kz)
+    theta_x_inc *= 180 / np.pi
+    theta_y_inc *= 180 / np.pi
+    return theta_x_inc, theta_y_inc
+
+
+def Gan_E_vector(is_air, lam, T,
+                 D_u, **kwargs, ):  # 算 主轴 c' 系 下的 E，然后 算 c 系 下的 E
+    theta_z_c = kwargs["theta_z"] / 180 * np.pi if "theta_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 极角
+    phi_z_c = kwargs["phi_z"] / 180 * np.pi if "phi_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 方位角
+    # %% 将 D_u 从直角坐标系 写成 旋转前 晶体坐标系 c 下的 极坐标形式 theta_z_D, phi_z_D
+    D_ux, D_uy, D_uz = split_Array_to_xyz(D_u)
+    D_ux *= -1  # 注意这里的 D_u 仍是 左手系下的（因为 Gan_D_vector 输出的是 左手系），需要变换
+    theta_z_D, phi_z_D = xyz_to_theta_phi(D_ux, D_uy, D_uz)  # Dz_u
+    # print(theta_z_D, phi_z_D)
+    # %% 将 旋转前 晶体坐标系 c 下的 D_u，变换到 旋转后的 晶体坐标系 c' 下（主轴化 D_u）
+    phi_c_c = kwargs["phi_c"] / 180 * np.pi if "phi_c" in kwargs else 0  # 晶体坐标系' 对 晶轴 c（初始晶体坐标系） 的 方位角
+    theta_c_D, phi_c_D = Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
+                                             theta_z_D, phi_z_D, **kwargs)
+    # print(theta_c_D, phi_c_D)
+    Dc_ux, Dc_uy, Dc_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_c_D, phi_c_D)
+    # print(Dc_ux, Dc_uy, Dc_uz)
+    # %%  生成 折射率 椭球的 3 个主轴
+    nx, ny, nz = Gan_refractive_index_ellipsoid(is_air, lam, T)
+    # %% 得到 主轴化 的 晶体系 c 下的 E 分量，并归一化为 E_u
+    Ec_x, Ec_y, Ec_z = Dc_ux / nx ** 2, Dc_uy / ny ** 2, Dc_uz / nz ** 2  # 模长上 仍不是 E 的大小，只有方向是对的。
+    Ec_ux, Ec_uy, Ec_uz = normalize_vector(Ec_x, Ec_y, Ec_z, )
+    # print(Ec_ux, Ec_uy, Ec_uz)
+    # %% 将 Ec_u 写成 旋转后 晶体坐标系 c' 下的 极坐标形式 theta_c_E, phi_c_E
+    theta_c_E, phi_c_E = xyz_to_theta_phi(Ec_ux, Ec_uy, Ec_uz)
+    # print(theta_c_E, phi_c_E)
+    # %% 将 主轴化 的 晶体系 c 下的 E_u，逆变换 回 旋转前 晶体坐标系 c 下
+    theta_z_E, phi_z_E = Inverse_Transform_theta_phi_c_inc_to_z_inc(theta_z_c, phi_z_c, phi_c_c,
+                                                                    theta_c_E, phi_c_E, **kwargs)
+    # print(theta_z_E, phi_z_E)
+    E_ux, E_uy, E_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_E, phi_z_E)  # Ez_u
+    # %%
+    E_ux, E_uy, E_uz = np.real(E_ux), np.real(E_uy), np.real(E_uz)  # 无下标，表示 E 是 c 系下的
+    # theta_x_E_u, theta_y_E_u = xyz_to_theta_xy_inc(E_ux, E_uy, E_uz)
+    theta_E_u, phi_E_u = xyz_to_theta_phi_vertical(E_ux, E_uy, E_uz)
+
+    theta_E_u = format_scalar(theta_E_u)
+    phi_E_u = format_scalar(phi_E_u)
+
+    E_ux = - E_ux  # 旋转前的 晶体坐标系 c，变到 笛卡尔 左手 坐标系（x 右，y 上，z 里）
+    E_u = merge_array_xyz(E_ux, E_uy, E_uz)
+
+    return E_u, theta_E_u, phi_E_u
+
+
+def Gan_S_vector(is_air, lam, T,
+                 size_PerPixel,
+                 k_z_inc, k_z_inc_z, k_z_inc_xy,
+                 D_u, E_u, mode=1, **kwargs, ):
+    # %% 获取 kwargs 参数
+    p, theta_x, theta_y, \
+    delta, theta_z_c, phi_z_c = get_p_theta_xy_from_kwargs(mode, **kwargs)
+    # %% 旋转前的 晶体 abc 坐标系 -x y z 下的 晶轴 c 方向 的 单位矢量： kx 向 左 为正，ky 向 上 为正
+    k_z_inc_u, k_z_inc_ux, k_z_inc_uy, k_z_inc_uz = Gan_k_z_inc_u(is_air, lam, T,
+                                                                  p, size_PerPixel,
+                                                                  theta_x, theta_y,
+                                                                  theta_z_c, phi_z_c,
+                                                                  k_z_inc, k_z_inc_z, k_z_inc_xy,
+                                                                  mode, **kwargs, )
+    # %% 将 D_u 从直角坐标系 写成 旋转前 晶体坐标系 c 下的 极坐标形式 theta_z_D, phi_z_D
+    D_ux, D_uy, D_uz = split_Array_to_xyz(D_u)
+    E_ux, E_uy, E_uz = split_Array_to_xyz(E_u)
+    D_ux *= -1  # 注意这里的 D_u 仍是 左手系下的（因为 Gan_D_vector 输出的是 左手系），需要变换
+    E_ux *= -1
+    D_u = merge_array_xyz(D_ux, D_uy, D_uz)
+    E_u = merge_array_xyz(E_ux, E_uy, E_uz)
+    # %%
+    H = np.cross(k_z_inc_u, D_u)
+    H_ux, H_uy, H_uz = normalize_vector(v=H)
+    H_u = merge_array_xyz(H_ux, H_uy, H_uz)
+    S_u = np.cross(E_u, H_u)
+    S_ux, S_uy, S_uz = split_Array_to_xyz(S_u)
+    theta_x_S_u, theta_y_S_u = xyz_to_theta_xy_inc(S_ux, S_uy, S_uz)
+
+    theta_x_S_u = format_scalar(theta_x_S_u)
+    theta_y_S_u = format_scalar(theta_y_S_u)
+
+    # if mode < 3:
+    #     cos_walk_off_angle = np.dot(D_u, E_u)
+    # else:
+    #     cos_walk_off_angle = np.sum(D_u * E_u, -1)
+    # walk_off_angle = np.arccos(cos_walk_off_angle)
+    # walk_off_angle = walk_off_angle / np.pi * 180
+
+    if mode < 3:
+        cos_walk_off_angle = np.dot(S_u, k_z_inc_u)
+    else:
+        cos_walk_off_angle = np.sum(S_u * k_z_inc_u, -1)
+    walk_off_angle = np.arccos(cos_walk_off_angle)
+    walk_off_angle = walk_off_angle / np.pi * 180
+
+    walk_off_angle = format_scalar(walk_off_angle)
+
+    return walk_off_angle, S_u, theta_x_S_u, theta_y_S_u
 
 
 # %%
@@ -521,7 +788,8 @@ def Cal_theta_phi_z_inc(theta_x, theta_y, ):
     # ky = - ky  # 之前 theta_y = - kwargs["theta_y"] 给 搞成电脑坐标系下的了，所以 ky 也得取负 变成 y 轴向上...
 
     theta_z_inc = math.acos(kz)
-    phi_z_inc = math.atan2(ky, kx)  # -x, y, z 实验室 坐标系 下 的 方位角
+    # phi_z_inc = atan2(kx, ky)  # -x, y, z 实验室 坐标系 下 的 方位角
+    phi_z_inc = np.arctan2(ky, kx)
 
     return theta_z_inc, phi_z_inc
 
@@ -534,8 +802,8 @@ def Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
 
     # 边的余弦定理
     cos_theta_c_inc = np.cos(theta_z_c) * np.cos(theta_z_inc) + \
-                      np.sin(theta_z_c) * np.sin(theta_z_inc) * np.cos(
-        phi_z_inc - phi_z_c)  # inc 对 z 减 c 对 z，才是 inc 对 c
+                      np.sin(theta_z_c) * np.sin(theta_z_inc) * np.cos(phi_z_inc - phi_z_c)
+    # inc 对 z 减 c 对 z，才是 inc 对 c
     cos_theta_c_inc = np.where(np.abs(cos_theta_c_inc) <= 1, cos_theta_c_inc, np.sign(cos_theta_c_inc))
     theta_c_inc = np.arccos(cos_theta_c_inc)
 
@@ -554,10 +822,20 @@ def Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
     # phi_c_inc = np.arccos(cos_phi_c_inc)
     # phi_c_inc -= phi_c_c
 
-    # 正弦定理
+    # 正弦定理 （才能区分 phi_c_inc ~ pi 附近，sin(phi_c_inc) 的正负，对应 kx, ky 等的正负）
     sin_phi_c_inc = - np.sin(theta_z_inc) / np.sin(theta_c_inc) * np.sin(phi_z_inc - phi_z_c)
     phi_c_inc = np.arcsin(sin_phi_c_inc)
+    phi_c_inc = np.nan_to_num(phi_c_inc)
+    # print(phi_c_inc)
     phi_c_inc -= phi_c_c
+    # if phi_c_inc >= 0:
+    #     phi_c_inc -= phi_c_c  # 这要求 atan2 出来的 phi_c_inc 必须取值 0~2π，所以不能用 np.arctan2 ?
+    #     # 不不不，其他地方最好还是用 -π~π 的取值，否则 似乎 phi_z_inc - phi_z_c 又容易出错
+    #     # 只需要 这里改改就行
+    # else:
+    #     phi_c_inc += phi_c_c
+
+    # 如果 算出来 inc 沿 旋转后的 晶体坐标系 c' 的 光轴（即 theta_c_inc == 0），则无法定义 c' 系下的 phi，则主动去 定义之 为 0
 
     # print(np.arccos(cos_phi_c_inc) / math.pi * 180)
     # print(phi_c_inc / math.pi * 180)
@@ -567,6 +845,24 @@ def Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
     #     # print(phi_c_inc[:, 0] / math.pi * 180)
     # print(np.max(np.abs(theta_c_inc)), np.max(np.abs(phi_c_inc)))
     return theta_c_inc, phi_c_inc
+
+
+def Inverse_Transform_theta_phi_c_inc_to_z_inc(theta_z_c, phi_z_c, phi_c_c,
+                                               theta_c_inc, phi_c_inc, **kwargs):
+    phi_c_inc += phi_c_c
+    # if phi_c_inc >= 0:
+    #     phi_c_inc += phi_c_c  # 先退环境到 绕 c' 轴 自转之前（包括 inc 对 c 以及 z 对 c）
+    # else:
+    #     phi_c_inc -= phi_c_c
+    # np.where(phi_c_inc >= 0, phi_c_inc + phi_c_c, phi_c_inc - phi_c_c)
+    # print(phi_c_inc)
+    theta_c_z = theta_z_c
+    # phi_c_z = math.pi - phi_z_c  # 此时的 z 对 c 的 phi 还算可知
+    phi_c_z = math.pi  # z 对 c 的 phi 始终是 π
+    phi_z_z = math.pi - phi_z_c  # 要直接沿用 Cal_theta_phi_c_inc 这同一个模型的话，还得自转 π 减去 c 对 c 的 逆时针 自转方位角
+    theta_z_inc, phi_z_inc = Cal_theta_phi_c_inc(theta_c_z, phi_c_z, phi_z_z,
+                                                 theta_c_inc, phi_c_inc, **kwargs)
+    return theta_z_inc, phi_z_inc
 
 
 # %% biaxis 双轴晶体 折射率曲面 计算
@@ -606,6 +902,7 @@ def Cal_delta(nx, ny, nz, theta, phi, ):
     # print(np.min(tan_2_delta))
     # print(np.min(numerator))
     # print(np.min(denominator))
+    # delta = atan2(1, tan_2_delta) / 2
     delta = np.arctan2(tan_2_delta, 1) / 2
     # delta = np.arctan(tan_2_delta) / 2
     # print(np.max(delta))
@@ -729,16 +1026,107 @@ def init_AST(Ix, Iy, size_PerPixel,
 def init_AST_pro(Ix, Iy, size_PerPixel,
                  lam1, is_air, T,
                  theta_x, theta_y,
-                 g_p, p_p, **kwargs):
+                 g_p, p_p, is_print, **kwargs):
+    is_end = kwargs.get("is_end", 0)
+    is_end2 = kwargs.get("is_end2", 0)
+    add_level = kwargs.get("add_level", 0)
+    kwargs.pop("is_end", None)
+    kwargs.pop("is_end2", None)
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    # %%
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y, **kwargs)
-    D_u = Gan_D_vector(kwargs["polar"], k1, k1_z, k1_xy, **kwargs)
+
+    # %%
+    from fun_global_var import Get
+    if "polar2" in kwargs:
+        p = kwargs["polar2"]
+        theta_x = Get("theta2_x")
+        theta_y = Get("theta2_y")
+    else:
+        p = kwargs.get("polar", "e")
+        theta_x = Get("theta_x")
+        theta_y = Get("theta_y")
+    theta_x = float(Get('f_f') % theta_x)
+    theta_y = float(Get('f_f') % theta_y)
+    # %%
+
+    args_Gan_E_vector = \
+        [is_air, lam1, T, ]
+    args_Gan_D_vector = \
+        [is_air, lam1, T,
+         size_PerPixel,
+         k1, k1_z, k1_xy, ]
+
+    # %%
+
+    D_u_0kx0ky, theta_D_u_0kx0ky, phi_D_u_0kx0ky = Gan_D_vector(*args_Gan_D_vector,  # 左手系
+                                                                mode=1, **kwargs)
+    E_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky = Gan_E_vector(*args_Gan_E_vector,
+                                                                D_u_0kx0ky, **kwargs, )
+    walk_off_angle_0kx0ky, S_u, theta_x_S_0kx0ky, theta_y_S_0kx0ky = Gan_S_vector(*args_Gan_D_vector,
+                                                                                  D_u_0kx0ky, E_u_0kx0ky, mode=1,
+                                                                                  **kwargs, )
+    D_u_inc, theta_D_u_inc, phi_D_u_inc = Gan_D_vector(*args_Gan_D_vector,
+                                                       mode=2, **kwargs)
+    # print(D_u_inc)
+    E_u_inc, theta_E_u_inc, phi_E_u_inc = Gan_E_vector(*args_Gan_E_vector,
+                                                       D_u_inc, **kwargs, )
+    # print(E_u_inc)
+    walk_off_angle_inc, S_u, theta_x_S_u_inc, theta_y_S_u_inc = Gan_S_vector(*args_Gan_D_vector,
+                                                                             D_u_inc, E_u_inc, mode=2, **kwargs, )
+    D_u, theta_D_u, phi_D_u = Gan_D_vector(*args_Gan_D_vector,
+                                           mode=3, **kwargs)
+    E_u, theta_E_u, phi_E_u = Gan_E_vector(*args_Gan_E_vector,
+                                           D_u, **kwargs, )
+    walk_off_angle, S_u, theta_x_S_u, theta_y_S_u = Gan_S_vector(*args_Gan_D_vector,
+                                                                 D_u, E_u, mode=3, **kwargs, )
+
+    # %%
+
+    info = "n_" + p + " 的大小、" + "k_" + p + ", S_" + p + "; D_" + p + ", E_" + p + " 的 方向 与 夹角"
+    from fun_os import tree_print
+    is_print and print(tree_print(is_end, add_level=add_level) + info)
+    is_print and print(tree_print() + "————————————————————————————————".format())
+    is_print and print(tree_print() + "n_{} - z: n_{}(k_{}_z) = {}".format(p, p, p, Get("n_z")))
+    is_print and print(tree_print() + "k_{}_z - θ_x,y: θ_x(k_{}_z) = {} °, θ_y(k_{}_z) = {} °".format(p, p, 0, p, 0))
+    is_print and print(
+        tree_print() + "S_{}_z - θ_x,y: θ_x(S_{}_z) = {} °, θ_y(S_{}_z) = {} °".format(p, p, theta_x_S_0kx0ky, p,
+                                                                                       theta_y_S_0kx0ky))
+    is_print and print(
+        tree_print() + "{} 光离散角 - z：<k_{}_z, S_{}_z> = {} °".format(p, p, p, walk_off_angle_0kx0ky))
+    is_print and print(tree_print() + "————————————————————————————————".format())
+    is_print and print(tree_print() + "n_{} - inc: n_{}(k_{}_inc) = {}".format(p, p, p, n1_inc))
+    is_print and print(
+        tree_print() + "k_{}_inc - θ_x,y: θ_x(k_{}_inc) = {} °, θ_y(k_{}_inc) = {} °".format(p, p, theta_x, p, theta_y))
+    is_print and print(
+        tree_print() + "S_{}_inc - θ_x,y: θ_x(S_{}_inc) = {} °, θ_y(S_{}_inc) = {} °".format(p, p, theta_x_S_u_inc, p,
+                                                                                             theta_y_S_u_inc))
+    is_print and print(
+        tree_print() + "{} 光离散角 - inc：<k_{}_inc, S_{}_inc> = {} °".format(p, p, p, walk_off_angle_inc))
+    # %%
+    is_print and print(tree_print() + "————————————————————————————————".format())
+    is_print and print(
+        tree_print() + "D_{}_z - θ,φ: θ(D_{}_z) = {} °, φ(D_{}_z) = {} °".format(p, p, theta_D_u_0kx0ky, p,
+                                                                                 phi_D_u_0kx0ky))
+    is_print and print(
+        tree_print() + "E_{}_z - θ,φ: θ(E_{}_z) = {} °, φ(E_{}_z) = {} °".format(p, p, theta_E_u_0kx0ky, p,
+                                                                                 phi_E_u_0kx0ky))
+    is_print and print(tree_print() + "————————————————————————————————".format())
+    is_print and print(
+        tree_print() + "D_{}_inc - θ,φ: θ(D_{}_inc) = {} °, φ(D_{}_inc) = {} °".format(p, p, theta_D_u_inc, p,
+                                                                                       phi_D_u_inc))
+    is_print and print(
+        tree_print() + "E_{}_inc - θ,φ: θ(E_{}_inc) = {} °, φ(E_{}_inc) = {} °".format(p, p, theta_E_u_inc, p,
+                                                                                       phi_E_u_inc))
+    is_print and print(tree_print(is_end2) + "————————————————————————————————".format())
+
     # print(D_u[0])
     # print(D_u[:,0])
     # print(D_u[0,0])
-    g_oe = g_p * np.dot(D_u, p_p)  # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
-    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, D_u
+    g_oe = g_p * np.dot(E_u, p_p)  # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
+    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
 
 
 # %%

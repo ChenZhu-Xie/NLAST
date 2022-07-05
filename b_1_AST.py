@@ -40,8 +40,8 @@ def gan_p_xyp(**kwargs):
         phi = float(kwargs["phi_p"]) / 180 * np.pi
     else:
         phi = kwargs.get("phi_p", 0) / 180 * np.pi
-    phi_d = np.pi / 2 - phi  # 转换成 笛卡尔坐标系
-    p_ux, p_uy = np.cos(phi_d), np.sin(phi_d)  # 笛卡尔坐标系 下的 x,y 向 复振幅 占比
+    # phi = np.pi / 2 - phi  # x上y右z里 的 右手系 转换成 x右y上z里 笛卡尔 左手 坐标系
+    p_ux, p_uy = np.cos(phi), np.sin(phi)  # 笛卡尔坐标系 下的 x,y 向 复振幅 占比
     # 基于 上述 规定的 线偏振方向 的 单位矢量，所以 理应先有 基矢，再有这个比例，即 p_ux, p_uy = np.dot(p_p, p_x), np.dot(p_p, p_y)
     p_p = np.array([p_ux, p_uy, 0])
     return p_p, p_x, p_y
@@ -60,25 +60,25 @@ def gan_gp_p(g_shift, **kwargs):  # polarizer
 
 def gan_p_a(**kwargs):
     phi = kwargs.get("phi_a", 0) / 180 * np.pi
-    phi_d = np.pi / 2 - phi  # 转换成 笛卡尔坐标系
-    p_ux, p_uy = np.cos(phi_d), np.sin(phi_d)  # 笛卡尔坐标系 下的 x,y 向 复振幅 占比
+    # phi = np.pi / 2 - phi  # x上y右z里 的 右手系 转换成 x右y上z里 笛卡尔 左手 坐标系
+    p_ux, p_uy = np.cos(phi), np.sin(phi)  # 笛卡尔坐标系 下的 x,y 向 复振幅 占比
     # 基于 上述 规定的 线偏振方向 的 单位矢量，所以 理应先有 基矢，再有这个比例，即 p_ux, p_uy = np.dot(p_p, p_x), np.dot(p_p, p_y)
     p_a = np.array([p_ux, p_uy, 0])
     return p_a
 
 
-def gan_gp_a(g_oe, D_u, **kwargs):  # analyzer
+def gan_gp_a(g_oe, E_u, **kwargs):  # analyzer
     p_a = gan_p_a(**kwargs)
-    g_a = g_oe * np.dot(D_u, p_a)
-    # 不能是 p_a * D_u，得是 D_u * p_a，因为 D_u 的 最末维度 是 2，而 p_a 的 第一个维度 也是 2
+    g_a = g_oe * np.dot(E_u, p_a)
+    # 不能是 p_a * E_u，得是 E_u * p_a，因为 E_u 的 最末维度 是 2，而 p_a 的 第一个维度 也是 2
     return g_a
 
 
 # %%
 
-def gan_g_eoa(g_o, g_e, D_uo, D_ue, **kwargs):
-    g_oa = gan_gp_a(g_o, D_uo, **kwargs)
-    g_ea = gan_gp_a(g_e, D_ue, **kwargs)
+def gan_g_eoa(g_o, g_e, E_uo, E_ue, **kwargs):
+    g_oa = gan_gp_a(g_o, E_uo, **kwargs)
+    g_ea = gan_gp_a(g_e, E_ue, **kwargs)
     g_a = g_ea + g_oa
     return g_a
 
@@ -228,12 +228,14 @@ def AST(U_name="",
         # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
 
         kwargs["polar"] = "o"
-        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, D_uo = init_AST_pro(*args_init_AST, g_p, p_p,
+        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo = init_AST_pro(*args_init_AST, g_p, p_p, is_print,
+                                                                            is_end2=-1,
                                                                             **kwargs_init_AST, **kwargs)
 
         # %%  晶体 abc 坐标系 -x y z 下的 kxy 网格上 各点的 k 单位矢量： kx 向 左 为正，ky 向 上 为正
         kwargs["polar"] = "e"
-        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, D_ue = init_AST_pro(*args_init_AST, g_p, p_p,
+        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue = init_AST_pro(*args_init_AST, g_p, p_p, is_print,
+                                                                            add_level=1, is_end2=1,
                                                                             **kwargs_init_AST, **kwargs)
 
         # %% 衍射前（前端面 但 晶体内），g_o，绘图
@@ -277,7 +279,7 @@ def AST(U_name="",
             U_amp_plot_save(*args_U_amp_plot_save(folder_address, U_oe_energy_add, U_oe_energy_add_name),
                             **kwargs_U_amp_plot_save, **kwargs, )
         else:
-            g_a = gan_g_eoa(g_o, g_e, D_uo, D_ue, **kwargs)
+            g_a = gan_g_eoa(g_o, g_e, E_uo, E_ue, **kwargs)
             g_oea_vs_g_AST(g_a, g_shift)
 
             fGHU_plot_save(*args_fGHU_plot_save, part_z="_oea", **kwargs, )
@@ -342,7 +344,7 @@ def AST(U_name="",
                             **kwargs_U_amp_plot_save, z=z0, **kwargs, )
 
         else:
-            Gz_a = gan_g_eoa(Gz_o, Gz_e, D_uo, D_ue, **kwargs)
+            Gz_a = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, **kwargs)
             g_oea_vs_g_AST(Gz_a, g_a)
 
             fGHU_plot_save(*args_fGHU_plot_save, part_z="_oea_z", is_end=1, **kwargs, )

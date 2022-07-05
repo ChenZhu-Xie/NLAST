@@ -172,14 +172,14 @@ def incline_profile(Ix=0, Iy=0,
 # 也就是 对于 同一列 的 不同的行，其 倾斜相位 是相同的
 # 因此 倾斜相位 也 只与 列 相关，也就是 只与 第 2 个参数 有关，所以 与 x 有关。
 
-def Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, ):
+def Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, ):  # x 右，y 上 的 左手系下的 左手 球面三角坐标系 到 相应 直角坐标系 的 转换
     # %%  球面三角（xz 面 + yz 面，二者的 法向 相对于 z 轴 的 偏角）
     # kz 轴，选的是 左手系 的 + z，右手系的 - z 轴，theta_x， theta_y 也是 基于此轴正向 读的值。
     # %%  现实：无论先转 theta_x 还是先转 theta_y
-    kz = math.cos(theta_x) * math.cos(theta_y)  # 通光方向 的 分量大小（对于 右手系，是 - kz）
+    kz = np.cos(theta_x) * np.cos(theta_y)  # 通光方向 的 分量大小（对于 右手系，是 - kz）
     # %%  现实 1：先转 theta_x 再转 theta_y
-    ky = math.cos(theta_x) * math.sin(theta_y)
-    kx = math.sin(theta_x)
+    ky = np.cos(theta_x) * np.sin(theta_y)
+    kx = np.sin(theta_x)
     # %%  现实 2：先转 theta_y 再转 theta_x
     # ky = k_inc * math.sin(theta_y)
     # kx = k_inc * math.sin(theta_x) * math.cos(theta_y)
