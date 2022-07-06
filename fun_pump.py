@@ -176,10 +176,13 @@ def Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, ):  # x 右，y 上 的 
     # %%  球面三角（xz 面 + yz 面，二者的 法向 相对于 z 轴 的 偏角）
     # kz 轴，选的是 左手系 的 + z，右手系的 - z 轴，theta_x， theta_y 也是 基于此轴正向 读的值。
     # %%  现实：无论先转 theta_x 还是先转 theta_y
-    kz = np.cos(theta_x) * np.cos(theta_y)  # 通光方向 的 分量大小（对于 右手系，是 - kz）
+    # kz = np.cos(theta_x) * np.cos(theta_y)  # 通光方向 的 分量大小（对于 右手系，是 - kz）
+    kz = 1 / (1 + np.tan(theta_x) ** 2 + np.tan(theta_y) ** 2) ** 0.5
     # %%  现实 1：先转 theta_x 再转 theta_y
-    ky = np.cos(theta_x) * np.sin(theta_y)
-    kx = np.sin(theta_x)
+    # ky = np.cos(theta_x) * np.sin(theta_y)
+    # kx = np.sin(theta_x)
+    ky = np.tan(theta_y) * kz
+    kx = np.tan(theta_x) * kz
     # %%  现实 2：先转 theta_y 再转 theta_x
     # ky = k_inc * math.sin(theta_y)
     # kx = k_inc * math.sin(theta_x) * math.cos(theta_y)

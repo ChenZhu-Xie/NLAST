@@ -289,10 +289,17 @@ def Cal_n(size_PerPixel,
 
 # %%
 
-def Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_c, phi_z_c):  # 旋转前的 晶体 abc 坐标系 -x y z 下的 球坐标系，到其下的 直角坐标系
+def Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_c, phi_z_c, mode=0):  # 旋转前的 晶体 abc 坐标系 -x y z 下的 球坐标系，到其下的 直角坐标系
     kx = np.sin(theta_z_c) * np.cos(phi_z_c)
     ky = np.sin(theta_z_c) * np.sin(phi_z_c)
     kz = np.cos(theta_z_c)
+    import inspect
+    if inspect.stack()[1][3] == "Gan_E_vector" and mode == 3:
+        from fun_global_var import init_accu
+        if init_accu("test", 1) <= 1:
+            # print(kx)
+            print(phi_z_c)
+            # print(theta_z_c)
     return kx, ky, kz
 
 
@@ -324,9 +331,16 @@ def Gan_k_z_inc_u(is_air, lam, T,
             k_z_inc_ux *= -1  # 现在就换到了 右手 c 系 了
             k_z_inc_u = np.array([k_z_inc_ux, k_z_inc_uy, k_z_inc_uz])
             # print(k_z_inc_u)
-    elif mode == 3:
+    elif mode == 3:  # 从 图片坐标系，换到 c 系：x,y 取负，或 旋转 180 度（颠倒）
+        # from fun_array_Transform import Rotate_180  # 方法一：旋转 180 度（颠倒）
+        # k_z_inc = Rotate_180(k_z_inc)
+        # k_z_inc_z = Rotate_180(k_z_inc_z)
+        # k_z_inc_xy = Rotate_180(k_z_inc_xy)
+        # k_z_inc_ux, k_z_inc_uy, k_z_inc_uz = \
+        #     k_z_inc_xy[:, :, 0] / k_z_inc, k_z_inc_xy[:, :, 1] / k_z_inc, k_z_inc_z / k_z_inc
+        # 方法二：x,y 取负
         k_z_inc_ux, k_z_inc_uy, k_z_inc_uz = \
-            k_z_inc_z / k_z_inc, - k_z_inc_xy[:, :, 0] / k_z_inc, - k_z_inc_xy[:, :, 1] / k_z_inc  # 单位 unit 矢量 的 3 分量
+            - k_z_inc_xy[:, :, 0] / k_z_inc, - k_z_inc_xy[:, :, 1] / k_z_inc, k_z_inc_z / k_z_inc  # 单位 unit 矢量 的 3 分量
         # print(k_z_inc_ux[0])
         # print(k_z_inc_uy[:, 0])
         k_z_inc_u = np.dstack((k_z_inc_ux, k_z_inc_uy, k_z_inc_uz))  # 是个 2 维 矢量场，先是 2 个 空间维度，后是 3 个 矢量 分量维度。
@@ -341,6 +355,16 @@ def split_Array_to_xyz(array):
     return array_x, array_y, array_z
 
 
+def scale_vector(scale_factor, *args, v=1):
+    if len(args) != 3:
+        vx, vy, vz = split_Array_to_xyz(v)
+    else:
+        vx, vy, vz = args[0], args[1], args[2]
+    v_newx, v_newy, v_newz = vx * scale_factor, vy * scale_factor, vz * scale_factor  # 归一化 X'' 轴 的 单位矢量
+    v_new = merge_array_xyz(v_newx, v_newy, v_newz)
+    return v_new, v_newx, v_newy, v_newz
+
+
 def normalize_vector(*args, v=1):
     if len(args) != 3:
         vx, vy, vz = split_Array_to_xyz(v)
@@ -348,7 +372,15 @@ def normalize_vector(*args, v=1):
         vx, vy, vz = args[0], args[1], args[2]
     v_amp = (vx ** 2 + vy ** 2 + vz ** 2) ** 0.5  # 2 维 矢量场 每个场点 的 场的模大小
     v_ux, v_uy, v_uz = vx / v_amp, vy / v_amp, vz / v_amp  # 归一化 X'' 轴 的 单位矢量
+    v_ux, v_uy, v_uz = np.real(v_ux), np.real(v_uy), np.real(v_uz)
+    # print((v_ux ** 2 + v_uy ** 2 + v_uz ** 2) ** 0.5)
     return v_ux, v_uy, v_uz
+
+
+def normalize_merge_vector(*args, v=1):
+    v_ux, v_uy, v_uz = normalize_vector(*args, v=v)
+    v_u = merge_array_xyz(v_ux, v_uy, v_uz)  # 归一化后，还要赋值给 v_U，v_U 才也是归一化的
+    return v_u, v_ux, v_uy, v_uz
 
 
 def Apply_T_matrix(delta, axis_x, axis_y, axis_z,
@@ -410,7 +442,7 @@ def merge_array_xyz(array_x, array_y, array_z):
     return Array
 
 
-def format_scalar(x):
+def format_f_scalar(x):
     from fun_global_var import Get
     if x.shape == ():
         # x = format(x, Get("F_f"))
@@ -418,6 +450,17 @@ def format_scalar(x):
         # x = 0 if abs(x) < 1e-5 else x
         x = float(Get('f_f') % x)
     return x
+
+
+def format_e_scalar(x):
+    from fun_global_var import Get
+    if x.shape == ():
+        # x = format(x, Get("F_f"))
+        # x = np.sign(x) * float(Get('f_f') % abs(x))  # 为了能 把 e-34 这种都 格式化
+        # x = 0 if abs(x) < 1e-5 else x
+        x = float(format(x, Get("F_E")))  # ".1e", Get("F_E")
+    return x
+
 
 def Gan_D_vector(is_air, lam, T,
                  size_PerPixel,
@@ -446,7 +489,7 @@ def Gan_D_vector(is_air, lam, T,
                   k_z_inc_u)  # k_z_ince_inc 叉 k_z_c_u，所得的 垂直于 k_z_ince_u 和 k_z_c_u 的 法向量，再 叉乘 k_z_ince_u
     # 是个 2 维 矢量场，先是 2 个 空间维度，后是 3 个 矢量 分量维度。
     # 得到 k_z_ince_u 与 k_z_c_u 所形成的 平面 与 ⊥ k_z_ince_u 的 平面 的 交线，即尚未主轴化 的，旋转 2 次使 Z'' 同向于 k_z_ince_u 的 坐标系 X'' 轴
-    X2_ux, X2_uy, X2_uz = normalize_vector(v=X2)
+    X2, X2_ux, X2_uy, X2_uz = normalize_merge_vector(v=X2)
     # %%  # 将 X2e_u 绕 k_z_ince_u 轴 逆时针 旋转 δ，得到 D 的方向（单位矢量）
     # %% 旋转矩阵 系数
     Dz_ux, Dz_uy, Dz_uz = Apply_T_matrix(delta, k_z_inc_ux, k_z_inc_uy, k_z_inc_uz,
@@ -461,12 +504,13 @@ def Gan_D_vector(is_air, lam, T,
         D_ux, D_uy, D_uz = Apply_T_matrix(math.pi / 2, k_z_inc_ux, k_z_inc_uy, k_z_inc_uz,
                                           Dz_ux, Dz_uy, Dz_uz, )
     # %%
-    D_ux, D_uy, D_uz = np.real(D_ux), np.real(D_uy), np.real(D_uz)  # 无下标，表示 D 是 c 系下的
+    D_ux, D_uy, D_uz = normalize_vector(D_ux, D_uy, D_uz)  # 再次归一化，防止 T 旋转时 有误差
+    # D_ux, D_uy, D_uz = np.real(D_ux), np.real(D_uy), np.real(D_uz)  # 无下标，表示 D 是 c 系下的
     # theta_x_D_u, theta_y_D_u = xyz_to_theta_xy_inc(D_ux, D_uy, D_uz)
     theta_D_u, phi_D_u = xyz_to_theta_phi_vertical(D_ux, D_uy, D_uz)
 
-    theta_D_u = format_scalar(theta_D_u)
-    phi_D_u = format_scalar(phi_D_u)
+    theta_D_u = format_f_scalar(theta_D_u)
+    phi_D_u = format_f_scalar(phi_D_u)
 
     # if mode == 1:
     #     print(D_ux, D_uy, D_uz)
@@ -480,7 +524,7 @@ def xyz_to_theta_phi(kx, ky, kz):  # kx, ky, kz, theta_z, phi_z 都是相对 未
     theta_z = np.arccos(kz / (kx ** 2 + ky ** 2 + kz ** 2) ** 0.5)  # Dz_u
     # arccos 的 值域 才是 0~π，并且 极化 D 的方向很可能超出 π/2，所以必须用 arccos，不能用 arctan 或 arcsin
     # phi_z = atan2(ky, kx)
-    phi_z = np.arctan2(ky, kx)
+    phi_z = np.arctan2(ky, kx)  # 不能接收含 1j 等的 复数
     return theta_z, phi_z
 
 
@@ -495,7 +539,7 @@ def xyz_to_theta_phi_vertical(kx, ky, kz):  # 未旋转前 的 c 系下的 kx,ky
 
 def xyz_to_theta_xy_inc(kx, ky, kz):  # 晶体 c 系下的 kx, ky, kz，到 x右y上 的 左手系，
     kx = -kx  # 将 kx, ky, kz 转换到 左手系，方便生成 同一 左手系 下的 theta_x, theta_y
-    theta_x_inc = np.arcsin(kx)
+    theta_x_inc = np.arctan(kx / kz)
     theta_y_inc = np.arctan(ky / kz)
     theta_x_inc *= 180 / np.pi
     theta_y_inc *= 180 / np.pi
@@ -515,14 +559,38 @@ def Gan_E_vector(is_air, lam, T,
     phi_c_c = kwargs["phi_c"] / 180 * np.pi if "phi_c" in kwargs else 0  # 晶体坐标系' 对 晶轴 c（初始晶体坐标系） 的 方位角
     theta_c_D, phi_c_D = Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
                                              theta_z_D, phi_z_D, **kwargs)
-    # print(theta_c_D, phi_c_D)
     Dc_ux, Dc_uy, Dc_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_c_D, phi_c_D)
-    # print(Dc_ux, Dc_uy, Dc_uz)
+    if D_ux.shape != ():
+        mode = 3
+        from fun_global_var import init_accu
+        if init_accu("test2", 1) <= 1:
+            # print(phi_z_D)
+            # print(phi_c_D)
+            # print(phi_z_D)
+            pass
+    else:
+        # print(D_ux, D_uy, D_uz)
+        # print(Dc_ux, Dc_uy, Dc_uz)
+        # print(theta_z_D, phi_z_D)
+        mode = 0
+    # print(theta_c_D, phi_c_D)
+    # 检验 Inverse_Transform_theta_phi_c_inc_to_z_inc 的 正确性 # 如果下面 检验部分 在 Cal_Unit_kxkykz_based_on_theta_xy2 上面，
+    # 并且 取消注释它，则其 返回值 总会传入 Cal_Unit_kxkykz_based_on_theta_xy2，使得 Dc_ux, Dc_uy, Dc_uz 被改变，
+    # 但又不是变成 phi_z_D ... 服了。还 tm 能级联。有鬼，真他妈邪门。
+    # Inverse_Transform_theta_phi_c_inc_to_z_inc(theta_z_c, phi_z_c, phi_c_c,
+    #                                            theta_c_D, phi_c_D, **kwargs)
+    # Inverse_Transform_theta_phi_c_inc_to_z_inc(theta_z_c, phi_z_c, phi_c_c,
+    #                                            theta_c_D, phi_c_D, **kwargs)
+    theta_z_D_back, phi_z_D_back = Inverse_Transform_theta_phi_c_inc_to_z_inc(theta_z_c, phi_z_c, phi_c_c,
+                                                                              theta_c_D, phi_c_D, **kwargs)
+    # if mode == 0:
+    #     print(theta_z_D_back, phi_z_D_back, phi_z_D - phi_z_D_back)
+    # Dc_ux, Dc_uy, Dc_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_c_D, phi_c_D, mode)
     # %%  生成 折射率 椭球的 3 个主轴
     nx, ny, nz = Gan_refractive_index_ellipsoid(is_air, lam, T)
     # %% 得到 主轴化 的 晶体系 c 下的 E 分量，并归一化为 E_u
     Ec_x, Ec_y, Ec_z = Dc_ux / nx ** 2, Dc_uy / ny ** 2, Dc_uz / nz ** 2  # 模长上 仍不是 E 的大小，只有方向是对的。
-    Ec_ux, Ec_uy, Ec_uz = normalize_vector(Ec_x, Ec_y, Ec_z, )
+    Ec_ux, Ec_uy, Ec_uz = normalize_vector(Ec_x, Ec_y, Ec_z)
     # print(Ec_ux, Ec_uy, Ec_uz)
     # %% 将 Ec_u 写成 旋转后 晶体坐标系 c' 下的 极坐标形式 theta_c_E, phi_c_E
     theta_c_E, phi_c_E = xyz_to_theta_phi(Ec_ux, Ec_uy, Ec_uz)
@@ -530,15 +598,17 @@ def Gan_E_vector(is_air, lam, T,
     # %% 将 主轴化 的 晶体系 c 下的 E_u，逆变换 回 旋转前 晶体坐标系 c 下
     theta_z_E, phi_z_E = Inverse_Transform_theta_phi_c_inc_to_z_inc(theta_z_c, phi_z_c, phi_c_c,
                                                                     theta_c_E, phi_c_E, **kwargs)
+    phi_z_E += phi_z_D - phi_z_D_back
     # print(theta_z_E, phi_z_E)
     E_ux, E_uy, E_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_E, phi_z_E)  # Ez_u
+    E_ux, E_uy, E_uz = normalize_vector(E_ux, E_uy, E_uz)  # 再次归一化，防止 theta_z_E, phi_z_E 计算时 有误差
     # %%
-    E_ux, E_uy, E_uz = np.real(E_ux), np.real(E_uy), np.real(E_uz)  # 无下标，表示 E 是 c 系下的
+    # E_ux, E_uy, E_uz = np.real(E_ux), np.real(E_uy), np.real(E_uz)  # 无下标，表示 E 是 c 系下的
     # theta_x_E_u, theta_y_E_u = xyz_to_theta_xy_inc(E_ux, E_uy, E_uz)
     theta_E_u, phi_E_u = xyz_to_theta_phi_vertical(E_ux, E_uy, E_uz)
 
-    theta_E_u = format_scalar(theta_E_u)
-    phi_E_u = format_scalar(phi_E_u)
+    theta_E_u = format_f_scalar(theta_E_u)
+    phi_E_u = format_f_scalar(phi_E_u)
 
     E_ux = - E_ux  # 旋转前的 晶体坐标系 c，变到 笛卡尔 左手 坐标系（x 右，y 上，z 里）
     E_u = merge_array_xyz(E_ux, E_uy, E_uz)
@@ -546,10 +616,15 @@ def Gan_E_vector(is_air, lam, T,
     return E_u, theta_E_u, phi_E_u
 
 
+def vector_amp(v):
+    return np.sum(v ** 2, -1)
+
+
 def Gan_S_vector(is_air, lam, T,
                  size_PerPixel,
                  k_z_inc, k_z_inc_z, k_z_inc_xy,
-                 D_u, E_u, mode=1, **kwargs, ):
+                 D_u, E_u, g_p=0, mode=1, scale_factor=0.05, **kwargs, ):
+    # KTP 的 o 光 走离：scale_factor=0.05
     # %% 获取 kwargs 参数
     p, theta_x, theta_y, \
     delta, theta_z_c, phi_z_c = get_p_theta_xy_from_kwargs(mode, **kwargs)
@@ -569,32 +644,157 @@ def Gan_S_vector(is_air, lam, T,
     E_u = merge_array_xyz(E_ux, E_uy, E_uz)
     # %%
     H = np.cross(k_z_inc_u, D_u)
-    H_ux, H_uy, H_uz = normalize_vector(v=H)
-    H_u = merge_array_xyz(H_ux, H_uy, H_uz)
+    H_u, H_ux, H_uy, H_uz = normalize_merge_vector(v=H)
     S_u = np.cross(E_u, H_u)
-    S_ux, S_uy, S_uz = split_Array_to_xyz(S_u)
+    S_u, S_ux, S_uy, S_uz = normalize_merge_vector(v=S_u)  # 归一化后，还要赋值给 S_U，S_U 才也是归一化的
+    # S_ux, S_uy, S_uz = split_Array_to_xyz(S_u)  # 我 tm 是真的醉了，归一化后的 E 与 归一化后的 H 叉乘，不是归一化后的 S
     theta_x_S_u, theta_y_S_u = xyz_to_theta_xy_inc(S_ux, S_uy, S_uz)
 
-    theta_x_S_u = format_scalar(theta_x_S_u)
-    theta_y_S_u = format_scalar(theta_y_S_u)
-
-    # if mode < 3:
-    #     cos_walk_off_angle = np.dot(D_u, E_u)
-    # else:
-    #     cos_walk_off_angle = np.sum(D_u * E_u, -1)
-    # walk_off_angle = np.arccos(cos_walk_off_angle)
-    # walk_off_angle = walk_off_angle / np.pi * 180
-
     if mode < 3:
+        # print(S_u)
+        # cos_walk_off_angle = np.dot(D_u, E_u)
         cos_walk_off_angle = np.dot(S_u, k_z_inc_u)
+        # theta_z_D, phi_z_D = xyz_to_theta_phi(S_ux, S_uy, S_uz)
+        # print(theta_z_D / np.pi * 180)
+        # print(theta_x_S_u, theta_y_S_u)
+        # print(S_u)
+        # print(k_z_inc_u)
+        # print(D_u)
+        # print(E_u)
+        # print(cos_walk_off_angle)
+        # np.abs(np.dot(S_u, k_z_inc_u)) 保证 cos > 0，但已经不需要，因为 已使 S_uz > 0 为 左手系 下的了
     else:
-        cos_walk_off_angle = np.sum(S_u * k_z_inc_u, -1)
+        # cos_walk_off_angle = np.sum(D_u * E_u, -1)
+        cos_walk_off_angle = np.sum(S_u * k_z_inc_u, -1)  # np.abs(np.sum(S_u * k_z_inc_u, -1)) 保证 cos > 0
+        # %%  法一：产生 s_z_inc, s_z_inc_z, s_z_inc_xy：s 方向的 等效 k, kz, kxy 的大小
+        # %%
+        from fun_array_Transform import Rotate_180
+        s_z_inc = Rotate_180(k_z_inc) * cos_walk_off_angle  # 得到 S 方向 等效 k (即 s) 的 大小（之前 只得到了 S 的方向 S_u）
+        # 这里不能写成 s_z_inc = k_z_inc * cos_walk_off_angle，
+        # 因为 cos_walk_off_angle 仍在 c 系下，而非 图片坐标系，需要变成 图片坐标系；
+        # 或将 k_z_inc 变到 c 系，这里选择了后者，为的是先与 S_u 同参考系，得到 s_z_inc_z 和 s_z_inc_xy 后，再变换回 图片坐标系
+        # 晶体内的 光线速度 v'_s' 一般比 晶体内的 光波面速度 v'_k' 更偏离 入射方向 v_k
+        # 因此 晶体内 s' 方向的 群速度 v'_group， 一般比 k' 方向的 相速度 更大（快），但走的路程长，所以用的时间差不多，积累的相位 也差不多
+        # 以至于 晶体内 s' 方向的 波矢 s'，一般比 k' 方向的 波矢 更小，以至于 传到晶体 后端面 后，尽管 经历的 路程长，积累的相位 也差不多
+        # print(S_ux[0])
+        # print(S_ux[:, 0])
+        # s_z_inc_x, s_z_inc_y, s_z_inc_z = s_z_inc * k_z_inc_ux, s_z_inc * k_z_inc_uy, s_z_inc * k_z_inc_uz
+        s_z_inc_x, s_z_inc_y, s_z_inc_z = s_z_inc * S_ux, s_z_inc * S_uy, s_z_inc * S_uz
+        s_z_inc = Rotate_180(s_z_inc)
+        s_z_inc_x = Rotate_180(s_z_inc_x)
+        s_z_inc_y = Rotate_180(s_z_inc_y)
+        s_z_inc_z = Rotate_180(s_z_inc_z)
+        s_z_inc_xy = np.dstack((s_z_inc_x, s_z_inc_y))
+        # # print(s_z_inc[0])
+        # # print(k_z_inc[0])
+        # # print(s_z_inc[:, 0])
+        # # print(k_z_inc[:, 0])
+    # %%  法二：同一 z = z0 面处，s 方向 与 z = z0 面 的 交点 的 相位， 相比 k 方向 与 z = z0 面 的 交点 的 相位，超前的 倍率
+    # %%
+    # 错误的方法：是平面的，但实际是立体的
+    z = np.array([0, 0, 1])
+    # # sin_sz = vector_amp(np.cross(S_u, z))  # python 的 叉乘 在幅值上 这么不靠谱？
+    # cos_sz = np.dot(S_u, z)  # np.abs(np.dot(S_u, z))
+    # sin_sz = (1 - cos_sz ** 2) ** 0.5
+    # tan_sz = sin_sz / cos_sz
+    # # sin_kz = vector_amp(np.cross(k_z_inc_u, z))
+    cos_kz = np.dot(k_z_inc_u, z)  # np.abs(np.dot(k_z_inc_u, z))
+    # sin_kz = (1 - cos_kz ** 2) ** 0.5
+    # tan_kz = sin_kz / cos_kz
+    # delta_sk = (tan_sz - tan_kz) * tan_kz
+    # %%
+    # 正确的方法： 先 2 个矢量 z 分量 相等（归一化），相减后就是 垂直于 z 轴 的 矢量了，然后再 往 k 矢量上 投影，这样方向 和 大小都有
+    # vector_k_to_s_vertical_to_z = scale_vector(1 / S_uz, v=S_u)[0] - scale_vector(1 / k_z_inc_uz, v=k_z_inc_u)[0]
+    vector_k_to_s_vertical_to_z = scale_vector(k_z_inc_uz / S_uz, v=S_u)[0] - k_z_inc_u  # 共享 z 向长度 k_z_inc_uz 或 1
+    vector_k_to_s_vertical_to_z *= scale_factor
+    delta_sk_parallel_to_k = np.sum(vector_k_to_s_vertical_to_z * k_z_inc_u, -1)
+    # print(delta_sk_parallel_to_k)
+    delta_sk_parallel_to_z = delta_sk_parallel_to_k / cos_kz
+    if mode == 1:
+        pass
+        # print(S_u)
+        # print(np.cross(S_u, z))
+        # print(np.arcsin(sin_sz) / math.pi * 180)  # python 的 叉乘 在幅值上 这么不靠谱？
+        # print(np.arcsin(sin_kz) / math.pi * 180)  # 要是在方向上还不靠谱，那就炸了。
+        # print(np.arccos(cos_sz) / math.pi * 180)
+        # print(np.arccos(cos_kz) / math.pi * 180)
+        # print(np.arctan(tan_sz) / math.pi * 180)
+        # print(np.arctan(tan_kz) / math.pi * 180)
+    if mode == 3:
+        # print(np.arcsin(sin_sz) / math.pi * 180)
+        from fun_array_Transform import Rotate_180
+        delta_sk_parallel_to_z = Rotate_180(delta_sk_parallel_to_z)
+        # print(delta_sk[0])
+        # print(delta_sk[:, 0])
+        delta_sk_parallel_to_z += 1
+    # %%  法三：修改 g_p：双折射 S 与 k 的分离，所导致 的 实空间 整体 位移，可以由 频谱 g 的 整体移动 再衍射，或 随 z 引入倾斜相位，得到。
+    # %%
+    # 方案一：除了 衍射之外，再引入 随 z 的 倾斜相位
+    # 好处：1. 倾斜相位 需要随 z 相关，但不知该 怎么相关 2. 网格不需要 重新采样
+    #      3. 图的 复振幅 绝对分布 整体移动，相对分布 不变 4. 晶体后端面 出射时，不需要更改 频谱，频谱 可以保持 连续性 不变
+    #      5. 相比 法二，z 向 不再额外衍射，只横向位移，与现实吻合：oe 两光 轮廓 大小差不多
+    # 坏处：1. U 倒是 因 倒空间 相位梯度 分离了，但 g 的 强度分布 还是重合 在一起的，导致 不知道 可否使 倍频 效率下降（是否是 其根因）
+    #      2. 背后的机制也不清楚，导致 算 g 的 横向移动矢量 的 方法不唯一。
+    v_x, v_y, v_z = split_Array_to_xyz(vector_k_to_s_vertical_to_z)
+    if mode < 3:
+        v_x = - v_x  # 旋转前的 晶体坐标系 c，变到 笛卡尔 左手 坐标系（x 右，y 上，z 里）
+        delta_sk_vertical_to_z = np.array([format_e_scalar(v_x),
+                                           format_e_scalar(v_y)])
+        from fun_global_var import Set
+        if mode == 1:  # 设置来 “标量 梯度” 处 使用
+            Set("v_z_x", v_x)  # 注意 此处 设置的是 左手系下的
+            Set("v_z_y", v_y)
+        else:
+            Set("v_inc_x", v_x)
+            Set("v_inc_y", v_y)
+    else:
+        from fun_array_Generate import mesh_shift
+        mesh_Ix0_Iy0_shift = mesh_shift(v_x.shape[0], v_y.shape[1])
+        # 矢场 梯度
+        # v_x = Rotate_180(v_x)
+        # v_y = Rotate_180(v_y)
+        # v_z = Rotate_180(v_z)
+        # delta_sk_vertical_to_z = v_x * mesh_Ix0_Iy0_shift[:, :, 0] + \
+        #                          v_y * mesh_Ix0_Iy0_shift[:, :, 1]
+        # 本来应叫做 Phase_Gradient_vertical_to_z，但方便导出，用的名是 delta_sk_vertical_to_z
+        # 标量 梯度
+        from fun_global_var import Get
+        # 左手系 变到 图片坐标系，x 保持不变，y 反
+        v_x, v_y = Get("v_z_x"), - Get("v_z_y")
+        delta_sk_vertical_to_z = v_x * mesh_Ix0_Iy0_shift[:, :, 0] + \
+                                 v_y * mesh_Ix0_Iy0_shift[:, :, 1]
+
+    # 但该方法 本质上 并不是修改 g_p，而是 像 s 比 k 相位超前倍率 那样，算出一个 衍射传递函数 的 修正因子，并且可直接 沿用那里的
+    # 只不过 不再是 delta_sk = (tan_sz - tan_kz) * tan_kz，而是 delta_sk_vertical_to_z = (tan_sz - tan_kz) * z
+    # 额不， 不再是 delta_sk = delta_sk_parallel_to_k / cos_kz，而是 delta_sk_vertical_to_z = vector_k_to_s_vertical_to_z 点积 kx,ky
+    # 意味着 正入射 也会有 倾斜相位，并且 delta_sk 的 乘以对象 不再是 kz · z，而是 横向的 kx,ky
+    # %%
+    # 方案二：频谱 g 一次性 整体移动，后续 再衍射
+    # 好处：1. 图的移动 直接 与 z 相关 2. 真正的 走离效应，可用于 仿真 倍频效率 （g 的 交叠区域 减小，交叠积分 降低）
+    #      3. 图的 强度 绝对分布 整体移动，但 相对分布 不变（但空域 引入倾斜相位，这与 S 沿用 等相位面 的 物理图像 不兼容）
+    #      4. 中心级 可看做 群速度 中心 5. 相比 法二，z 向 不再额外衍射，只横向位移，与现实吻合：oe 两光 轮廓 大小差不多
+    # 坏处：1. 修改完 并计算到 晶体后端面后，得修改回来，否则 再折射到空气中时 不满足 保持 传播方向 不变（复杂）
+    #      2. 怎么算 g 的 横向移动矢量？且 网格 每个格点 单独移动 会导致 网格不再 均匀。可能需要像 产生 s, s_z, s_xy 一样 重新采样。
+
+    # %%
+
     walk_off_angle = np.arccos(cos_walk_off_angle)
     walk_off_angle = walk_off_angle / np.pi * 180
 
-    walk_off_angle = format_scalar(walk_off_angle)
+    theta_x_S_u = format_f_scalar(theta_x_S_u)
+    theta_y_S_u = format_f_scalar(theta_y_S_u)
+    walk_off_angle = format_f_scalar(walk_off_angle)
+    delta_sk_parallel_to_z = format_e_scalar(delta_sk_parallel_to_z)
 
-    return walk_off_angle, S_u, theta_x_S_u, theta_y_S_u
+    if mode < 3:
+        return S_u, theta_x_S_u, theta_y_S_u, \
+               walk_off_angle, delta_sk_parallel_to_z, delta_sk_vertical_to_z
+    else:
+        return S_u, theta_x_S_u, theta_y_S_u, \
+               walk_off_angle, delta_sk_parallel_to_z, delta_sk_vertical_to_z, \
+               s_z_inc, s_z_inc_z, s_z_inc_xy, g_p
+    # return S_u, theta_x_S_u, theta_y_S_u, \
+    #        walk_off_angle, delta_sk_parallel_to_z
 
 
 # %%
@@ -849,6 +1049,7 @@ def Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
 
 def Inverse_Transform_theta_phi_c_inc_to_z_inc(theta_z_c, phi_z_c, phi_c_c,
                                                theta_c_inc, phi_c_inc, **kwargs):
+    # print(phi_c_inc, phi_c_c)
     phi_c_inc += phi_c_c
     # if phi_c_inc >= 0:
     #     phi_c_inc += phi_c_c  # 先退环境到 绕 c' 轴 自转之前（包括 inc 对 c 以及 z 对 c）
@@ -1065,46 +1266,76 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
                                                                 mode=1, **kwargs)
     E_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky = Gan_E_vector(*args_Gan_E_vector,
                                                                 D_u_0kx0ky, **kwargs, )
-    walk_off_angle_0kx0ky, S_u, theta_x_S_0kx0ky, theta_y_S_0kx0ky = Gan_S_vector(*args_Gan_D_vector,
-                                                                                  D_u_0kx0ky, E_u_0kx0ky, mode=1,
-                                                                                  **kwargs, )
+    S_u, theta_x_S_0kx0ky, theta_y_S_0kx0ky, \
+    walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky = Gan_S_vector(*args_Gan_D_vector,
+                                                                                 D_u_0kx0ky, E_u_0kx0ky, mode=1,
+                                                                                 **kwargs, )
     D_u_inc, theta_D_u_inc, phi_D_u_inc = Gan_D_vector(*args_Gan_D_vector,
                                                        mode=2, **kwargs)
     # print(D_u_inc)
     E_u_inc, theta_E_u_inc, phi_E_u_inc = Gan_E_vector(*args_Gan_E_vector,
                                                        D_u_inc, **kwargs, )
     # print(E_u_inc)
-    walk_off_angle_inc, S_u, theta_x_S_u_inc, theta_y_S_u_inc = Gan_S_vector(*args_Gan_D_vector,
-                                                                             D_u_inc, E_u_inc, mode=2, **kwargs, )
+    S_u, theta_x_S_u_inc, theta_y_S_u_inc, \
+    walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc = Gan_S_vector(*args_Gan_D_vector,
+                                                                        D_u_inc, E_u_inc, mode=2, **kwargs, )
     D_u, theta_D_u, phi_D_u = Gan_D_vector(*args_Gan_D_vector,
                                            mode=3, **kwargs)
     E_u, theta_E_u, phi_E_u = Gan_E_vector(*args_Gan_E_vector,
                                            D_u, **kwargs, )
-    walk_off_angle, S_u, theta_x_S_u, theta_y_S_u = Gan_S_vector(*args_Gan_D_vector,
-                                                                 D_u, E_u, mode=3, **kwargs, )
+    S_u, theta_x_S_u, theta_y_S_u, \
+    walk_off_angle, delta_sk_pz, PG_vz, \
+    s, s_z, s_xy, g_p = Gan_S_vector(*args_Gan_D_vector,
+                                     D_u, E_u, g_p, mode=3, **kwargs, )
 
     # %%
 
     info = "n_" + p + " 的大小、" + "k_" + p + ", S_" + p + "; D_" + p + ", E_" + p + " 的 方向 与 夹角"
     from fun_os import tree_print
     is_print and print(tree_print(is_end, add_level=add_level) + info)
-    is_print and print(tree_print() + "————————————————————————————————".format())
-    is_print and print(tree_print() + "n_{} - z: n_{}(k_{}_z) = {}".format(p, p, p, Get("n_z")))
-    is_print and print(tree_print() + "k_{}_z - θ_x,y: θ_x(k_{}_z) = {} °, θ_y(k_{}_z) = {} °".format(p, p, 0, p, 0))
-    is_print and print(
-        tree_print() + "S_{}_z - θ_x,y: θ_x(S_{}_z) = {} °, θ_y(S_{}_z) = {} °".format(p, p, theta_x_S_0kx0ky, p,
-                                                                                       theta_y_S_0kx0ky))
-    is_print and print(
-        tree_print() + "{} 光离散角 - z：<k_{}_z, S_{}_z> = {} °".format(p, p, p, walk_off_angle_0kx0ky))
-    is_print and print(tree_print() + "————————————————————————————————".format())
+    # %% inc
+    is_print and print(tree_print() + "———————————————— inc, {} ————————————————".format(p))
     is_print and print(tree_print() + "n_{} - inc: n_{}(k_{}_inc) = {}".format(p, p, p, n1_inc))
+    is_print and print(
+        tree_print() + "{} 光 离散角 - inc：<k_{}_inc, S_{}_inc> = {} °".format(p, p, p, walk_off_angle_inc))
+    is_print and print(
+        tree_print() + "纵向 S_{}_inc 对 k_{}_inc 传播相位 超前系数 - z：δ_p<S_{}_inc, k_{}_inc> = {}".format(p, p, p, p,
+                                                                                                  delta_sk_pz_inc))
+    is_print and print(
+        tree_print() + "横向 S_{}_inc 对 k_{}_inc 梯度相位 矢量 - z：δ_v<S_{}_inc, k_{}_inc> = {}".format(p, p, p, p,
+                                                                                                delta_sk_vz_inc))
+    is_print and print(tree_print() + "————————————————————————————————".format())
+    # %%
     is_print and print(
         tree_print() + "k_{}_inc - θ_x,y: θ_x(k_{}_inc) = {} °, θ_y(k_{}_inc) = {} °".format(p, p, theta_x, p, theta_y))
     is_print and print(
         tree_print() + "S_{}_inc - θ_x,y: θ_x(S_{}_inc) = {} °, θ_y(S_{}_inc) = {} °".format(p, p, theta_x_S_u_inc, p,
                                                                                              theta_y_S_u_inc))
+    # %%
+    is_print and print(tree_print() + "————————————————————————————————".format())
     is_print and print(
-        tree_print() + "{} 光离散角 - inc：<k_{}_inc, S_{}_inc> = {} °".format(p, p, p, walk_off_angle_inc))
+        tree_print() + "D_{}_inc - θ,φ: θ(D_{}_inc) = {} °, φ(D_{}_inc) = {} °".format(p, p, theta_D_u_inc, p,
+                                                                                       phi_D_u_inc))
+    is_print and print(
+        tree_print() + "E_{}_inc - θ,φ: θ(E_{}_inc) = {} °, φ(E_{}_inc) = {} °".format(p, p, theta_E_u_inc, p,
+                                                                                       phi_E_u_inc))
+    # %% z
+    is_print and print(tree_print() + "———————————————— z, {} ————————————————".format(p))
+    is_print and print(tree_print() + "n_{} - z: n_{}(k_{}_z) = {}".format(p, p, p, Get("n_z")))
+    is_print and print(
+        tree_print() + "{} 光 离散角 - z：<k_{}_z, S_{}_z> = {} °".format(p, p, p, walk_off_angle_0kx0ky))
+    is_print and print(
+        tree_print() + "纵向 S_{}_z 对 k_{}_z 传播相位 超前系数 - z：δ_p<S_{}_z, k_{}_z> = {}".format(p, p, p, p,
+                                                                                          delta_sk_pz_0kx0ky))
+    is_print and print(
+        tree_print() + "横向 S_{}_z 对 k_{}_z 梯度相位 矢量 - z：δ_v<S_{}_z, k_{}_z> = {}".format(p, p, p, p,
+                                                                                        delta_sk_vz_0kx0ky))
+    # %%
+    is_print and print(tree_print() + "————————————————————————————————".format())
+    is_print and print(tree_print() + "k_{}_z - θ_x,y: θ_x(k_{}_z) = {} °, θ_y(k_{}_z) = {} °".format(p, p, 0, p, 0))
+    is_print and print(
+        tree_print() + "S_{}_z - θ_x,y: θ_x(S_{}_z) = {} °, θ_y(S_{}_z) = {} °".format(p, p, theta_x_S_0kx0ky, p,
+                                                                                       theta_y_S_0kx0ky))
     # %%
     is_print and print(tree_print() + "————————————————————————————————".format())
     is_print and print(
@@ -1113,20 +1344,18 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
     is_print and print(
         tree_print() + "E_{}_z - θ,φ: θ(E_{}_z) = {} °, φ(E_{}_z) = {} °".format(p, p, theta_E_u_0kx0ky, p,
                                                                                  phi_E_u_0kx0ky))
-    is_print and print(tree_print() + "————————————————————————————————".format())
-    is_print and print(
-        tree_print() + "D_{}_inc - θ,φ: θ(D_{}_inc) = {} °, φ(D_{}_inc) = {} °".format(p, p, theta_D_u_inc, p,
-                                                                                       phi_D_u_inc))
-    is_print and print(
-        tree_print() + "E_{}_inc - θ,φ: θ(E_{}_inc) = {} °, φ(E_{}_inc) = {} °".format(p, p, theta_E_u_inc, p,
-                                                                                       phi_E_u_inc))
+    # %%
     is_print and print(tree_print(is_end2) + "————————————————————————————————".format())
 
     # print(D_u[0])
     # print(D_u[:,0])
     # print(D_u[0,0])
     g_oe = g_p * np.dot(E_u, p_p)  # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
-    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, k1, k1_z * delta_sk_pz, k1_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, s, s_z, s_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, s, s_z * delta_sk_pz, s_xy, g_oe, E_u
+    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u, PG_vz
 
 
 # %%
