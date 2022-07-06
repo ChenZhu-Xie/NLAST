@@ -227,14 +227,14 @@ def AST_EVV(U_name="",
         # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
 
         kwargs["polar"] = "o"
-        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, PG_o_vz = \
+        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo = \
             init_AST_pro(*args_init_AST, g_p, p_p, is_print,
                          is_end2=-1,
                          **kwargs_init_AST, **kwargs)
 
         # %%  晶体 abc 坐标系 -x y z 下的 kxy 网格上 各点的 k 单位矢量： kx 向 左 为正，ky 向 上 为正
         kwargs["polar"] = "e"
-        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, PG_e_vz = \
+        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue = \
             init_AST_pro(*args_init_AST, g_p, p_p, is_print,
                          add_level=1, is_end2=1,
                          **kwargs_init_AST, **kwargs)
@@ -264,10 +264,10 @@ def AST_EVV(U_name="",
             # %% 开始 EVV
 
             def He_zdz(diz):
-                return np.power(math.e, (k1e_z + PG_e_vz) * diz * 1j)
+                return np.power(math.e, k1e_z * diz * 1j)
 
             def Ho_zdz(diz):
-                return np.power(math.e, (k1o_z + PG_o_vz) * diz * 1j)
+                return np.power(math.e, k1o_z * diz * 1j)
 
             def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
@@ -439,10 +439,10 @@ if __name__ == '__main__':
          "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
-         "z_pump": 0,
+         "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": -50, "p": 0,
-         "theta_x": 0, "theta_y": 0,
+         "l": 50, "p": 0,
+         "theta_x": 1, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,

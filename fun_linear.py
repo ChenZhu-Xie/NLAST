@@ -179,6 +179,7 @@ def Cal_n(size_PerPixel,
                           record_delta_name="delta_z")
         from fun_global_var import Set
         Set("n_z", n_z)
+        Set("k_z", k_z)
         # %% 生成 mesh
         from fun_global_var import Get
         Ix = kwargs["Ix_structure"] if "Ix_structure" in kwargs else Get("Ix")  # 可能会有 Ix = Ix_structure  从 kwargs 里传进来
@@ -622,9 +623,9 @@ def vector_amp(v):
 
 def Gan_S_vector(is_air, lam, T,
                  size_PerPixel,
-                 k_z_inc, k_z_inc_z, k_z_inc_xy,
+                 k_z_inc, k_z_inc_z, k_z_inc_xy, k1_inc,
                  D_u, E_u, g_p=0, mode=1, scale_factor=0.05, **kwargs, ):
-    # KTP 的 o 光 走离：scale_factor=0.05
+    # KTP 的 o 光 走离 默认：scale_factor=0.05，现已无法从外界更改，直接参照 走离角算。
     # %% 获取 kwargs 参数
     p, theta_x, theta_y, \
     delta, theta_z_c, phi_z_c = get_p_theta_xy_from_kwargs(mode, **kwargs)
@@ -663,7 +664,7 @@ def Gan_S_vector(is_air, lam, T,
         # print(E_u)
         # print(cos_walk_off_angle)
         # np.abs(np.dot(S_u, k_z_inc_u)) 保证 cos > 0，但已经不需要，因为 已使 S_uz > 0 为 左手系 下的了
-    else:
+    elif mode == 3:
         # cos_walk_off_angle = np.sum(D_u * E_u, -1)
         cos_walk_off_angle = np.sum(S_u * k_z_inc_u, -1)  # np.abs(np.sum(S_u * k_z_inc_u, -1)) 保证 cos > 0
         # %%  法一：产生 s_z_inc, s_z_inc_z, s_z_inc_xy：s 方向的 等效 k, kz, kxy 的大小
@@ -678,8 +679,8 @@ def Gan_S_vector(is_air, lam, T,
         # 以至于 晶体内 s' 方向的 波矢 s'，一般比 k' 方向的 波矢 更小，以至于 传到晶体 后端面 后，尽管 经历的 路程长，积累的相位 也差不多
         # print(S_ux[0])
         # print(S_ux[:, 0])
-        # s_z_inc_x, s_z_inc_y, s_z_inc_z = s_z_inc * k_z_inc_ux, s_z_inc * k_z_inc_uy, s_z_inc * k_z_inc_uz
-        s_z_inc_x, s_z_inc_y, s_z_inc_z = s_z_inc * S_ux, s_z_inc * S_uy, s_z_inc * S_uz
+        s_z_inc_x, s_z_inc_y, s_z_inc_z = s_z_inc * k_z_inc_ux, s_z_inc * k_z_inc_uy, s_z_inc * k_z_inc_uz
+        # s_z_inc_x, s_z_inc_y, s_z_inc_z = s_z_inc * S_ux, s_z_inc * S_uy, s_z_inc * S_uz
         s_z_inc = Rotate_180(s_z_inc)
         s_z_inc_x = Rotate_180(s_z_inc_x)
         s_z_inc_y = Rotate_180(s_z_inc_y)
@@ -689,6 +690,12 @@ def Gan_S_vector(is_air, lam, T,
         # # print(k_z_inc[0])
         # # print(s_z_inc[:, 0])
         # # print(k_z_inc[:, 0])
+    walk_off_angle = np.arccos(cos_walk_off_angle)
+    from fun_global_var import Set, Get
+    if mode == 1:
+        Set("walk_off_angle_z", walk_off_angle)  # 等会会用之，各向同性地（标量地） 为 vector_k_to_s_vertical_to_z 赋予长度
+    elif mode == 2:
+        Set("walk_off_angle_inc", walk_off_angle)
     # %%  法二：同一 z = z0 面处，s 方向 与 z = z0 面 的 交点 的 相位， 相比 k 方向 与 z = z0 面 的 交点 的 相位，超前的 倍率
     # %%
     # 错误的方法：是平面的，但实际是立体的
@@ -704,9 +711,39 @@ def Gan_S_vector(is_air, lam, T,
     # delta_sk = (tan_sz - tan_kz) * tan_kz
     # %%
     # 正确的方法： 先 2 个矢量 z 分量 相等（归一化），相减后就是 垂直于 z 轴 的 矢量了，然后再 往 k 矢量上 投影，这样方向 和 大小都有
-    # vector_k_to_s_vertical_to_z = scale_vector(1 / S_uz, v=S_u)[0] - scale_vector(1 / k_z_inc_uz, v=k_z_inc_u)[0]
-    vector_k_to_s_vertical_to_z = scale_vector(k_z_inc_uz / S_uz, v=S_u)[0] - k_z_inc_u  # 共享 z 向长度 k_z_inc_uz 或 1
-    vector_k_to_s_vertical_to_z *= scale_factor
+    vector_k_to_s_vertical_to_z = \
+        scale_vector(1 / S_uz, v=S_u)[0] - scale_vector(1 / k_z_inc_uz, v=k_z_inc_u)[0]  # 共享 z 向长度 1
+    if mode < 3:
+        vector_k_to_s_vertical_to_z *= walk_off_angle
+    elif mode == 3:
+        vector_k_to_s_vertical_to_z *= np.tan(Get("walk_off_angle_z"))
+        # 各向同性地（标量地） 为 vector_k_to_s_vertical_to_z 赋予长度
+        # vector_k_to_s_vertical_to_z = scale_vector(walk_off_angle, v=vector_k_to_s_vertical_to_z)[0]
+        # 各向异性地（矢量地） 为 vector_k_to_s_vertical_to_z 赋予长度
+    v_x, v_y, v_z = split_Array_to_xyz(vector_k_to_s_vertical_to_z)
+    # 提前为 后面 法三 做铺垫，因为 等会 vector_k_to_s_vertical_to_z 会因 delta_sk_parallel_to_k 而改变（被覆盖）
+    # %%  看看更物理（积累相位更多）的 vector_k_to_s_vertical_to_z 对 delta_sk_parallel_to_z 有效果没
+    # vector_k_to_s_vertical_to_z = scale_vector(k_z_inc_uz / S_uz, v=S_u)[0] - k_z_inc_u  # 共享 z 向长度 k_z_inc_uz
+    # if mode == 1:  # 注意 Get 到的（是标量 无所谓） 以及 k_z_inc_z 都是 图片坐标系 下的，需要 转换到 c 系
+    #     vector_k_to_s_vertical_to_z = scale_vector(Get("k_z") / S_uz, v=S_u)[0] - \
+    #                                   scale_vector(Get("k_z") / k_z_inc_uz, v=k_z_inc_u)[0]
+    #     # 以上 等价于 以下
+    #     # vector_k_to_s_vertical_to_z = scale_vector(Get("k_z") * k_z_inc_uz / S_uz, v=S_u)[0] - \
+    #     #                               scale_vector(Get("k_z"), v=k_z_inc_u)[0]
+    # elif mode == 2:
+    #     vector_k_to_s_vertical_to_z = scale_vector(k1_inc * k_z_inc_uz / S_uz, v=S_u)[0] - \
+    #                                   scale_vector(k1_inc, v=k_z_inc_u)[0]
+    #     # 该方法对 delta_sk_parallel_to_k 有实际物理意义，但对 delta_sk_vertical_to_z 没有意义（可试验）。
+    # elif mode == 3:
+    #     k_z_inc_z = Rotate_180(k_z_inc_z)
+    #     vector_k_to_s_vertical_to_z = scale_vector(k_z_inc_z / S_uz, v=S_u)[0] - \
+    #                                   scale_vector(k_z_inc_z / k_z_inc_uz, v=k_z_inc_u)[0]
+    #     # 共享 z 向长度 k_z_inc_z（有实际物理意义？），但要注意 k_z_inc_z 是矩阵，只能在 mode == 3 时用
+    # vector_k_to_s_vertical_to_z *= scale_factor  # 已废弃 外界更改 scale_factor，理应自动生成。
+    # %% 看看 各向异性（矢量场） 的 walk_off_angle 对 delta_sk_parallel_to_z 有附加效果没
+    # vector_k_to_s_vertical_to_z = scale_vector(walk_off_angle, v=vector_k_to_s_vertical_to_z)[0]
+    # 各向异性地（矢量地） 为 vector_k_to_s_vertical_to_z 赋予长度
+    # %%
     delta_sk_parallel_to_k = np.sum(vector_k_to_s_vertical_to_z * k_z_inc_u, -1)
     # print(delta_sk_parallel_to_k)
     delta_sk_parallel_to_z = delta_sk_parallel_to_k / cos_kz
@@ -735,34 +772,32 @@ def Gan_S_vector(is_air, lam, T,
     #      5. 相比 法二，z 向 不再额外衍射，只横向位移，与现实吻合：oe 两光 轮廓 大小差不多
     # 坏处：1. U 倒是 因 倒空间 相位梯度 分离了，但 g 的 强度分布 还是重合 在一起的，导致 不知道 可否使 倍频 效率下降（是否是 其根因）
     #      2. 背后的机制也不清楚，导致 算 g 的 横向移动矢量 的 方法不唯一。
-    v_x, v_y, v_z = split_Array_to_xyz(vector_k_to_s_vertical_to_z)
     if mode < 3:
         v_x = - v_x  # 旋转前的 晶体坐标系 c，变到 笛卡尔 左手 坐标系（x 右，y 上，z 里）
         delta_sk_vertical_to_z = np.array([format_e_scalar(v_x),
-                                           format_e_scalar(v_y)])
-        from fun_global_var import Set
+                                           format_e_scalar(v_y)])  # v_z 不必要
         if mode == 1:  # 设置来 “标量 梯度” 处 使用
             Set("v_z_x", v_x)  # 注意 此处 设置的是 左手系下的
             Set("v_z_y", v_y)
         else:
             Set("v_inc_x", v_x)
             Set("v_inc_y", v_y)
-    else:
+    elif mode == 3:
         from fun_array_Generate import mesh_shift
         mesh_Ix0_Iy0_shift = mesh_shift(v_x.shape[0], v_y.shape[1])
-        # 矢场 梯度
-        # v_x = Rotate_180(v_x)
-        # v_y = Rotate_180(v_y)
-        # v_z = Rotate_180(v_z)
-        # delta_sk_vertical_to_z = v_x * mesh_Ix0_Iy0_shift[:, :, 0] + \
-        #                          v_y * mesh_Ix0_Iy0_shift[:, :, 1]
-        # 本来应叫做 Phase_Gradient_vertical_to_z，但方便导出，用的名是 delta_sk_vertical_to_z
-        # 标量 梯度
-        from fun_global_var import Get
+        # %% 标量 梯度相位
         # 左手系 变到 图片坐标系，x 保持不变，y 反
         v_x, v_y = Get("v_z_x"), - Get("v_z_y")
         delta_sk_vertical_to_z = v_x * mesh_Ix0_Iy0_shift[:, :, 0] + \
                                  v_y * mesh_Ix0_Iy0_shift[:, :, 1]
+        # %% 矢场 梯度相位
+        # v_x = Rotate_180(v_x)
+        # v_y = Rotate_180(v_y)
+        # # v_z = Rotate_180(v_z)  # v_z 不必要
+        # delta_sk_vertical_to_z = v_x * mesh_Ix0_Iy0_shift[:, :, 0] + \
+        #                          v_y * mesh_Ix0_Iy0_shift[:, :, 1]
+        # 本来应叫做 Phase_Gradient_vertical_to_z，但方便导出，用的名是 delta_sk_vertical_to_z
+
 
     # 但该方法 本质上 并不是修改 g_p，而是 像 s 比 k 相位超前倍率 那样，算出一个 衍射传递函数 的 修正因子，并且可直接 沿用那里的
     # 只不过 不再是 delta_sk = (tan_sz - tan_kz) * tan_kz，而是 delta_sk_vertical_to_z = (tan_sz - tan_kz) * z
@@ -777,8 +812,6 @@ def Gan_S_vector(is_air, lam, T,
     #      2. 怎么算 g 的 横向移动矢量？且 网格 每个格点 单独移动 会导致 网格不再 均匀。可能需要像 产生 s, s_z, s_xy 一样 重新采样。
 
     # %%
-
-    walk_off_angle = np.arccos(cos_walk_off_angle)
     walk_off_angle = walk_off_angle / np.pi * 180
 
     theta_x_S_u = format_f_scalar(theta_x_S_u)
@@ -1267,7 +1300,7 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
     E_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky = Gan_E_vector(*args_Gan_E_vector,
                                                                 D_u_0kx0ky, **kwargs, )
     S_u, theta_x_S_0kx0ky, theta_y_S_0kx0ky, \
-    walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky = Gan_S_vector(*args_Gan_D_vector,
+    walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky = Gan_S_vector(*args_Gan_D_vector, k1_inc,
                                                                                  D_u_0kx0ky, E_u_0kx0ky, mode=1,
                                                                                  **kwargs, )
     D_u_inc, theta_D_u_inc, phi_D_u_inc = Gan_D_vector(*args_Gan_D_vector,
@@ -1277,7 +1310,7 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
                                                        D_u_inc, **kwargs, )
     # print(E_u_inc)
     S_u, theta_x_S_u_inc, theta_y_S_u_inc, \
-    walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc = Gan_S_vector(*args_Gan_D_vector,
+    walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc = Gan_S_vector(*args_Gan_D_vector, k1_inc,
                                                                         D_u_inc, E_u_inc, mode=2, **kwargs, )
     D_u, theta_D_u, phi_D_u = Gan_D_vector(*args_Gan_D_vector,
                                            mode=3, **kwargs)
@@ -1285,7 +1318,7 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
                                            D_u, **kwargs, )
     S_u, theta_x_S_u, theta_y_S_u, \
     walk_off_angle, delta_sk_pz, PG_vz, \
-    s, s_z, s_xy, g_p = Gan_S_vector(*args_Gan_D_vector,
+    s, s_z, s_xy, g_p = Gan_S_vector(*args_Gan_D_vector, k1_inc,
                                      D_u, E_u, g_p, mode=3, **kwargs, )
 
     # %%
@@ -1351,11 +1384,20 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
     # print(D_u[:,0])
     # print(D_u[0,0])
     g_oe = g_p * np.dot(E_u, p_p)  # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
+    # %%
     # return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
     # return n1_inc, n1, k1_inc, k1, k1_z * delta_sk_pz, k1_xy, g_oe, E_u
+    # %%
     # return n1_inc, n1, k1_inc, s, s_z, s_xy, g_oe, E_u
     # return n1_inc, n1, k1_inc, s, s_z * delta_sk_pz, s_xy, g_oe, E_u
-    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u, PG_vz
+    # %%
+    return n1_inc, n1, k1_inc, k1, k1_z + PG_vz, k1_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, k1, (k1_z * delta_sk_pz + PG_vz), k1_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, k1, (k1_z + PG_vz) * delta_sk_pz, k1_xy, g_oe, E_u
+    # %%
+    # return n1_inc, n1, k1_inc, s, s_z + PG_vz, s_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, s, (s_z * delta_sk_pz + PG_vz), s_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, s, (s_z + PG_vz) * delta_sk_pz, s_xy, g_oe, E_u
 
 
 # %%

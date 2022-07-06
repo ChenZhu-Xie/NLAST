@@ -773,9 +773,9 @@ def Fun3(for_th, fors_num, G_zdz, *args, **kwargs, ):
 # %%
 
 def end_AST(z0, size_PerPixel,
-            g_shift, k1_z, PG_vz=0):
+            g_shift, k1_z):
     iz = z0 / size_PerPixel
-    fset("H", np.power(math.e, (k1_z + PG_vz) * iz * 1j))
+    fset("H", np.power(math.e, k1_z * iz * 1j))
     fset("G", g_shift * fget("H"))
     fset("U", ifft2(fget("G")))
 

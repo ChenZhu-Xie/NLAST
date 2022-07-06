@@ -228,7 +228,7 @@ def AST(U_name="",
         # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
 
         kwargs["polar"] = "o"
-        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, PG_o_vz = \
+        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo = \
             init_AST_pro(*args_init_AST, g_p, p_p,
                          is_print,
                          is_end2=-1,
@@ -236,7 +236,7 @@ def AST(U_name="",
 
         # %%  晶体 abc 坐标系 -x y z 下的 kxy 网格上 各点的 k 单位矢量： kx 向 左 为正，ky 向 上 为正
         kwargs["polar"] = "e"
-        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, PG_e_vz = \
+        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue = \
             init_AST_pro(*args_init_AST, g_p, p_p,
                          is_print,
                          add_level=1, is_end2=1,
@@ -307,14 +307,14 @@ def AST(U_name="",
         # %% 衍射后（晶体内 后端面），o 光 绘图
 
         Gz_o = end_AST(z0, size_PerPixel,
-                       g_o, k1o_z, PG_o_vz)
+                       g_o, k1o_z)
 
         fGHU_plot_save(*args_fGHU_plot_save, part_z="_o_z", **kwargs, )
 
         # %% 衍射后（晶体内 后端面），e 光 绘图
 
         Gz_e = end_AST(z0, size_PerPixel,
-                       g_e, k1e_z, PG_e_vz)
+                       g_e, k1e_z)
 
         fGHU_plot_save(*args_fGHU_plot_save, part_z="_e_z", **kwargs, )
 
