@@ -47,12 +47,14 @@ def gan_p_xyp(**kwargs):
     return p_p, p_x, p_y
 
 
-def gan_gp_p(g_shift, **kwargs):  # polarizer
-    p_p, p_x, p_y = gan_p_xyp(**kwargs)
-    if type(kwargs.get("phi_p", 0)) == str:  # 如果 是 str，则认为 不加偏振片，但初始 线偏振 从 p_y 变为 p_p 方向。
-        g_p = g_shift
-    else:
-        g_p = g_shift * np.dot(p_p, p_y)
+def gan_p_g(phi_p_cover, **kwargs):  # 不与 kwargs 中的 phi_p 冲突
+    kwargs["phi_p"] = phi_p_cover  # 覆盖 kwargs 中的 phi_p
+    return gan_p_xyp(**kwargs)[0]
+
+
+def gan_g_p(g_shift, p_g=np.array([0, 1, 0]), **kwargs):  # polarizer
+    p_p = gan_p_xyp(**kwargs)[0]
+    g_p = g_shift * np.dot(p_p, p_g)
     return g_p, p_p
 
 
@@ -81,6 +83,165 @@ def gan_g_eoa(g_o, g_e, E_uo, E_ue, **kwargs):
     g_ea = gan_gp_a(g_e, E_ue, **kwargs)
     g_a = g_ea + g_oa
     return g_a
+
+
+# %%  圆偏基 与 线偏基 （系数） 的 相互转换
+
+# def projection_factor(target_polar_to_refer_polar):  # target_polar 朝 refer_polar 投影的 分量，'AB' 也就是 A 的 B 分量
+#     VH_to_RL = 1 / 2 ** 0.5 * np.array([[1, -1j],
+#                                         [1, 1j]])
+#     if target_polar_to_refer_polar == 'RV':  # R 的 V 分量
+#         return VH_to_RL[0, 0]
+#     elif target_polar_to_refer_polar == 'RH':
+#         return VH_to_RL[0, 1]
+#     elif target_polar_to_refer_polar == 'LV':
+#         return VH_to_RL[1, 0]
+#     elif target_polar_to_refer_polar == 'LH':
+#         return VH_to_RL[1, 1]
+#     # %%
+#     RL_to_VH = np.linalg.inv(np.array(VH_to_RL))
+#     if target_polar_to_refer_polar == 'VR':
+#         return RL_to_VH[0, 0]
+#     elif target_polar_to_refer_polar == 'VL':
+#         return RL_to_VH[0, 1]
+#     elif target_polar_to_refer_polar == 'HR':
+#         return RL_to_VH[1, 0]
+#     elif target_polar_to_refer_polar == 'HL':
+#         return RL_to_VH[1, 1]
+
+def projection_factor(base_polar_Coeff_from_target_polar):  # target_polar 朝 refer_polar 投影的 分量，'AB' 也就是 B 的 A 分量 系数
+    VH_to_RL = 1 / 2 ** 0.5 * np.array([[1, -1j],
+                                        [1, 1j]])
+    RL_to_VH = np.linalg.inv(np.array(VH_to_RL))
+    # %%
+    if base_polar_Coeff_from_target_polar == 'RV':  # V 的 R 分量
+        return RL_to_VH[0, 0]
+    elif base_polar_Coeff_from_target_polar == 'RH':
+        return RL_to_VH[0, 1]
+    elif base_polar_Coeff_from_target_polar == 'LV':
+        return RL_to_VH[1, 0]
+    elif base_polar_Coeff_from_target_polar == 'LH':
+        return RL_to_VH[1, 1]
+    # %%
+    if base_polar_Coeff_from_target_polar == 'VR':
+        return VH_to_RL[0, 0]
+    elif base_polar_Coeff_from_target_polar == 'VL':
+        return VH_to_RL[0, 1]
+    elif base_polar_Coeff_from_target_polar == 'HR':
+        return VH_to_RL[1, 0]
+    elif base_polar_Coeff_from_target_polar == 'HL':
+        return VH_to_RL[1, 1]
+    # 按理 用 点乘 更 正宗。
+
+
+# %%  基底 改变后，U 分量 在 新基底 下的 系数
+
+def U_LP_to_LP(U, polar):  # 线偏 → 线偏，单入 双出
+    if polar == "V":
+        U_V = U
+        U_H = np.zeros((U.shape[0], U.shape[1]))
+    elif polar == "H":
+        U_V = np.zeros((U.shape[0], U.shape[1]))
+        U_H = U
+    return U_V, U_H
+
+
+def U_CP_to_CP(U, polar):  # 圆偏 → 圆偏，单入 双出
+    if polar == "R":
+        U_R = U
+        U_L = np.zeros((U.shape[0], U.shape[1]))
+    elif polar == "L":
+        U_R = np.zeros((U.shape[0], U.shape[1]))
+        U_L = U
+    return U_R, U_L
+
+
+def U_CP_to_LP(U, polar):  # 圆偏 → 线偏，单入 双出
+    if polar == "R":
+        U_V = projection_factor("VR") * U
+        U_H = projection_factor("HR") * U
+    if polar == "L":
+        U_V = projection_factor("VL") * U
+        U_H = projection_factor("HL") * U
+    return U_V, U_H
+
+
+def U_LP_to_CP(U, polar):  # 线偏 → 圆偏，单入 双出
+    if polar == "V":
+        U_R = projection_factor("RV") * U
+        U_L = projection_factor("LV") * U
+    if polar == "H":
+        U_R = projection_factor("RH") * U
+        U_L = projection_factor("LH") * U
+    return U_R, U_L
+
+
+def Reverse_U_LCP(U, polar):  # 线偏 ←→ 圆偏，单入 双出
+    if polar == "R" or polar == "L":
+        return U_CP_to_LP(U, polar)
+    if polar == "V" or polar == "H":
+        return U_LP_to_CP(U, polar)
+
+
+# %% 2 个 U 合成后，总体在 线偏基 或 圆偏基 下的 2 个分量（基方向） 的 场叠加
+
+def U_12_to_LP(U1, U2, polar1, polar2):  # 线偏，圆偏 → 线偏，双入 双出
+    if polar1 == "V" or polar1 == "H":
+        U1_V, U1_H = U_LP_to_LP(U1, polar1)
+    if polar1 == "R" or polar1 == "L":
+        U1_V, U1_H = U_CP_to_LP(U1, polar1)
+    if polar2 == "V" or polar2 == "H":
+        U2_V, U2_H = U_LP_to_LP(U2, polar2)
+    if polar2 == "R" or polar2 == "L":
+        U2_V, U2_H = U_CP_to_LP(U2, polar2)
+    U_V = U1_V + U2_V
+    U_H = U1_H + U2_H
+    return U_V, U_H
+
+
+def U_12_to_CP(U1, U2, polar1, polar2):  # 线偏，圆偏 → 圆偏，双入 双出
+    if polar1 == "R" or polar1 == "L":
+        U1_R, U1_L = U_CP_to_CP(U1, polar1)
+    if polar1 == "V" or polar1 == "H":
+        U1_R, U1_L = U_LP_to_CP(U1, polar1)
+    if polar2 == "R" or polar2 == "L":
+        U2_R, U2_L = U_CP_to_CP(U2, polar2)
+    if polar2 == "V" or polar2 == "H":
+        U2_R, U2_L = U_LP_to_CP(U2, polar2)
+    U_R = U1_R + U2_R
+    U_L = U1_L + U2_L
+    return U_R, U_L
+
+
+def U_12_to_HOPS(U_0, U2_0, p, p2, **kwargs):
+    Theta = kwargs.get("Theta", 0) / 180 * np.pi
+    Phi = kwargs.get("Phi", 0) / 180 * np.pi
+    R_factor = np.cos(Theta + np.pi / 4) * np.e ** (1j * Phi)
+    L_factor = np.sin(Theta + np.pi / 4) * np.e ** (-1j * Phi)
+    if p == "R":
+        U_0 *= R_factor
+    elif p == "L":
+        U_0 *= L_factor
+    if p2 == "R":
+        U2_0 *= R_factor
+    elif p2 == "L":
+        U2_0 *= L_factor
+    return U_0, U2_0
+
+
+# %%
+
+def U_12_to_gU_CP(U_0, U2_0, polar, polar2):
+    from fun_linear import fft2
+    U_V, U_H = U_12_to_LP(U_0, U2_0, polar, polar2)
+    g_V = fft2(U_V)
+    g_H = fft2(U_H)
+    return U_V, U_H, g_V, g_H
+
+
+def U_12_to_gU_HOPS(U_0, U2_0, p, p2, **kwargs):  # 用 p 而不用 polar，来防止重名
+    U_0, U2_0 = U_12_to_HOPS(U_0, U2_0, p, p2, **kwargs)
+    return U_12_to_gU_CP(U_0, U2_0, p, p2)
 
 
 # %%
@@ -127,6 +288,41 @@ def AST(U_name="",
                               __name__ == "__main__", is_print, **kwargs, )
 
     # %%
+    U2_name = kwargs.get("U2_name", U_name)
+    img2_full_name = kwargs.get("img2_full_name", img_full_name)
+    is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
+    # %%
+    z_pump2 = kwargs.get("z_pump2", z_pump)
+    is_LG_2 = kwargs.get("is_LG_2", is_LG)
+    is_Gauss_2 = kwargs.get("is_Gauss_2", is_Gauss)
+    is_OAM_2 = kwargs.get("is_OAM_2", is_OAM)
+    # %%
+    l2 = kwargs.get("l2", l)
+    p2 = kwargs.get("p2", p)
+    theta2_x = kwargs.get("theta2_x", theta_x)
+    theta2_y = kwargs.get("theta2_y", theta_y)
+    # %%
+    is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
+    is_H_l2 = kwargs.get("is_H_l2", is_H_l)
+    is_H_theta2 = kwargs.get("is_H_theta2", is_H_theta)
+    is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
+    # %%
+    w0_2 = kwargs.get("w0_2", w0)
+    # lam2 = kwargs.get("lam2", lam1)
+    lam2 = lam1
+    is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
+    T2 = kwargs.get("T2", T)
+    polar2 = kwargs.get("polar2", 'H')
+    # %%
+    is_HOPS = kwargs.get("is_HOPS", 0)
+    if is_HOPS > 0:
+        # %%
+        pump2_keys = kwargs["pump2_keys"]
+        # %%
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
+
+    # %%
 
     info = "AST_线性角谱"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
@@ -135,6 +331,8 @@ def AST(U_name="",
 
     # kwargs['ray'] = init_GLV_rmw(U_name, "~", "", "AST", **kwargs)
     init_GLV_rmw(U_name, "l", "AST", "", **kwargs)
+
+    # %%
 
     img_name, img_name_extension, img_squared, \
     size_PerPixel, size_fig, Ix, Iy, \
@@ -167,6 +365,48 @@ def AST(U_name="",
                                  is_print,
                                  # %%
                                  ray_pump='1', **kwargs, )
+
+    # %%
+
+    if is_HOPS > 0:
+        from fun_pump import pump_pic_or_U2
+        U2_0, g2 = pump_pic_or_U2(U2_name,
+                                  img2_full_name,
+                                  is_phase_only_2,
+                                  # %%
+                                  z_pump2,
+                                  is_LG_2, is_Gauss_2, is_OAM_2,
+                                  l2, p2,
+                                  theta2_x, theta2_y,
+                                  # %%
+                                  is_random_phase_2,
+                                  is_H_l2, is_H_theta2, is_H_random_phase_2,
+                                  # %%
+                                  U_size, w0_2,
+                                  # %%
+                                  lam2, is_air_pump, T,
+                                  polar2,
+                                  # %%
+                                  is_save, is_save_txt, dpi,
+                                  # %%
+                                  ticks_num, is_contourf,
+                                  is_title_on, is_axes_on, is_mm,
+                                  # %%
+                                  fontsize, font,
+                                  # %%
+                                  is_colorbar_on, is_energy,
+                                  # %%
+                                  is_print,
+                                  # %%
+                                  ray_pump='2', **kwargs, )
+
+        polar = kwargs.get("polar", "V")  # 默认 第一个 泵浦 是 竖直的
+        if is_HOPS == 1:
+            U_V, U_H, g_V, g_H = U_12_to_gU_HOPS(U_0, U2_0, polar, polar2, **kwargs)
+        elif is_HOPS == 2:
+            U_V, U_H, g_V, g_H = U_12_to_gU_CP(U_0, U2_0, polar, polar2)
+
+    # %%
 
     if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
         kwargs.pop("U")
@@ -216,142 +456,270 @@ def AST(U_name="",
          is_colorbar_on, is_energy,
          z0, ]
 
+    plot_group_AST = kwargs.get("plot_group_AST", "")
+
     # %% 折射
 
     from fun_os import U_dir, U_amp_plot_save, U_energy_print
-    if kwargs.get("is_linear_birefringence", 0) == 1:
+    if kwargs.get("is_linear_birefringence", 0) == 1 or is_HOPS > 0:  # 双线偏泵浦时，必然考虑 偏振态
         # %% 起偏
 
-        g_p, p_p = gan_gp_p(g_shift, **kwargs)
+        if is_HOPS == 0:
+            phi_p = kwargs.get("phi_p", 0)
+            if type(phi_p) == str:  # 如果 是 str，则认为 不加偏振片，但初始 线偏振 从 p_y 变为 p_p 方向，也就是 纯转了偏振。
+                p_g = gan_p_g(float(phi_p), **kwargs)
+            else:
+                p_g = gan_p_g(90, **kwargs)  # 否则 默认 g 的偏振 p_g 沿 y 方向
+            g_p, p_p = gan_g_p(g_shift, p_g, **kwargs)  # 朝 偏振方向 投影之后，g_p 大小改变，方向从 p_g 方向，变为 偏振片的 p_p 方向
+        else:  # 起偏器 不再有用：因为 已经能模拟所有矢量光了，何必再 塌缩为 线偏，降 2 个维度 呢？
+            p_H = gan_p_g(0, **kwargs)  # 对应 H 方向 的 偏振矢量，给 g_H 用
+            p_V = gan_p_g(90, **kwargs)  # 对应 H 方向 的 偏振矢量，给 g_H 用
 
         # %% 空气中，偏振状态 与 入射方向 无关/独立，因此 无论 theta_x 怎么取，U 中所有点 偏振状态 均为 V，且 g 中 所有点的 偏振状态也 均为 V
         # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
+        if is_HOPS == 0:
+            kwargs["polar"] = "o"
+            n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo = \
+                init_AST_pro(*args_init_AST, g_p, p_p,
+                             is_print, is_end2=-1,
+                             **kwargs_init_AST, **kwargs)
 
-        kwargs["polar"] = "o"
-        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo = \
-            init_AST_pro(*args_init_AST, g_p, p_p,
-                         is_print,
-                         is_end2=-1,
-                         **kwargs_init_AST, **kwargs)
+            # %%  晶体 abc 坐标系 -x y z 下的 kxy 网格上 各点的 k 单位矢量： kx 向 左 为正，ky 向 上 为正
+            kwargs["polar"] = "e"
+            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue = \
+                init_AST_pro(*args_init_AST, g_p, p_p,
+                             is_print, add_level=1, is_end2=1,
+                             **kwargs_init_AST, **kwargs)
+        else:
+            # %%  V 的 o 分量
+            kwargs["polar"] = "o"
+            n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo = \
+                init_AST_pro(*args_init_AST, g_V, p_V,
+                             is_print, is_end2=-1,
+                             **kwargs_init_AST, **kwargs)
 
-        # %%  晶体 abc 坐标系 -x y z 下的 kxy 网格上 各点的 k 单位矢量： kx 向 左 为正，ky 向 上 为正
-        kwargs["polar"] = "e"
-        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue = \
-            init_AST_pro(*args_init_AST, g_p, p_p,
-                         is_print,
-                         add_level=1, is_end2=1,
-                         **kwargs_init_AST, **kwargs)
+            # %%  V 的 e 分量
+            kwargs["polar"] = "e"
+            n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve = \
+                init_AST_pro(*args_init_AST, g_V, p_V,
+                             is_print, add_level=1, is_end2=-1,
+                             **kwargs_init_AST, **kwargs)
+            # %%  H 的 o 分量
+            kwargs["polar"] = "o"
+            n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho = \
+                init_AST_pro(*args_init_AST, g_H, p_H,
+                             is_print, add_level=1, is_end2=-1,
+                             **kwargs_init_AST, **kwargs)
+
+            # %%  H 的 e 分量
+            kwargs["polar"] = "e"
+            n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He = \
+                init_AST_pro(*args_init_AST, g_H, p_H,
+                             is_print, add_level=1, is_end2=1,
+                             **kwargs_init_AST, **kwargs)
+            # g_o = g_Vo + g_Ho  # 不知道 能不能 加在一起，他们的 D, k 方向一样，但 E, S 方向不一样
+            # g_e = g_Ve + g_He  # 不知道 能不能 加在一起，他们的 D, k 方向一样，但 E, S 方向不一样
 
         # %% 衍射前（前端面 但 晶体内），g_o，绘图
 
-        g_oea_vs_g_AST(g_o, g_shift)
-
-        fGHU_plot_save(*args_fGHU_plot_save, part_z="_o", **kwargs, )
+        if "o" in plot_group_AST or "f" in plot_group_AST:
+            if is_HOPS == 0:
+                g_oea_vs_g_AST(g_o, g_p)
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_o", **kwargs, )
+            else:
+                g_oea_vs_g_AST(g_Vo, g_V)
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_Vo", **kwargs, )
+                g_oea_vs_g_AST(g_Ho, g_H)
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_Ho", **kwargs, )
 
         # %% 衍射前（前端面 但 晶体内），g_e，绘图
 
-        g_oea_vs_g_AST(g_e, g_shift)
-
-        fGHU_plot_save(*args_fGHU_plot_save, part_z="_e", **kwargs, )
+        if "e" in plot_group_AST or "f" in plot_group_AST:
+            if is_HOPS == 0:
+                g_oea_vs_g_AST(g_e, g_p)
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_e", **kwargs, )
+            else:
+                g_oea_vs_g_AST(g_Ve, g_V)
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_Ve", **kwargs, )
+                g_oea_vs_g_AST(g_He, g_H)
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_He", **kwargs, )
 
         # %% 衍射前（前端面 但 晶体内），并通过 检偏器 a（或 不加偏振片，只看 光强）后，绘图
 
         if type(kwargs.get("phi_a", 0)) == str:
-            # 如果 传进来的 phi_a 不是数字，则说明 没加 偏振片，则 正交线偏 直接叠加后，gUH 的 相位 就 没用了；只有 gU 的 能量分布 才有用
-            # 并且 二者的 的 复场 和 能量，根本不满足 傅立叶变换对 的 关系；
-            g_oe_energy_add = np.abs(g_o) ** 2 + np.abs(g_e) ** 2  # 远场 平方和
-            # H_energy = g_oe_energy_add / np.abs(g_shift) ** 2
-            U_oe_energy_add = np.abs(ifft2(g_o)) ** 2 + np.abs(ifft2(g_e)) ** 2  # 近场 平方和
+            if "m" in plot_group_AST or "f" in plot_group_AST:
+                # 如果 传进来的 phi_a 不是数字，则说明 没加 偏振片，则 正交线偏 直接叠加后，gUH 的 相位 就 没用了；只有 gU 的 能量分布 才有用
+                # 并且 二者的 的 复场 和 能量，根本不满足 傅立叶变换对 的 关系；
+                if is_HOPS == 0:
+                    g_oe_energy_add = np.abs(g_o) ** 2 + np.abs(g_e) ** 2  # 远场 平方和
+                    # H_energy = g_oe_energy_add / np.abs(g_shift) ** 2
+                    U_oe_energy_add = np.abs(ifft2(g_o)) ** 2 + np.abs(ifft2(g_e)) ** 2  # 近场 平方和
+                else:
+                    g_oe_energy_add = np.abs(g_Vo) ** 2 + np.abs(g_Ho) ** 2 + \
+                                      np.abs(g_Ve) ** 2 + np.abs(g_He) ** 2  # 远场 平方和
+                    U_oe_energy_add = np.abs(ifft2(g_Vo)) ** 2 + np.abs(ifft2(g_Ho)) ** 2 + \
+                                      np.abs(ifft2(g_Ve)) ** 2 + np.abs(ifft2(g_He)) ** 2  # 近场 平方和
 
-            # %%
-            g_oe_energy_add_name = Get("method") + ' - ' + "g" + Get("ray") + "_oe_energy_add"
-            folder_address = U_dir(g_oe_energy_add_name, is_save, **kwargs, )
-            U_amp_plot_save(*args_U_amp_plot_save(folder_address, g_oe_energy_add, g_oe_energy_add_name),
-                            **kwargs_U_amp_plot_save, **kwargs, )
+                # %%
+                g_oe_energy_add_name = Get("method") + ' - ' + "g" + Get("ray") + "_oe_energy_add"
+                folder_address = U_dir(g_oe_energy_add_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, g_oe_energy_add, g_oe_energy_add_name),
+                                **kwargs_U_amp_plot_save, **kwargs, )
 
-            # %%
-            # H_energy_name = g_oe_energy_add_name.replace(" g", " H")
-            # folder_address = U_dir(H_energy_name, is_save, **kwargs, )
-            # U_amp_plot_save(*args_U_amp_plot_save(folder_address, H_energy, H_energy_name),
-            #                 **kwargs_U_amp_plot_save, **kwargs, )
+                # %%
+                # H_energy_name = g_oe_energy_add_name.replace(" g", " H")
+                # folder_address = U_dir(H_energy_name, is_save, **kwargs, )
+                # U_amp_plot_save(*args_U_amp_plot_save(folder_address, H_energy, H_energy_name),
+                #                 **kwargs_U_amp_plot_save, **kwargs, )
 
-            # %%
-            U_oe_energy_add_name = g_oe_energy_add_name.replace(" g", " U")
-            U_energy_print(U_oe_energy_add ** 0.5, U_oe_energy_add_name, is_print,
-                           z=z0, **kwargs, )
-            folder_address = U_dir(U_oe_energy_add_name, is_save, **kwargs, )
-            U_amp_plot_save(*args_U_amp_plot_save(folder_address, U_oe_energy_add, U_oe_energy_add_name),
-                            **kwargs_U_amp_plot_save, **kwargs, )
+                # %%
+                U_oe_energy_add_name = g_oe_energy_add_name.replace(" g", " U")
+                U_energy_print(U_oe_energy_add ** 0.5, U_oe_energy_add_name, is_print,
+                               z=z0, **kwargs, )
+                folder_address = U_dir(U_oe_energy_add_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, U_oe_energy_add, U_oe_energy_add_name),
+                                **kwargs_U_amp_plot_save, **kwargs, )
         else:
-            g_a = gan_g_eoa(g_o, g_e, E_uo, E_ue, **kwargs)
-            g_oea_vs_g_AST(g_a, g_shift)
+            if is_HOPS == 0:
+                g_a = gan_g_eoa(g_o, g_e, E_uo, E_ue, **kwargs)
+            else:
+                g_Va = gan_g_eoa(g_Vo, g_Ve, E_u_Vo, E_u_Ve, **kwargs)
+                g_Ha = gan_g_eoa(g_Ho, g_He, E_u_Ho, E_u_He, **kwargs)
 
-            fGHU_plot_save(*args_fGHU_plot_save, part_z="_oea", **kwargs, )
+            if "m" in plot_group_AST or "f" in plot_group_AST:
+                if is_HOPS == 0:
+                    g_oea_vs_g_AST(g_a, g_p)
+                    fGHU_plot_save(*args_fGHU_plot_save, part_z="_oea", **kwargs, )
+                else:
+                    g_oea_vs_g_AST(g_Va, g_V)
+                    fGHU_plot_save(*args_fGHU_plot_save, part_z="_Voea", **kwargs, )
+                    g_oea_vs_g_AST(g_Ha, g_H)
+                    fGHU_plot_save(*args_fGHU_plot_save, part_z="_Hoea", **kwargs, )
 
         # %% 晶体内 o 光 折射率 分布
 
         if is_air != 1:
-            no_name = n_name + "o"
-            folder_address = U_dir(no_name, is_save, **kwargs, )
-            U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1o, no_name),
-                            **kwargs_U_amp_plot_save, **kwargs, )
+            if is_HOPS == 0:
+                no_name = n_name + "o"
+                folder_address = U_dir(no_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1o, no_name),
+                                **kwargs_U_amp_plot_save, **kwargs, )
+            else:
+                n_Vo_name = n_name + "Vo"
+                folder_address = U_dir(n_Vo_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Vo, n_Vo_name),
+                                **kwargs_U_amp_plot_save, **kwargs, )
+                n_Ve_name = n_name + "Ve"
+                folder_address = U_dir(n_Ve_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Ve, n_Ve_name),
+                                **kwargs_U_amp_plot_save, **kwargs, )
 
         # %% 晶体内 e 光 折射率 分布
 
         if is_air != 1:
-            ne_name = n_name + "e"
-            folder_address = U_dir(ne_name, is_save, **kwargs, )
-            U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1e, ne_name),
-                            **kwargs_U_amp_plot_save, **kwargs, )
+            if is_HOPS == 0:
+                ne_name = n_name + "e"
+                folder_address = U_dir(ne_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1e, ne_name),
+                                **kwargs_U_amp_plot_save, **kwargs, )
+            else:
+                n_Ho_name = n_name + "Ho"
+                folder_address = U_dir(n_Ho_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Ho, n_Ho_name),
+                                **kwargs_U_amp_plot_save, **kwargs, )
+                n_He_name = n_name + "He"
+                folder_address = U_dir(n_He_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_He, n_He_name),
+                                **kwargs_U_amp_plot_save, **kwargs, )
 
         # %% 衍射后（晶体内 后端面），o 光 绘图
 
-        Gz_o = end_AST(z0, size_PerPixel,
-                       g_o, k1o_z)
-
-        fGHU_plot_save(*args_fGHU_plot_save, part_z="_o_z", **kwargs, )
+        if is_HOPS == 0:
+            Gz_o = end_AST(z0, size_PerPixel,
+                           g_o, k1o_z)
+            if "o" in plot_group_AST or "b" in plot_group_AST:
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_o_z", **kwargs, )
+        else:
+            Gz_Vo = end_AST(z0, size_PerPixel,
+                            g_Vo, k1_Vo_z)
+            if "o" in plot_group_AST or "b" in plot_group_AST:
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_Vo_z", **kwargs, )
+            Gz_Ho = end_AST(z0, size_PerPixel,
+                            g_Ho, k1_Ho_z)
+            if "o" in plot_group_AST or "b" in plot_group_AST:
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_Ho_z", **kwargs, )
 
         # %% 衍射后（晶体内 后端面），e 光 绘图
 
-        Gz_e = end_AST(z0, size_PerPixel,
-                       g_e, k1e_z)
-
-        fGHU_plot_save(*args_fGHU_plot_save, part_z="_e_z", **kwargs, )
+        if is_HOPS == 0:
+            Gz_e = end_AST(z0, size_PerPixel,
+                           g_e, k1e_z)
+            if "e" in plot_group_AST or "b" in plot_group_AST:
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_e_z", **kwargs, )
+        else:
+            Gz_Ve = end_AST(z0, size_PerPixel,
+                            g_Ve, k1_Ve_z)
+            if "e" in plot_group_AST or "b" in plot_group_AST:
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_Ve_z", **kwargs, )
+            Gz_He = end_AST(z0, size_PerPixel,
+                            g_He, k1_He_z)
+            if "e" in plot_group_AST or "b" in plot_group_AST:
+                fGHU_plot_save(*args_fGHU_plot_save, part_z="_He_z", **kwargs, )
 
         # %% 衍射后（晶体内 后端面），并通过 检偏器 a（或 不加偏振片，只看 光强）后，再绘图
 
         if type(kwargs.get("phi_a", 0)) == str:
-            # 如果 传进来的 phi_a 不是数字，则说明 没加 偏振片，则 正交线偏 oe 直接叠加后，gUH 的 相位 就 没用了；只有 gU 的 能量分布 才有用
-            # 并且 二者的 的 复场 和 能量，根本不满足 傅立叶变换对 的 关系；
-            G_oe_energy_add = np.abs(Gz_o) ** 2 + np.abs(Gz_e) ** 2  # 远场 平方和
-            # H_energy = G_oe_energy_add / g_oe_energy_add
-            U_oe_energy_add = np.abs(ifft2(Gz_o)) ** 2 + np.abs(ifft2(Gz_e)) ** 2  # 近场 平方和
+            if "m" in plot_group_AST or "b" in plot_group_AST or "r" in plot_group_AST:  # 必然要 plot 的（也不一定），就不设条件了
+                # 如果 传进来的 phi_a 不是数字，则说明 没加 偏振片，则 正交线偏 oe 直接叠加后，gUH 的 相位 就 没用了；只有 gU 的 能量分布 才有用
+                # 并且 二者的 的 复场 和 能量，根本不满足 傅立叶变换对 的 关系；
+                if is_HOPS == 0:
+                    G_oe_energy_add = np.abs(Gz_o) ** 2 + np.abs(Gz_e) ** 2  # 远场 平方和
+                    # H_energy = G_oe_energy_add / g_oe_energy_add
+                    U_oe_energy_add = np.abs(ifft2(Gz_o)) ** 2 + np.abs(ifft2(Gz_e)) ** 2  # 近场 平方和
+                else:
+                    G_oe_energy_add = np.abs(Gz_Vo) ** 2 + np.abs(Gz_Ho) ** 2 + \
+                                      np.abs(Gz_Ve) ** 2 + np.abs(Gz_He) ** 2  # 远场 平方和
+                    U_oe_energy_add = np.abs(ifft2(Gz_Vo)) ** 2 + np.abs(ifft2(Gz_Ho)) ** 2 + \
+                                      np.abs(ifft2(Gz_Ve)) ** 2 + np.abs(ifft2(Gz_He)) ** 2  # 近场 平方和
 
-            # %%
-            G_oe_energy_add_name = Get("method") + ' - ' + "G" + Get("ray") + "_oe_z_energy_add"
-            folder_address = U_dir(G_oe_energy_add_name, is_save, **kwargs, )
-            U_amp_plot_save(*args_U_amp_plot_save(folder_address, G_oe_energy_add, G_oe_energy_add_name),
-                            **kwargs_U_amp_plot_save, z=z0, **kwargs, )
+                # %%
+                G_oe_energy_add_name = Get("method") + ' - ' + "G" + Get("ray") + "_oe_z_energy_add"
+                folder_address = U_dir(G_oe_energy_add_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, G_oe_energy_add, G_oe_energy_add_name),
+                                **kwargs_U_amp_plot_save, z=z0, **kwargs, )
 
-            # %%
-            # H_energy_name = G_oe_energy_add_name.replace(" G", " H")
-            # folder_address = U_dir(H_energy_name, is_save, **kwargs, )
-            # U_amp_plot_save(*args_U_amp_plot_save(folder_address, H_energy, H_energy_name),
-            #                 **kwargs_U_amp_plot_save, z=z0, **kwargs, )
+                # %%
+                # H_energy_name = G_oe_energy_add_name.replace(" G", " H")
+                # folder_address = U_dir(H_energy_name, is_save, **kwargs, )
+                # U_amp_plot_save(*args_U_amp_plot_save(folder_address, H_energy, H_energy_name),
+                #                 **kwargs_U_amp_plot_save, z=z0, **kwargs, )
 
-            # %%
-            U_oe_energy_add_name = G_oe_energy_add_name.replace(" G", " U")
-            U_energy_print(U_oe_energy_add ** 0.5, U_oe_energy_add_name, is_print,
-                           z=z0, is_end=1, **kwargs, )
-            folder_address = U_dir(U_oe_energy_add_name, is_save, **kwargs, )
-            U_amp_plot_save(*args_U_amp_plot_save(folder_address, U_oe_energy_add, U_oe_energy_add_name),
-                            **kwargs_U_amp_plot_save, z=z0, **kwargs, )
+                # %%
+                U_oe_energy_add_name = G_oe_energy_add_name.replace(" G", " U")
+                U_energy_print(U_oe_energy_add ** 0.5, U_oe_energy_add_name, is_print,
+                               z=z0, is_end=1, **kwargs, )
+                folder_address = U_dir(U_oe_energy_add_name, is_save, **kwargs, )
+                U_amp_plot_save(*args_U_amp_plot_save(folder_address, U_oe_energy_add, U_oe_energy_add_name),
+                                **kwargs_U_amp_plot_save, z=z0, **kwargs, )
 
         else:
-            Gz_a = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, **kwargs)
-            g_oea_vs_g_AST(Gz_a, g_a)
+            if is_HOPS == 0:
+                Gz_a = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, **kwargs)
+            else:
+                Gz_Va = gan_g_eoa(Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, **kwargs)
+                Gz_Ha = gan_g_eoa(Gz_Ho, Gz_He, E_u_Ho, E_u_He, **kwargs)
 
-            fGHU_plot_save(*args_fGHU_plot_save, part_z="_oea_z", is_end=1, **kwargs, )
+            if "m" in plot_group_AST or "b" in plot_group_AST \
+                    or __name__ != "__main__" or "r" in plot_group_AST:  # 必然要 plot 的（也不一定），就不设条件了
+                # 加 2 条：如果 该程序 被别的程序 调用，则必 plot 这最后的结果；或者 "r" 即 result 在 plot_group_AST 中
+                if is_HOPS == 0:
+                    g_oea_vs_g_AST(Gz_a, g_a)
+                    fGHU_plot_save(*args_fGHU_plot_save, part_z="_oea_z", is_end=1, **kwargs, )
+                else:
+                    g_oea_vs_g_AST(Gz_Va, g_V)
+                    fGHU_plot_save(*args_fGHU_plot_save, part_z="_Voea_z", **kwargs, )
+                    g_oea_vs_g_AST(Gz_Ha, g_H)
+                    fGHU_plot_save(*args_fGHU_plot_save, part_z="_Hoea_z", **kwargs, )
 
             return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
 
@@ -381,11 +749,11 @@ def AST(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-         "img_full_name": "Grating.png",
+         "img_full_name": "lena1.png",
          "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
-         "z_pump": 0,
+         "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
          "l": 50, "p": 0,
          "theta_x": 0, "theta_y": 0,
@@ -401,7 +769,11 @@ if __name__ == '__main__':
          # 一个是 mn + 2，另一个是 mn * 2；然而用 2 个 VH 标量场 叠加，与这里只算 1 个 标量场 并 投影到 polarizer 的基底，没什么区别，只是最后 再复数 加起来 即可。
          "is_linear_birefringence": 1,  # 这里默认 生成的 标量场的 线偏振 是 V 即 // y 的，但晶轴 不一定 // y，然后 先向 起偏器 投影，再向 晶轴 投影，最后向 检偏器 投影。
          # 是否 使用 起偏器 polarizer（0 即不使用）、若使用，请给出 其 透光方向 相对于 V (竖直 y) 方向（也即 实验室坐标系 的 +y）的 顺时针 转角 phi_p
-         "phi_p": "90", "phi_a": 30,  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
+         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
+         # %%  控制 单双泵浦 和 绘图方式
+         "is_HOPS": 1,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "Theta": 0, "Phi": 0,
+         "plot_group_AST": "r",  # m 代表 oe 的 mix，o,e 代表 ~，fb 代表 frontface / backface
          # %%
          "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
@@ -418,7 +790,7 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_energy": 0,
+         "is_colorbar_on": 1, "is_energy": 1,
          # %%
          "is_print": 1,
          # %% 该程序 作为 主入口时 -------------------------------
@@ -431,8 +803,35 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "e", "ray": "1",
+         "polar": "R", "ray": "1",
          }
+
+    if kwargs.get("is_HOPS", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+        pump2_kwargs = {
+            "U2_name": "",
+            "img2_full_name": "spaceship.png",
+            "is_phase_only_2": 0,
+            # %%
+            "z_pump2": -5,
+            "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
+            "l2": -50, "p2": 0,
+            "theta2_x": 0, "theta2_y": 0,
+            # %%
+            "is_random_phase_2": 0,
+            "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
+            # %%
+            "w0_2": 0.04,
+            # %%
+            "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
+            "polar2": 'L',
+            # 有双泵浦，则必然考虑偏振、起偏，和检偏，且原 "polar2": 'e'、 "polar": "e" 已再不起作用
+            # 取而代之的是，既然原 "polar": "e" 不再 work 但还存在，就不能浪费 它的存在，让其 重新规定 第一束光
+            # 偏振方向 为 "VHRL" 中的一个，而不再规定其 极化方向 为 “oe” 中的一个；这里 第二束 泵浦的 偏振方向 默认与之 正交，因而可以 不用填写
+            # 但仍然可以 规定第 2 个泵浦 为其他偏振，比如 2 个 同向 线偏叠加，也就是 2 个图叠加，或者 一个 线偏基，另一个 圆偏基
+        }
+        pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
+        # Object of type dict_keys is not JSON serializable，所以 得转为 list
+        kwargs.update(pump2_kwargs)
 
     kwargs = init_GLV_DICT(**kwargs)
     AST(**kwargs)

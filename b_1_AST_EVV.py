@@ -15,7 +15,7 @@ from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_AST, g_o
 from fun_thread import my_thread
 from fun_pump import pump_pic_or_U
 from fun_linear import init_AST, init_AST_pro, ifft2
-from b_1_AST import define_lam1, gan_gp_p, gan_g_eoa
+from b_1_AST import define_lam1, gan_g_p, gan_g_eoa
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -221,7 +221,7 @@ def AST_EVV(U_name="",
     if kwargs.get("is_linear_birefringence", 0) == 1:
         # %% 起偏
 
-        g_p, p_p = gan_gp_p(g_shift, **kwargs)
+        g_p, p_p = gan_g_p(g_shift, **kwargs)
 
         # %% 空气中，偏振状态 与 入射方向 无关/独立，因此 无论 theta_x 怎么取，U 中所有点 偏振状态 均为 V，且 g 中 所有点的 偏振状态也 均为 V
         # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
@@ -366,7 +366,7 @@ def AST_EVV(U_name="",
 
             # %%
 
-            g_oea_vs_g_AST(dget("G"), g_shift)
+            g_oea_vs_g_AST(dget("G"), g_p)
 
             fGHU_plot_save(*args_fGHU_plot_save, part_z="_oea_z", is_end=1, **kwargs, )
 
@@ -442,7 +442,7 @@ if __name__ == '__main__':
          "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
          "l": 50, "p": 0,
-         "theta_x": 1, "theta_y": 0,
+         "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -453,7 +453,7 @@ if __name__ == '__main__':
          # 一个是 mn + 2，另一个是 mn * 2；然而用 2 个 VH 标量场 叠加，与这里只算 1 个 标量场 并 投影到 polarizer 的基底，没什么区别，只是最后 再复数 加起来 即可。
          "is_linear_birefringence": 1,  # 这里默认 生成的 标量场的 线偏振 是 V 即 // y 的，但晶轴 不一定 // y，然后 先向 起偏器 投影，再向 晶轴 投影，最后向 检偏器 投影。
          # 是否 使用 起偏器 polarizer（0 即不使用）、若使用，请给出 其 透光方向 相对于 V (竖直 y) 方向（也即 实验室坐标系 的 +y）的 顺时针 转角 phi_p
-         "phi_p": "45", "phi_a": "0",  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
+         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          # %%
@@ -485,7 +485,7 @@ if __name__ == '__main__':
          "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
          "X": 0, "Y": 0, "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
          # %%
-         "plot_group": "UGa", "is_animated": 1,
+         "plot_group": "Ua", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',

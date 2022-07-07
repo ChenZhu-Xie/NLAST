@@ -781,8 +781,8 @@ def end_AST(z0, size_PerPixel,
 
     return fget("G")
 
-def g_oea_vs_g_AST(g_oea, g_shift, ):
-    fset("H", g_oea / g_shift)
+def g_oea_vs_g_AST(g_oea, g_p, ):
+    fset("H", g_oea / g_p)
     fset("G", g_oea)
     fset("U", ifft2(g_oea))
 
