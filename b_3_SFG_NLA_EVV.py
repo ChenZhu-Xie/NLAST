@@ -236,10 +236,6 @@ def SFG_NLA_EVV(U_name="",
     if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
         kwargs.pop("U")
 
-    # %% 确定 折射率名
-
-    n_name = define_n(**kwargs)
-
     # %% 确定 公有参数
 
     args_init_AST = \
@@ -275,9 +271,9 @@ def SFG_NLA_EVV(U_name="",
 
     # %%
 
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
-    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = \

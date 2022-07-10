@@ -80,7 +80,7 @@ def gan_args_SFG(Ix, Iy, size_PerPixel,
     kwargs_32 = {} if gp_2 == 0 else {"g2": gp_2}
     kwargs_3.update(kwargs_31)
     kwargs_3.update(kwargs_32)
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
@@ -98,9 +98,9 @@ def gan_args_SFG(Ix, Iy, size_PerPixel,
                                                              is_air_pump=is_air_pump,
                                                              is_end=is_end_3,
                                                              **kwargs_3, **kwargs)
-    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
-           n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
-           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+           n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
            dk_z, lc, Tz, \
            Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
@@ -131,7 +131,7 @@ def gan_args_SHG_oe(Ix, Iy, size_PerPixel,
 
     k1_z = (k1o_z + k1e_z) / 2
 
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
@@ -152,7 +152,7 @@ def gan_args_SHG_oe(Ix, Iy, size_PerPixel,
 
     return n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
-           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
            dk_z, lc, Tz, \
            Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
@@ -193,7 +193,7 @@ def gan_args_SHG_VHoe(Ix, Iy, size_PerPixel,
     k1e_z = (k1_Ve_z + k1_He_z) / 2
     k1_z = (k1o_z + k1e_z) / 2
 
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
@@ -216,7 +216,150 @@ def gan_args_SHG_VHoe(Ix, Iy, size_PerPixel,
            n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
            n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
            n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
-           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+           dk_z, lc, Tz, \
+           Gx, Gy, Gz, \
+           z0, Tz, deff_structure_length_expect
+
+
+# %%
+
+def plot_n_123(ray_tag, is_save,
+               n1, n2, n3,
+               args_U_amp_plot_save,
+               kwargs_U_amp_plot_save, **kwargs, ):
+    from fun_os import U_dir, U_amp_plot_save
+    # %% 晶体内 o 光 折射率 分布
+
+    n_p1_name = "n" + "p1"
+    folder_address = U_dir(n_p1_name, is_save, **kwargs, )
+    U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1, n_p1_name),
+                    **kwargs_U_amp_plot_save, **kwargs, )
+    n_p2_name = "n" + "p2"
+    folder_address = U_dir(n_p2_name, is_save, **kwargs, )
+    U_amp_plot_save(*args_U_amp_plot_save(folder_address, n2, n_p2_name),
+                    **kwargs_U_amp_plot_save, **kwargs, )
+    n_p2_name = "n" + ray_tag + "3"
+    folder_address = U_dir(n_p2_name, is_save, **kwargs, )
+    U_amp_plot_save(*args_U_amp_plot_save(folder_address, n3, n_p2_name),
+                    **kwargs_U_amp_plot_save, **kwargs, )
+
+
+# %%
+
+def gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
+                                 is_add_polarizer, is_HOPS,
+                                 is_save, is_print,
+                                 ray_tag, is_air_pump,
+                                 lam2, theta2_x, theta2_y,
+                                 g_shift, g2, U_0, U2_0, polar2,
+                                 args_init_AST, args_gan_args_SFG,
+                                 args_U_amp_plot_save,
+                                 kwargs_init_AST, kwargs_U_amp_plot_save,
+                                 is_plot_n=1, **kwargs):
+    from b_1_AST import init_locals
+    g_p, p_p, g_V, g_H, p_V, p_H, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+    n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+    n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+    n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+    n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+    n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+    n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+    dk_z, lc, Tz, \
+    Gx, Gy, Gz, \
+    z0, Tz, deff_structure_length_expect = \
+        init_locals("g_p, p_p, g_V, g_H, p_V, p_H, \
+                n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+                n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+                n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+                n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+                n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+                n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+                n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He")
+    # 主要是 is_add_polarizer 和 def 导致的，有些变量 没声明，却在 def 的 形参中 出现了，以致于 实参 在用到时 报错
+    # 其实就是 把 pycharm 所提示的 “可能在赋值前引用” 的 局部变量 先赋好值
+
+    if is_birefringence_deduced == 1 and is_air != 1:
+        # %% 起偏
+
+        if is_add_polarizer == 1:
+            g_p, p_p = Gan_gp_p(is_HOPS, g_shift,
+                                U_0, U2_0, polar2, **kwargs)
+        else:
+            g_V, g_H, p_V, p_H = Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs)
+
+        # %% 空气中，偏振状态 与 入射方向 无关/独立，因此 无论 theta_x 怎么取，U 中所有点 偏振状态 均为 V，且 g 中 所有点的 偏振状态也 均为 V
+        # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
+        if is_add_polarizer == 1:
+            n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+            dk_z, lc, Tz, \
+            Gx, Gy, Gz, \
+            z0, Tz, deff_structure_length_expect \
+                = gan_args_SHG_oe(*args_init_AST,
+                                  *args_gan_args_SFG,
+                                  g_p, p_p, is_print,
+                                  **kwargs_init_AST,
+                                  **kwargs)
+        else:
+            n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+            n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+            n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+            n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+            dk_z, lc, Tz, \
+            Gx, Gy, Gz, \
+            z0, Tz, deff_structure_length_expect = \
+                gan_args_SHG_VHoe(*args_init_AST,
+                                  *args_gan_args_SFG,
+                                  g_V, p_V, g_H, p_H, is_print,
+                                  **kwargs_init_AST,
+                                  **kwargs)
+
+        # %% 晶体内 oe 光 折射率 分布
+        if is_plot_n == 1:
+            plot_n_VHoe("np1", is_save,
+                        is_add_polarizer,
+                        n1o, n1_Vo, n1_Ho,
+                        n1e, n1_Ve, n1_He,
+                        args_U_amp_plot_save,
+                        kwargs_U_amp_plot_save, **kwargs, )
+
+    else:
+        n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+        lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+        dk_z, lc, Tz, \
+        Gx, Gy, Gz, \
+        z0, Tz, deff_structure_length_expect = \
+            gan_args_SFG(*args_init_AST,
+                         ray_tag, is_air_pump, is_print,
+                         lam2, theta2_x, theta2_y,
+                         *args_gan_args_SFG,
+                         gp_1=g_shift, gp_2=g2, p_2=polar2, **kwargs)
+
+        if is_plot_n == 1:
+            plot_n_123(ray_tag, is_save,
+                       n1, n2, n3,
+                       args_U_amp_plot_save,
+                       kwargs_U_amp_plot_save, **kwargs, )
+
+        # print(n1_inc, n2_inc, n3_inc)
+        # print(n1_inc + n2_inc - 2 * n3_inc)
+    return g_p, p_p, g_V, g_H, p_V, p_H, \
+           n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+           n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+           n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+           n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+           n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+           n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+           n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+           n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
            dk_z, lc, Tz, \
            Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
@@ -423,10 +566,6 @@ def SFG_NLA(U_name="",
     if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
         kwargs.pop("U")
 
-    # %% 确定 折射率名
-
-    n_name = define_n(**kwargs)
-
     # %% 确定 公有参数
 
     args_init_AST = \
@@ -462,69 +601,29 @@ def SFG_NLA(U_name="",
 
     # %%
 
-    from fun_os import U_dir, U_amp_plot_save
-    if is_birefringence_deduced == 1 and is_air != 1:
-        # %% 起偏
-
-        if is_add_polarizer == 1:
-            g_p, p_p = Gan_gp_p(is_HOPS, g_shift,
-                                U_0, U2_0, polar2, **kwargs)
-        else:
-            g_V, g_H, p_V, p_H = Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs)
-
-        # %% 空气中，偏振状态 与 入射方向 无关/独立，因此 无论 theta_x 怎么取，U 中所有点 偏振状态 均为 V，且 g 中 所有点的 偏振状态也 均为 V
-        # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
-        if is_add_polarizer == 1:
-            n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
-            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
-            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-            dk_z, lc, Tz, \
-            Gx, Gy, Gz, \
-            z0, Tz, deff_structure_length_expect \
-                = gan_args_SHG_oe(*args_init_AST,
-                                  *args_gan_args_SFG,
-                                  g_p, p_p, is_print,
-                                  **kwargs_init_AST,
-                                  **kwargs)
-        else:
-            n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
-            n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
-            n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
-            n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
-            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-            dk_z, lc, Tz, \
-            Gx, Gy, Gz, \
-            z0, Tz, deff_structure_length_expect = \
-                gan_args_SHG_VHoe(*args_init_AST,
-                                  *args_gan_args_SFG,
-                                  g_V, p_V, g_H, p_H, is_print,
-                                  **kwargs_init_AST,
-                                  **kwargs)
-
-        # %% 晶体内 oe 光 折射率 分布
-
-        plot_n_VHoe(n_name, is_save,
-                    is_add_polarizer,
-                    n1o, n1_Vo, n1_Ho,
-                    n1e, n1_Ve, n1_He,
-                    args_U_amp_plot_save,
-                    kwargs_U_amp_plot_save, **kwargs, )
-
-    else:
-        n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
-        n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
-        lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-        dk_z, lc, Tz, \
-        Gx, Gy, Gz, \
-        z0, Tz, deff_structure_length_expect = \
-            gan_args_SFG(*args_init_AST,
-                         ray_tag, is_air_pump, is_print,
-                         lam2, theta2_x, theta2_y,
-                         *args_gan_args_SFG,
-                         gp_1=g_shift, gp_2=g2, p_2=polar2, **kwargs)
-
-        # print(n1_inc, n2_inc, n3_inc)
-        # print(n1_inc + n2_inc - 2 * n3_inc)
+    g_p, p_p, g_V, g_H, p_V, p_H, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+    n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+    n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+    n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+    n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+    n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+    n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+    dk_z, lc, Tz, \
+    Gx, Gy, Gz, \
+    z0, Tz, deff_structure_length_expect \
+        = gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
+                                       is_add_polarizer, is_HOPS,
+                                       is_save, is_print,
+                                       ray_tag, is_air_pump,
+                                       lam2, theta2_x, theta2_y,
+                                       g_shift, g2, U_0, U2_0, polar2,
+                                       args_init_AST, args_gan_args_SFG,
+                                       args_U_amp_plot_save,
+                                       kwargs_init_AST, kwargs_U_amp_plot_save,
+                                       is_plot_n=1, **kwargs)
 
     # %%
 

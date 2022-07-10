@@ -229,9 +229,9 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
 
     # %%
 
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
-    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = \

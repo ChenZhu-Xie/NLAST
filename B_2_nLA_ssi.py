@@ -137,7 +137,7 @@ def nLA_ssi(U_name="",
 
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u \
         = args_SFG(Ix, Iy, size_PerPixel,
                    is_air, T, lam1, lam1,
                    k1, k1_inc, k1, k1_inc,

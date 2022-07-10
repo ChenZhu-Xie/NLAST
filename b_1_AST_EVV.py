@@ -14,9 +14,8 @@ from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_AST, g_o
     fget, fkey, fGHU_plot_save, dset, dget, Fun3, fU_EVV_plot
 from fun_thread import my_thread
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST, init_AST_pro, ifft2
-from b_1_AST import define_lam_n_AST, Gan_gp_p, Gan_gp_VH, gan_g_eoa, gan_nkgE_oe, gan_nkgE_VHoe, \
-    plot_n_VHoe, plot_n, plot_GU_oe_energy_add, init_locals
+from fun_linear import ifft2
+from b_1_AST import define_lam_n_AST, gan_g_eoa, plot_GU_oe_energy_add, gan_gpnkE_VHoe_xyzinc_AST
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -195,6 +194,8 @@ def AST_EVV(U_name="",
                                   is_print,
                                   # %%
                                   ray_pump='2', **kwargs, )
+    else:
+        U2_0, g2 = 0, 0  # 之后总会 引用到，所以这里 先在 locals() 里加上
 
     # %%
 
@@ -296,56 +297,25 @@ def AST_EVV(U_name="",
                 # %%
                 z0, ]
 
-    U2_0, g2, g_p, p_p, g_V, g_H, p_V, p_H, \
+    # %% 折射
+
+    g_p, p_p, g_V, g_H, p_V, p_H, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u, \
     n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
     n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
     n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
     n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
     n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
     n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He = \
-        init_locals("U2_0, g2, g_p, p_p, g_V, g_H, p_V, p_H, \
-        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
-        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
-        n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
-        n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
-        n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
-        n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He")
-
-    # %% 折射
+        gan_gpnkE_VHoe_xyzinc_AST(is_birefringence_deduced, is_air,
+                                  is_add_polarizer, is_HOPS_AST,
+                                  is_save, is_print, n_name,
+                                  g_shift, U_0, U2_0, polar2,
+                                  args_init_AST, args_U_amp_plot_save,
+                                  kwargs_init_AST, kwargs_U_amp_plot_save,
+                                  is_plot_n=1, **kwargs)
 
     if is_birefringence_deduced == 1 and is_air != 1:
-        # %% 起偏
-
-        if is_add_polarizer == 1:
-            g_p, p_p = Gan_gp_p(is_HOPS_AST, g_shift,
-                                U_0, U2_0, polar2, **kwargs)
-        else:
-            g_V, g_H, p_V, p_H = Gan_gp_VH(is_HOPS_AST, U_0, U2_0, polar2, **kwargs)
-
-        # %% 空气中，偏振状态 与 入射方向 无关/独立，因此 无论 theta_x 怎么取，U 中所有点 偏振状态 均为 V，且 g 中 所有点的 偏振状态也 均为 V
-        # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
-        if is_add_polarizer == 1:
-            n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
-            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue \
-                = gan_nkgE_oe(g_p, p_p, is_print,
-                              args_init_AST, kwargs_init_AST, **kwargs)
-        else:
-            n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
-            n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
-            n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
-            n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He = \
-                gan_nkgE_VHoe(g_V, p_V, g_H, p_H, is_print,
-                              args_init_AST, kwargs_init_AST, **kwargs)
-
-        # %% 晶体内 oe 光 折射率 分布
-
-        plot_n_VHoe(n_name, is_save,
-                    is_add_polarizer,
-                    n1o, n1_Vo, n1_Ho,
-                    n1e, n1_Ve, n1_He,
-                    args_U_amp_plot_save,
-                    kwargs_U_amp_plot_save, **kwargs, )
-
         # %%
 
         if is_add_polarizer == 1:
@@ -513,20 +483,7 @@ def AST_EVV(U_name="",
             fset("U", dget("U"))  # 那里不用 dget 是因为，dget 被设计来 只储存 中间结果，不一定像 fset 只储存 最后结果。
             fU_EVV_plot(*args_fU_EVV_plot(0), part_z="_oe_z_energy_add", **kwargs, )
 
-    else:  # 这个是 电脑 or 图片 坐标系 下的： kx 向右 为正，ky 向下 为正
-        # n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(*args_init_AST,
-        #                                                **kwargs_init_AST, **kwargs)
-
-        n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u = \
-            init_AST_pro(*args_init_AST, is_print,  # p_ray=kwargs.get("polar", "e"), 或不加（即 p_ray=""），表示 无双折射
-                         **kwargs_init_AST, **kwargs)
-
-        # %% 绘制 折射率 分布
-
-        plot_n(n1, n_name, is_save,
-               args_U_amp_plot_save,
-               kwargs_U_amp_plot_save, **kwargs, )
-
+    else:
         # %% 开始 EVV
 
         def H_zdz(diz):

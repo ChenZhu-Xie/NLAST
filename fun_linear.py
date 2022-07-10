@@ -1280,6 +1280,7 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
 
     if is_air != 1:
         # %%
+
         from fun_global_var import Get
         if "polar2" in kwargs:
             p = kwargs["polar2"]
@@ -1292,6 +1293,7 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
         p = p_ray + p
         theta_x = float(Get('f_f') % theta_x)
         theta_y = float(Get('f_f') % theta_y)
+
         # %%
 
         args_Gan_E_vector = \

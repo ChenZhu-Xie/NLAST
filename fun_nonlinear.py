@@ -121,7 +121,7 @@ def args_SFG(Ix, Iy, size_PerPixel,
 
     # %%
 
-    Gx, Gy, Gz, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = \
+    Gx, Gy, Gz, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
         Gan_Gz(Ix, Iy, size_PerPixel,
                mx, my, Tx, Ty,
                is_air, T, lam1, lam2,
@@ -137,7 +137,7 @@ def args_SFG(Ix, Iy, size_PerPixel,
                             is_Print, is_end=1)
     return dk_z, lc, Tz, \
            Gx, Gy, Gz, \
-           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u
 
 
 # %%
@@ -307,7 +307,7 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
 
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
         args_SFG(Ix, Iy, size_PerPixel,
                  is_air, T, lam1, lam2,
                  k1, k1_inc, k2, k2_inc,
@@ -325,7 +325,7 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                                       **kwargs)  # 传入准确的 dk，得到 新的 Tz 并覆盖 Tz
     # 尽管 Gz 更新了，但 k3_z 等系列 不会因此改变（正因如此 才有期望的 大周期 振荡），所以后续 无需处理 k3 系列
 
-    return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
            dk_z, lc, Tz, \
            Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
@@ -349,7 +349,7 @@ def Gan_Gz(Ix, Iy, size_PerPixel,
     k3_inc_z = (k3_inc ** 2 - k3_inc_x ** 2 - k3_inc_y ** 2 + 0j) ** 0.5
     Gz = k3_inc_z - k3_inc_z_minus_Gz
     Gz = np.real(Gz)
-    return Gx, Gy, Gz, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy
+    return Gx, Gy, Gz, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u
 
 
 def Gan_k3_vector(Tx, Ty, mx, my,

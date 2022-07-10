@@ -269,9 +269,9 @@ def structure_chi2_Generate_2D(U_structure_name="",
     kwargs.pop("L0_Crystal", None)
 
     from b_3_SFG_NLA import gan_args_SFG
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
-    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0_recommend, Tz, deff_structure_length_expect = \
@@ -738,7 +738,7 @@ def structure_n1_Generate_2D(U_structure_name="",
 
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
         args_SFG(Ix, Iy, size_PerPixel,
                  is_air, T, lam1, lam1,
                  k1, k1_inc, k1, k1_inc,

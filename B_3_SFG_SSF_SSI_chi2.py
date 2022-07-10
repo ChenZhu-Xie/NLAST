@@ -236,10 +236,6 @@ def SFG_SSF_SSI(U_name="",
     if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
         kwargs.pop("U")
 
-    # %% 确定 折射率名
-
-    n_name = define_n(**kwargs)
-
     # %% 确定 公有参数
 
     args_init_AST = \

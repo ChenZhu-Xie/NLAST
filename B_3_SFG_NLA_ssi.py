@@ -207,12 +207,6 @@ def SFG_NLA_ssi(U_name="",
                                   is_print,
                                   # %%
                                   ray_pump='2', **kwargs, )
-
-        polar = kwargs.get("polar", "V")  # 默认 第一个 泵浦 是 竖直的
-        if is_HOPS >= 1:
-            U_V, U_H, g_V, g_H = U_12_to_gU_HOPS(U_0, U2_0, polar, polar2, **kwargs)
-        elif is_HOPS >= 2:
-            U_V, U_H, g_V, g_H = U_12_to_gU_CP(U_0, U2_0, polar, polar2)
     else:
         U2_0, g2 = U_0, g_shift
 
@@ -220,10 +214,6 @@ def SFG_NLA_ssi(U_name="",
 
     if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
         kwargs.pop("U")
-
-    # %% 确定 折射率名
-
-    n_name = define_n(**kwargs)
 
     # %% 确定 公有参数
 
@@ -260,9 +250,9 @@ def SFG_NLA_ssi(U_name="",
 
     # %%
 
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
-    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = \
