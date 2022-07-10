@@ -12,7 +12,7 @@ import numpy as np
 from fun_os import U_dir, U_amp_plot_save
 from fun_global_var import Get, tree_print
 from fun_pump import pump_pic_or_U_structure
-from fun_linear import init_AST, fft2
+from fun_linear import init_AST_pro, fft2
 from fun_nonlinear import args_SFG, accurate_args_SFG
 
 
@@ -265,46 +265,27 @@ def structure_chi2_Generate_2D(U_structure_name="",
     # %%  只提供 Gx, Gy 给自己，也提供 dk 给 A_3_structure_chi2_Generate_3D 的 Info_find_contours_SHG
     # 也提供 dk 来矫正 Tz...
 
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                                   lam1, is_air, T,
-                                                   theta_x, theta_y,
-                                                   is_air_pump=is_air_pump, **kwargs)
-
-    if ray_tag == "f":
-        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
-                                                       lam2, is_air, T,
-                                                       theta2_x, theta2_y,
-                                                       polar2=polar2,
-                                                       is_air_pump=is_air_pump, **kwargs)
-    else:
-        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
-
-    # import inspect
-    # if inspect.stack()[1][3] == "structure_chi2_3D":
-    # elif inspect.stack()[1][3] == "SFG_NLA_SSI" or inspect.stack()[1][3] == "SFG_SSF_SSI":
-    # else:
-
-    # %%
     z0 = kwargs["L0_Crystal"] if "L0_Crystal" in kwargs else deff_structure_length_expect
     kwargs.pop("L0_Crystal", None)
 
+    from b_3_SFG_NLA import gan_args_SFG
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
-    z0_recommend, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
-                                                                       lam1, lam2, is_air, T,
-                                                                       k1_inc, k2_inc,
-                                                                       k1, k2, k1_z,
-                                                                       z0, deff_structure_length_expect,
-                                                                       mx, my, mz,
-                                                                       Tx, Ty, Tz,
-                                                                       is_contours, n_TzQ,
-                                                                       Gz_max_Enhance, match_mode,
-                                                                       is_print,
-                                                                       Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
-                                                                       Get("theta_y"), Get("theta2_y"),
-                                                                       is_end=1,
-                                                                       is_air_pump=is_air_pump, **kwargs)
+    z0_recommend, Tz, deff_structure_length_expect = \
+        gan_args_SFG(Ix, Iy, size_PerPixel,
+                     lam1, is_air, T,
+                     theta_x, theta_y,
+                     ray_tag, is_air_pump, is_print,
+                     lam2, theta2_x, theta2_y,
+                     z0, deff_structure_length_expect,
+                     mx, my, mz,
+                     Tx, Ty, Tz,
+                     is_contours, n_TzQ,
+                     Gz_max_Enhance, match_mode,
+                     p_2=polar2, is_end_3=1, **kwargs)
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = 1 - is_no_backgroud - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
@@ -749,10 +730,11 @@ def structure_n1_Generate_2D(U_structure_name="",
 
     # %%  只提供 Gx, Gy 给自己
 
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                                   lam1, is_air, T,
-                                                   theta_x, theta_y,
-                                                   is_air_pump=is_air_pump, **kwargs)
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u = \
+        init_AST_pro(Ix, Iy, size_PerPixel,
+                     lam1, is_air, T,
+                     theta_x, theta_y, is_print,
+                     is_air_pump=is_air_pump, **kwargs, )
 
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \

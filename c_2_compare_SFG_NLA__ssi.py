@@ -399,7 +399,7 @@ if __name__ == '__main__':
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "e",
-         "ray": "3", "polar3": "e",
+         "polar3": "e", "ray": "3", 
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1

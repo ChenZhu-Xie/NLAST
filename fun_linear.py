@@ -624,7 +624,7 @@ def vector_amp(v):
 def Gan_S_vector(is_air, lam, T,
                  size_PerPixel,
                  k_z_inc, k_z_inc_z, k_z_inc_xy, k1_inc,
-                 D_u, E_u, g_p=0, mode=1, scale_factor=0.05, **kwargs, ):
+                 D_u, E_u, mode=1, scale_factor=0.05, **kwargs, ):
     # KTP 的 o 光 走离 默认：scale_factor=0.05，现已无法从外界更改，直接参照 走离角算。
     # %% 获取 kwargs 参数
     p, theta_x, theta_y, \
@@ -798,7 +798,6 @@ def Gan_S_vector(is_air, lam, T,
         #                          v_y * mesh_Ix0_Iy0_shift[:, :, 1]
         # 本来应叫做 Phase_Gradient_vertical_to_z，但方便导出，用的名是 delta_sk_vertical_to_z
 
-
     # 但该方法 本质上 并不是修改 g_p，而是 像 s 比 k 相位超前倍率 那样，算出一个 衍射传递函数 的 修正因子，并且可直接 沿用那里的
     # 只不过 不再是 delta_sk = (tan_sz - tan_kz) * tan_kz，而是 delta_sk_vertical_to_z = (tan_sz - tan_kz) * z
     # 额不， 不再是 delta_sk = delta_sk_parallel_to_k / cos_kz，而是 delta_sk_vertical_to_z = vector_k_to_s_vertical_to_z 点积 kx,ky
@@ -810,7 +809,10 @@ def Gan_S_vector(is_air, lam, T,
     #      4. 中心级 可看做 群速度 中心 5. 相比 法二，z 向 不再额外衍射，只横向位移，与现实吻合：oe 两光 轮廓 大小差不多
     # 坏处：1. 修改完 并计算到 晶体后端面后，得修改回来，否则 再折射到空气中时 不满足 保持 传播方向 不变（复杂）
     #      2. 怎么算 g 的 横向移动矢量？且 网格 每个格点 单独移动 会导致 网格不再 均匀。可能需要像 产生 s, s_z, s_xy 一样 重新采样。
-
+    if "gp" in kwargs:
+        g_p = kwargs["gp"]
+    else:
+        g_p = 0
     # %%
     walk_off_angle = walk_off_angle / np.pi * 180
 
@@ -822,10 +824,14 @@ def Gan_S_vector(is_air, lam, T,
     if mode < 3:
         return S_u, theta_x_S_u, theta_y_S_u, \
                walk_off_angle, delta_sk_parallel_to_z, delta_sk_vertical_to_z
-    else:
+    elif "gp" in kwargs:
         return S_u, theta_x_S_u, theta_y_S_u, \
                walk_off_angle, delta_sk_parallel_to_z, delta_sk_vertical_to_z, \
                s_z_inc, s_z_inc_z, s_z_inc_xy, g_p
+    else:
+        return S_u, theta_x_S_u, theta_y_S_u, \
+               walk_off_angle, delta_sk_parallel_to_z, delta_sk_vertical_to_z, \
+               s_z_inc, s_z_inc_z, s_z_inc_xy
     # return S_u, theta_x_S_u, theta_y_S_u, \
     #        walk_off_angle, delta_sk_parallel_to_z
 
@@ -1260,9 +1266,9 @@ def init_AST(Ix, Iy, size_PerPixel,
 def init_AST_pro(Ix, Iy, size_PerPixel,
                  lam1, is_air, T,
                  theta_x, theta_y,
-                 g_p, p_p, is_print, **kwargs):
+                 is_print, p_p=0, p_ray="", **kwargs):
     is_end = kwargs.get("is_end", 0)
-    is_end2 = kwargs.get("is_end2", 0)
+    is_end2 = kwargs.get("is_end2", 1)
     add_level = kwargs.get("add_level", 0)
     kwargs.pop("is_end", None)
     kwargs.pop("is_end2", None)
@@ -1272,37 +1278,94 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
                                                    lam1, is_air, T,
                                                    theta_x, theta_y, **kwargs)
 
-    # %%
-    from fun_global_var import Get
-    if "polar2" in kwargs:
-        p = kwargs["polar2"]
-        theta_x = Get("theta2_x")
-        theta_y = Get("theta2_y")
+    if is_air != 1:
+        # %%
+        from fun_global_var import Get
+        if "polar2" in kwargs:
+            p = kwargs["polar2"]
+            theta_x = Get("theta2_x")
+            theta_y = Get("theta2_y")
+        else:
+            p = kwargs.get("polar", "e")
+            theta_x = Get("theta_x")
+            theta_y = Get("theta_y")
+        p = p_ray + p
+        theta_x = float(Get('f_f') % theta_x)
+        theta_y = float(Get('f_f') % theta_y)
+        # %%
+
+        args_Gan_E_vector = \
+            [is_air, lam1, T, ]
+        args_Gan_D_vector = \
+            [is_air, lam1, T,
+             size_PerPixel,
+             k1, k1_z, k1_xy, ]
+
+        # %%
+
+        D_u_0kx0ky, theta_D_u_0kx0ky, phi_D_u_0kx0ky, \
+        E_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky, \
+        S_u, theta_x_S_0kx0ky, theta_y_S_0kx0ky, \
+        walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky, \
+        D_u_inc, theta_D_u_inc, phi_D_u_inc, \
+        E_u_inc, theta_E_u_inc, phi_E_u_inc, \
+        S_u, theta_x_S_u_inc, theta_y_S_u_inc, \
+        walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc, \
+        D_u, theta_D_u, phi_D_u, \
+        E_u, theta_E_u, phi_E_u, \
+        S_u, theta_x_S_u, theta_y_S_u, \
+        walk_off_angle, delta_sk_pz, PG_vz, \
+        s, s_z, s_xy, g_p = gan_DESu_0kx0kyzinc(args_Gan_D_vector, k1_inc,
+                                                args_Gan_E_vector, **kwargs, )
+
+        # %%
+
+        print_DESu_0kx0kyzinc(is_print, p, n1_inc,
+                              walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc,
+                              theta_x, theta_y, theta_x_S_u_inc, theta_y_S_u_inc,
+                              theta_D_u_inc, phi_D_u_inc, theta_E_u_inc, phi_E_u_inc,
+                              walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky,
+                              theta_x_S_0kx0ky, theta_y_S_0kx0ky,
+                              theta_D_u_0kx0ky, phi_D_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky,
+                              is_end, add_level, is_end2=is_end2, )
+
+        # print(D_u[0])
+        # print(D_u[:,0])
+        # print(D_u[0,0])
+        if type(p_p) == 'numpy.ndarray':
+            g_oe = g_p * np.dot(E_u, p_p)  # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
+        else:
+            g_oe = g_p
     else:
-        p = kwargs.get("polar", "e")
-        theta_x = Get("theta_x")
-        theta_y = Get("theta_y")
-    theta_x = float(Get('f_f') % theta_x)
-    theta_y = float(Get('f_f') % theta_y)
+        g_oe = 0
+        E_u = 0
     # %%
-
-    args_Gan_E_vector = \
-        [is_air, lam1, T, ]
-    args_Gan_D_vector = \
-        [is_air, lam1, T,
-         size_PerPixel,
-         k1, k1_z, k1_xy, ]
-
+    # return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, k1, k1_z * delta_sk_pz, k1_xy, g_oe, E_u
+    return n1_inc, n1, k1_inc, k1, k1_z + PG_vz, k1_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, k1, (k1_z * delta_sk_pz + PG_vz), k1_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, k1, (k1_z + PG_vz) * delta_sk_pz, k1_xy, g_oe, E_u
     # %%
+    # return n1_inc, n1, k1_inc, s, s_z, s_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, s, s_z * delta_sk_pz, s_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, s, s_z + PG_vz, s_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, s, (s_z * delta_sk_pz + PG_vz), s_xy, g_oe, E_u
+    # return n1_inc, n1, k1_inc, s, (s_z + PG_vz) * delta_sk_pz, s_xy, g_oe, E_u
 
+
+# %%
+
+def gan_DESu_0kx0kyzinc(args_Gan_D_vector, k_inc,
+                        args_Gan_E_vector, **kwargs, ):
     D_u_0kx0ky, theta_D_u_0kx0ky, phi_D_u_0kx0ky = Gan_D_vector(*args_Gan_D_vector,  # 左手系
                                                                 mode=1, **kwargs)
     E_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky = Gan_E_vector(*args_Gan_E_vector,
                                                                 D_u_0kx0ky, **kwargs, )
     S_u, theta_x_S_0kx0ky, theta_y_S_0kx0ky, \
-    walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky = Gan_S_vector(*args_Gan_D_vector, k1_inc,
+    walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky = Gan_S_vector(*args_Gan_D_vector, k_inc,
                                                                                  D_u_0kx0ky, E_u_0kx0ky, mode=1,
                                                                                  **kwargs, )
+    # %%
     D_u_inc, theta_D_u_inc, phi_D_u_inc = Gan_D_vector(*args_Gan_D_vector,
                                                        mode=2, **kwargs)
     # print(D_u_inc)
@@ -1310,17 +1373,42 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
                                                        D_u_inc, **kwargs, )
     # print(E_u_inc)
     S_u, theta_x_S_u_inc, theta_y_S_u_inc, \
-    walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc = Gan_S_vector(*args_Gan_D_vector, k1_inc,
+    walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc = Gan_S_vector(*args_Gan_D_vector, k_inc,
                                                                         D_u_inc, E_u_inc, mode=2, **kwargs, )
+    # %%
     D_u, theta_D_u, phi_D_u = Gan_D_vector(*args_Gan_D_vector,
                                            mode=3, **kwargs)
     E_u, theta_E_u, phi_E_u = Gan_E_vector(*args_Gan_E_vector,
                                            D_u, **kwargs, )
     S_u, theta_x_S_u, theta_y_S_u, \
     walk_off_angle, delta_sk_pz, PG_vz, \
-    s, s_z, s_xy, g_p = Gan_S_vector(*args_Gan_D_vector, k1_inc,
-                                     D_u, E_u, g_p, mode=3, **kwargs, )
+    s, s_z, s_xy, g_p = Gan_S_vector(*args_Gan_D_vector, k_inc,
+                                     D_u, E_u, mode=3, **kwargs, )
 
+    return D_u_0kx0ky, theta_D_u_0kx0ky, phi_D_u_0kx0ky, \
+           E_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky, \
+           S_u, theta_x_S_0kx0ky, theta_y_S_0kx0ky, \
+           walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky, \
+           D_u_inc, theta_D_u_inc, phi_D_u_inc, \
+           E_u_inc, theta_E_u_inc, phi_E_u_inc, \
+           S_u, theta_x_S_u_inc, theta_y_S_u_inc, \
+           walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc, \
+           D_u, theta_D_u, phi_D_u, \
+           E_u, theta_E_u, phi_E_u, \
+           S_u, theta_x_S_u, theta_y_S_u, \
+           walk_off_angle, delta_sk_pz, PG_vz, \
+           s, s_z, s_xy, g_p
+
+
+def print_DESu_0kx0kyzinc(is_print, p, n1_inc,
+                          walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc,
+                          theta_x, theta_y, theta_x_S_u_inc, theta_y_S_u_inc,
+                          theta_D_u_inc, phi_D_u_inc, theta_E_u_inc, phi_E_u_inc,
+                          walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky,
+                          theta_x_S_0kx0ky, theta_y_S_0kx0ky,
+                          theta_D_u_0kx0ky, phi_D_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky,
+                          is_end, add_level, is_end2=1, ):
+    from fun_global_var import Get
     # %%
 
     info = "n_" + p + " 的大小、" + "k_" + p + ", S_" + p + "; D_" + p + ", E_" + p + " 的 方向 与 夹角"
@@ -1379,25 +1467,6 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
                                                                                  phi_E_u_0kx0ky))
     # %%
     is_print and print(tree_print(is_end2) + "————————————————————————————————".format())
-
-    # print(D_u[0])
-    # print(D_u[:,0])
-    # print(D_u[0,0])
-    g_oe = g_p * np.dot(E_u, p_p)  # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
-    # %%
-    # return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, k1, k1_z * delta_sk_pz, k1_xy, g_oe, E_u
-    # %%
-    # return n1_inc, n1, k1_inc, s, s_z, s_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, s, s_z * delta_sk_pz, s_xy, g_oe, E_u
-    # %%
-    return n1_inc, n1, k1_inc, k1, k1_z + PG_vz, k1_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, k1, (k1_z * delta_sk_pz + PG_vz), k1_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, k1, (k1_z + PG_vz) * delta_sk_pz, k1_xy, g_oe, E_u
-    # %%
-    # return n1_inc, n1, k1_inc, s, s_z + PG_vz, s_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, s, (s_z * delta_sk_pz + PG_vz), s_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, s, (s_z + PG_vz) * delta_sk_pz, s_xy, g_oe, E_u
 
 
 # %%

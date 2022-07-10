@@ -247,10 +247,13 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
         U1_AST, G1_AST, ray1_AST, method_and_way1_AST, U_key1_AST = \
             AST_EVV(*args_AST(f), **kwargs_AST, )
 
-        from fun_nonlinear import init_SFG
-        lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
-                                                             lam1, 1, T,
-                                                             0, 0, **kwargs)
+        from fun_nonlinear import init_SFG_pro
+        lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
+            init_SFG_pro(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
+                         lam1, 1, T,
+                         0, 0,
+                         is_print, **kwargs)
+
         from fun_linear import Cal_H_lens
         # H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), Get("k3"), z_AST / 2, Cal_mode=1)
         H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), k3, f, Cal_mode=1)
@@ -269,8 +272,8 @@ if __name__ == '__main__':
          "is_phase_only": 0,
          # %%
          "z_pump": -5,
-         "is_LG": 0, "is_Gauss": 1, "is_OAM": 1,
-         "l": -10, "p": 0,
+         "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
+         "l": 10, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -290,7 +293,7 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_size": 3, "w0": 0.1,
+         "U_size": 1.5, "w0": 0.05,
          "L0_Crystal": 10, "z_AST": 20, "sheets_stored_num": 10,
          # %% 不关心
          "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 10,
@@ -317,7 +320,7 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
          # %%
-         "is_save": 1, "is_no_data_save": 0,
+         "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
@@ -333,13 +336,13 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_colorbar_log": -1, 
+         "is_colorbar_on": 1, "is_colorbar_log": -1,
          "is_energy": 1,
          # %%
          "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
          "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
          # %%
-         "plot_group": "Ua", "is_animated": 1,
+         "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %%
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
@@ -359,7 +362,7 @@ if __name__ == '__main__':
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "o",
-         "ray": "3", "polar3": "o",
+         "polar3": "o", "ray": "3",
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
@@ -369,14 +372,14 @@ if __name__ == '__main__':
             "is_phase_only_2": 0,
             # %%
             "z_pump2": -5,
-            "is_LG_2": 0, "is_Gauss_2": 1, "is_OAM_2": 1,
+            "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
             "l2": 10, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.1,
+            "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',

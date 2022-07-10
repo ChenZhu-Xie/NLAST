@@ -14,8 +14,8 @@ from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_ssi
-from fun_linear import init_AST, fft2, ifft2
-from fun_nonlinear import args_SFG, init_SFG
+from fun_linear import init_AST_pro, fft2, ifft2
+from fun_nonlinear import args_SFG
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, sget, skey, fGHU_plot_save, fU_SSI_plot
@@ -128,11 +128,12 @@ def nLA_ssi(U_name="",
                                  # %%
                                  ray_pump='1', **kwargs, )
 
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                                   lam1, is_air, T,
-                                                   theta_x, theta_y,
-                                                   is_air_pump=is_air_pump,
-                                                   gp=g_shift, **kwargs)
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u = \
+        init_AST_pro(Ix, Iy, size_PerPixel,
+                     lam1, is_air, T,
+                     theta_x, theta_y, is_print,
+                     is_air_pump=is_air_pump,
+                     gp=g_shift, **kwargs, )
 
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \

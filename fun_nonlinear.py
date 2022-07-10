@@ -126,7 +126,8 @@ def args_SFG(Ix, Iy, size_PerPixel,
                mx, my, Tx, Ty,
                is_air, T, lam1, lam2,
                k1, k1_inc, k2, k2_inc,
-               theta_x, theta_y, theta2_x, theta2_y, **kwargs)
+               theta_x, theta_y, theta2_x, theta2_y,
+               is_print, **kwargs)
 
     dk_z, lc, Tz = Cal_lc_SHG(Gz, Tz, size_PerPixel,
                               is_Print, is_cover_Tz=is_cover_Tz, **kwargs)
@@ -152,11 +153,92 @@ def init_SFG(Ix, Iy, size_PerPixel,
                                    is_air,
                                    lam3, T, p=kwargs.get("polar3", "e"),
                                    theta_x=theta_x,
-                                   theta_y=theta_y, **kwargs)
+                                   theta_y=theta_y,
+                                   set_theta_tag=3, **kwargs)
 
     k3_z, k3_xy = Cal_kz(Ix, Iy, k3)
 
     return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy
+
+
+# %%
+
+def init_SFG_pro(Ix, Iy, size_PerPixel,
+                 lam1, is_air, T,
+                 theta_x, theta_y,
+                 is_print, **kwargs):  # 晶体里 频率转换出来的光，一出来就在晶体里
+    # 所以没有双折射，所以没有 p_p 和 p_ray，或者它俩从一开始就是 p_o 或 p_e，保持不变
+    is_end = kwargs.get("is_end", 0)
+    is_end2 = kwargs.get("is_end2", 1)
+    add_level = kwargs.get("add_level", 0)
+    kwargs.pop("is_end", None)
+    kwargs.pop("is_end2", None)
+    kwargs.pop("add_level", None)
+    # %%
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
+                                                         lam1, is_air, T,
+                                                         theta_x, theta_y,
+                                                         **kwargs)
+
+    if is_air != 1:
+        # %%
+        p = kwargs.get("polar3", "e")
+        p = "3" + p
+        theta_x = Get("theta3_x")
+        theta_y = Get("theta3_y")
+        theta_x = float(Get('f_f') % theta_x)
+        theta_y = float(Get('f_f') % theta_y)
+        # %%
+
+        args_Gan_E_vector = \
+            [is_air, lam1, T, ]
+        args_Gan_D_vector = \
+            [is_air, lam1, T,
+             size_PerPixel,
+             k3, k3_z, k3_xy, ]
+
+        # %%
+        from fun_linear import gan_DESu_0kx0kyzinc, print_DESu_0kx0kyzinc
+
+        D_u_0kx0ky, theta_D_u_0kx0ky, phi_D_u_0kx0ky, \
+        E_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky, \
+        S_u, theta_x_S_0kx0ky, theta_y_S_0kx0ky, \
+        walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky, \
+        D_u_inc, theta_D_u_inc, phi_D_u_inc, \
+        E_u_inc, theta_E_u_inc, phi_E_u_inc, \
+        S_u, theta_x_S_u_inc, theta_y_S_u_inc, \
+        walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc, \
+        D_u, theta_D_u, phi_D_u, \
+        E_u, theta_E_u, phi_E_u, \
+        S_u, theta_x_S_u, theta_y_S_u, \
+        walk_off_angle, delta_sk_pz, PG_vz, \
+        s, s_z, s_xy, g_p = gan_DESu_0kx0kyzinc(args_Gan_D_vector, k3_inc,
+                                                args_Gan_E_vector, **kwargs, )
+
+        # %%
+
+        print_DESu_0kx0kyzinc(is_print, p, n3_inc,
+                              walk_off_angle_inc, delta_sk_pz_inc, delta_sk_vz_inc,
+                              theta_x, theta_y, theta_x_S_u_inc, theta_y_S_u_inc,
+                              theta_D_u_inc, phi_D_u_inc, theta_E_u_inc, phi_E_u_inc,
+                              walk_off_angle_0kx0ky, delta_sk_pz_0kx0ky, delta_sk_vz_0kx0ky,
+                              theta_x_S_0kx0ky, theta_y_S_0kx0ky,
+                              theta_D_u_0kx0ky, phi_D_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky,
+                              is_end, add_level, is_end2=is_end2, )
+    else:
+        E_u = 0
+    # %%
+    # return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E_u
+    # return lam3, n3_inc, n3, k3_inc, k3, k3_z * delta_sk_pz, k3_xy, E_u
+    return lam3, n3_inc, n3, k3_inc, k3, k3_z + PG_vz, k3_xy, E_u
+    # return lam3, n3_inc, n3, k3_inc, k3, (k3_z * delta_sk_pz + PG_vz), k3_xy, E_u
+    # return lam3, n3_inc, n3, k3_inc, k3, (k3_z + PG_vz) * delta_sk_pz, k3_xy, E_u
+    # %%
+    # return lam3, n3_inc, n3, k3_inc, s, s_z, s_xy, E_u
+    # return lam3, n3_inc, n3, k3_inc, s, s_z * delta_sk_pz, s_xy, E_u
+    # return lam3, n3_inc, n3, k3_inc, s, s_z + PG_vz, s_xy, E_u
+    # return lam3, n3_inc, n3, k3_inc, s, (s_z * delta_sk_pz + PG_vz), s_xy, E_u
+    # return lam3, n3_inc, n3, k3_inc, s, (s_z + PG_vz) * delta_sk_pz, s_xy, E_u
 
 
 # %%
@@ -239,7 +321,8 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
     z0, Tz, Gz, deff_structure_length_expect = Info_find_contours_SHG(k1_z, k3_z, dk_z, Tz, mz,
                                                                       z0, size_PerPixel, deff_structure_length_expect,
                                                                       is_print, is_contours, n_TzQ, Gz_max_Enhance,
-                                                                      match_mode, is_end=is_end, **kwargs)  # 传入准确的 dk，得到 新的 Tz 并覆盖 Tz
+                                                                      match_mode, is_end=is_end,
+                                                                      **kwargs)  # 传入准确的 dk，得到 新的 Tz 并覆盖 Tz
     # 尽管 Gz 更新了，但 k3_z 等系列 不会因此改变（正因如此 才有期望的 大周期 振荡），所以后续 无需处理 k3 系列
 
     return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
@@ -252,15 +335,17 @@ def Gan_Gz(Ix, Iy, size_PerPixel,
            mx, my, Tx, Ty,
            is_air, T, lam1, lam2,
            k1, k1_inc, k2, k2_inc,
-           theta_x, theta_y, theta2_x, theta2_y, **kwargs):
+           theta_x, theta_y, theta2_x, theta2_y,
+           is_print, **kwargs):
     Gx, Gy, k3_inc_x, k3_inc_y, k3_inc_z_minus_Gz = Gan_k3_vector(Tx, Ty, mx, my,
                                                                   k1, k1_inc, k2, k2_inc, size_PerPixel,
                                                                   theta2_x, theta2_y, theta_x, theta_y, **kwargs)
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Ix, Iy, size_PerPixel,
-                                                         lam1, is_air, T,
-                                                         theta_x, theta_y,  # 传入的 theta_x, theta_y 是什么 不重要
-                                                         lam2=lam2,  # 对于 k3_x，不会看这两个参数，而只看 k3_x, k3_y
-                                                         k3_inc_x=k3_inc_x, k3_inc_y=k3_inc_y, **kwargs)
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
+        init_SFG_pro(Ix, Iy, size_PerPixel,
+                     lam1, is_air, T,
+                     theta_x, theta_y, is_print,  # 传入的 theta_x, theta_y 是什么 不重要
+                     lam2=lam2,  # 对于 k3_x，不会看这两个参数，而只看 k3_x, k3_y
+                     k3_inc_x=k3_inc_x, k3_inc_y=k3_inc_y, **kwargs)
     k3_inc_z = (k3_inc ** 2 - k3_inc_x ** 2 - k3_inc_y ** 2 + 0j) ** 0.5
     Gz = k3_inc_z - k3_inc_z_minus_Gz
     Gz = np.real(Gz)
@@ -288,7 +373,7 @@ def Gan_k3_vector(Tx, Ty, mx, my,
     # print(k1_x, k1_y)
     # print(Gx, Gy)  # 输入时，若 Gx, theta_x 同号，则若跑程序到这里，Gx, k1_x 也同号，则没问题。
     k3_x, k3_y, k3_z_minus_Gz = k1_x + k2_x + Gx, k1_y + k2_y + Gy, k1_z + k2_z  # 动量守恒
-    return Gx, Gy, k3_x, k3_y, k3_z_minus_Gz  #  最终传入 的是 Cal_n，而 Cal_n 里要的是 图片坐标系 下的，所以 就产生了 图片坐标下的 k3x, k3y
+    return Gx, Gy, k3_x, k3_y, k3_z_minus_Gz  # 最终传入 的是 Cal_n，而 Cal_n 里要的是 图片坐标系 下的，所以 就产生了 图片坐标下的 k3x, k3y
 
 
 # %%
@@ -1380,7 +1465,7 @@ def Info_find_contours_SHG(k1_z, k3_z, dk_z, Tz, mz,
                 abs(Gz_max) / 1000)  # 以使 lcQ >= lcQ_exp = (wc**2 + z0**2)**0.5 - z0
         # print("Tz_min = {} μm".format(Tz_min))
 
-        dkQ_max = dk_z  + Gz_max
+        dkQ_max = dk_z + Gz_max
         lcQ_min = math.pi / abs(dkQ_max) * size_PerPixel
         # print("lcQ_min = {} mm".format(lcQ_min))
         TzQ_min = 2 * lcQ_min

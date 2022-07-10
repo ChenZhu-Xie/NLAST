@@ -12,14 +12,214 @@ import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST
+from fun_linear import init_AST_pro
 from fun_nonlinear import accurate_args_SFG, Eikz, C_m, Cal_dk_zQ_SFG, Cal_roll_xy, \
     G3_z_modulation_NLAST, G3_z_modulation_3D_NLAST, G3_z_NLAST, G3_z_NLAST_false
 from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_SSI, Get, dset, dget, fget, fkey, fGHU_plot_save
+from b_1_AST import Gan_gp_p, Gan_gp_VH, gan_nkgE_oe, gan_nkgE_VHoe, plot_n_VHoe
 
 np.seterr(divide='ignore', invalid='ignore')
+
+
+# %%
+
+def define_n(**kwargs):
+    n_name = "n"
+    if "f" in Get("ray"):
+        n_name += "3"
+    elif "h" in Get("ray"):  # 如果 ray 中含有 倍频 标识符
+        n_name += "2"
+    else:
+        n_name += "1"
+    return n_name
+
+
+# %%
+
+def gan_args_SFG(Ix, Iy, size_PerPixel,
+                 lam1, is_air, T,
+                 theta_x, theta_y,
+                 ray_tag, is_air_pump, is_print,
+                 lam2, theta2_x, theta2_y,
+                 z0, deff_structure_length_expect,
+                 mx, my, mz,
+                 Tx, Ty, Tz,
+                 is_contours, n_TzQ,
+                 Gz_max_Enhance, match_mode,
+                 gp_1=0, gp_2=0, p_2=0,
+                 is_end_3=0, **kwargs):
+    kwargs_1 = {} if gp_1 == 0 else {"gp": gp_1}
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g1, E1_u = \
+        init_AST_pro(Ix, Iy, size_PerPixel,
+                     lam1, is_air, T,
+                     theta_x, theta_y, is_print,
+                     is_air_pump=is_air_pump,
+                     p_ray="1",
+                     **kwargs_1, **kwargs, )
+
+    kwargs_2 = {}
+    kwargs_21 = {} if gp_2 == 0 else {"gp": gp_2}
+    kwargs_22 = {} if p_2 == 0 else {"polar2": p_2}
+    kwargs_2.update(kwargs_21)
+    kwargs_2.update(kwargs_22)
+    if ray_tag == "f":
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy, g2, E2_u = \
+            init_AST_pro(Ix, Iy, size_PerPixel,
+                         lam2, is_air, T,
+                         theta2_x, theta2_y, is_print,
+                         is_air_pump=is_air_pump,
+                         p_ray="2",
+                         **kwargs_2, **kwargs, )
+    else:
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
+
+    kwargs_3 = {}
+    kwargs_31 = {} if gp_1 == 0 else {"g1": gp_1}
+    kwargs_32 = {} if gp_2 == 0 else {"g2": gp_2}
+    kwargs_3.update(kwargs_31)
+    kwargs_3.update(kwargs_32)
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    dk_z, lc, Tz, \
+    Gx, Gy, Gz, \
+    z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
+                                                             lam1, lam2, is_air, T,
+                                                             k1_inc, k2_inc,
+                                                             k1, k2, k1_z,
+                                                             z0, deff_structure_length_expect,
+                                                             mx, my, mz,
+                                                             Tx, Ty, Tz,
+                                                             is_contours, n_TzQ,
+                                                             Gz_max_Enhance, match_mode,
+                                                             is_print,
+                                                             Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
+                                                             Get("theta_y"), Get("theta2_y"),
+                                                             is_air_pump=is_air_pump,
+                                                             is_end=is_end_3,
+                                                             **kwargs_3, **kwargs)
+    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
+           n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+           dk_z, lc, Tz, \
+           Gx, Gy, Gz, \
+           z0, Tz, deff_structure_length_expect
+
+
+# %%
+
+def gan_args_SHG_oe(Ix, Iy, size_PerPixel,
+                    lam1, is_air, T,
+                    theta_x, theta_y,
+                    z0, deff_structure_length_expect,
+                    mx, my, mz,
+                    Tx, Ty, Tz,
+                    is_contours, n_TzQ,
+                    Gz_max_Enhance, match_mode,
+                    g_p, p_p, is_print,
+                    is_air_pump=1, g_shift=0,
+                    is_end_3=0, **kwargs):
+    args_init_AST = [Ix, Iy, size_PerPixel,
+                     lam1, is_air, T,
+                     theta_x, theta_y]
+    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
+
+    n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+    n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue \
+        = gan_nkgE_oe(g_p, p_p, is_print,
+                      args_init_AST, kwargs_init_AST, **kwargs)
+
+    k1_z = (k1o_z + k1e_z) / 2
+
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    dk_z, lc, Tz, \
+    Gx, Gy, Gz, \
+    z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
+                                                             lam1, lam1, is_air, T,
+                                                             k1o_inc, k1e_inc,
+                                                             k1o, k1e, k1_z,
+                                                             z0, deff_structure_length_expect,
+                                                             mx, my, mz,
+                                                             Tx, Ty, Tz,
+                                                             is_contours, n_TzQ,
+                                                             Gz_max_Enhance, match_mode,
+                                                             is_print,
+                                                             Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
+                                                             Get("theta_y"), Get("theta2_y"),
+                                                             is_air_pump=is_air_pump,
+                                                             is_end=is_end_3,
+                                                             g1=g_o, g2=g_e, **kwargs)
+
+    return n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+           n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+           dk_z, lc, Tz, \
+           Gx, Gy, Gz, \
+           z0, Tz, deff_structure_length_expect
+
+
+# %%
+
+def gan_args_SHG_VHoe(Ix, Iy, size_PerPixel,
+                      lam1, is_air, T,
+                      theta_x, theta_y,
+                      z0, deff_structure_length_expect,
+                      mx, my, mz,
+                      Tx, Ty, Tz,
+                      is_contours, n_TzQ,
+                      Gz_max_Enhance, match_mode,
+                      g_V, p_V, g_H, p_H, is_print,
+                      is_air_pump=1, g_shift=0,
+                      is_end_3=0, **kwargs):
+    args_init_AST = [Ix, Iy, size_PerPixel,
+                     lam1, is_air, T,
+                     theta_x, theta_y]
+    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
+
+    n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+    n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+    n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+    n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He = \
+        gan_nkgE_VHoe(g_V, p_V, g_H, p_H, is_print,
+                      args_init_AST, kwargs_init_AST, **kwargs)
+
+    g_o = g_Vo + g_Ho
+    g_e = g_Ve + g_He
+    k1o_inc = (k1_Vo_inc + k1_Ho_inc) / 2
+    k1e_inc = (k1_Ve_inc + k1_He_inc) / 2
+    k1o = (k1_Vo + k1_Ho) / 2
+    k1e = (k1_Ve + k1_He) / 2
+    k1o_z = (k1_Vo_z + k1_Ho_z) / 2
+    k1e_z = (k1_Ve_z + k1_He_z) / 2
+    k1_z = (k1o_z + k1e_z) / 2
+
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+    dk_z, lc, Tz, \
+    Gx, Gy, Gz, \
+    z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
+                                                             lam1, lam1, is_air, T,
+                                                             k1o_inc, k1e_inc,
+                                                             k1o, k1e, k1_z,
+                                                             z0, deff_structure_length_expect,
+                                                             mx, my, mz,
+                                                             Tx, Ty, Tz,
+                                                             is_contours, n_TzQ,
+                                                             Gz_max_Enhance, match_mode,
+                                                             is_print,
+                                                             Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
+                                                             Get("theta_y"), Get("theta2_y"),
+                                                             is_air_pump=is_air_pump,
+                                                             is_end=is_end_3,
+                                                             g1=g_o, g2=g_e, **kwargs)
+
+    return n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+           n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+           n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+           n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+           dk_z, lc, Tz, \
+           Gx, Gy, Gz, \
+           z0, Tz, deff_structure_length_expect
 
 
 # %%
@@ -94,7 +294,17 @@ def SFG_NLA(U_name="",
                               __name__ == "__main__", is_print, **kwargs, )
 
     # %%
-    ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    is_HOPS = kwargs.get("is_HOPS", 0)
+    is_birefringence = kwargs.get("is_birefringence", 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
+    is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
+    kwargs['ray'] = "2" if is_birefringence_deduced == 1 else kwargs.get('ray', "2")
+    ray_tag = "f" if kwargs['ray'] == "3" else "h"
+    is_twin_pump = int(ray_tag == "f" or is_twin_pump_degenerate == 1)
+    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
+    # %%
     # if ray_tag == "f":
     U2_name = kwargs.get("U2_name", U_name)
     img2_full_name = kwargs.get("img2_full_name", img_full_name)
@@ -107,8 +317,8 @@ def SFG_NLA(U_name="",
     # %%
     l2 = kwargs.get("l2", l)
     p2 = kwargs.get("p2", p)
-    theta2_x = kwargs.get("theta2_x", theta_x)
-    theta2_y = kwargs.get("theta2_y", theta_y)
+    theta2_x = kwargs.get("theta2_x", theta_x) if is_birefringence == 0 or is_HOPS >= 2 else theta_x
+    theta2_y = kwargs.get("theta2_y", theta_y) if is_birefringence == 0 or is_HOPS >= 2 else theta_y
     # %%
     is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
     is_H_l2 = kwargs.get("is_H_l2", is_H_l)
@@ -116,11 +326,12 @@ def SFG_NLA(U_name="",
     is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
     # %%
     w0_2 = kwargs.get("w0_2", w0)
-    lam2 = kwargs.get("lam2", lam1)
+    lam2 = kwargs.get("lam2", lam1) if is_birefringence == 0 else lam1
     is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
     T2 = kwargs.get("T2", T)
     polar2 = kwargs.get("polar2", 'e')
-    if ray_tag == "f":
+    # %%
+    if is_twin_pump == 1:
         # %%
         pump2_keys = kwargs["pump2_keys"]
         # %%
@@ -173,7 +384,7 @@ def SFG_NLA(U_name="",
 
     # %%
 
-    if ray_tag == "f":
+    if is_twin_pump == 1:
         from fun_pump import pump_pic_or_U2
         U2_0, g2 = pump_pic_or_U2(U2_name,
                                   img2_full_name,
@@ -209,41 +420,111 @@ def SFG_NLA(U_name="",
 
     # %%
 
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                                   lam1, is_air, T,
-                                                   theta_x, theta_y,
-                                                   is_air_pump=is_air_pump,
-                                                   gp=g_shift, **kwargs)
+    if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
+        kwargs.pop("U")
 
-    if ray_tag == "f":
-        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
-                                                       lam2, is_air, T,
-                                                       theta2_x, theta2_y,
-                                                       polar2=polar2,
-                                                       is_air_pump=is_air_pump,
-                                                       gp=g2, **kwargs)
+    # %% 确定 折射率名
+
+    n_name = define_n(**kwargs)
+
+    # %% 确定 公有参数
+
+    args_init_AST = \
+        [Ix, Iy, size_PerPixel,
+         lam1, is_air, T,
+         theta_x, theta_y, ]
+    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
+
+    args_gan_args_SFG = \
+        [z0, z0,
+         mx, my, mz,
+         Tx, Ty, Tz,
+         is_contours, n_TzQ,
+         Gz_max_Enhance, match_mode, ]
+
+    def args_U_amp_plot_save(folder_address, U, U_name):
+        return [folder_address,
+                # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                U, U_name,
+                Get("img_name_extension"),
+                is_save_txt,
+                # %%
+                [], 1, size_PerPixel,
+                0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                # %%
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                fontsize, font,
+                # %%
+                1, is_colorbar_on, 0, ]  # 折射率分布差别很小，而 is_self_colorbar = 0 只看前 3 位小数的差异，因此用自动 colorbar。
+
+    kwargs_U_amp_plot_save = {"suffix": ""}
+
+    # %%
+
+    from fun_os import U_dir, U_amp_plot_save
+    if is_birefringence_deduced == 1 and is_air != 1:
+        # %% 起偏
+
+        if is_add_polarizer == 1:
+            g_p, p_p = Gan_gp_p(is_HOPS, g_shift,
+                                U_0, U2_0, polar2, **kwargs)
+        else:
+            g_V, g_H, p_V, p_H = Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs)
+
+        # %% 空气中，偏振状态 与 入射方向 无关/独立，因此 无论 theta_x 怎么取，U 中所有点 偏振状态 均为 V，且 g 中 所有点的 偏振状态也 均为 V
+        # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
+        if is_add_polarizer == 1:
+            n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+            dk_z, lc, Tz, \
+            Gx, Gy, Gz, \
+            z0, Tz, deff_structure_length_expect \
+                = gan_args_SHG_oe(*args_init_AST,
+                                  *args_gan_args_SFG,
+                                  g_p, p_p, is_print,
+                                  **kwargs_init_AST,
+                                  **kwargs)
+        else:
+            n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+            n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+            n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+            n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+            dk_z, lc, Tz, \
+            Gx, Gy, Gz, \
+            z0, Tz, deff_structure_length_expect = \
+                gan_args_SHG_VHoe(*args_init_AST,
+                                  *args_gan_args_SFG,
+                                  g_V, p_V, g_H, p_H, is_print,
+                                  **kwargs_init_AST,
+                                  **kwargs)
+
+        # %% 晶体内 oe 光 折射率 分布
+
+        plot_n_VHoe(n_name, is_save,
+                    is_add_polarizer,
+                    n1o, n1_Vo, n1_Ho,
+                    n1e, n1_Ve, n1_He,
+                    args_U_amp_plot_save,
+                    kwargs_U_amp_plot_save, **kwargs, )
+
     else:
-        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
+        n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
+        n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
+        lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
+        dk_z, lc, Tz, \
+        Gx, Gy, Gz, \
+        z0, Tz, deff_structure_length_expect = \
+            gan_args_SFG(*args_init_AST,
+                         ray_tag, is_air_pump, is_print,
+                         lam2, theta2_x, theta2_y,
+                         *args_gan_args_SFG,
+                         gp_1=g_shift, gp_2=g2, p_2=polar2, **kwargs)
 
-    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
-    dk_z, lc, Tz, \
-    Gx, Gy, Gz, \
-    z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
-                                                             lam1, lam2, is_air, T,
-                                                             k1_inc, k2_inc,
-                                                             k1, k2, k1_z,
-                                                             z0, z0,
-                                                             mx, my, mz,
-                                                             Tx, Ty, Tz,
-                                                             is_contours, n_TzQ,
-                                                             Gz_max_Enhance, match_mode,
-                                                             is_print,
-                                                             Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
-                                                             Get("theta_y"), Get("theta2_y"),
-                                                             is_air_pump=is_air_pump,
-                                                             g1=g_shift, g2=g2, **kwargs)
-    # print(n1_inc, n2_inc, n3_inc)
-    # print(n1_inc + n2_inc - 2 * n3_inc)
+        # print(n1_inc, n2_inc, n3_inc)
+        # print(n1_inc + n2_inc - 2 * n3_inc)
 
     # %%
 
@@ -539,10 +820,10 @@ if __name__ == '__main__':
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "o",
-         "ray": "3", "polar3": "o",
+         "polar3": "o", "ray": "3",
          }
 
-    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "spaceship.png",

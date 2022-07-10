@@ -19,6 +19,8 @@ from fun_thread import noop, my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, Set, Get, init_GLV_rmw, init_EVV, Fun3, end_SSI, \
     dset, dget, fget, fkey, fGHU_plot_save, fU_EVV_plot
+from b_1_AST import Gan_gp_p, Gan_gp_VH, gan_nkgE_oe, gan_nkgE_VHoe
+from b_3_SFG_NLA import define_n, gan_args_SFG
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -105,7 +107,17 @@ def SFG_NLA_EVV(U_name="",
                               __name__ == "__main__", is_print, **kwargs, )
 
     # %%
-    ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    is_HOPS = kwargs.get("is_HOPS", 0)
+    is_birefringence = kwargs.get("is_birefringence", 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
+    is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
+    kwargs['ray'] = "2" if is_birefringence_deduced == 1 else kwargs.get('ray', "2")
+    ray_tag = "f" if kwargs['ray'] == "3" else "h"
+    is_twin_pump = int(ray_tag == "f" or is_twin_pump_degenerate == 1)
+    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
+    # %%
     # if ray_tag == "f":
     U2_name = kwargs.get("U2_name", U_name)
     img2_full_name = kwargs.get("img2_full_name", img_full_name)
@@ -118,8 +130,8 @@ def SFG_NLA_EVV(U_name="",
     # %%
     l2 = kwargs.get("l2", l)
     p2 = kwargs.get("p2", p)
-    theta2_x = kwargs.get("theta2_x", theta_x)
-    theta2_y = kwargs.get("theta2_y", theta_y)
+    theta2_x = kwargs.get("theta2_x", theta_x) if is_birefringence == 0 or is_HOPS >= 2 else theta_x
+    theta2_y = kwargs.get("theta2_y", theta_y) if is_birefringence == 0 or is_HOPS >= 2 else theta_y
     # %%
     is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
     is_H_l2 = kwargs.get("is_H_l2", is_H_l)
@@ -127,11 +139,12 @@ def SFG_NLA_EVV(U_name="",
     is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
     # %%
     w0_2 = kwargs.get("w0_2", w0)
-    lam2 = kwargs.get("lam2", lam1)
+    lam2 = kwargs.get("lam2", lam1) if is_birefringence == 0 else lam1
     is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
     T2 = kwargs.get("T2", T)
     polar2 = kwargs.get("polar2", 'e')
-    if ray_tag == "f":
+    # %%
+    if is_twin_pump == 1:
         # %%
         pump2_keys = kwargs["pump2_keys"]
         # %%
@@ -184,7 +197,7 @@ def SFG_NLA_EVV(U_name="",
 
     # %%
 
-    if ray_tag == "f":
+    if is_twin_pump == 1:
         from fun_pump import pump_pic_or_U2
         U2_0, g2 = pump_pic_or_U2(U2_name,
                                   img2_full_name,
@@ -220,39 +233,65 @@ def SFG_NLA_EVV(U_name="",
 
     # %%
 
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                                   lam1, is_air, T,
-                                                   theta_x, theta_y,
-                                                   is_air_pump=is_air_pump,
-                                                   gp=g_shift, **kwargs)
+    if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
+        kwargs.pop("U")
 
-    if ray_tag == "f":
-        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = init_AST(Ix, Iy, size_PerPixel,
-                                                       lam2, is_air, T,
-                                                       theta2_x, theta2_y,
-                                                       polar2=polar2,
-                                                       is_air_pump=is_air_pump,
-                                                       gp=g2, **kwargs)
-    else:
-        n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
+    # %% 确定 折射率名
 
+    n_name = define_n(**kwargs)
+
+    # %% 确定 公有参数
+
+    args_init_AST = \
+        [Ix, Iy, size_PerPixel,
+         lam1, is_air, T,
+         theta_x, theta_y, ]
+    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
+
+    args_gan_args_SFG = \
+        [z0, z0,
+         mx, my, mz,
+         Tx, Ty, Tz,
+         is_contours, n_TzQ,
+         Gz_max_Enhance, match_mode, ]
+
+    def args_U_amp_plot_save(folder_address, U, U_name):
+        return [folder_address,
+                # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                U, U_name,
+                Get("img_name_extension"),
+                is_save_txt,
+                # %%
+                [], 1, size_PerPixel,
+                0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                # %%
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                fontsize, font,
+                # %%
+                1, is_colorbar_on, 0, ]  # 折射率分布差别很小，而 is_self_colorbar = 0 只看前 3 位小数的差异，因此用自动 colorbar。
+
+    kwargs_U_amp_plot_save = {"suffix": ""}
+
+    # %%
+
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, \
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, \
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \
-    z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
-                                                             lam1, lam2, is_air, T,
-                                                             k1_inc, k2_inc,
-                                                             k1, k2, k1_z,
-                                                             z0, z0,
-                                                             mx, my, mz,
-                                                             Tx, Ty, Tz,
-                                                             is_contours, n_TzQ,
-                                                             Gz_max_Enhance, match_mode,
-                                                             is_print,
-                                                             Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
-                                                             Get("theta_y"), Get("theta2_y"),
-                                                             is_air_pump=is_air_pump,
-                                                             g1=g_shift, g2=g2, **kwargs)
+    z0, Tz, deff_structure_length_expect = \
+        gan_args_SFG(Ix, Iy, size_PerPixel,
+                     lam1, is_air, T,
+                     theta_x, theta_y,
+                     ray_tag, is_air_pump, is_print,
+                     lam2, theta2_x, theta2_y,
+                     z0, z0,
+                     mx, my, mz,
+                     Tx, Ty, Tz,
+                     is_contours, n_TzQ,
+                     Gz_max_Enhance, match_mode,
+                     gp_1=g_shift, gp_2=g2, p_2=polar2, **kwargs)
 
     is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)  # 得写在外面，否则会传进 Fun 等的 kwargs...而这一般是空的
     if fft_mode == 0:
@@ -610,6 +649,14 @@ if __name__ == '__main__':
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
+         # %%  是否 考虑 双折射、是否 采用 混合庞加莱球、若采用，请给出 极角 和 方位角
+         "is_SHG_birefringence": 1,
+         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_p
+         "phi_p": 0, "phi_a": 0,  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
+         # %%  控制 单双泵浦 和 绘图方式
+         "is_HOPS": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "Theta": 0, "Phi": 0,
+         # %%
          "deff": 30, "is_fft": 1, "fft_mode": 1,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
@@ -667,10 +714,10 @@ if __name__ == '__main__':
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "o",
-         "ray": "3", "polar3": "o",
+         "polar3": "o", "ray": "3",
          }
 
-    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena1.png",

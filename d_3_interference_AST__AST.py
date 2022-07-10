@@ -13,7 +13,7 @@ import numpy as np
 from fun_global_var import init_GLV_DICT, tree_print, Get, init_GLV_rmw, end_STD, fGHU_plot_save
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST
+from fun_linear import init_AST_pro
 from b_1_AST import AST
 
 np.seterr(divide='ignore', invalid='ignore')
@@ -140,11 +140,12 @@ def interference_AST__AST(img_full_name="Grating.png",
 
     # %%
 
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy = init_AST(Ix, Iy, size_PerPixel,
-                                                   lam1, is_air, T,
-                                                   theta_x, theta_y,
-                                                   is_air_pump=is_air_pump,
-                                                   gp=g_shift, **kwargs)
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u = \
+        init_AST_pro(Ix, Iy, size_PerPixel,
+                     lam1, is_air, T,
+                     theta_x, theta_y, is_print,
+                     is_air_pump=is_air_pump,
+                     gp=g_shift, **kwargs, )
 
     # %%
     from fun_nonlinear import gan_k_vector

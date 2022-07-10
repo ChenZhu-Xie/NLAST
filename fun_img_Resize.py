@@ -138,7 +138,7 @@ def if_image_Add_black_border(U_name, img_full_name,
                                    border_percentage,
                                    is_print, is_end_last=is_end_last)  # 没把 kwargs 传进来，因此 外面的 is_end = 1 不会进来，也就不会 使加黑边 为 末尾
 
-        if kwargs.get('ray', "2") == "3" or kwargs.get('is_HOPS', 0) > 0:
+        if kwargs.get('ray', "2") == "3" or kwargs.get('is_HOPS_AST', 0) > 0 or kwargs.get('is_HOPS', 0) > 0:
             U2_name, img2_full_name = kwargs.get("U2_name", U_name), kwargs.get("img2_full_name", img_full_name)
             if ((type(U2_name) != str) or U2_name == "") and ("U2" not in kwargs):
                 border_percentage = kwargs["border_percentage"] if "border_percentage" in kwargs else 0.1

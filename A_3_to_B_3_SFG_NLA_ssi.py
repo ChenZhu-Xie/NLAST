@@ -102,8 +102,19 @@ def A_3_to_B_3_SFG_NLA_ssi(U_name_Structure="",
 
     if_image_Add_black_border(U_name, img_full_name,
                               __name__ == "__main__", is_print, **kwargs, )
+
     # %%
-    ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
+    is_HOPS = kwargs.get("is_HOPS", 0)
+    is_birefringence = kwargs.get("is_birefringence", 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
+    is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
+    kwargs['ray'] = "2" if is_birefringence_deduced == 1 else kwargs.get('ray', "2")
+    ray_tag = "f" if kwargs['ray'] == "3" else "h"
+    is_twin_pump = int(ray_tag == "f" or is_twin_pump_degenerate == 1)
+    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
+    # %%
     # if ray_tag == "f":
     U2_name = kwargs.get("U2_name", U_name)
     img2_full_name = kwargs.get("img2_full_name", img_full_name)
@@ -116,8 +127,8 @@ def A_3_to_B_3_SFG_NLA_ssi(U_name_Structure="",
     # %%
     l2 = kwargs.get("l2", l)
     p2 = kwargs.get("p2", p)
-    theta2_x = kwargs.get("theta2_x", theta_x)
-    theta2_y = kwargs.get("theta2_y", theta_y)
+    theta2_x = kwargs.get("theta2_x", theta_x) if is_birefringence == 0 or is_HOPS >= 2 else theta_x
+    theta2_y = kwargs.get("theta2_y", theta_y) if is_birefringence == 0 or is_HOPS >= 2 else theta_y
     # %%
     is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
     is_H_l2 = kwargs.get("is_H_l2", is_H_l)
@@ -125,11 +136,12 @@ def A_3_to_B_3_SFG_NLA_ssi(U_name_Structure="",
     is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
     # %%
     w0_2 = kwargs.get("w0_2", w0)
-    lam2 = kwargs.get("lam2", lam1)
+    lam2 = kwargs.get("lam2", lam1) if is_birefringence == 0 else lam1
     is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
     T2 = kwargs.get("T2", T)
     polar2 = kwargs.get("polar2", 'e')
-    if ray_tag == "f":
+    # %%
+    if is_twin_pump == 1:
         # %%
         pump2_keys = kwargs["pump2_keys"]
         # %%
@@ -178,7 +190,7 @@ def A_3_to_B_3_SFG_NLA_ssi(U_name_Structure="",
 
     # %%
 
-    if ray_tag == "f":
+    if is_twin_pump == 1:
         from fun_pump import pump_pic_or_U2
         U2_0, g2 = pump_pic_or_U2(U2_name,
                                   img2_full_name,
@@ -368,6 +380,14 @@ if __name__ == '__main__':
          "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
+         # %%  是否 考虑 双折射、是否 采用 混合庞加莱球、若采用，请给出 极角 和 方位角
+         "is_SHG_birefringence": 1,
+         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_p
+         "phi_p": 0, "phi_a": 0,  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
+         # %%  控制 单双泵浦 和 绘图方式
+         "is_HOPS": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "Theta": 0, "Phi": 0,
+         # %%
          "Tx": 10, "Ty": 20, "Tz": 12.319,
          "mx": 1, "my": 0, "mz": 0,
          "is_stripe": 0, "is_NLAST": 1,
@@ -414,10 +434,10 @@ if __name__ == '__main__':
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "e",
-         "ray": "2", "polar3": "e",
+         "polar3": "e", "ray": "2",
          }
 
-    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena.png",

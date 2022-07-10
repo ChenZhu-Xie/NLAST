@@ -239,10 +239,13 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
         U1_AST, G1_AST, ray1_AST, method_and_way1_AST, U_key1_AST = \
             AST_EVV(*args_AST(f), **kwargs_AST, )
 
-        from fun_nonlinear import init_SFG
-        lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy = init_SFG(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
-                                                             lam1, 1, T,
-                                                             0, 0, **kwargs)
+        from fun_nonlinear import init_SFG_pro
+        lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
+            init_SFG_pro(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
+                         lam1, 1, T,
+                         0, 0,
+                         is_print, **kwargs)
+
         from fun_linear import Cal_H_lens
         # H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), Get("k3"), z_AST / 2, Cal_mode=1)
         H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), k3, f, Cal_mode=1)
@@ -344,7 +347,7 @@ if __name__ == '__main__':
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "e",
-         "ray": "3", "polar3": "e",
+         "polar3": "e", "ray": "3", 
          }
 
     if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
