@@ -76,12 +76,12 @@ def AST_EVV(U_name="",
                               __name__ == "__main__", is_print, **kwargs, )
 
     # %%
-    is_HOPS_AST = kwargs.get("is_HOPS_AST", 0)
-    is_linear_birefringence = kwargs.get("is_linear_birefringence", 0)
-    is_twin_pump_degenerate = int(is_HOPS_AST >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
-    is_single_pump_birefringence = int(is_linear_birefringence == 1 and is_HOPS_AST == 0)
+    is_HOPS = kwargs.get("is_HOPS_AST", 0)
+    is_birefringence = kwargs.get("is_linear_birefringence", 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
-    is_add_polarizer = int(is_HOPS_AST == 0 or (is_HOPS_AST >= 1 and type(is_HOPS_AST) != int))
+    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
     U2_name = kwargs.get("U2_name", U_name)
@@ -95,8 +95,8 @@ def AST_EVV(U_name="",
     # %%
     l2 = kwargs.get("l2", l)
     p2 = kwargs.get("p2", p)
-    theta2_x = kwargs.get("theta2_x", theta_x) if is_HOPS_AST == 2 else theta_x  # 只有是 2 时，才能自由设定 theta2_x
-    theta2_y = kwargs.get("theta2_y", theta_y) if is_HOPS_AST == 2 else theta_y  # 只有是 2 时，才能自由设定 theta2_y
+    theta2_x = kwargs.get("theta2_x", theta_x) if is_HOPS == 2 else theta_x  # 只有是 2 时，才能自由设定 theta2_x
+    theta2_y = kwargs.get("theta2_y", theta_y) if is_HOPS == 2 else theta_y  # 只有是 2 时，才能自由设定 theta2_y
     # %%
     is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
     is_H_l2 = kwargs.get("is_H_l2", is_H_l)
@@ -308,7 +308,7 @@ def AST_EVV(U_name="",
     n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
     n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He = \
         gan_gpnkE_VHoe_xyzinc_AST(is_birefringence_deduced, is_air,
-                                  is_add_polarizer, is_HOPS_AST,
+                                  is_add_polarizer, is_HOPS,
                                   is_save, is_print, n_name,
                                   g_shift, U_0, U2_0, polar2,
                                   args_init_AST, args_U_amp_plot_save,

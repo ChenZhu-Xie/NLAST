@@ -50,39 +50,38 @@ def gan_args_SFG(Ix, Iy, size_PerPixel,
                  Gz_max_Enhance, match_mode,
                  gp_1=0, gp_2=0, p_2=0,
                  is_end_3=0, **kwargs):
-    kwargs_1 = {} if gp_1 == 0 else {"gp": gp_1}
+    # print(kwargs)  # 里面应该是没有 polar2 关键字的
+
+    kwargs_1 = {} if type(gp_1) != np.ndarray else {"gp": gp_1}
+    kwargs.update(kwargs_1)
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g1, E1_u = \
         init_AST_pro(Ix, Iy, size_PerPixel,
                      lam1, is_air, T,
                      theta_x, theta_y, is_print,
                      is_air_pump=is_air_pump,
-                     p_ray="1",
-                     **kwargs_1, **kwargs, )
+                     is_end2=-1, **kwargs, )
 
-    kwargs_2 = {}
-    kwargs_21 = {} if gp_2 == 0 else {"gp": gp_2}
-    kwargs_22 = {} if p_2 == 0 else {"polar2": p_2}
-    kwargs_2.update(kwargs_21)
-    kwargs_2.update(kwargs_22)
+    kwargs_21 = {} if type(gp_2) != np.ndarray else {"gp": gp_2}
+    kwargs_22 = {} if type(p_2) != str else {"polar2": p_2}
+    kwargs.update(kwargs_21)
+    kwargs.update(kwargs_22)
+    # print(kwargs["polar2"])
     if ray_tag == "f":
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy, g2, E2_u = \
             init_AST_pro(Ix, Iy, size_PerPixel,
                          lam2, is_air, T,
                          theta2_x, theta2_y, is_print,
                          is_air_pump=is_air_pump,
-                         p_ray="2",
-                         **kwargs_2, **kwargs, )
+                         add_level=1, **kwargs, )
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
-    kwargs_3 = {}
-    kwargs_31 = {} if gp_1 == 0 else {"g1": gp_1}
-    kwargs_32 = {} if gp_2 == 0 else {"g2": gp_2}
-    kwargs_3.update(kwargs_31)
-    kwargs_3.update(kwargs_32)
+    kwargs_31 = {} if type(gp_1) != np.ndarray else {"g1": gp_1}
+    kwargs_32 = {} if type(gp_2) != np.ndarray else {"g2": gp_2}
+    kwargs.update(kwargs_31)
+    kwargs.update(kwargs_32)
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-    dk_z, lc, Tz, \
-    Gx, Gy, Gz, \
+    dk_z, lc, Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                              lam1, lam2, is_air, T,
                                                              k1_inc, k2_inc,
@@ -96,13 +95,11 @@ def gan_args_SFG(Ix, Iy, size_PerPixel,
                                                              Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
                                                              Get("theta_y"), Get("theta2_y"),
                                                              is_air_pump=is_air_pump,
-                                                             is_end=is_end_3,
-                                                             **kwargs_3, **kwargs)
+                                                             is_end=is_end_3, **kwargs)
     return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
            n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-           dk_z, lc, Tz, \
-           Gx, Gy, Gz, \
+           dk_z, lc, Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
 
 
@@ -122,8 +119,10 @@ def gan_args_SHG_oe(Ix, Iy, size_PerPixel,
     args_init_AST = [Ix, Iy, size_PerPixel,
                      lam1, is_air, T,
                      theta_x, theta_y]
-    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
 
+    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
+    if "gp" in kwargs: kwargs.pop("gp")
+    if "polar2" in kwargs: kwargs.pop("polar2")
     n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
     n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue \
         = gan_nkgE_oe(g_p, p_p, is_print,
@@ -131,9 +130,10 @@ def gan_args_SHG_oe(Ix, Iy, size_PerPixel,
 
     k1_z = (k1o_z + k1e_z) / 2
 
+    kwargs["g1"] = g_o
+    kwargs["g2"] = g_e
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-    dk_z, lc, Tz, \
-    Gx, Gy, Gz, \
+    dk_z, lc, Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                              lam1, lam1, is_air, T,
                                                              k1o_inc, k1e_inc,
@@ -147,14 +147,12 @@ def gan_args_SHG_oe(Ix, Iy, size_PerPixel,
                                                              Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
                                                              Get("theta_y"), Get("theta2_y"),
                                                              is_air_pump=is_air_pump,
-                                                             is_end=is_end_3,
-                                                             g1=g_o, g2=g_e, **kwargs)
+                                                             is_end=is_end_3, **kwargs)
 
     return n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-           dk_z, lc, Tz, \
-           Gx, Gy, Gz, \
+           dk_z, lc, Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
 
 
@@ -174,8 +172,10 @@ def gan_args_SHG_VHoe(Ix, Iy, size_PerPixel,
     args_init_AST = [Ix, Iy, size_PerPixel,
                      lam1, is_air, T,
                      theta_x, theta_y]
-    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
 
+    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
+    if "gp" in kwargs: kwargs.pop("gp")
+    if "polar2" in kwargs: kwargs.pop("polar2")
     n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
     n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
     n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
@@ -193,9 +193,10 @@ def gan_args_SHG_VHoe(Ix, Iy, size_PerPixel,
     k1e_z = (k1_Ve_z + k1_He_z) / 2
     k1_z = (k1o_z + k1e_z) / 2
 
+    kwargs["g1"] = g_o
+    kwargs["g2"] = g_e
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-    dk_z, lc, Tz, \
-    Gx, Gy, Gz, \
+    dk_z, lc, Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = accurate_args_SFG(Ix, Iy, size_PerPixel,
                                                              lam1, lam1, is_air, T,
                                                              k1o_inc, k1e_inc,
@@ -209,16 +210,14 @@ def gan_args_SHG_VHoe(Ix, Iy, size_PerPixel,
                                                              Get("theta_x"), Get("theta2_x"),  # 把晶体内的 角度 传进去
                                                              Get("theta_y"), Get("theta2_y"),
                                                              is_air_pump=is_air_pump,
-                                                             is_end=is_end_3,
-                                                             g1=g_o, g2=g_e, **kwargs)
+                                                             is_end=is_end_3, **kwargs)
 
     return n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
            n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
            n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
            n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-           dk_z, lc, Tz, \
-           Gx, Gy, Gz, \
+           dk_z, lc, Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
 
 
@@ -251,12 +250,12 @@ def gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
                                  is_add_polarizer, is_HOPS,
                                  is_save, is_print,
                                  ray_tag, is_air_pump,
-                                 lam2, theta2_x, theta2_y,
-                                 g_shift, g2, U_0, U2_0, polar2,
+                                 lam_2, theta2_X, theta2_Y,  # 为了与 kwargs 里 的名称不重复，需要单独设计 位置参数名称 如 g_1, g_2
+                                 g_1, g_2, U_0, U2_0, polar_2,
                                  args_init_AST, args_gan_args_SFG,
                                  args_U_amp_plot_save,
                                  kwargs_init_AST, kwargs_U_amp_plot_save,
-                                 is_plot_n=1, **kwargs):
+                                 is_plot_n=1, is_end=0, **kwargs):
     from b_1_AST import init_locals
     g_p, p_p, g_V, g_H, p_V, p_H, \
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
@@ -268,17 +267,20 @@ def gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
     n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
     n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
     n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
-    dk_z, lc, Tz, \
-    Gx, Gy, Gz, \
+    dk_z, lc, Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect = \
         init_locals("g_p, p_p, g_V, g_H, p_V, p_H, \
-                n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
-                n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
-                n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
-                n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
-                n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
-                n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
-                n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He")
+                    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+                    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+                    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+                    n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+                    n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+                    n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+                    n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+                    n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+                    n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+                    dk_z, lc, Gx, Gy, Gz, \
+                    z0, Tz, deff_structure_length_expect")
     # 主要是 is_add_polarizer 和 def 导致的，有些变量 没声明，却在 def 的 形参中 出现了，以致于 实参 在用到时 报错
     # 其实就是 把 pycharm 所提示的 “可能在赋值前引用” 的 局部变量 先赋好值
 
@@ -286,10 +288,10 @@ def gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
         # %% 起偏
 
         if is_add_polarizer == 1:
-            g_p, p_p = Gan_gp_p(is_HOPS, g_shift,
-                                U_0, U2_0, polar2, **kwargs)
+            g_p, p_p = Gan_gp_p(is_HOPS, g_1,
+                                U_0, U2_0, polar_2, **kwargs)
         else:
-            g_V, g_H, p_V, p_H = Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs)
+            g_V, g_H, p_V, p_H = Gan_gp_VH(is_HOPS, U_0, U2_0, polar_2, **kwargs)
 
         # %% 空气中，偏振状态 与 入射方向 无关/独立，因此 无论 theta_x 怎么取，U 中所有点 偏振状态 均为 V，且 g 中 所有点的 偏振状态也 均为 V
         # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
@@ -297,28 +299,26 @@ def gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
             n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
             n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
             lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-            dk_z, lc, Tz, \
-            Gx, Gy, Gz, \
+            dk_z, lc, Gx, Gy, Gz, \
             z0, Tz, deff_structure_length_expect \
                 = gan_args_SHG_oe(*args_init_AST,
                                   *args_gan_args_SFG,
                                   g_p, p_p, is_print,
                                   **kwargs_init_AST,
-                                  **kwargs)
+                                  is_end_3=is_end, **kwargs)
         else:
             n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
             n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
             n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
             n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
             lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-            dk_z, lc, Tz, \
-            Gx, Gy, Gz, \
+            dk_z, lc, Gx, Gy, Gz, \
             z0, Tz, deff_structure_length_expect = \
                 gan_args_SHG_VHoe(*args_init_AST,
                                   *args_gan_args_SFG,
                                   g_V, p_V, g_H, p_H, is_print,
                                   **kwargs_init_AST,
-                                  **kwargs)
+                                  is_end_3=is_end, **kwargs)
 
         # %% 晶体内 oe 光 折射率 分布
         if is_plot_n == 1:
@@ -333,14 +333,14 @@ def gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
         n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
         lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-        dk_z, lc, Tz, \
-        Gx, Gy, Gz, \
+        dk_z, lc, Gx, Gy, Gz, \
         z0, Tz, deff_structure_length_expect = \
             gan_args_SFG(*args_init_AST,
                          ray_tag, is_air_pump, is_print,
-                         lam2, theta2_x, theta2_y,
+                         lam_2, theta2_X, theta2_Y,
                          *args_gan_args_SFG,
-                         gp_1=g_shift, gp_2=g2, p_2=polar2, **kwargs)
+                         gp_1=g_1, gp_2=g_2, p_2=polar_2,
+                         is_end_3=is_end, **kwargs)
 
         if is_plot_n == 1:
             plot_n_123(ray_tag, is_save,
@@ -360,8 +360,7 @@ def gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
            n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
            n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
            n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
-           dk_z, lc, Tz, \
-           Gx, Gy, Gz, \
+           dk_z, lc, Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
 
 
@@ -437,8 +436,8 @@ def SFG_NLA(U_name="",
                               __name__ == "__main__", is_print, **kwargs, )
 
     # %%
-    is_HOPS = kwargs.get("is_HOPS", 0)
-    is_birefringence = kwargs.get("is_birefringence", 0)
+    is_HOPS = kwargs.get("is_HOPS_SHG", 0)
+    is_birefringence = kwargs.get("is_birefringence_SHG", 0)
     is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
     is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
@@ -611,8 +610,7 @@ def SFG_NLA(U_name="",
     n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
     n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
     n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
-    dk_z, lc, Tz, \
-    Gx, Gy, Gz, \
+    dk_z, lc, Gx, Gy, Gz, \
     z0, Tz, deff_structure_length_expect \
         = gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
                                        is_add_polarizer, is_HOPS,
@@ -677,10 +675,21 @@ def SFG_NLA(U_name="",
                 for key in pump2_keys:
                     kwargs[key] = locals()[key]
                     kwargs["pump2_keys"] = locals()["pump2_keys"]
-            n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-            z0, deff_structure_length_expect, dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
-            size_PerPixel, U_0_structure, g_shift_structure, \
-            structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
+            folder_address, size_PerPixel, U_0_structure, g_shift_structure, \
+            g_p, p_p, g_V, g_H, p_V, p_H, \
+            n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+            n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+            lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+            n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+            n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+            n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+            n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+            n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+            dk_z, lc, Gx, Gy, Gz, z0, Tz, deff_structure_length_expect, \
+            structure, structure_opposite, \
+            modulation, modulation_opposite, \
+            modulation_squared, modulation_opposite_squared \
                 = structure_chi2_Generate_2D(U_name_Structure,
                                              img_full_name,
                                              is_phase_only_Structure,
@@ -868,11 +877,11 @@ if __name__ == '__main__':
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          # %%  是否 考虑 双折射、是否 采用 混合庞加莱球、若采用，请给出 极角 和 方位角
-         "is_SHG_birefringence": 1,
+         "is_birefringence_SHG": 0,
          # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_p
          "phi_p": 0, "phi_a": 0,  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
          # %%  控制 单双泵浦 和 绘图方式
-         "is_HOPS": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "is_HOPS_SHG": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,
          # %%
          "deff": 30, "is_fft": 1, "fft_mode": 0,
@@ -922,7 +931,7 @@ if __name__ == '__main__':
          "polar3": "o", "ray": "3",
          }
 
-    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "spaceship.png",

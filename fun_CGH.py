@@ -13,7 +13,7 @@ from fun_os import U_dir, U_amp_plot_save
 from fun_global_var import Get, tree_print
 from fun_pump import pump_pic_or_U_structure
 from fun_linear import init_AST_pro, fft2
-from fun_nonlinear import args_SFG, accurate_args_SFG
+from fun_nonlinear import args_SFG
 
 
 # %%
@@ -192,8 +192,20 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                is_contours=1, n_TzQ=1,
                                Gz_max_Enhance=1, match_mode=1,
                                # %%
-                               **kwargs, ):
+                               is_plot_n=0, is_print2=0, **kwargs, ):
     # print(kwargs)
+    # %%
+    is_HOPS = kwargs.get("is_HOPS_SHG", 0)
+    is_birefringence = kwargs.get("is_birefringence_SHG", 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
+    is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
+    kwargs['ray'] = "2" if is_birefringence_deduced == 1 else kwargs.get('ray', "2")
+    ray_tag = "f" if kwargs['ray'] == "3" else "h"
+    is_twin_pump = int(ray_tag == "f" or is_twin_pump_degenerate == 1)
+    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
+    # %%
     lam_structure = kwargs.get("lam_structure", lam1)
     T_structure = kwargs.get("T_structure", T)
     kwargs.pop("lam_structure", None)
@@ -206,7 +218,6 @@ def structure_chi2_Generate_2D(U_structure_name="",
     lam2 = kwargs.get("lam2", lam1)
     polar2 = kwargs.get("polar2", 'e')
     # %%
-    ray_tag = "f" if kwargs.get('ray', "2") == "3" else "h"
     if ray_tag == "f":
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
@@ -260,32 +271,75 @@ def structure_chi2_Generate_2D(U_structure_name="",
                                                                **kwargs, )
 
     kwargs.pop("is_end", None);
-    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话
 
-    # %%  只提供 Gx, Gy 给自己，也提供 dk 给 A_3_structure_chi2_Generate_3D 的 Info_find_contours_SHG
-    # 也提供 dk 来矫正 Tz...
+    # %% 确定 公有参数
 
     z0 = kwargs["L0_Crystal"] if "L0_Crystal" in kwargs else deff_structure_length_expect
     kwargs.pop("L0_Crystal", None)
 
-    from b_3_SFG_NLA import gan_args_SFG
+    g_shift = kwargs.get("g1", 0)
+    g2 = kwargs.get("g2", 0)
+    U_0 = fft2(g_shift) if type(g_shift) == np.ndarray else 0
+    U2_0 = fft2(g2) if type(g2) == np.ndarray else 0
+
+    args_init_AST = \
+        [Ix, Iy, size_PerPixel,
+         lam1, is_air, T,
+         theta_x, theta_y, ]
+    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
+
+    args_gan_args_SFG = \
+        [z0, z0,
+         mx, my, mz,
+         Tx, Ty, Tz,
+         is_contours, n_TzQ,
+         Gz_max_Enhance, match_mode, ]
+
+    def args_U_amp_plot_save(folder_address, U, U_name):
+        return [folder_address,
+                # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                U, U_name,
+                Get("img_name_extension"),
+                is_save_txt,
+                # %%
+                [], 1, size_PerPixel,
+                0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                # %%
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                fontsize, font,
+                # %%
+                1, is_colorbar_on, 0, ]  # 折射率分布差别很小，而 is_self_colorbar = 0 只看前 3 位小数的差异，因此用自动 colorbar。
+
+    kwargs_U_amp_plot_save = {"suffix": ""}
+
+    # %%  只提供 Gx, Gy 给自己，也提供 dk 给 A_3_structure_chi2_Generate_3D 的 Info_find_contours_SHG
+    # 也提供 dk 来矫正 Tz...
+    from b_3_SFG_NLA import gan_gpnkE_123VHoe_xyzinc_SFG
+
+    g_p, p_p, g_V, g_H, p_V, p_H, \
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
     n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-    dk_z, lc, Tz, \
-    Gx, Gy, Gz, \
-    z0_recommend, Tz, deff_structure_length_expect = \
-        gan_args_SFG(Ix, Iy, size_PerPixel,
-                     lam1, is_air, T,
-                     theta_x, theta_y,
-                     ray_tag, is_air_pump, is_print,
-                     lam2, theta2_x, theta2_y,
-                     z0, deff_structure_length_expect,
-                     mx, my, mz,
-                     Tx, Ty, Tz,
-                     is_contours, n_TzQ,
-                     Gz_max_Enhance, match_mode,
-                     p_2=polar2, is_end_3=1, **kwargs)
+    n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+    n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+    n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+    n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+    n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+    n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+    dk_z, lc, Gx, Gy, Gz, \
+    z0_recommend, Tz, deff_structure_length_expect \
+        = gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
+                                       is_add_polarizer, is_HOPS,
+                                       is_save, is_print2,
+                                       ray_tag, is_air_pump,
+                                       lam2, theta2_x, theta2_y,
+                                       g_shift, g2, U_0, U2_0, polar2,
+                                       args_init_AST, args_gan_args_SFG,
+                                       args_U_amp_plot_save,
+                                       kwargs_init_AST, kwargs_U_amp_plot_save,
+                                       is_plot_n=is_plot_n, is_end=1, **kwargs)
 
     # %%
     # 开始生成 调制函数 structure 和 modulation = 1 - is_no_backgroud - Depth * structure，以及 structure_opposite = 1 - structure 及其 modulation
@@ -425,10 +479,21 @@ def structure_chi2_Generate_2D(U_structure_name="",
                     # %%
                     suffix="", **kwargs, )
 
-    return n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-           z0_recommend, deff_structure_length_expect, dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
-           size_PerPixel, U_0_structure, g_shift_structure, \
-           structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared
+    return folder_address, size_PerPixel, U_0_structure, g_shift_structure, \
+           g_p, p_p, g_V, g_H, p_V, p_H, \
+           n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+           n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+           lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+           n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+           n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+           n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+           n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+           n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+           n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+           dk_z, lc, Gx, Gy, Gz, z0_recommend, Tz, deff_structure_length_expect, \
+           structure, structure_opposite, \
+           modulation, modulation_opposite, \
+           modulation_squared, modulation_opposite_squared
 
 
 # %%

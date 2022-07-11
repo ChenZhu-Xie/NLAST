@@ -13,11 +13,8 @@ import numpy as np
 from fun_global_var import init_GLV_DICT, Get, tree_print, GU_error_energy_plot_save
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST
-from fun_nonlinear import accurate_args_SFG
 from c_2_compare_SFG_NLA__SSI_chi2 import compare_SFG_NLA__SSI
-from b_1_AST import Gan_gp_p, Gan_gp_VH, gan_nkgE_oe, gan_nkgE_VHoe
-from b_3_SFG_NLA import define_n, gan_args_SFG
+from b_3_SFG_NLA import gan_gpnkE_123VHoe_xyzinc_SFG
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -103,8 +100,8 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
                               # %%
                               **kwargs, ):
     # %%
-    is_HOPS = kwargs.get("is_HOPS", 0)
-    is_birefringence = kwargs.get("is_birefringence", 0)
+    is_HOPS = kwargs.get("is_HOPS_SHG", 0)
+    is_birefringence = kwargs.get("is_birefringence_SHG", 0)
     is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
     is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
@@ -229,23 +226,66 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
 
     # %%
 
+    if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
+        kwargs.pop("U")
+
+    # %% 确定 公有参数
+
+    args_init_AST = \
+        [Ix, Iy, size_PerPixel,
+         lam1, is_air, T,
+         theta_x, theta_y, ]
+    kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
+
+    args_gan_args_SFG = \
+        [L0_Crystal, deff_structure_length_expect,
+         mx, my, mz,
+         Tx, Ty, Tz,
+         is_contours, n_TzQ,
+         Gz_max_Enhance, match_mode, ]
+
+    def args_U_amp_plot_save(folder_address, U, U_name):
+        return [folder_address,
+                # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                U, U_name,
+                Get("img_name_extension"),
+                is_save_txt,
+                # %%
+                [], 1, size_PerPixel,
+                0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                # %%
+                cmap_2d, ticks_num, is_contourf,
+                is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                fontsize, font,
+                # %%
+                1, is_colorbar_on, 0, ]  # 折射率分布差别很小，而 is_self_colorbar = 0 只看前 3 位小数的差异，因此用自动 colorbar。
+
+    kwargs_U_amp_plot_save = {"suffix": ""}
+
+    # %%
+
+    g_p, p_p, g_V, g_H, p_V, p_H, \
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
     n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-    dk_z, lc, Tz, \
-    Gx, Gy, Gz, \
-    z0, Tz, deff_structure_length_expect = \
-        gan_args_SFG(Ix, Iy, size_PerPixel,
-                     lam1, is_air, T,
-                     theta_x, theta_y,
-                     ray_tag, is_air_pump, is_print,
-                     lam2, theta2_x, theta2_y,
-                     L0_Crystal, deff_structure_length_expect,
-                     mx, my, mz,
-                     Tx, Ty, Tz,
-                     is_contours, n_TzQ,
-                     Gz_max_Enhance, match_mode,
-                     gp_1=g_shift, gp_2=g2, p_2=polar2, **kwargs)
+    n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+    n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+    n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+    n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+    n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+    n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+    dk_z, lc, Gx, Gy, Gz, \
+    z0, Tz, deff_structure_length_expect \
+        = gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
+                                       is_add_polarizer, is_HOPS,
+                                       is_save, is_print,
+                                       ray_tag, is_air_pump,
+                                       lam2, theta2_x, theta2_y,
+                                       g_shift, g2, U_0, U2_0, polar2,
+                                       args_init_AST, args_gan_args_SFG,
+                                       args_U_amp_plot_save,
+                                       kwargs_init_AST, kwargs_U_amp_plot_save,
+                                       is_plot_n=1, **kwargs)
 
     Tc = 2 * lc
 

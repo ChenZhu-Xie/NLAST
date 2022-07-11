@@ -89,10 +89,21 @@ def structure_chi2_3D(U_name="",
     # 这样若 deff_structure_length_expect < NLA_SSI 中的 z0 则 无法读取到 > deff_structure_length_expect 的 结构，只能手动在 A_to_B_3_NLA_SSI 中设置 deff_structure_length_expect 比 z0 大
     # 并不打算改这一点，因为否则的话，需要向这个函数传入一个参数，而这个参数却是之后要引用的函数 NLA_SSI 才能给出的，违反了 因果律
 
-    n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-    z0_recommend, deff_structure_length_expect, dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
-    size_PerPixel, U_0, g_shift, \
-    structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
+    folder_address, size_PerPixel, U_0_structure, g_shift_structure, \
+    g_p, p_p, g_V, g_H, p_V, p_H, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+    n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+    n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+    n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+    n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+    n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+    n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+    dk_z, lc, Gx, Gy, Gz, z0_recommend, Tz, deff_structure_length_expect, \
+    structure, structure_opposite, \
+    modulation, modulation_opposite, \
+    modulation_squared, modulation_opposite_squared \
         = structure_chi2_Generate_2D(U_name,
                                      img_full_name,
                                      is_phase_only,
@@ -138,7 +149,8 @@ def structure_chi2_3D(U_name="",
                                      is_contours, n_TzQ,
                                      Gz_max_Enhance, match_mode,
                                      # %%
-                                     is_air_pump=is_air_pump, **kwargs, )
+                                     is_air_pump=is_air_pump,
+                                     is_plot_n=1, is_print2=1, **kwargs, )
     if kwargs.get('ray', "2") == "3":
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。

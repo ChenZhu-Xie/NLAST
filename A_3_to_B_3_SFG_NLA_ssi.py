@@ -104,8 +104,8 @@ def A_3_to_B_3_SFG_NLA_ssi(U_name_Structure="",
                               __name__ == "__main__", is_print, **kwargs, )
 
     # %%
-    is_HOPS = kwargs.get("is_HOPS", 0)
-    is_birefringence = kwargs.get("is_birefringence", 0)
+    is_HOPS = kwargs.get("is_HOPS_SHG", 0)
+    is_birefringence = kwargs.get("is_birefringence_SHG", 0)
     is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
     is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
@@ -381,11 +381,11 @@ if __name__ == '__main__':
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%  是否 考虑 双折射、是否 采用 混合庞加莱球、若采用，请给出 极角 和 方位角
-         "is_SHG_birefringence": 1,
+         "is_birefringence_SHG": 1,
          # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_p
          "phi_p": 0, "phi_a": 0,  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
          # %%  控制 单双泵浦 和 绘图方式
-         "is_HOPS": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "is_HOPS_SHG": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,
          # %%
          "Tx": 10, "Ty": 20, "Tz": 12.319,
@@ -437,7 +437,7 @@ if __name__ == '__main__':
          "polar3": "e", "ray": "2",
          }
 
-    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena.png",

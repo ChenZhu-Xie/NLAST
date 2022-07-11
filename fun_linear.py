@@ -824,14 +824,10 @@ def Gan_S_vector(is_air, lam, T,
     if mode < 3:
         return S_u, theta_x_S_u, theta_y_S_u, \
                walk_off_angle, delta_sk_parallel_to_z, delta_sk_vertical_to_z
-    elif "gp" in kwargs:
-        return S_u, theta_x_S_u, theta_y_S_u, \
-               walk_off_angle, delta_sk_parallel_to_z, delta_sk_vertical_to_z, \
-               s_z_inc, s_z_inc_z, s_z_inc_xy, g_p
     else:
         return S_u, theta_x_S_u, theta_y_S_u, \
                walk_off_angle, delta_sk_parallel_to_z, delta_sk_vertical_to_z, \
-               s_z_inc, s_z_inc_z, s_z_inc_xy
+               s_z_inc, s_z_inc_z, s_z_inc_xy, g_p
     # return S_u, theta_x_S_u, theta_y_S_u, \
     #        walk_off_angle, delta_sk_parallel_to_z
 
@@ -1266,7 +1262,7 @@ def init_AST(Ix, Iy, size_PerPixel,
 def init_AST_pro(Ix, Iy, size_PerPixel,
                  lam1, is_air, T,
                  theta_x, theta_y,
-                 is_print, p_p=0, p_ray="", **kwargs):
+                 is_print, p_p=0, p_ray="", **kwargs):  # 一般 p_ray 只是 "V" 或 "H"
     is_end = kwargs.get("is_end", 0)
     is_end2 = kwargs.get("is_end2", 1)
     add_level = kwargs.get("add_level", 0)
@@ -1284,10 +1280,12 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
         from fun_global_var import Get
         if "polar2" in kwargs:
             p = kwargs["polar2"]
+            p_ray = "2" + p_ray
             theta_x = Get("theta2_x")
             theta_y = Get("theta2_y")
         else:
             p = kwargs.get("polar", "e")
+            p_ray = "1" + p_ray
             theta_x = Get("theta_x")
             theta_y = Get("theta_y")
         p = p_ray + p
@@ -1334,25 +1332,65 @@ def init_AST_pro(Ix, Iy, size_PerPixel,
         # print(D_u[0])
         # print(D_u[:,0])
         # print(D_u[0,0])
-        if type(p_p) == 'numpy.ndarray':
+        if type(p_p) == np.ndarray:
             g_oe = g_p * np.dot(E_u, p_p)  # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
         else:
             g_oe = g_p
+
+        n1, k1, k1_z, k1_xy = \
+            output_nk_xyz(lam1, size_PerPixel,
+                          k1, k1_z, k1_xy,
+                          s, s_z, s_xy,
+                          delta_sk_pz, PG_vz,
+                          mode=1.3)
     else:
         g_oe = 0
         E_u = 0
+
     # %%
-    # return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, k1, k1_z * delta_sk_pz, k1_xy, g_oe, E_u
-    return n1_inc, n1, k1_inc, k1, k1_z + PG_vz, k1_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, k1, (k1_z * delta_sk_pz + PG_vz), k1_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, k1, (k1_z + PG_vz) * delta_sk_pz, k1_xy, g_oe, E_u
-    # %%
-    # return n1_inc, n1, k1_inc, s, s_z, s_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, s, s_z * delta_sk_pz, s_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, s, s_z + PG_vz, s_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, s, (s_z * delta_sk_pz + PG_vz), s_xy, g_oe, E_u
-    # return n1_inc, n1, k1_inc, s, (s_z + PG_vz) * delta_sk_pz, s_xy, g_oe, E_u
+    return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
+
+
+def output_k_xyz(k, k_z, k_xy,
+                 s, s_z, s_xy,
+                 delta_sk_pz, PG_vz,
+                 mode=1.3):
+    if mode == 1.1 or mode == 1:
+        k, k_z, k_xy = k, k_z, k_xy
+    elif mode == 1.2:
+        k, k_z, k_xy = k, k_z * delta_sk_pz, k_xy
+    elif mode == 1.3:
+        k, k_z, k_xy = k, k_z + PG_vz, k_xy
+    elif mode == 1.4:
+        k, k_z, k_xy = k, (k_z * delta_sk_pz + PG_vz), k_xy
+    elif mode == 1.5:
+        k, k_z, k_xy = k, (k_z + PG_vz) * delta_sk_pz, k_xy
+    elif mode == 2.1 or mode == 2:
+        k, k_z, k_xy = s, s_z, s_xy
+    elif mode == 2.2:
+        k, k_z, k_xy = s, s_z * delta_sk_pz, s_xy
+    elif mode == 2.3:
+        k, k_z, k_xy = s, s_z + PG_vz, s_xy
+    elif mode == 2.4:
+        k, k_z, k_xy = s, (s_z * delta_sk_pz + PG_vz), s_xy
+    elif mode == 2.5:
+        k, k_z, k_xy = s, (s_z + PG_vz) * delta_sk_pz, s_xy
+    return k, k_z, k_xy
+
+
+def output_nk_xyz(lam1, size_PerPixel,
+                  k1, k1_z, k1_xy,
+                  s, s_z, s_xy,
+                  delta_sk_pz, PG_vz,
+                  mode=1.3):
+    k1, k1_z, k1_xy = output_k_xyz(k1, k1_z, k1_xy,
+                                   s, s_z, s_xy,
+                                   delta_sk_pz, PG_vz,
+                                   mode=mode)
+    k1 = (k1_z ** 2 + k1_xy[:, :, 0] ** 2 + k1_xy[:, :, 1] ** 2) ** 0.5
+    n1 = lam1 / 1000 / (2 * math.pi * size_PerPixel / k1)  # 后得到 中心级 大小
+    n1 = np.abs(n1)
+    return n1, k1, k1_z, k1_xy
 
 
 # %%

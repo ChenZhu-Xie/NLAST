@@ -18,8 +18,6 @@ from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, Set, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
-from b_1_AST import Gan_gp_p, Gan_gp_VH, gan_nkgE_oe, gan_nkgE_VHoe
-from b_3_SFG_NLA import define_n, gan_args_SFG
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -107,8 +105,8 @@ def SFG_SSF_SSI(U_name="",
                               __name__ == "__main__", is_print, **kwargs, )
 
     # %%
-    is_HOPS = kwargs.get("is_HOPS", 0)
-    is_birefringence = kwargs.get("is_birefringence", 0)
+    is_HOPS = kwargs.get("is_HOPS_SHG", 0)
+    is_birefringence = kwargs.get("is_birefringence_SHG", 0)
     is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
     is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
@@ -268,10 +266,21 @@ def SFG_SSF_SSI(U_name="",
         for key in pump2_keys:
             kwargs[key] = locals()[key]
             kwargs["pump2_keys"] = locals()["pump2_keys"]
-    n1_inc, n1, k1_inc, k1, k1_z, n2_inc, n2, k2_inc, k2, k2_z, lam3, n3_inc, n3, k3_inc, k3, k3_z, \
-    L0_Crystal, deff_structure_length_expect, dk_z, lc, Tz, Gx, Gy, Gz, folder_address, \
-    size_PerPixel, U_0_structure, g_shift_structure, \
-    structure, structure_opposite, modulation, modulation_opposite, modulation_squared, modulation_opposite_squared \
+    folder_address, size_PerPixel, U_0_structure, g_shift_structure, \
+    g_p, p_p, g_V, g_H, p_V, p_H, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+    n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+    n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+    n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+    n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+    n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+    n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+    dk_z, lc, Gx, Gy, Gz, L0_Crystal, Tz, deff_structure_length_expect, \
+    structure, structure_opposite, \
+    modulation, modulation_opposite, \
+    modulation_squared, modulation_opposite_squared \
         = structure_chi2_Generate_2D(U_name_Structure,
                                      img_full_name,
                                      is_phase_only_Structure,
@@ -317,7 +326,8 @@ def SFG_SSF_SSI(U_name="",
                                      Gz_max_Enhance, match_mode,
                                      L0_Crystal=L0_Crystal, g1=g_shift, g2=g2,
                                      # %%
-                                     is_air_pump=is_air_pump, **kwargs, )
+                                     is_air_pump=is_air_pump,
+                                     is_plot_n=1, is_print2=1, **kwargs, )
     if ray_tag == "f":
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
@@ -712,11 +722,11 @@ if __name__ == '__main__':
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%  是否 考虑 双折射、是否 采用 混合庞加莱球、若采用，请给出 极角 和 方位角
-         "is_SHG_birefringence": 1,
+         "is_birefringence_SHG": 1,
          # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_p
          "phi_p": 0, "phi_a": 0,  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
          # %%  控制 单双泵浦 和 绘图方式
-         "is_HOPS": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "is_HOPS_SHG": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,
          # %%
          "Tx": 18, "Ty": 10, "Tz": 8,
@@ -772,7 +782,7 @@ if __name__ == '__main__':
          "polar3": "o", "ray": "3",
          }
 
-    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena.png",

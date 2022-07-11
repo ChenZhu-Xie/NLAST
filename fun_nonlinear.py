@@ -88,9 +88,9 @@ def Cal_GxGyGz(mx, my, mz,
 # %%
 
 def args_SFG(Ix, Iy, size_PerPixel,
-             is_air, T, lam1, lam2,
+             is_air, T, lam1, lam_2,
              k1, k1_inc, k2, k2_inc,
-             theta_x, theta_y, theta2_x, theta2_y,
+             theta_X, theta_Y, theta2_X, theta2_Y,
              mx, my, mz,
              Tx, Ty, Tz,
              is_print, **kwargs):
@@ -124,9 +124,9 @@ def args_SFG(Ix, Iy, size_PerPixel,
     Gx, Gy, Gz, lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
         Gan_Gz(Ix, Iy, size_PerPixel,
                mx, my, Tx, Ty,
-               is_air, T, lam1, lam2,
+               is_air, T, lam1, lam_2,
                k1, k1_inc, k2, k2_inc,
-               theta_x, theta_y, theta2_x, theta2_y,
+               theta_X, theta_Y, theta2_X, theta2_Y,
                is_print, **kwargs)
 
     dk_z, lc, Tz = Cal_lc_SHG(Gz, Tz, size_PerPixel,
@@ -167,7 +167,7 @@ def init_SFG_pro(Ix, Iy, size_PerPixel,
                  lam1, is_air, T,
                  theta_x, theta_y,
                  is_print, **kwargs):  # 晶体里 频率转换出来的光，一出来就在晶体里
-    # 所以没有双折射，所以没有 p_p 和 p_ray，或者它俩从一开始就是 p_o 或 p_e，保持不变
+    # 所以没有双折射，所以没有 p_p 和 p_ray，或者 p_p 从一开始就是 p_o 或 p_e，保持不变；同时 p_ray = "3" 保持不变
     is_end = kwargs.get("is_end", 0)
     is_end2 = kwargs.get("is_end2", 1)
     add_level = kwargs.get("add_level", 0)
@@ -191,9 +191,9 @@ def init_SFG_pro(Ix, Iy, size_PerPixel,
         # %%
 
         args_Gan_E_vector = \
-            [is_air, lam1, T, ]
+            [is_air, lam3, T, ]
         args_Gan_D_vector = \
-            [is_air, lam1, T,
+            [is_air, lam3, T,
              size_PerPixel,
              k3, k3_z, k3_xy, ]
 
@@ -225,20 +225,18 @@ def init_SFG_pro(Ix, Iy, size_PerPixel,
                               theta_x_S_0kx0ky, theta_y_S_0kx0ky,
                               theta_D_u_0kx0ky, phi_D_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky,
                               is_end, add_level, is_end2=is_end2, )
+
+        from fun_linear import output_nk_xyz
+        n3, k3, k3_z, k3_xy = \
+            output_nk_xyz(lam3, size_PerPixel,
+                          k3, k3_z, k3_xy,
+                          s, s_z, s_xy,
+                          delta_sk_pz, PG_vz,
+                          mode=1.3)
     else:
         E_u = 0
     # %%
-    # return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E_u
-    # return lam3, n3_inc, n3, k3_inc, k3, k3_z * delta_sk_pz, k3_xy, E_u
-    return lam3, n3_inc, n3, k3_inc, k3, k3_z + PG_vz, k3_xy, E_u
-    # return lam3, n3_inc, n3, k3_inc, k3, (k3_z * delta_sk_pz + PG_vz), k3_xy, E_u
-    # return lam3, n3_inc, n3, k3_inc, k3, (k3_z + PG_vz) * delta_sk_pz, k3_xy, E_u
-    # %%
-    # return lam3, n3_inc, n3, k3_inc, s, s_z, s_xy, E_u
-    # return lam3, n3_inc, n3, k3_inc, s, s_z * delta_sk_pz, s_xy, E_u
-    # return lam3, n3_inc, n3, k3_inc, s, s_z + PG_vz, s_xy, E_u
-    # return lam3, n3_inc, n3, k3_inc, s, (s_z * delta_sk_pz + PG_vz), s_xy, E_u
-    # return lam3, n3_inc, n3, k3_inc, s, (s_z + PG_vz) * delta_sk_pz, s_xy, E_u
+    return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E_u
 
 
 # %%
@@ -288,7 +286,7 @@ def cal_theta3_xy(k1_inc, theta1_x, theta1_y,
 # %%
 
 def accurate_args_SFG(Ix, Iy, size_PerPixel,
-                      lam1, lam2, is_air, T,
+                      lam1, lam_2, is_air, T,  # 防重名
                       k1_inc, k2_inc,
                       k1, k2, k1_z,
                       z0, deff_structure_length_expect,
@@ -297,8 +295,8 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
                       is_contours, n_TzQ,
                       Gz_max_Enhance, match_mode,
                       is_print,
-                      theta_x, theta2_x,
-                      theta_y, theta2_y,
+                      theta_X, theta2_X, # 防重名
+                      theta_Y, theta2_Y, # 防重名
                       **kwargs):
     # %%  给出 试探 Gz
     is_end = kwargs.get("is_end", 0)
@@ -309,9 +307,9 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
     Gx, Gy, Gz, \
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
         args_SFG(Ix, Iy, size_PerPixel,
-                 is_air, T, lam1, lam2,
+                 is_air, T, lam1, lam_2,
                  k1, k1_inc, k2, k2_inc,
-                 theta_x, theta_y, theta2_x, theta2_y,
+                 theta_X, theta_Y, theta2_X, theta2_Y,
                  mx, my, mz,
                  Tx, Ty, Tz,
                  is_print, **kwargs)
@@ -326,25 +324,24 @@ def accurate_args_SFG(Ix, Iy, size_PerPixel,
     # 尽管 Gz 更新了，但 k3_z 等系列 不会因此改变（正因如此 才有期望的 大周期 振荡），所以后续 无需处理 k3 系列
 
     return lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-           dk_z, lc, Tz, \
-           Gx, Gy, Gz, \
+           dk_z, lc, Gx, Gy, Gz, \
            z0, Tz, deff_structure_length_expect
 
 
 def Gan_Gz(Ix, Iy, size_PerPixel,
            mx, my, Tx, Ty,
-           is_air, T, lam1, lam2,
+           is_air, T, lam1, lam_2,
            k1, k1_inc, k2, k2_inc,
-           theta_x, theta_y, theta2_x, theta2_y,
+           theta_X, theta_Y, theta2_X, theta2_Y,
            is_print, **kwargs):
     Gx, Gy, k3_inc_x, k3_inc_y, k3_inc_z_minus_Gz = Gan_k3_vector(Tx, Ty, mx, my,
                                                                   k1, k1_inc, k2, k2_inc, size_PerPixel,
-                                                                  theta2_x, theta2_y, theta_x, theta_y, **kwargs)
+                                                                  theta2_X, theta2_Y, theta_X, theta_Y, **kwargs)
+    kwargs["lam2"] = lam_2
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
         init_SFG_pro(Ix, Iy, size_PerPixel,
                      lam1, is_air, T,
-                     theta_x, theta_y, is_print,  # 传入的 theta_x, theta_y 是什么 不重要
-                     lam2=lam2,  # 对于 k3_x，不会看这两个参数，而只看 k3_x, k3_y
+                     theta_X, theta_Y, is_print,  # 传入的 theta_x, theta_y 是什么 不重要，对于 k3_x，不会看这两个参数，而只看 k3_x, k3_y
                      k3_inc_x=k3_inc_x, k3_inc_y=k3_inc_y, **kwargs)
     k3_inc_z = (k3_inc ** 2 - k3_inc_x ** 2 - k3_inc_y ** 2 + 0j) ** 0.5
     Gz = k3_inc_z - k3_inc_z_minus_Gz
@@ -354,13 +351,13 @@ def Gan_Gz(Ix, Iy, size_PerPixel,
 
 def Gan_k3_vector(Tx, Ty, mx, my,
                   k1, k1_inc, k2, k2_inc, size_PerPixel,
-                  theta2_x, theta2_y, theta_x, theta_y, **kwargs):
+                  theta2_X, theta2_Y, theta_X, theta_Y, **kwargs):
     Gx = 2 * math.pi * mx * size_PerPixel / (Tx / 1000)  # Tz / 1000 即以 mm 为单位
     Gy = 2 * math.pi * my * size_PerPixel / (Ty / 1000)  # Tz / 1000 即以 mm 为单位
     Gy = - Gy  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系（这里 转是为了 统一 ky 和 Gy 都向下为正，计算结果才正确）
     # 中心级情况
-    k1_x, k1_y, k1_z = gan_k_vector(k1_inc, theta_x, theta_y, )  # gan_k_vector 产生的是 左手系，y 轴 向上
-    k2_x, k2_y, k2_z = gan_k_vector(k2_inc, theta2_x, theta2_y, )
+    k1_x, k1_y, k1_z = gan_k_vector(k1_inc, theta_X, theta_Y, )  # gan_k_vector 产生的是 左手系，y 轴 向上
+    k2_x, k2_y, k2_z = gan_k_vector(k2_inc, theta2_X, theta2_Y, )
     k1_y *= -1  # y 轴 向下 读出的 ky
     k2_y *= -1  # y 轴 向下（图片 坐标系）
     if "g1" in kwargs:
