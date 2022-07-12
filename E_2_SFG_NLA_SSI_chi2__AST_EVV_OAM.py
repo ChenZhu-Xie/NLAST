@@ -273,7 +273,7 @@ if __name__ == '__main__':
          # %%
          "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 10, "p": 0,
+         "l": 50, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -342,7 +342,7 @@ if __name__ == '__main__':
          "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
          "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
          # %%
-         "plot_group": "UGa", "is_animated": 1,
+         "plot_group": "Ua", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %%
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
@@ -373,7 +373,7 @@ if __name__ == '__main__':
             # %%
             "z_pump2": -5,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 10, "p2": 0,
+            "l2": -50, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,

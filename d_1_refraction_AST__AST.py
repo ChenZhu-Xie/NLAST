@@ -138,7 +138,7 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_size": 2, "w0": 0.04,
+         "U_size": 2, "w0": 0.05,
          "zn": 10, "z1": 0, "is_air_first": 0,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,

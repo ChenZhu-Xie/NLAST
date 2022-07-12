@@ -298,8 +298,9 @@ def Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_c, phi_z_c, mode=0):  # 旋转前
     if inspect.stack()[1][3] == "Gan_E_vector" and mode == 3:
         from fun_global_var import init_accu
         if init_accu("test", 1) <= 1:
+            print(theta_z_c, phi_z_c)
             # print(kx)
-            print(phi_z_c)
+            # print(phi_z_c)
             # print(theta_z_c)
     return kx, ky, kz
 
@@ -415,7 +416,11 @@ def get_p_theta_xy_from_kwargs(mode, **kwargs):
     phi_z_c = kwargs["phi_z"] / 180 * np.pi if "phi_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 方位角
     # %%
     from fun_global_var import Get
-    if "polar2" in kwargs:
+    if kwargs.get("is_polar3", 0) == 1:
+        p = kwargs["polar3"]
+        theta_x = Get("theta3_x")  # 注意这里的 theta_x 和 theta_y 得是 （已经算好的）晶体内的，也就是 得通过 Get 得到
+        theta_y = Get("theta3_y")
+    elif "polar2" in kwargs:
         p = kwargs["polar2"]
         theta_x = Get("theta2_x")  # 注意这里的 theta_x 和 theta_y 得是 （已经算好的）晶体内的，也就是 得通过 Get 得到
         theta_y = Get("theta2_y")
@@ -555,16 +560,22 @@ def Gan_E_vector(is_air, lam, T,
     D_ux, D_uy, D_uz = split_Array_to_xyz(D_u)
     D_ux *= -1  # 注意这里的 D_u 仍是 左手系下的（因为 Gan_D_vector 输出的是 左手系），需要变换
     theta_z_D, phi_z_D = xyz_to_theta_phi(D_ux, D_uy, D_uz)  # Dz_u
-    # print(theta_z_D, phi_z_D)
+    # if type(theta_z_D) != np.ndarray:
+    #     print(theta_z_D, phi_z_D)
     # %% 将 旋转前 晶体坐标系 c 下的 D_u，变换到 旋转后的 晶体坐标系 c' 下（主轴化 D_u）
     phi_c_c = kwargs["phi_c"] / 180 * np.pi if "phi_c" in kwargs else 0  # 晶体坐标系' 对 晶轴 c（初始晶体坐标系） 的 方位角
     theta_c_D, phi_c_D = Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
                                              theta_z_D, phi_z_D, **kwargs)
+    # if D_ux.shape != ():
+    #     mode = 3
+    # else:
+    #     mode = 0
     Dc_ux, Dc_uy, Dc_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_c_D, phi_c_D)
     if D_ux.shape != ():
         mode = 3
         from fun_global_var import init_accu
         if init_accu("test2", 1) <= 1:
+            # print(theta_c_D, phi_c_D)
             # print(phi_z_D)
             # print(phi_c_D)
             # print(phi_z_D)
@@ -573,6 +584,7 @@ def Gan_E_vector(is_air, lam, T,
         # print(D_ux, D_uy, D_uz)
         # print(Dc_ux, Dc_uy, Dc_uz)
         # print(theta_z_D, phi_z_D)
+        # print(theta_c_D, phi_c_D)
         mode = 0
     # print(theta_c_D, phi_c_D)
     # 检验 Inverse_Transform_theta_phi_c_inc_to_z_inc 的 正确性 # 如果下面 检验部分 在 Cal_Unit_kxkykz_based_on_theta_xy2 上面，
@@ -585,7 +597,8 @@ def Gan_E_vector(is_air, lam, T,
     theta_z_D_back, phi_z_D_back = Inverse_Transform_theta_phi_c_inc_to_z_inc(theta_z_c, phi_z_c, phi_c_c,
                                                                               theta_c_D, phi_c_D, **kwargs)
     # if mode == 0:
-    #     print(theta_z_D_back, phi_z_D_back, phi_z_D - phi_z_D_back)
+        # print(theta_c_D, phi_c_D)
+        # print(theta_z_D_back, phi_z_D_back, phi_z_D - phi_z_D_back)
     # Dc_ux, Dc_uy, Dc_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_c_D, phi_c_D, mode)
     # %%  生成 折射率 椭球的 3 个主轴
     nx, ny, nz = Gan_refractive_index_ellipsoid(is_air, lam, T)
@@ -1042,33 +1055,39 @@ def Cal_theta_phi_c_inc(theta_z_c, phi_z_c, phi_c_c,
     cos_theta_c_inc = np.where(np.abs(cos_theta_c_inc) <= 1, cos_theta_c_inc, np.sign(cos_theta_c_inc))
     theta_c_inc = np.arccos(cos_theta_c_inc)
 
-    # # 边的五元素公式
-    # cos_phi_c_inc = - (np.sin(theta_z_c) * np.cos(theta_z_inc) -
-    #                  np.cos(theta_z_c) * np.sin(theta_z_inc) * np.cos(phi_z_inc - phi_z_c)) / \
-    #                 np.sin(theta_c_inc)
-    # cos_phi_c_inc = np.where(np.sin(theta_c_inc) != 0, cos_phi_c_inc,
-    #                          np.cos(kwargs.get("phi_c_inc", math.pi)))  # 分母（极角 为 0 时，无法定义 相位奇点 phi）
-    # # print(np.max(np.abs(cos_phi_c_inc)))
-    # cos_phi_c_inc = np.where(np.abs(cos_phi_c_inc) <= 1, cos_phi_c_inc,
-    #                          np.sign(cos_phi_c_inc))  # 计算的 精度误差 可能导致 cos_phi_c_inc > 1
-    # # print(cos_phi_c_inc)
-    # # print(np.max(np.abs(cos_theta_c_inc)), np.max(np.abs(cos_phi_c_inc)))
-    # # print(np.max(np.abs(np.max(np.abs(cos_theta_c_inc)))), np.sign(np.max(np.abs(cos_phi_c_inc))))
-    # phi_c_inc = np.arccos(cos_phi_c_inc)
-    # phi_c_inc -= phi_c_c
+    import inspect
+    if inspect.stack()[1][3] == "cal_nk":  # 如果算 n,k,S，即 未旋转的 c 系的 z 轴 向，则用 正弦相关 的 正弦定理
+        # 正弦定理 （正弦定理 能区分 phi_c_inc ~ pi 附近，sin(phi_c_inc) 的正负，对应 未旋转 c 系 z 轴 附近 kx, ky 等的正负）
+        sin_phi_c_inc = np.sin(theta_z_inc) / np.sin(theta_c_inc) * np.sin(
+            phi_z_inc - phi_z_c)  # 这里没有 负号：sin(π-?) = sin(?)
+        phi_c_inc = np.arcsin(sin_phi_c_inc)
+        phi_c_inc = np.nan_to_num(phi_c_inc)
+        # print(phi_c_inc)
+        phi_c_inc -= phi_c_c
+        # if phi_c_inc >= 0:
+        #     phi_c_inc -= phi_c_c  # 这要求 atan2 出来的 phi_c_inc 必须取值 0~2π，所以不能用 np.arctan2 ?
+        #     # 不不不，其他地方最好还是用 -π~π 的取值，否则 似乎 phi_z_inc - phi_z_c 又容易出错
+        #     # 只需要 这里改改就行
+        # else:
+        #     phi_c_inc += phi_c_c
+    else:  # 如果算 或 逆算 D,E，即 未旋转的 c 系的 y 轴 向，则用 余弦相关 的 边的五元素公式
+        # # 边的五元素公式（余弦相关， 能区分 c' 系 z' 轴附近，theta_c_inc 相同的情况下，phi_c_inc 是 0 还是 π，即 未旋转 c 系 y 轴附近 Dz' 的正负）
+        cos_phi_c_inc = - (np.sin(theta_z_c) * np.cos(theta_z_inc) -
+                           np.cos(theta_z_c) * np.sin(theta_z_inc) * np.cos(phi_z_inc - phi_z_c)) / \
+                        np.sin(theta_c_inc)
+        cos_phi_c_inc = np.where(np.sin(theta_c_inc) != 0, cos_phi_c_inc,
+                                 np.cos(kwargs.get("phi_c_inc", math.pi)))  # 分母（极角 为 0 时，无法定义 相位奇点 phi）
+        # print(np.max(np.abs(cos_phi_c_inc)))
+        cos_phi_c_inc = np.where(np.abs(cos_phi_c_inc) <= 1, cos_phi_c_inc,
+                                 np.sign(cos_phi_c_inc))  # 计算的 精度误差 可能导致 cos_phi_c_inc > 1
+        # print(cos_phi_c_inc)
+        # print(np.max(np.abs(cos_theta_c_inc)), np.max(np.abs(cos_phi_c_inc)))
+        # print(np.max(np.abs(np.max(np.abs(cos_theta_c_inc)))), np.sign(np.max(np.abs(cos_phi_c_inc))))
+        phi_c_inc = np.arccos(cos_phi_c_inc)
+        phi_c_inc -= phi_c_c
 
-    # 正弦定理 （才能区分 phi_c_inc ~ pi 附近，sin(phi_c_inc) 的正负，对应 kx, ky 等的正负）
-    sin_phi_c_inc = - np.sin(theta_z_inc) / np.sin(theta_c_inc) * np.sin(phi_z_inc - phi_z_c)
-    phi_c_inc = np.arcsin(sin_phi_c_inc)
-    phi_c_inc = np.nan_to_num(phi_c_inc)
-    # print(phi_c_inc)
-    phi_c_inc -= phi_c_c
-    # if phi_c_inc >= 0:
-    #     phi_c_inc -= phi_c_c  # 这要求 atan2 出来的 phi_c_inc 必须取值 0~2π，所以不能用 np.arctan2 ?
-    #     # 不不不，其他地方最好还是用 -π~π 的取值，否则 似乎 phi_z_inc - phi_z_c 又容易出错
-    #     # 只需要 这里改改就行
-    # else:
-    #     phi_c_inc += phi_c_c
+        # if type(phi_c_inc) != np.ndarray:
+        #     print("--", phi_c_inc)
 
     # 如果 算出来 inc 沿 旋转后的 晶体坐标系 c' 的 光轴（即 theta_c_inc == 0），则无法定义 c' 系下的 phi，则主动去 定义之 为 0
 
@@ -1397,6 +1416,9 @@ def output_nk_xyz(lam1, size_PerPixel,
 
 def gan_DESu_0kx0kyzinc(args_Gan_D_vector, k_inc,
                         args_Gan_E_vector, **kwargs, ):
+    import inspect
+    if inspect.stack()[1][3] == "init_SFG_pro":
+        kwargs["is_polar3"] = 1  # 强制 Gan_D,S_vector 中的 get_p_theta_xy_from_kwargs 使用之
     D_u_0kx0ky, theta_D_u_0kx0ky, phi_D_u_0kx0ky = Gan_D_vector(*args_Gan_D_vector,  # 左手系
                                                                 mode=1, **kwargs)
     E_u_0kx0ky, theta_E_u_0kx0ky, phi_E_u_0kx0ky = Gan_E_vector(*args_Gan_E_vector,

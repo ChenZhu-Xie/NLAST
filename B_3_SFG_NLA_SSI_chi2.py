@@ -632,7 +632,7 @@ if __name__ == '__main__':
          "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
          "l": 10, "p": 0,
-         "theta_x": 2, "theta_y": 0,
+         "theta_x": 1, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -671,7 +671,7 @@ if __name__ == '__main__':
          "is_HOPS_SHG": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 500,
+         "Tx": 18.769, "Ty": 20, "Tz": 1000,
          "mx": 0, "my": 0, "mz": 0,
          "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
          # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
@@ -716,7 +716,7 @@ if __name__ == '__main__':
          # %%
          "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          # %%
-         "theta_z": 90, "phi_z": 90, "phi_c": 23.7,  # LN 的 phi_c 为什么 不能填 0
+         "theta_z": 90, "phi_z": 90, "phi_c": 23.8,  # LN 的 phi_c 为什么 不能填 0
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.9 - 2000）
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
@@ -735,7 +735,7 @@ if __name__ == '__main__':
             "z_pump2": -5,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
             "l2": 10, "p2": 0,
-            "theta2_x": 2, "theta2_y": 0,
+            "theta2_x": 1, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,

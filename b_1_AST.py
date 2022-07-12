@@ -403,7 +403,7 @@ def plot_n(n1, n_name, is_save,
            args_U_amp_plot_save,
            kwargs_U_amp_plot_save, **kwargs, ):
     from fun_os import U_dir, U_amp_plot_save
-    if n1.shape != ():
+    if type(n1) == np.ndarray:
         folder_address = U_dir(n_name, is_save, **kwargs, )
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1, n_name),
                         **kwargs_U_amp_plot_save, **kwargs, )
@@ -518,7 +518,7 @@ def init_locals(Str):
 def gan_gpnkE_VHoe_xyzinc_AST(is_birefringence_deduced, is_air,
                               is_add_polarizer, is_HOPS,
                               is_save, is_print, n_name,
-                              g_shift, U_0, U2_0, polar2,
+                              g_shift, U_0, U2_0, polar_2,  # 防重名 polar_2
                               args_init_AST, args_U_amp_plot_save,
                               kwargs_init_AST, kwargs_U_amp_plot_save,
                               is_plot_n=1, **kwargs):
@@ -557,9 +557,9 @@ def gan_gpnkE_VHoe_xyzinc_AST(is_birefringence_deduced, is_air,
 
         if is_add_polarizer == 1:
             g_p, p_p = Gan_gp_p(is_HOPS, g_shift,
-                                U_0, U2_0, polar2, **kwargs)
+                                U_0, U2_0, polar_2, **kwargs)
         else:
-            g_V, g_H, p_V, p_H = Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs)
+            g_V, g_H, p_V, p_H = Gan_gp_VH(is_HOPS, U_0, U2_0, polar_2, **kwargs)
 
         # %% 空气中，偏振状态 与 入射方向 无关/独立，因此 无论 theta_x 怎么取，U 中所有点 偏振状态 均为 V，且 g 中 所有点的 偏振状态也 均为 V
         # 但晶体中，折射后的 偏振状态 与 g 中各点 kx,ky 对应的 入射方向 就有关了，因此得 在倒空间中 投影操作，且每个点都 分别考虑。
@@ -593,7 +593,7 @@ def gan_gpnkE_VHoe_xyzinc_AST(is_birefringence_deduced, is_air,
         #     init_AST(*args_init_AST,
         #              **kwargs_init_AST, **kwargs)
 
-        n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u = \
+        n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_p, E1_u = \
             init_AST_pro(*args_init_AST, is_print,  # p_ray=kwargs.get("polar", "e"), 或不加（即 p_ray=""），表示 无双折射
                          **kwargs_init_AST, **kwargs)
         # print(k1_xy[:, :, 0][0])  # 这个是 电脑 or 图片 坐标系 下的： x 向右 为正，y 向下 为正
@@ -607,7 +607,7 @@ def gan_gpnkE_VHoe_xyzinc_AST(is_birefringence_deduced, is_air,
                    kwargs_U_amp_plot_save, **kwargs, )
 
     return g_p, p_p, g_V, g_H, p_V, p_H, \
-           n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u, \
+           n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
            n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
            n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
@@ -847,7 +847,7 @@ def AST(U_name="",
     # %% 折射
 
     g_p, p_p, g_V, g_H, p_V, p_H, \
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
     n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
     n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
     n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
@@ -1009,7 +1009,7 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_size": 2, "w0": 0.04,
+         "U_size": 2, "w0": 0.05,
          "z0": 10,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
@@ -1019,7 +1019,7 @@ if __name__ == '__main__':
          # 是否 使用 起偏器 polarizer（0 即不使用）、若使用，请给出 其 透光方向 相对于 V (竖直 y) 方向（也即 实验室坐标系 的 +y）的 顺时针 转角 phi_p
          "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
          # %%  控制 单双泵浦 和 绘图方式
-         "is_HOPS_AST": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "is_HOPS_AST": 2,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,
          "plot_group_AST": "r",  # m 代表 oe 的 mix，o,e 代表 ~，fb 代表 frontface / backface
          # %%
@@ -1062,13 +1062,13 @@ if __name__ == '__main__':
             # %%
             "z_pump2": -5,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 50, "p2": 0,
+            "l2": -50, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.04,
+            "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'H',

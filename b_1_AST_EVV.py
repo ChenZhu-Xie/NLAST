@@ -300,7 +300,7 @@ def AST_EVV(U_name="",
     # %% 折射
 
     g_p, p_p, g_V, g_H, p_V, p_H, \
-    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
     n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
     n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
     n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
@@ -314,7 +314,7 @@ def AST_EVV(U_name="",
                                   args_init_AST, args_U_amp_plot_save,
                                   kwargs_init_AST, kwargs_U_amp_plot_save,
                                   is_plot_n=1, **kwargs)
-
+    # print(g_shift)
     if is_birefringence_deduced == 1 and is_air != 1:
         # %%
 
@@ -549,7 +549,7 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_size": 1.5, "w0": 0.04,
+         "U_size": 1.5, "w0": 0.05,
          "z0": 10,
          # %%  是否 考虑 双折射（采用 普通加莱球 + 琼斯矩阵 振幅比例 和 相位延迟 的 方案，自由度 还不如 2 个 VH 标量场 叠加 这 2 个 2 维数组 的 叠加）
          # 一个是 mn + 2，另一个是 mn * 2；然而用 2 个 VH 标量场 叠加，与这里只算 1 个 标量场 并 投影到 polarizer 的基底，没什么区别，只是最后 再复数 加起来 即可。
@@ -619,7 +619,7 @@ if __name__ == '__main__':
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.04,
+            "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'L',

@@ -50,7 +50,7 @@ def gan_args_SFG(Ix, Iy, size_PerPixel,
                  Gz_max_Enhance, match_mode,
                  gp_1=0, gp_2=0, p_2=0,
                  is_end_3=0, **kwargs):
-    # print(kwargs)  # 里面应该是没有 polar2 关键字的
+    # print(kwargs["polar2"])  # 里面应该是没有 polar2 关键字的
 
     kwargs_1 = {} if type(gp_1) != np.ndarray else {"gp": gp_1}
     kwargs.update(kwargs_1)
@@ -66,6 +66,7 @@ def gan_args_SFG(Ix, Iy, size_PerPixel,
     kwargs.update(kwargs_21)
     kwargs.update(kwargs_22)
     # print(kwargs["polar2"])
+    # print(kwargs["polar3"])
     if ray_tag == "f":
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy, g2, E2_u = \
             init_AST_pro(Ix, Iy, size_PerPixel,
@@ -851,7 +852,7 @@ if __name__ == '__main__':
          # %%
          "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 0, "p": 0,
+         "l": 10, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -939,7 +940,7 @@ if __name__ == '__main__':
             # %%
             "z_pump2": 0,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 0, "p2": 0,
+            "l2": 10, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,

@@ -294,7 +294,7 @@ if __name__ == '__main__':
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,
          # %%
-         "Tx": 8, "Ty": 25, "Tz": 0,
+         "Tx": 16, "Ty": 25, "Tz": 0,
          "mx": 1, "my": 0, "mz": 0,
          # %%
          # 生成横向结构

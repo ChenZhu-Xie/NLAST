@@ -179,6 +179,7 @@ def init_SFG_pro(Ix, Iy, size_PerPixel,
                                                          lam1, is_air, T,
                                                          theta_x, theta_y,
                                                          **kwargs)
+    # print(k3_z)
 
     if is_air != 1:
         # %%
@@ -214,6 +215,8 @@ def init_SFG_pro(Ix, Iy, size_PerPixel,
         walk_off_angle, delta_sk_pz, PG_vz, \
         s, s_z, s_xy, g_p = gan_DESu_0kx0kyzinc(args_Gan_D_vector, k3_inc,
                                                 args_Gan_E_vector, **kwargs, )
+
+        # print(PG_vz)
 
         # %%
 
@@ -337,6 +340,7 @@ def Gan_Gz(Ix, Iy, size_PerPixel,
     Gx, Gy, k3_inc_x, k3_inc_y, k3_inc_z_minus_Gz = Gan_k3_vector(Tx, Ty, mx, my,
                                                                   k1, k1_inc, k2, k2_inc, size_PerPixel,
                                                                   theta2_X, theta2_Y, theta_X, theta_Y, **kwargs)
+    # print(Gx, Gy, k3_inc_x, k3_inc_y, k3_inc_z_minus_Gz)
     kwargs["lam2"] = lam_2
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
         init_SFG_pro(Ix, Iy, size_PerPixel,
@@ -1078,6 +1082,8 @@ def G3_z_modulation_NLAST(k1, k2, k3,
                     denominator = k3_z
                 elif Cal_version >= 4:
                     # print(kiizQ)
+                    # print(np.max(np.abs(k3_z)))
+                    # print(np.sum(np.abs(G1_U_half_z_Squared_modulated)))
                     sinc_denominator = (kiizQ + k3_z) / 2
                     molecule = G1_U_half_z_Squared_modulated \
                                * np.sinc(inside_sinc / np.pi) / sinc_denominator \
