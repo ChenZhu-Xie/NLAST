@@ -98,7 +98,7 @@ def SFG_NLA_ssi(U_name="",
     is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
-    # if ray_tag == "f":
+    # if is_twin_pump == 1:
     U2_name = kwargs.get("U2_name", U_name)
     img2_full_name = kwargs.get("img2_full_name", img_full_name)
     is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
@@ -266,7 +266,7 @@ def SFG_NLA_ssi(U_name="",
         = gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
                                        is_add_polarizer, is_HOPS,
                                        is_save, is_print,
-                                       ray_tag, is_air_pump,
+                                       ray_tag, is_twin_pump, is_air_pump,
                                        lam2, theta2_x, theta2_y,
                                        g_shift, g2, U_0, U2_0, polar2,
                                        args_init_AST, args_gan_args_SFG,
@@ -322,7 +322,7 @@ def SFG_NLA_ssi(U_name="",
         G1_z = g_shift * H1_z
         U_z = ifft2(G1_z)
 
-        if ray_tag == "f":
+        if is_twin_pump == 1:
             H2_z = np.power(math.e, k2_z * iz * 1j)
             G2_z = g2 * H2_z
             U2_z = ifft2(G2_z)

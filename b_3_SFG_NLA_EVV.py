@@ -10,16 +10,13 @@ Created on Sun Dec 26 22:09:04 2021
 import math
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
-from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
 from fun_linear import ifft2
-from fun_nonlinear import Eikz, C_m, Cal_dk_zQ_SFG, Cal_roll_xy, G3_z_modulation_NLAST, \
-    G3_z_NLAST, G3_z_NLAST_false, G3_z_modulation_3D_NLAST
-from fun_thread import noop, my_thread
+from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, Set, Get, init_GLV_rmw, init_EVV, Fun3, end_SSI, \
     dset, dget, fget, fkey, fGHU_plot_save, fU_EVV_plot
-from b_3_SFG_NLA import gan_gpnkE_123VHoe_xyzinc_SFG
+from b_3_SFG_NLA import gan_gpnkE_123VHoe_xyzinc_SFG, NLA
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -117,7 +114,7 @@ def SFG_NLA_EVV(U_name="",
     is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
-    # if ray_tag == "f":
+    # if is_twin_pump == 1:
     U2_name = kwargs.get("U2_name", U_name)
     img2_full_name = kwargs.get("img2_full_name", img_full_name)
     is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
@@ -285,7 +282,7 @@ def SFG_NLA_EVV(U_name="",
         = gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
                                        is_add_polarizer, is_HOPS,
                                        is_save, is_print,
-                                       ray_tag, is_air_pump,
+                                       ray_tag, is_twin_pump, is_air_pump,
                                        lam2, theta2_x, theta2_y,
                                        g_shift, g2, U_0, U2_0, polar2,
                                        args_init_AST, args_gan_args_SFG,
@@ -293,78 +290,76 @@ def SFG_NLA_EVV(U_name="",
                                        kwargs_init_AST, kwargs_U_amp_plot_save,
                                        is_plot_n=1, **kwargs)
 
-    is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)  # 得写在外面，否则会传进 Fun 等的 kwargs...而这一般是空的
-    if fft_mode == 0:
-        # %% generate structure
-
-        if ray_tag == "f":
-            for key in pump2_keys:
-                kwargs[key] = locals()[key]
-                kwargs["pump2_keys"] = locals()["pump2_keys"]
-        folder_address, size_PerPixel, U_0_structure, g_shift_structure, \
-        g_p, p_p, g_V, g_H, p_V, p_H, \
-        n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
-        n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
-        lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
-        n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
-        n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
-        n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
-        n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
-        n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
-        n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
-        dk_z, lc, Gx, Gy, Gz, z0, Tz, deff_structure_length_expect, \
-        structure, structure_opposite, \
-        modulation, modulation_opposite, \
-        modulation_squared, modulation_opposite_squared \
-            = structure_chi2_Generate_2D(U_name_Structure,
-                                         img_full_name,
-                                         is_phase_only_Structure,
-                                         # %%
-                                         z_pump_Structure,
-                                         is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
-                                         l_Structure, p_Structure,
-                                         theta_x_Structure, theta_y_Structure,
-                                         # %%
-                                         is_random_phase_Structure,
-                                         is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
-                                         # %%
-                                         U_size, w0_Structure,
-                                         structure_size_Shrink,
-                                         Duty_Cycle_x, Duty_Cycle_y,
-                                         structure_xy_mode, Depth,
-                                         # %%
-                                         is_continuous, is_target_far_field,
-                                         is_transverse_xy, is_reverse_xy,
-                                         is_positive_xy,
-                                         0, is_no_backgroud,
-                                         # %%
-                                         lam1, is_air_pump_structure, is_air, T,
-                                         Tx, Ty, Tz,
-                                         mx, my, mz,
-                                         # %%
-                                         is_save, is_save_txt, dpi,
-                                         # %%
-                                         cmap_2d,
-                                         # %%
-                                         ticks_num, is_contourf,
-                                         is_title_on, is_axes_on,
-                                         is_mm,
-                                         # %%
-                                         fontsize, font,
-                                         # %%
-                                         is_colorbar_on, is_energy,
-                                         # %%
-                                         is_print,
-                                         # %% --------------------- for Info_find_contours_SHG
-                                         deff_structure_length_expect,
-                                         is_contours, n_TzQ,
-                                         Gz_max_Enhance, match_mode,
-                                         L0_Crystal=z0, g1=g_shift, g2=g2,
-                                         # %%
-                                         is_air_pump=is_air_pump, **kwargs, )
-        if ray_tag == "f":
-            [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
-            kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
+    # if is_fft != 0 and fft_mode == 0:  # 之后 总要传入 一些参数，所以 无论如何 都要 赋值
+    # %% generate structure
+    if is_twin_pump == 1:
+        for key in pump2_keys:
+            kwargs[key] = locals()[key]
+            kwargs["pump2_keys"] = locals()["pump2_keys"]
+    folder_address, size_PerPixel, U_0_structure, g_shift_structure, \
+    g_p, p_p, g_V, g_H, p_V, p_H, \
+    n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
+    n2_inc, n2, k2_inc, k2, k2_z, k2_xy, E2_u, \
+    lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u, \
+    n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
+    n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue, \
+    n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
+    n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve, \
+    n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho, \
+    n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He, \
+    dk_z, lc, Gx, Gy, Gz, z0, Tz, deff_structure_length_expect, \
+    structure, structure_opposite, \
+    modulation, modulation_opposite, \
+    modulation_squared, modulation_opposite_squared \
+        = structure_chi2_Generate_2D(U_name_Structure,
+                                     img_full_name,
+                                     is_phase_only_Structure,
+                                     # %%
+                                     z_pump_Structure,
+                                     is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+                                     l_Structure, p_Structure,
+                                     theta_x_Structure, theta_y_Structure,
+                                     # %%
+                                     is_random_phase_Structure,
+                                     is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+                                     # %%
+                                     U_size, w0_Structure,
+                                     structure_size_Shrink,
+                                     Duty_Cycle_x, Duty_Cycle_y,
+                                     structure_xy_mode, Depth,
+                                     # %%
+                                     is_continuous, is_target_far_field,
+                                     is_transverse_xy, is_reverse_xy,
+                                     is_positive_xy,
+                                     0, is_no_backgroud,
+                                     # %%
+                                     lam1, is_air_pump_structure, is_air, T,
+                                     Tx, Ty, Tz,
+                                     mx, my, mz,
+                                     # %%
+                                     is_save, is_save_txt, dpi,
+                                     # %%
+                                     cmap_2d,
+                                     # %%
+                                     ticks_num, is_contourf,
+                                     is_title_on, is_axes_on,
+                                     is_mm,
+                                     # %%
+                                     fontsize, font,
+                                     # %%
+                                     is_colorbar_on, is_energy,
+                                     # %%
+                                     is_print,
+                                     # %% --------------------- for Info_find_contours_SHG
+                                     deff_structure_length_expect,
+                                     is_contours, n_TzQ,
+                                     Gz_max_Enhance, match_mode,
+                                     L0_Crystal=z0, g1=g_shift, g2=g2,
+                                     # %%
+                                     is_air_pump=is_air_pump, **kwargs, )
+    if is_twin_pump == 1:
+        [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
+        kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
     # %%
 
@@ -399,6 +394,7 @@ def SFG_NLA_EVV(U_name="",
             return np.power(math.e, k3_z * diz * 1j)
             # return np.power(math.e, k3 * diz * 1j)
 
+    is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)  # 得写在外面，否则会传进 Fun 等的 kwargs...而这一般是空的
     def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
         Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
@@ -413,7 +409,7 @@ def SFG_NLA_EVV(U_name="",
             G1_z = g_shift * H1_z
             U_z = ifft2(G1_z)
 
-            if ray_tag == "f":
+            if is_twin_pump == 1:
                 H2_z = np.power(math.e, k2_z * iz * 1j)
                 G2_z = g2 * H2_z
                 U2_z = ifft2(G2_z)
@@ -432,124 +428,20 @@ def SFG_NLA_EVV(U_name="",
         # print(diz)
 
         # for_th2 == 0 时也要算，因为 zj[0] 不一定是 0：外部可能传入 zj
-        if is_fft == 0:
-
-            const = (k3_inc / size_PerPixel / n3_inc) ** 2 * C_m(mx) * C_m(my) * C_m(
-                mz) * deff * 1e-12  # pm / V 转换成 m / V
-            integrate_z0 = np.zeros((Ix, Iy), dtype=np.complex128())
-
-            G2_rotate_180 = Rotate_180(G2_z)
-
-            def fun1(for_th, fors_num, *args, **kwargs, ):
-                for n3_y in range(Iy):
-                    dk_zQ = Cal_dk_zQ_SFG(k2,
-                                          k1_z, k3_z,
-                                          k1_xy, k3_xy,
-                                          for_th, n3_y,
-                                          Gx, Gy, Gz, )
-
-                    roll_x, roll_y = Cal_roll_xy(Gx, Gy,
-                                                 Ix, Iy,
-                                                 for_th, n3_y, )
-
-                    G2_shift_dk_x_dk_y = Roll_xy(G2_rotate_180,
-                                                 roll_x, roll_y,
-                                                 is_linear_convolution, )
-
-                    integrate_z0[for_th, n3_y] = np.sum(
-                        G1_z * G2_shift_dk_x_dk_y * Eikz(dk_zQ * diz) * diz * size_PerPixel \
-                        * (2 / (dk_zQ / k3_z[for_th, n3_y] + 2)))
-
-            my_thread(10, Ix,
-                      fun1, noop, noop,
-                      is_ordered=1, is_print=is_print, )
-
-            G3_z = const * integrate_z0 / k3_z * size_PerPixel
-
-            Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                G3_z * np.power(math.e, k3_z * diz * 1j))
-
-        else:
-
-            Const = (k3_inc / size_PerPixel / n3_inc) ** 2 * deff * 1e-12  # pm / V 转换成 m / V
-
-            if fft_mode == 0:
-
-                if is_sum_Gm == 0:
-                    # print(kwargs)
-                    addition_dict = {"Tz": Tz if is_NLAST_sum else None}  # 若 is_NLAST_sum 有且非 0，则 Tz
-                    Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                        G3_z_modulation_NLAST(k1, k2, k3,
-                                              modulation_squared, U_z, U2_z, diz, Const,
-                                              Gz=Gz, is_customized=1, **addition_dict, ))
-                elif is_sum_Gm == 1:
-                    def fun1(for_th, fors_num, *args, **kwargs, ):
-                        m_z = for_th - mG
-                        Gz_m = 2 * math.pi * m_z * size_PerPixel / (Tz / 1000)
-                        # print(m_z, C_m(m_z), "\n")
-
-                        # 注意这个系数 C_m(m_z) 只对应 Duty_Cycle_z = 50% 占空比...
-                        Const = (k3_inc / size_PerPixel / n3_inc) ** 2 * C_m(mx) * C_m(my) * C_m(m_z) * deff * 1e-12
-                        G3_z0_Gm = G3_z_modulation_NLAST(k1, k2, k3,
-                                                         modulation_squared, U_z, U2_z, diz, Const,
-                                                         Gz=Gz_m, is_customized=1, ) if m_z != 0 else 0
-                        return G3_z0_Gm
-
-                    def fun2(for_th, fors_num, G3_z0_Gm, *args, **kwargs, ):
-                        # print("forth = {}".format(for_th))
-
-                        Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                            Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G3_z0_Gm)
-
-                        return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
-
-                    my_thread(10, 2 * mG + 1,
-                              fun1, fun2, noop,
-                              is_ordered=1, is_print=is_print, )
-                else:
-                    Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                        G3_z_modulation_3D_NLAST(k1, k2, k3,
-                                                 modulation_squared, U_z, U2_z,
-                                                 diz, Const,
-                                                 Tz=Tz, ))
-
-            elif fft_mode == 1:
-
-                if is_sum_Gm == 0:
-                    Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                        G3_z_NLAST(k1, k2, k3, Gx, Gy, Gz,
-                                   U_z, U2_z, diz, Const,
-                                   is_linear_convolution, ))
-                else:
-                    def fun1(for_th, fors_num, *args, **kwargs, ):
-                        m_x = for_th - mG
-                        Gx_m = 2 * math.pi * m_x * size_PerPixel / (Tx / 1000)
-                        # print(m_x, C_m(m_x), "\n")
-
-                        # 注意这个系数 C_m(m_x) 只对应 Duty_Cycle_x = 50% 占空比...
-                        Const = (k3_inc / size_PerPixel / n3_inc) ** 2 * C_m(m_x) * C_m(my) * C_m(mz) * deff * 1e-12
-                        G3_z0_Gm = G3_z_NLAST(k1, k2, k3, Gx_m, Gy, Gz,
-                                              U_z, U2_z, diz, Const,
-                                              is_linear_convolution, ) if m_x != 0 else 0
-                        return G3_z0_Gm
-
-                    def fun2(for_th, fors_num, G3_z0_Gm, *args, **kwargs, ):
-
-                        Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                            Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way")) + G3_z0_Gm)
-
-                        return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
-
-                    my_thread(10, 2 * mG + 1,
-                              fun1, fun2, noop,
-                              is_ordered=1, is_print=is_print, )
-
-            elif fft_mode == 2:
-
-                Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
-                    G3_z_NLAST_false(k1, k2, k3, Gx, Gy, Gz,
-                                     U_z, U2_z, diz, Const,
-                                     is_linear_convolution, ))
+        NLA(diz, is_fft, fft_mode,
+            Ix, Iy, size_PerPixel,
+            k3_inc, n3_inc,
+            k1_z, k1_xy,
+            k3_z, k3_xy,
+            k1, k2, k3,
+            mx, my, mz,
+            Gx, Gy, Gz,
+            Tx, Tz, deff,
+            mG, is_sum_Gm, is_NLAST_sum,
+            G1_z, G2_z,
+            U_z, U2_z, modulation_squared,
+            is_print, is_linear_convolution,
+            for_th2=for_th2, )
 
         return Get("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"))
 
@@ -724,7 +616,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "o",
+         "polar": "o", "match_type": "oo",
          "polar3": "o", "ray": "3",
          }
 

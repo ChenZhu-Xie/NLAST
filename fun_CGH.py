@@ -218,7 +218,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
     lam2 = kwargs.get("lam2", lam1)
     polar2 = kwargs.get("polar2", 'e')
     # %%
-    if ray_tag == "f":
+    if is_twin_pump == 1:
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
@@ -333,7 +333,7 @@ def structure_chi2_Generate_2D(U_structure_name="",
         = gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
                                        is_add_polarizer, is_HOPS,
                                        is_save, is_print2,
-                                       ray_tag, is_air_pump,
+                                       ray_tag, is_twin_pump, is_air_pump,
                                        lam2, theta2_x, theta2_y,
                                        g_shift, g2, U_0, U2_0, polar2,
                                        args_init_AST, args_gan_args_SFG,

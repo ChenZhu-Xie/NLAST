@@ -116,7 +116,7 @@ def SFG_NLA_SSI(U_name="",
     is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
-    # if ray_tag == "f":
+    # if is_twin_pump == 1:
     U2_name = kwargs.get("U2_name", U_name)
     img2_full_name = kwargs.get("img2_full_name", img_full_name)
     is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
@@ -262,7 +262,7 @@ def SFG_NLA_SSI(U_name="",
 
     # %%
 
-    if ray_tag == "f":
+    if is_twin_pump == 1:
         for key in pump2_keys:
             kwargs[key] = locals()[key]
             kwargs["pump2_keys"] = locals()["pump2_keys"]
@@ -328,7 +328,7 @@ def SFG_NLA_SSI(U_name="",
                                      # %%
                                      is_air_pump=is_air_pump,
                                      is_plot_n=1, is_print2=1, **kwargs, )
-    if ray_tag == "f":
+    if is_twin_pump == 1:
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
@@ -452,7 +452,7 @@ def SFG_NLA_SSI(U_name="",
         G1_z = g_shift * H1_z
         U_z = ifft2(G1_z)
 
-        if ray_tag == "f":
+        if is_twin_pump == 1:
             H2_z = np.power(math.e, k2_z * iz * 1j)
             G2_z = g2 * H2_z
             U2_z = ifft2(G2_z)

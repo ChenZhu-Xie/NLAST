@@ -115,7 +115,7 @@ def A_3_to_B_3_SFG_NLA_ssi(U_name_Structure="",
     is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
-    # if ray_tag == "f":
+    # if is_twin_pump == 1:
     U2_name = kwargs.get("U2_name", U_name)
     img2_full_name = kwargs.get("img2_full_name", img_full_name)
     is_phase_only_2 = kwargs.get("is_phase_only_2", is_phase_only)
