@@ -340,7 +340,7 @@ def consistency_SHG_ssi__AST(img_full_name="Grating.png",
 if __name__ == '__main__':
     kwargs = \
         {"img_full_name": "Grating.png",
-         "U_pixels_x": 0, "U_pixels_y": 0,
+         "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -352,7 +352,7 @@ if __name__ == '__main__':
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %% 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "structure_size_Shrink": 0, "structure_size_Shrinker": 0,
          "is_U_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%

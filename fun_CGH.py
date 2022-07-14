@@ -12,7 +12,7 @@ import numpy as np
 from fun_os import U_dir, U_amp_plot_save
 from fun_global_var import Get, tree_print
 from fun_pump import pump_pic_or_U_structure
-from fun_linear import init_AST_pro, fft2
+from fun_linear import init_AST_12oe, fft2
 from fun_nonlinear import args_SFG
 
 
@@ -196,14 +196,13 @@ def structure_chi2_Generate_2D(U_structure_name="",
     # print(kwargs)
     # %%
     is_HOPS = kwargs.get("is_HOPS_SHG", 0)
-    is_birefringence = kwargs.get("is_birefringence_SHG", 0)
-    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
-    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_HOPS == 0.x 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_HOPS > 0 and is_HOPS < 1)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
     kwargs['ray'] = "2" if is_birefringence_deduced == 1 else kwargs.get('ray', "2")
     ray_tag = "f" if kwargs['ray'] == "3" else "h"
     is_twin_pump = int(ray_tag == "f" or is_twin_pump_degenerate == 1)
-    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_add_polarizer = int(is_HOPS > 0 and type(is_HOPS) != int)
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
     lam_structure = kwargs.get("lam_structure", lam1)
@@ -796,7 +795,7 @@ def structure_n1_Generate_2D(U_structure_name="",
     # %%  只提供 Gx, Gy 给自己
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u = \
-        init_AST_pro(Ix, Iy, size_PerPixel,
+        init_AST_12oe(Ix, Iy, size_PerPixel,
                      lam1, is_air, T,
                      theta_x, theta_y, is_print,
                      is_air_pump=is_air_pump, **kwargs, )

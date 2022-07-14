@@ -20,6 +20,21 @@ from b_1_AST import define_lam_n_AST, gan_g_eoa, plot_GU_oe_energy_add, gan_gpnk
 np.seterr(divide='ignore', invalid='ignore')
 
 
+def H_zdz(kz, diz):
+    return np.power(math.e, kz * diz * 1j)
+
+
+def gan_iz_diz(is_EVV_SSI, for_th2,
+               izj_delay_dz, dizj, izj):
+    if is_EVV_SSI == 1:
+        iz = izj_delay_dz[for_th2]
+        diz = dizj[for_th2]
+    else:
+        iz = izj[for_th2]
+        diz = iz
+    return diz, iz
+
+
 # %%
 
 def AST_EVV(U_name="",
@@ -77,11 +92,10 @@ def AST_EVV(U_name="",
 
     # %%
     is_HOPS = kwargs.get("is_HOPS_AST", 0)
-    is_birefringence = kwargs.get("is_linear_birefringence", 0)
-    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
-    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_HOPS == 0.x 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_HOPS > 0 and is_HOPS < 1)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
-    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_add_polarizer = int(is_HOPS > 0 and type(is_HOPS) != int)
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
     U2_name = kwargs.get("U2_name", U_name)
@@ -219,6 +233,9 @@ def AST_EVV(U_name="",
         # Set("is_EVV_SSI", 1)
         # print(izj_delay_dz)
         # print(dizj)
+    else:
+        izj_delay_dz = 0  # 无论如何还是要赋值的，因为之后要用
+        dizj = 0
     Set("zj", zj)
     Set("izj", izj)
 
@@ -315,34 +332,26 @@ def AST_EVV(U_name="",
                                   kwargs_init_AST, kwargs_U_amp_plot_save,
                                   is_plot_n=1, **kwargs)
     # print(g_shift)
+
     if is_birefringence_deduced == 1 and is_air != 1:
         # %%
 
         if is_add_polarizer == 1:
-            def Ho_zdz(diz):
-                return np.power(math.e, k1o_z * diz * 1j)
-
-            def He_zdz(diz):
-                return np.power(math.e, k1e_z * diz * 1j)
 
             def gan_g_oe(for_th2):
+                diz, iz = gan_iz_diz(is_EVV_SSI, for_th2,
+                                     izj_delay_dz, dizj, izj)
                 if is_EVV_SSI == 1:
-                    iz = izj_delay_dz[for_th2]
-                    H1o_z = Ho_zdz(iz)
-                    G1o_z = g_o * H1o_z
-                    H1e_z = He_zdz(iz)
-                    G1e_z = g_e * H1e_z
-                    diz = dizj[for_th2]
+                    G1o_z = g_o * H_zdz(k1o_z, iz)
+                    G1e_z = g_e * H_zdz(k1e_z, iz)
                 else:
-                    iz = izj[for_th2]
                     G1o_z = g_o
                     G1e_z = g_e
-                    diz = iz
                 return G1o_z, G1e_z, diz
 
             def gan_Gz_oe(G1o_z, G1e_z, diz):
-                Go_z = G1o_z * Ho_zdz(diz)
-                Ge_z = G1e_z * He_zdz(diz)
+                Go_z = G1o_z * H_zdz(k1o_z, diz)
+                Ge_z = G1e_z * H_zdz(k1e_z, diz)
                 return Go_z, Ge_z
 
             def Gan_Gz_oe(for_th2):
@@ -350,44 +359,27 @@ def AST_EVV(U_name="",
                 Go_z, Ge_z = gan_Gz_oe(G1o_z, G1e_z, diz)
                 return Go_z, Ge_z
         else:
-            def H_Vo_zdz(diz):
-                return np.power(math.e, k1_Vo_z * diz * 1j)
-
-            def H_Ve_zdz(diz):
-                return np.power(math.e, k1_Ve_z * diz * 1j)
-
-            def H_Ho_zdz(diz):
-                return np.power(math.e, k1_Ho_z * diz * 1j)
-
-            def H_He_zdz(diz):
-                return np.power(math.e, k1_He_z * diz * 1j)
 
             def gan_g_VHoe(for_th2):
+                diz, iz = gan_iz_diz(is_EVV_SSI, for_th2,
+                                     izj_delay_dz, dizj, izj)
                 if is_EVV_SSI == 1:
-                    iz = izj_delay_dz[for_th2]
-                    H1_Vo_z = H_Vo_zdz(iz)
-                    G1_Vo_z = g_Vo * H1_Vo_z
-                    H1_Ve_z = H_Ve_zdz(iz)
-                    G1_Ve_z = g_Ve * H1_Ve_z
-                    H1_Ho_z = H_Ho_zdz(iz)
-                    G1_Ho_z = g_Ho * H1_Ho_z
-                    H1_He_z = H_He_zdz(iz)
-                    G1_He_z = g_He * H1_He_z
-                    diz = dizj[for_th2]
+                    G1_Vo_z = g_Vo * H_zdz(k1_Vo_z, iz)
+                    G1_Ve_z = g_Ve * H_zdz(k1_Ve_z, iz)
+                    G1_Ho_z = g_Ho * H_zdz(k1_Ho_z, iz)
+                    G1_He_z = g_He * H_zdz(k1_He_z, iz)
                 else:
-                    iz = izj[for_th2]
                     G1_Vo_z = g_Vo
                     G1_Ve_z = g_Ve
                     G1_Ho_z = g_Ho
                     G1_He_z = g_He
-                    diz = iz
                 return G1_Vo_z, G1_Ve_z, G1_Ho_z, G1_He_z, diz
 
             def gan_Gz_VHoe(G1_Vo_z, G1_Ve_z, G1_Ho_z, G1_He_z, diz):
-                Gz_Vo = G1_Vo_z * H_Vo_zdz(diz)
-                Gz_Ve = G1_Ve_z * H_Ve_zdz(diz)
-                Gz_Ho = G1_Ho_z * H_Ho_zdz(diz)
-                Gz_He = G1_He_z * H_He_zdz(diz)
+                Gz_Vo = G1_Vo_z * H_zdz(k1_Vo_z, diz)
+                Gz_Ve = G1_Ve_z * H_zdz(k1_Ve_z, diz)
+                Gz_Ho = G1_Ho_z * H_zdz(k1_Ho_z, diz)
+                Gz_He = G1_He_z * H_zdz(k1_He_z, diz)
                 return Gz_Vo, Gz_Ve, Gz_Ho, Gz_He
 
             def Gan_Gz_VHoe(for_th2):
@@ -486,27 +478,29 @@ def AST_EVV(U_name="",
     else:
         # %% 开始 EVV
 
-        def H_zdz(diz):
-            return np.power(math.e, k1_z * diz * 1j)
-
         def gan_g(for_th2):
+            diz, iz = gan_iz_diz(is_EVV_SSI, for_th2,
+                                 izj_delay_dz, dizj, izj)
             if is_EVV_SSI == 1:
-                iz = izj_delay_dz[for_th2]
-                H1_z = H_zdz(iz)
-                G1_z = g_shift * H1_z
+                G1_z = g_shift * H_zdz(k1_z, iz)
                 # U_z = ifft2(G1_z)
-                diz = dizj[for_th2]
             else:
-                iz = izj[for_th2]
                 G1_z = g_shift
                 # U_z = U_0
-                diz = iz
             return G1_z, diz
+
+        def gan_Gz(G1_z, diz):
+            G_z = G1_z * H_zdz(k1_z, diz)
+            return G_z
+
+        def Gan_Gz(for_th2):
+            G1_z, diz = gan_g(for_th2)
+            G_z = gan_Gz(G1_z, diz)
+            return G_z
 
         def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
-            G1_z, diz = gan_g(for_th2)
-            G_z = G1_z * H_zdz(diz)
+            G_z = Gan_Gz(for_th2)
 
             return G_z
 
@@ -551,14 +545,12 @@ if __name__ == '__main__':
          # %%
          "U_size": 1.5, "w0": 0.05,
          "z0": 10,
-         # %%  是否 考虑 双折射（采用 普通加莱球 + 琼斯矩阵 振幅比例 和 相位延迟 的 方案，自由度 还不如 2 个 VH 标量场 叠加 这 2 个 2 维数组 的 叠加）
-         # 一个是 mn + 2，另一个是 mn * 2；然而用 2 个 VH 标量场 叠加，与这里只算 1 个 标量场 并 投影到 polarizer 的基底，没什么区别，只是最后 再复数 加起来 即可。
-         "is_linear_birefringence": 1,  # 这里默认 生成的 标量场的 线偏振 是 V 即 // y 的，但晶轴 不一定 // y，然后 先向 起偏器 投影，再向 晶轴 投影，最后向 检偏器 投影。
-         # 是否 使用 起偏器 polarizer（0 即不使用）、若使用，请给出 其 透光方向 相对于 V (竖直 y) 方向（也即 实验室坐标系 的 +y）的 顺时针 转角 phi_p
-         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
-         # %%  控制 单双泵浦 和 绘图方式
-         "is_HOPS_AST": 2,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
-         "Theta": 0, "Phi": 0,
+         # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_linear_birefringence": 0 是否 考虑 双折射
+         "is_HOPS_AST": 1,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
+         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
+         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
+         "plot_group_AST": "r",  # m 代表 oe 的 mix，o,e 代表 ~，fb 代表 frontface / backface
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          # %%

@@ -12,7 +12,7 @@ import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_array_Transform import Rotate_180, Roll_xy
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST_pro
+from fun_linear import init_AST_12oe
 from fun_nonlinear import accurate_args_SFG, Eikz, C_m, Cal_dk_zQ_SFG, Cal_roll_xy, \
     G3_z_modulation_NLAST, G3_z_modulation_3D_NLAST, G3_z_NLAST, G3_z_NLAST_false
 from fun_thread import noop, my_thread
@@ -55,11 +55,11 @@ def gan_args_SFG(Ix, Iy, size_PerPixel,
     kwargs_1 = {} if type(gp_1) != np.ndarray else {"gp": gp_1}
     kwargs.update(kwargs_1)
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g1, E1_u = \
-        init_AST_pro(Ix, Iy, size_PerPixel,
-                     lam1, is_air, T,
-                     theta_x, theta_y, is_print,
-                     is_air_pump=is_air_pump,
-                     is_end2=-1, **kwargs, )
+        init_AST_12oe(Ix, Iy, size_PerPixel,
+                      lam1, is_air, T,
+                      theta_x, theta_y, is_print,
+                      is_air_pump=is_air_pump,
+                      is_end2=-1, **kwargs, )
 
     kwargs_21 = {} if type(gp_2) != np.ndarray else {"gp": gp_2}
     kwargs_22 = {} if type(p_2) != str else {"polar2": p_2}
@@ -69,11 +69,11 @@ def gan_args_SFG(Ix, Iy, size_PerPixel,
     # print(kwargs["polar3"])
     if is_twin_pump == 1:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy, g2, E2_u = \
-            init_AST_pro(Ix, Iy, size_PerPixel,
-                         lam2, is_air, T,
-                         theta2_x, theta2_y, is_print,
-                         is_air_pump=is_air_pump,
-                         add_level=1, **kwargs, )
+            init_AST_12oe(Ix, Iy, size_PerPixel,
+                          lam2, is_air, T,
+                          theta2_x, theta2_y, is_print,
+                          is_air_pump=is_air_pump,
+                          add_level=1, **kwargs, )
     else:
         n2_inc, n2, k2_inc, k2, k2_z, k2_xy = n1_inc, n1, k1_inc, k1, k1_z, k1_xy
 
@@ -560,6 +560,139 @@ def NLA(iz, is_fft, fft_mode,
 
             dset_or_Set(G3_z, for_th2)
 
+    return G3_z
+
+
+# %%
+
+def gan_U_VHoe(g_o, g_e, g_Vo, g_Ho, g_Ve, g_He):
+    from fun_linear import fft2
+    U_o, U_e = fft2(g_o) if type(g_o) == np.ndarray else 0, fft2(g_e) if type(g_e) == np.ndarray else 0
+    U_Vo, U_Ve = fft2(g_Vo) if type(g_Vo) == np.ndarray else 0, fft2(g_Ve) if type(g_Ve) == np.ndarray else 0
+    U_Ho, U_He = fft2(g_Ho) if type(g_Ho) == np.ndarray else 0, fft2(g_He) if type(g_He) == np.ndarray else 0
+    return U_o, U_e, U_Vo, U_Ve, U_Ho, U_He
+
+
+def NLA_123VHoe(is_birefringence_deduced, is_air,
+                is_add_polarizer, match_type,
+                iz, is_fft, fft_mode,
+                Ix, Iy, size_PerPixel,
+                k3_inc, n3_inc,
+                k1_z, k1_xy,
+                k1o_z, k1o_xy, k1e_z, k1e_xy,
+                k1_Vo_z, k1_Vo_xy, k1_Ho_z, k1_Ho_xy,
+                k1_Ve_z, k1_Ve_xy, k1_He_z, k1_He_xy,
+                k3_z, k3_xy,
+                k1o, k1e, k1_Vo, k1_Ve, k1_Ho, k1_He,
+                k1, k2, k3,
+                mx, my, mz,
+                Gx, Gy, Gz,
+                Tx, Tz, deff,
+                mG, is_sum_Gm, is_NLAST_sum,
+                g_shift, g2,
+                g_o, g_e, g_Vo, g_Ve, g_Ho, g_He,
+                U_0, U2_0,
+                U_o, U_e, U_Vo, U_Ve, U_Ho, U_He,
+                modulation_squared,
+                is_print, is_linear_convolution,
+                for_th2="", ):
+    def gan_args_NLA(k1_z, k1_xy,
+                     k1, k2,
+                     g_shift, g2,
+                     U_0, U2_0, ):
+        return [iz, is_fft, fft_mode,
+                Ix, Iy, size_PerPixel,
+                k3_inc, n3_inc,
+                k1_z, k1_xy,
+                k3_z, k3_xy,
+                k1, k2, k3,
+                mx, my, mz,
+                Gx, Gy, Gz,
+                Tx, Tz, deff,
+                mG, is_sum_Gm, is_NLAST_sum,
+                g_shift, g2,
+                U_0, U2_0, modulation_squared,
+                is_print, is_linear_convolution, ]
+
+    if is_birefringence_deduced == 1 and is_air != 1:
+        if is_add_polarizer == 1:
+            if match_type == "oe" or match_type == "eo":
+                NLA(*gan_args_NLA(k1o_z, k1o_xy,
+                                  k1o, k1e,
+                                  g_o, g_e,
+                                  U_o, U_e, ), for_th2)
+            elif match_type == "oo":
+                NLA(*gan_args_NLA(k1o_z, k1o_xy,
+                                  k1o, k1o,
+                                  g_o, g_o,
+                                  U_o, U_o, ), for_th2)
+            elif match_type == "ee":
+                NLA(*gan_args_NLA(k1e_z, k1e_xy,
+                                  k1e, k1e,
+                                  g_e, g_e,
+                                  U_e, U_e, ), for_th2)
+        else:
+            if match_type == "oe" or match_type == "eo":
+                # 组内 和频
+                G3_z_VoVe = NLA(*gan_args_NLA(k1_Vo_z, k1_Vo_xy,
+                                              k1_Vo, k1_Ve,
+                                              g_Vo, g_Ve,
+                                              U_Vo, U_Ve, ), for_th2)
+                G3_z_HoHe = NLA(*gan_args_NLA(k1_Ho_z, k1_Ho_xy,
+                                              k1_Ho, k1_He,
+                                              g_Ho, g_He,
+                                              U_Ho, U_He, ), for_th2)
+                # 组间 和频
+                G3_z_VoHe = NLA(*gan_args_NLA(k1_Vo_z, k1_Vo_xy,
+                                              k1_Vo, k1_He,
+                                              g_Vo, g_He,
+                                              U_Vo, U_He, ), for_th2)
+                G3_z_HoVe = NLA(*gan_args_NLA(k1_Ho_z, k1_Ho_xy,
+                                              k1_Ho, k1_Ve,
+                                              g_Ho, g_Ve,
+                                              U_Ho, U_Ve, ), for_th2)
+                G3_z = G3_z_VoVe + G3_z_HoHe + G3_z_VoHe + G3_z_HoVe
+                dset_or_Set(G3_z, for_th2)
+            elif match_type == "oo":
+                # 组内 和频
+                G3_z_VoVo = NLA(*gan_args_NLA(k1_Vo_z, k1_Vo_xy,
+                                              k1_Vo, k1_Vo,
+                                              g_Vo, g_Vo,
+                                              U_Vo, U_Vo, ), for_th2)
+                G3_z_HoHo = NLA(*gan_args_NLA(k1_Ho_z, k1_Ho_xy,
+                                              k1_Ho, k1_Ho,
+                                              g_Ho, g_Ho,
+                                              U_Ho, U_Ho, ), for_th2)
+                # 组间 和频
+                G3_z_VoHo = NLA(*gan_args_NLA(k1_Vo_z, k1_Vo_xy,
+                                              k1_Vo, k1_Ho,
+                                              g_Vo, g_Ho,
+                                              U_Vo, U_Ho, ), for_th2)
+                G3_z = G3_z_VoVo + G3_z_HoHo + G3_z_VoHo
+                dset_or_Set(G3_z, for_th2)
+            elif match_type == "ee":
+                # 组内 和频
+                G3_z_VeVe = NLA(*gan_args_NLA(k1_Ve_z, k1_Ve_xy,
+                                              k1_Ve, k1_Ve,
+                                              g_Ve, g_Ve,
+                                              U_Ve, U_Ve, ), for_th2)
+                G3_z_HeHe = NLA(*gan_args_NLA(k1_He_z, k1_He_xy,
+                                              k1_He, k1_He,
+                                              g_He, g_He,
+                                              U_He, U_He, ), for_th2)
+                # 组间 和频
+                G3_z_VeHe = NLA(*gan_args_NLA(k1_Ve_z, k1_Ve_xy,
+                                              k1_Ve, k1_He,
+                                              g_Ve, g_He,
+                                              U_Ve, U_He, ), for_th2)
+                G3_z = G3_z_VeVe + G3_z_HeHe + G3_z_VeHe
+                dset_or_Set(G3_z, for_th2)
+    else:
+        NLA(*gan_args_NLA(k1_z, k1_xy,
+                          k1, k2,
+                          g_shift, g2,
+                          U_0, U2_0, ), for_th2)
+
 
 # %%
 
@@ -634,14 +767,13 @@ def SFG_NLA(U_name="",
 
     # %%
     is_HOPS = kwargs.get("is_HOPS_SHG", 0)
-    is_birefringence = kwargs.get("is_birefringence_SHG", 0)
-    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
-    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_HOPS == 0.x 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_HOPS > 0 and is_HOPS < 1)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
     kwargs['ray'] = "2" if is_birefringence_deduced == 1 else kwargs.get('ray', "2")
     ray_tag = "f" if kwargs['ray'] == "3" else "h"
     is_twin_pump = int(ray_tag == "f" or is_twin_pump_degenerate == 1)
-    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_add_polarizer = int(is_HOPS > 0 and type(is_HOPS) != int)
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
     # if is_twin_pump == 1:
@@ -656,8 +788,8 @@ def SFG_NLA(U_name="",
     # %%
     l2 = kwargs.get("l2", l)
     p2 = kwargs.get("p2", p)
-    theta2_x = kwargs.get("theta2_x", theta_x) if is_birefringence == 0 or is_HOPS >= 2 else theta_x
-    theta2_y = kwargs.get("theta2_y", theta_y) if is_birefringence == 0 or is_HOPS >= 2 else theta_y
+    theta2_x = kwargs.get("theta2_x", theta_x) if is_HOPS == 0 or is_HOPS >= 2 else theta_x
+    theta2_y = kwargs.get("theta2_y", theta_y) if is_HOPS == 0 or is_HOPS >= 2 else theta_y
     # %%
     is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
     is_H_l2 = kwargs.get("is_H_l2", is_H_l)
@@ -665,7 +797,7 @@ def SFG_NLA(U_name="",
     is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
     # %%
     w0_2 = kwargs.get("w0_2", w0)
-    lam2 = kwargs.get("lam2", lam1) if is_birefringence == 0 else lam1
+    lam2 = kwargs.get("lam2", lam1) if is_HOPS == 0 else lam1
     is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
     T2 = kwargs.get("T2", T)
     polar2 = kwargs.get("polar2", 'e')
@@ -891,27 +1023,38 @@ def SFG_NLA(U_name="",
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
 
-
     # %%
 
     iz = z0 / size_PerPixel
     dset("G", np.zeros((Ix, Iy), dtype=np.complex128()))
 
+    U_o, U_e, U_Vo, U_Ve, U_Ho, U_He = \
+        gan_U_VHoe(g_o, g_e, g_Vo, g_Ho, g_Ve, g_He)
+
     is_NLAST_sum = kwargs.get("is_NLAST_sum", 0)
-    # print(is_fft, is_NLAST_sum)
-    NLA(iz, is_fft, fft_mode,
-        Ix, Iy, size_PerPixel,
-        k3_inc, n3_inc,
-        k1_z, k1_xy,
-        k3_z, k3_xy,
-        k1, k2, k3,
-        mx, my, mz,
-        Gx, Gy, Gz,
-        Tx, Tz, deff,
-        mG, is_sum_Gm, is_NLAST_sum,
-        g_shift, g2,
-        U_0, U2_0, modulation_squared,
-        is_print, is_linear_convolution, )
+    match_type = kwargs.get("match_type", "oe")
+    NLA_123VHoe(is_birefringence_deduced, is_air,
+                is_add_polarizer, match_type,
+                iz, is_fft, fft_mode,
+                Ix, Iy, size_PerPixel,
+                k3_inc, n3_inc,
+                k1_z, k1_xy,
+                k1o_z, k1o_xy, k1e_z, k1e_xy,
+                k1_Vo_z, k1_Vo_xy, k1_Ho_z, k1_Ho_xy,
+                k1_Ve_z, k1_Ve_xy, k1_He_z, k1_He_xy,
+                k3_z, k3_xy,
+                k1o, k1e, k1_Vo, k1_Ve, k1_Ho, k1_He,
+                k1, k2, k3,
+                mx, my, mz,
+                Gx, Gy, Gz,
+                Tx, Tz, deff,
+                mG, is_sum_Gm, is_NLAST_sum,
+                g_shift, g2,
+                g_o, g_e, g_Vo, g_Ve, g_Ho, g_He,
+                U_0, U2_0,
+                U_o, U_e, U_Vo, U_Ve, U_Ho, U_He,
+                modulation_squared,
+                is_print, is_linear_convolution, )
 
     # %%
 
@@ -953,12 +1096,12 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",  # 要么从 U_name 里传 ray 和 U 进来，要么 单独传个 U 和 ray
          "img_full_name": "lena1.png",
-         "U_pixels_x": 0, "U_pixels_y": 0,
+         "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 10, "p": 0,
+         "l": -50, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -966,7 +1109,7 @@ if __name__ == '__main__':
          # %%
          # 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "structure_size_Shrink": 0, "structure_size_Shrinker": 0,
          "is_U_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%
@@ -978,18 +1121,16 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_size": 1, "w0": 0.1,
+         "U_size": 1, "w0": 0.05,
          "z0": 10,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
-         # %%  是否 考虑 双折射、是否 采用 混合庞加莱球、若采用，请给出 极角 和 方位角
-         "is_birefringence_SHG": 0,
-         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_p
-         "phi_p": 0, "phi_a": 0,  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
-         # %%  控制 单双泵浦 和 绘图方式
-         "is_HOPS_SHG": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
-         "Theta": 0, "Phi": 0,
+         # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_birefringence_SHG": 0 是否 考虑 双折射
+         "is_HOPS_SHG": 0,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
+         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
+         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
          # %%
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
@@ -1034,7 +1175,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "o", "match_type": "oo",
+         "polar": "o", "match_type": "oe",
          "polar3": "o", "ray": "3",
          }
 
@@ -1046,13 +1187,13 @@ if __name__ == '__main__':
             # %%
             "z_pump2": 0,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 10, "p2": 0,
+            "l2": 50, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
             # %%
-            "w0_2": 0.1,
+            "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
             "polar2": 'e',

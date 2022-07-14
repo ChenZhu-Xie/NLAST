@@ -204,7 +204,7 @@ if __name__ == '__main__':
         {"test_target": -1,  # 自动化了，不用填这个参数了
          "Data_Seq": 16,
          "img_full_name": "lena1.png",
-         "U_pixels_x": 0, "U_pixels_y": 0,
+         "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
          "U_size": 0.9,

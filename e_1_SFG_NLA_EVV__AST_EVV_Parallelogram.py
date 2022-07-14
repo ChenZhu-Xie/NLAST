@@ -239,9 +239,9 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
         U1_AST, G1_AST, ray1_AST, method_and_way1_AST, U_key1_AST = \
             AST_EVV(*args_AST(f), **kwargs_AST, )
 
-        from fun_nonlinear import init_SFG_pro
+        from fun_nonlinear import init_SFG_3oe
         lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
-            init_SFG_pro(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
+            init_SFG_3oe(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
                          lam1, 1, T,
                          0, 0,
                          is_print, **kwargs)
@@ -260,7 +260,7 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
          "img_full_name": "spaceship.png",
-         "U_pixels_x": 0, "U_pixels_y": 0,
+         "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -273,7 +273,7 @@ if __name__ == '__main__':
          # %%
          # 生成横向结构
          "U_name_Structure": '',
-         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "structure_size_Shrink": 0, "structure_size_Shrinker": 0,
          "is_U_size_x_structure_side_y": 1,
          "is_phase_only_Structure": 0,
          # %%

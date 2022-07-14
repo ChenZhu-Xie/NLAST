@@ -101,14 +101,13 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
                               **kwargs, ):
     # %%
     is_HOPS = kwargs.get("is_HOPS_SHG", 0)
-    is_birefringence = kwargs.get("is_birefringence_SHG", 0)
-    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
-    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_HOPS == 0.x 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_HOPS > 0 and is_HOPS < 1)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
     kwargs['ray'] = "2" if is_birefringence_deduced == 1 else kwargs.get('ray', "2")
     ray_tag = "f" if kwargs['ray'] == "3" else "h"
     is_twin_pump = int(ray_tag == "f" or is_twin_pump_degenerate == 1)
-    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_add_polarizer = int(is_HOPS > 0 and type(is_HOPS) != int)
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
     # if is_twin_pump == 1:
@@ -123,8 +122,8 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
     # %%
     l2 = kwargs.get("l2", l)
     p2 = kwargs.get("p2", p)
-    theta2_x = kwargs.get("theta2_x", theta_x) if is_birefringence == 0 or is_HOPS >= 2 else theta_x
-    theta2_y = kwargs.get("theta2_y", theta_y) if is_birefringence == 0 or is_HOPS >= 2 else theta_y
+    theta2_x = kwargs.get("theta2_x", theta_x) if is_HOPS == 0 or is_HOPS >= 2 else theta_x
+    theta2_y = kwargs.get("theta2_y", theta_y) if is_HOPS == 0 or is_HOPS >= 2 else theta_y
     # %%
     is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
     is_H_l2 = kwargs.get("is_H_l2", is_H_l)
@@ -132,7 +131,7 @@ def auto_compare_SFG_NLA__SSI(U_name_Structure="",
     is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
     # %%
     w0_2 = kwargs.get("w0_2", w0)
-    lam2 = kwargs.get("lam2", lam1) if is_birefringence == 0 else lam1
+    lam2 = kwargs.get("lam2", lam1) if is_HOPS == 0 else lam1
     is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
     T2 = kwargs.get("T2", T)
     polar2 = kwargs.get("polar2", 'e')
@@ -482,7 +481,7 @@ if __name__ == '__main__':
          # %%
          "U_name": "",
          "img_full_name": "lena1.png",
-         "U_pixels_x": 0, "U_pixels_y": 0,
+         "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -495,7 +494,7 @@ if __name__ == '__main__':
          # %%---------------------------------------------------------------------
          # %%
          "U_size": 1, "w0": 0, "w0_Structure": 0,
-         "structure_size_Shrink": 0.1, "structure_size_Shrinker": 0,
+         "structure_size_Shrink": 0, "structure_size_Shrinker": 0,
          "is_U_size_x_structure_side_y": 1,
          "L0_Crystal": 1, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 1,
          # %%

@@ -163,7 +163,7 @@ def init_SFG(Ix, Iy, size_PerPixel,
 
 # %%
 
-def init_SFG_pro(Ix, Iy, size_PerPixel,
+def init_SFG_3oe(Ix, Iy, size_PerPixel,
                  lam1, is_air, T,
                  theta_x, theta_y,
                  is_print, **kwargs):  # 晶体里 频率转换出来的光，一出来就在晶体里
@@ -343,7 +343,7 @@ def Gan_Gz(Ix, Iy, size_PerPixel,
     # print(Gx, Gy, k3_inc_x, k3_inc_y, k3_inc_z_minus_Gz)
     kwargs["lam2"] = lam_2
     lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
-        init_SFG_pro(Ix, Iy, size_PerPixel,
+        init_SFG_3oe(Ix, Iy, size_PerPixel,
                      lam1, is_air, T,
                      theta_X, theta_Y, is_print,  # 传入的 theta_x, theta_y 是什么 不重要，对于 k3_x，不会看这两个参数，而只看 k3_x, k3_y
                      k3_inc_x=k3_inc_x, k3_inc_y=k3_inc_y, **kwargs)

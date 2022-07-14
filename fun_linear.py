@@ -597,8 +597,8 @@ def Gan_E_vector(is_air, lam, T,
     theta_z_D_back, phi_z_D_back = Inverse_Transform_theta_phi_c_inc_to_z_inc(theta_z_c, phi_z_c, phi_c_c,
                                                                               theta_c_D, phi_c_D, **kwargs)
     # if mode == 0:
-        # print(theta_c_D, phi_c_D)
-        # print(theta_z_D_back, phi_z_D_back, phi_z_D - phi_z_D_back)
+    # print(theta_c_D, phi_c_D)
+    # print(theta_z_D_back, phi_z_D_back, phi_z_D - phi_z_D_back)
     # Dc_ux, Dc_uy, Dc_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_c_D, phi_c_D, mode)
     # %%  生成 折射率 椭球的 3 个主轴
     nx, ny, nz = Gan_refractive_index_ellipsoid(is_air, lam, T)
@@ -1278,10 +1278,10 @@ def init_AST(Ix, Iy, size_PerPixel,
 
 # %%
 
-def init_AST_pro(Ix, Iy, size_PerPixel,
-                 lam1, is_air, T,
-                 theta_x, theta_y,
-                 is_print, p_p=0, p_ray="", **kwargs):  # 一般 p_ray 只是 "V" 或 "H"
+def init_AST_12oe(Ix, Iy, size_PerPixel,
+                  lam1, is_air, T,
+                  theta_x, theta_y,
+                  is_print, p_p=0, p_ray="", **kwargs):  # 一般 p_ray 只是 "V" 或 "H"
     is_end = kwargs.get("is_end", 0)
     is_end2 = kwargs.get("is_end2", 1)
     add_level = kwargs.get("add_level", 0)
@@ -1417,7 +1417,7 @@ def output_nk_xyz(lam1, size_PerPixel,
 def gan_DESu_0kx0kyzinc(args_Gan_D_vector, k_inc,
                         args_Gan_E_vector, **kwargs, ):
     import inspect
-    if inspect.stack()[1][3] == "init_SFG_pro":
+    if inspect.stack()[1][3] == "init_SFG_3oe":
         kwargs["is_polar3"] = 1  # 强制 Gan_D,S_vector 中的 get_p_theta_xy_from_kwargs 使用之
     D_u_0kx0ky, theta_D_u_0kx0ky, phi_D_u_0kx0ky = Gan_D_vector(*args_Gan_D_vector,  # 左手系
                                                                 mode=1, **kwargs)

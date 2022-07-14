@@ -88,14 +88,13 @@ def SFG_NLA_ssi(U_name="",
 
     # %%
     is_HOPS = kwargs.get("is_HOPS_SHG", 0)
-    is_birefringence = kwargs.get("is_birefringence_SHG", 0)
-    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
-    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_HOPS == 0.x 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_HOPS > 0 and is_HOPS < 1)
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
     kwargs['ray'] = "2" if is_birefringence_deduced == 1 else kwargs.get('ray', "2")
     ray_tag = "f" if kwargs['ray'] == "3" else "h"
     is_twin_pump = int(ray_tag == "f" or is_twin_pump_degenerate == 1)
-    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_add_polarizer = int(is_HOPS > 0 and type(is_HOPS) != int)
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
     # if is_twin_pump == 1:
@@ -110,8 +109,8 @@ def SFG_NLA_ssi(U_name="",
     # %%
     l2 = kwargs.get("l2", l)
     p2 = kwargs.get("p2", p)
-    theta2_x = kwargs.get("theta2_x", theta_x) if is_birefringence == 0 or is_HOPS >= 2 else theta_x
-    theta2_y = kwargs.get("theta2_y", theta_y) if is_birefringence == 0 or is_HOPS >= 2 else theta_y
+    theta2_x = kwargs.get("theta2_x", theta_x) if is_HOPS == 0 or is_HOPS >= 2 else theta_x
+    theta2_y = kwargs.get("theta2_y", theta_y) if is_HOPS == 0 or is_HOPS >= 2 else theta_y
     # %%
     is_random_phase_2 = kwargs.get("is_random_phase_2", is_random_phase)
     is_H_l2 = kwargs.get("is_H_l2", is_H_l)
@@ -119,7 +118,7 @@ def SFG_NLA_ssi(U_name="",
     is_H_random_phase_2 = kwargs.get("is_H_random_phase_2", is_H_random_phase)
     # %%
     w0_2 = kwargs.get("w0_2", w0)
-    lam2 = kwargs.get("lam2", lam1) if is_birefringence == 0 else lam1
+    lam2 = kwargs.get("lam2", lam1) if is_HOPS == 0 else lam1
     is_air_pump2 = kwargs.get("is_air_pump2", is_air_pump)
     T2 = kwargs.get("T2", T)
     polar2 = kwargs.get("polar2", 'e')
@@ -418,7 +417,7 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
          "img_full_name": "Grating.png",
-         "U_pixels_x": 0, "U_pixels_y": 0,
+         "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
@@ -440,13 +439,11 @@ if __name__ == '__main__':
          # %%
          "lam1": 0.8, "is_air_pump": 1, "is_air": 0, "T": 25,
          "deff": 30,
-         # %%  是否 考虑 双折射、是否 采用 混合庞加莱球、若采用，请给出 极角 和 方位角
-         "is_birefringence_SHG": 1,
-         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_p
-         "phi_p": 0, "phi_a": 0,  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
-         # %%  控制 单双泵浦 和 绘图方式
-         "is_HOPS_SHG": 0,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
-         "Theta": 0, "Phi": 0,
+         # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_birefringence_SHG": 0 是否 考虑 双折射
+         "is_HOPS_SHG": 0,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
+         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
+         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
          # %%
          "Tx": 10, "Ty": 10, "Tz": 5.6,
          "mx": 0, "my": 0, "mz": 1,

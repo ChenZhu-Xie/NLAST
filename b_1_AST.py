@@ -12,7 +12,7 @@ from fun_img_Resize import if_image_Add_black_border
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_AST, g_oea_vs_g_AST, \
     Get, fget, fkey, fGHU_plot_save
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST_pro
+from fun_linear import init_AST_12oe
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -100,18 +100,18 @@ def gan_gp_p(g_shift, **kwargs):
 # %%
 
 def Gan_gp_p(is_HOPS, g_shift,
-             U_0, U2_0, polar_2, **kwargs): # 为了不与 kwargs 里 polar2 重复
+             U_0, U2_0, polar_2, **kwargs):  # 为了不与 kwargs 里 polar2 重复
     if is_HOPS == 0:
         g_p, p_p = gan_gp_p(g_shift, **kwargs)
     else:
         polar = kwargs.get("polar", "V")  # 默认 第一个 泵浦 是 竖直的
-        if is_HOPS >= 1:
-            U_V, U_H, g_V, g_H = U_12_to_gU_HOPS(U_0, U2_0, polar, polar_2, **kwargs)
+        if is_HOPS >= 1 and is_HOPS < 2:
+            U_V, U_H, g_V, g_H = U_12_to_gU_HOPS_CP(U_0, U2_0, polar, polar_2, **kwargs)
         elif is_HOPS >= 2:
-            U_V, U_H, g_V, g_H = U_12_to_gU_CP(U_0, U2_0, polar, polar_2)
-        g_Hp, p_p = gan_gp_p(g_H, **kwargs)
+            U_V, U_H, g_V, g_H = U_12_to_gU_LP(U_0, U2_0, polar, polar_2)
         g_Vp, p_p = gan_gp_p(g_V, **kwargs)
-        g_p = g_Hp + g_Vp
+        g_Hp, p_p = gan_gp_p(g_H, **kwargs)
+        g_p = g_Vp + g_Hp
     return g_p, p_p
 
 
@@ -119,12 +119,12 @@ def Gan_gp_p(is_HOPS, g_shift,
 
 def Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs):
     polar = kwargs.get("polar", "V")  # 默认 第一个 泵浦 是 竖直的
-    if is_HOPS >= 1:
-        U_V, U_H, g_V, g_H = U_12_to_gU_HOPS(U_0, U2_0, polar, polar2, **kwargs)
+    if is_HOPS >= 1 and is_HOPS < 2:
+        U_V, U_H, g_V, g_H = U_12_to_gU_HOPS_CP(U_0, U2_0, polar, polar2, **kwargs)
     elif is_HOPS >= 2:
-        U_V, U_H, g_V, g_H = U_12_to_gU_CP(U_0, U2_0, polar, polar2)
+        U_V, U_H, g_V, g_H = U_12_to_gU_LP(U_0, U2_0, polar, polar2)
+    p_V = gan_p_g(90, **kwargs)  # 对应 V 方向 的 偏振矢量，给 g_V 用
     p_H = gan_p_g(0, **kwargs)  # 对应 H 方向 的 偏振矢量，给 g_H 用
-    p_V = gan_p_g(90, **kwargs)  # 对应 H 方向 的 偏振矢量，给 g_H 用
     return g_V, g_H, p_V, p_H
 
 
@@ -256,7 +256,23 @@ def U_12_to_CP(U1, U2, polar1, polar2):  # 线偏，圆偏 → 圆偏，双入 �
     return U_R, U_L
 
 
-def U_12_to_HOPS(U_0, U2_0, p, p2, **kwargs):
+def U_12_to_HOPS_LP(U_0, U2_0, p, p2, **kwargs):  # 系数
+    Theta = kwargs.get("Theta", 0) / 180 * np.pi
+    Phi = kwargs.get("Phi", 0) / 180 * np.pi
+    V_factor = np.cos(Theta + np.pi / 4) * np.e ** (1j * Phi)
+    H_factor = np.sin(Theta + np.pi / 4) * np.e ** (-1j * Phi)
+    if p == "V":
+        U_0 *= V_factor
+    elif p == "H":
+        U_0 *= H_factor
+    if p2 == "V":
+        U2_0 *= V_factor
+    elif p2 == "H":
+        U2_0 *= H_factor
+    return U_0, U2_0
+
+
+def U_12_to_HOPS_CP(U_0, U2_0, p, p2, **kwargs):  # 系数
     Theta = kwargs.get("Theta", 0) / 180 * np.pi
     Phi = kwargs.get("Phi", 0) / 180 * np.pi
     R_factor = np.cos(Theta + np.pi / 4) * np.e ** (1j * Phi)
@@ -274,7 +290,7 @@ def U_12_to_HOPS(U_0, U2_0, p, p2, **kwargs):
 
 # %%
 
-def U_12_to_gU_CP(U_0, U2_0, polar, polar2):
+def U_12_to_gU_LP(U_0, U2_0, polar, polar2):  # 投影
     from fun_linear import fft2
     U_V, U_H = U_12_to_LP(U_0, U2_0, polar, polar2)
     g_V = fft2(U_V)
@@ -282,9 +298,22 @@ def U_12_to_gU_CP(U_0, U2_0, polar, polar2):
     return U_V, U_H, g_V, g_H
 
 
-def U_12_to_gU_HOPS(U_0, U2_0, p, p2, **kwargs):  # 用 p 而不用 polar，来防止重名
-    U_0, U2_0 = U_12_to_HOPS(U_0, U2_0, p, p2, **kwargs)
-    return U_12_to_gU_CP(U_0, U2_0, p, p2)
+def U_12_to_gU_CP(U_0, U2_0, polar, polar2):  # 投影
+    from fun_linear import fft2
+    U_R, U_L = U_12_to_CP(U_0, U2_0, polar, polar2)
+    g_R = fft2(U_R)
+    g_L = fft2(U_L)
+    return U_R, U_L, g_R, g_L
+
+
+def U_12_to_gU_HOPS_LP(U_0, U2_0, p, p2, **kwargs):  # 用 p 而不用 polar，来防止重名
+    U_0, U2_0 = U_12_to_HOPS_LP(U_0, U2_0, p, p2, **kwargs)  # 系数
+    return U_12_to_gU_LP(U_0, U2_0, p, p2)  # 投影
+
+
+def U_12_to_gU_HOPS_CP(U_0, U2_0, p, p2, **kwargs):  # 用 p 而不用 polar，来防止重名
+    U_0, U2_0 = U_12_to_HOPS_CP(U_0, U2_0, p, p2, **kwargs)  # 系数
+    return U_12_to_gU_LP(U_0, U2_0, p, p2)  # 投影
 
 
 # %%
@@ -292,21 +321,21 @@ def U_12_to_gU_HOPS(U_0, U2_0, p, p2, **kwargs):  # 用 p 而不用 polar，来�
 def gan_nkgE_oe(g_p, p_p, is_print,
                 args_init_AST, kwargs_init_AST,
                 **kwargs):
-    from fun_linear import init_AST_pro
+    from fun_linear import init_AST_12oe
     kwargs["polar"] = "o"
     kwargs_init_AST["gp"] = g_p
     n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo = \
-        init_AST_pro(*args_init_AST, is_print,
-                     p_p=p_p, is_end2=-1,  # 这里 p_ray=ray + "p" 中的 p 代表 polar
-                     **kwargs_init_AST, **kwargs)
+        init_AST_12oe(*args_init_AST, is_print,
+                      p_p=p_p, is_end2=-1,  # 这里 p_ray=ray + "p" 中的 p 代表 polar
+                      **kwargs_init_AST, **kwargs)
 
     # %%  晶体 abc 坐标系 -x y z 下的 kxy 网格上 各点的 k 单位矢量： kx 向 左 为正，ky 向 上 为正
     kwargs["polar"] = "e"
     kwargs_init_AST["gp"] = g_p
     n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue = \
-        init_AST_pro(*args_init_AST, is_print,
-                     p_p=p_p, add_level=1,
-                     **kwargs_init_AST, **kwargs)
+        init_AST_12oe(*args_init_AST, is_print,
+                      p_p=p_p, add_level=1,
+                      **kwargs_init_AST, **kwargs)
     return n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue
 
@@ -314,37 +343,37 @@ def gan_nkgE_oe(g_p, p_p, is_print,
 def gan_nkgE_VHoe(g_V, p_V, g_H, p_H, is_print,
                   args_init_AST, kwargs_init_AST,
                   **kwargs):
-    from fun_linear import init_AST_pro
+    from fun_linear import init_AST_12oe
     # %%  V 的 o 分量
     kwargs["polar"] = "o"
     kwargs_init_AST["gp"] = g_V
     n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo = \
-        init_AST_pro(*args_init_AST, is_print,
-                     p_p=p_V, p_ray="V", is_end2=-1,
-                     **kwargs_init_AST, **kwargs)
+        init_AST_12oe(*args_init_AST, is_print,
+                      p_p=p_V, p_ray="V", is_end2=-1,
+                      **kwargs_init_AST, **kwargs)
 
     # %%  V 的 e 分量
     kwargs["polar"] = "e"
     kwargs_init_AST["gp"] = g_V
     n1_Ve_inc, n1_Ve, k1_Ve_inc, k1_Ve, k1_Ve_z, k1_Ve_xy, g_Ve, E_u_Ve = \
-        init_AST_pro(*args_init_AST, is_print,
-                     p_p=p_V, p_ray="V", add_level=1, is_end2=-1,
-                     **kwargs_init_AST, **kwargs)
+        init_AST_12oe(*args_init_AST, is_print,
+                      p_p=p_V, p_ray="V", add_level=1, is_end2=-1,
+                      **kwargs_init_AST, **kwargs)
     # %%  H 的 o 分量
     kwargs["polar"] = "o"
     kwargs_init_AST["gp"] = g_H
     n1_Ho_inc, n1_Ho, k1_Ho_inc, k1_Ho, k1_Ho_z, k1_Ho_xy, g_Ho, E_u_Ho = \
-        init_AST_pro(*args_init_AST, is_print,
-                     p_p=p_H, p_ray="H", add_level=1, is_end2=-1,
-                     **kwargs_init_AST, **kwargs)
+        init_AST_12oe(*args_init_AST, is_print,
+                      p_p=p_H, p_ray="H", add_level=1, is_end2=-1,
+                      **kwargs_init_AST, **kwargs)
 
     # %%  H 的 e 分量
     kwargs["polar"] = "e"
     kwargs_init_AST["gp"] = g_H
     n1_He_inc, n1_He, k1_He_inc, k1_He, k1_He_z, k1_He_xy, g_He, E_u_He = \
-        init_AST_pro(*args_init_AST, is_print,
-                     p_p=p_H, p_ray="H", add_level=1,
-                     **kwargs_init_AST, **kwargs)
+        init_AST_12oe(*args_init_AST, is_print,
+                      p_p=p_H, p_ray="H", add_level=1,
+                      **kwargs_init_AST, **kwargs)
     # g_o = g_Vo + g_Ho  # 不知道 能不能 加在一起，他们的 D, k 方向一样，但 E, S 方向不一样
     # g_e = g_Ve + g_He  # 不知道 能不能 加在一起，他们的 D, k 方向一样，但 E, S 方向不一样
     return n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
@@ -594,8 +623,8 @@ def gan_gpnkE_VHoe_xyzinc_AST(is_birefringence_deduced, is_air,
         #              **kwargs_init_AST, **kwargs)
 
         n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_p, E1_u = \
-            init_AST_pro(*args_init_AST, is_print,  # p_ray=kwargs.get("polar", "e"), 或不加（即 p_ray=""），表示 无双折射
-                         **kwargs_init_AST, **kwargs)
+            init_AST_12oe(*args_init_AST, is_print,  # p_ray=kwargs.get("polar", "e"), 或不加（即 p_ray=""），表示 无双折射
+                          **kwargs_init_AST, **kwargs)
         # print(k1_xy[:, :, 0][0])  # 这个是 电脑 or 图片 坐标系 下的： x 向右 为正，y 向下 为正
         # print(k1_xy[:, :, 1][:, 0])  # 这个是 电脑 or 图片 坐标系 下的： x 向右 为正，y 向下 为正
 
@@ -661,11 +690,10 @@ def AST(U_name="",
 
     # %%
     is_HOPS = kwargs.get("is_HOPS_AST", 0)
-    is_birefringence = kwargs.get("is_linear_birefringence", 0)
-    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_birefringence == 1 and is_HOPS == 0 的情况 仍是单泵浦
-    is_single_pump_birefringence = int(is_birefringence == 1 and is_HOPS == 0)
-    is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
-    is_add_polarizer = int(is_HOPS == 0 or (is_HOPS >= 1 and type(is_HOPS) != int))
+    is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_HOPS == 0.x 的情况 仍是单泵浦
+    is_single_pump_birefringence = int(is_HOPS > 0 and is_HOPS < 1)
+    is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)  # 等价于 is_HOPS > 0
+    is_add_polarizer = int(is_HOPS > 0 and type(is_HOPS) != int)  # 等价于 is_birefringence_deduced == 1 and ...
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)
     # %%
     U2_name = kwargs.get("U2_name", U_name)
@@ -1003,7 +1031,7 @@ if __name__ == '__main__':
          # %%
          "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": -50, "p": 0,
+         "l": 50, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -1013,14 +1041,11 @@ if __name__ == '__main__':
          "z0": 10,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
-         # %%  是否 考虑 双折射（采用 普通加莱球 + 琼斯矩阵 振幅比例 和 相位延迟 的 方案，自由度 还不如 2 个 VH 标量场 叠加 这 2 个 2 维数组 的 叠加）
-         # 一个是 mn + 2，另一个是 mn * 2；然而用 2 个 VH 标量场 叠加，与这里只算 1 个 标量场 并 投影到 polarizer 的基底，没什么区别，只是最后 再复数 加起来 即可。
-         "is_linear_birefringence": 1,  # 这里默认 生成的 标量场的 线偏振 是 V 即 // y 的，但晶轴 不一定 // y，然后 先向 起偏器 投影，再向 晶轴 投影，最后向 检偏器 投影。
-         # 是否 使用 起偏器 polarizer（0 即不使用）、若使用，请给出 其 透光方向 相对于 V (竖直 y) 方向（也即 实验室坐标系 的 +y）的 顺时针 转角 phi_p
-         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 V (竖直 y) 方向的 顺时针 转角 phi_a
-         # %%  控制 单双泵浦 和 绘图方式
-         "is_HOPS_AST": 2,  # 0 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
-         "Theta": 0, "Phi": 0,
+         # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_linear_birefringence": 0 是否 考虑 双折射
+         "is_HOPS_AST": 1,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
+         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
+         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
          "plot_group_AST": "r",  # m 代表 oe 的 mix，o,e 代表 ~，fb 代表 frontface / backface
          # %%
          "is_save": 0, "is_no_data_save": 0,
@@ -1051,7 +1076,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "V", "ray": "1",
+         "polar": "R", "ray": "1",
          }
 
     if kwargs.get("is_HOPS_AST", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
@@ -1071,7 +1096,7 @@ if __name__ == '__main__':
             "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
-            "polar2": 'H',
+            "polar2": 'L',
             # 有双泵浦，则必然考虑偏振、起偏，和检偏，且原 "polar2": 'e'、 "polar": "e" 已再不起作用
             # 取而代之的是，既然原 "polar": "e" 不再 work 但还存在，就不能浪费 它的存在，让其 重新规定 第一束光
             # 偏振方向 为 "VHRL" 中的一个，而不再规定其 极化方向 为 “oe” 中的一个；这里 第二束 泵浦的 偏振方向 默认与之 正交，因而可以 不用填写

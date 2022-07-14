@@ -247,9 +247,9 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
         U1_AST, G1_AST, ray1_AST, method_and_way1_AST, U_key1_AST = \
             AST_EVV(*args_AST(f), **kwargs_AST, )
 
-        from fun_nonlinear import init_SFG_pro
+        from fun_nonlinear import init_SFG_3oe
         lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
-            init_SFG_pro(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
+            init_SFG_3oe(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
                          lam1, 1, T,
                          0, 0,
                          is_print, **kwargs)
