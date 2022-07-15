@@ -234,6 +234,7 @@ def SFG_NLA_SSI__AST_EVV(U_name="",
             SFG_SSF_SSI(*args_SSI(L0_Crystal), **kwargs_SSI, )
 
     kwargs_AST = copy.deepcopy(kwargs)
+    if "polar2" in kwargs_AST: kwargs_AST.pop("polar2")
     kwargs_AST.update({"U": U2_SSI, "ray": ray2_SSI,
                        "lam3": Get("lam3"), "polar": kwargs_AST["polar3"], })
 
@@ -307,6 +308,11 @@ if __name__ == '__main__':
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
+         # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_birefringence_SHG": 0 是否 考虑 双折射
+         "is_HOPS_SHG": 0,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
+         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
+         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
          # %%
          "Tx": 18.769, "Ty": 20, "Tz": 500,
          "mx": 0, "my": 0, "mz": 0,
@@ -361,11 +367,11 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "o",
+         "polar": "o", "match_type": "oe",
          "polar3": "o", "ray": "3",
          }
 
-    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena1.png",

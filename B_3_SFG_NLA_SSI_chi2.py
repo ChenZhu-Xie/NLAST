@@ -8,18 +8,84 @@ Created on Sun Dec 26 22:09:04 2021
 # %%
 
 import numpy as np
-import math
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
 from fun_SSI import slice_SSI
-from fun_linear import ifft2
-from fun_nonlinear import G3_z_modulation_NLAST
 from fun_thread import my_thread
 from fun_CGH import structure_chi2_Generate_2D
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, Set, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
+from b_1_AST import init_locals
+from b_1_AST_EVV import H_zdz
+from B_3_SFG_NLA_ssi import gan_U_12VHoe_iterate, gan_U_12VHoe_z_iterate, NLA_iterate_123VHoe
 
 np.seterr(divide='ignore', invalid='ignore')
+
+
+# %%
+
+def gan_modulation_squared_z_SSI(for_th, for_th_stored, mj, izj,
+                                 Ix, Iy, my, Ty, Tz, Iz_frontface,
+                                 sheets_num_frontface, sheets_num_endface,
+                                 is_bulk, is_stripe, is_no_backgroud,
+                                 structure_xy_mode, modulation,
+                                 modulation_squared, modulation_opposite_squared,
+                                 modulation_lie_down,
+                                 m_list, mod_name_list, ):
+    if is_bulk == 0:
+        if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
+            if mj[for_th] == '0':
+                # print("???????????????")
+                modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
+            elif is_stripe == 0:
+                if mj[for_th] == '1':
+                    modulation_squared_z = modulation_squared
+                elif mj[for_th] == '-1':
+                    modulation_squared_z = modulation_opposite_squared
+            elif is_stripe == 1:
+                if structure_xy_mode == 'x':  # 往右（列） 线性平移 mj[for_th] 像素
+                    modulation_z = np.roll(modulation, mj[for_th], axis=1)
+                elif structure_xy_mode == 'y':  # 往下（行） 线性平移 mj[for_th] 像素
+                    modulation_z = np.roll(modulation, mj[for_th], axis=0)
+                elif structure_xy_mode == 'xy':  # 往右（列） 线性平移 mj[for_th] 像素
+                    modulation_z = np.roll(modulation, mj[for_th], axis=1)
+                    # modulation_z = np.roll(modulation_squared_z, mj[for_th] / (mx * Tx) * (my * Ty), axis=0)
+                    modulation_z = np.roll(modulation_z, int(my * Ty / Tz * (izj[for_th] - Iz_frontface)), axis=0)
+                modulation_squared_z = np.pad(modulation_z,
+                                              ((Get("border_width_x"), Get("border_width_y")),
+                                               (Get("border_width_x"), Get("border_width_y"))),
+                                              'constant',
+                                              constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
+                if for_th in for_th_stored:
+                    m_list.append(modulation_squared_z)
+                    mod_name_list.append("χ2_" + "tran_shift_" + str(for_th))
+
+            elif is_stripe == 2 or is_stripe == 2.1 or is_stripe == 2.2:
+                # if structure_xy_mode == 'x':
+                #     modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
+                #     # 按行复制 多行，成一个方阵
+                # elif structure_xy_mode == 'y':
+                #     modulation_squared_z = np.tile(modulation_lie_down[:, for_th],
+                #                                    (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
+                # modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
+                modulation_new_z = np.tile(modulation_lie_down[for_th], (modulation.shape[0], 1))
+                # 按行复制 多行，成一个 与 modulation 尺寸相同 的 矩阵
+                modulation_squared_z = np.pad(modulation_new_z,
+                                              ((Get("border_width_x"), Get("border_width_y")),
+                                               (Get("border_width_x"), Get("border_width_y"))),
+                                              'constant',
+                                              constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
+
+                if for_th in for_th_stored:
+                    m_list.append(modulation_squared_z)
+                    mod_name_list.append("χ2_" + "lie_down_" + str(for_th))
+
+        else:
+            modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
+    else:
+        modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
+
+    return modulation_squared_z, m_list, mod_name_list
 
 
 # %%
@@ -351,6 +417,9 @@ def SFG_NLA_SSI(U_name="",
     # print(zj)
 
     # %%
+    global m_list, mod_name_list
+    for_th_stored, m_list, mod_name_list, modulation_lie_down \
+        = init_locals("for_th_stored, m_list, mod_name_list, modulation_lie_down")
 
     if is_stripe > 0:
         from fun_os import U_amp_plot_save
@@ -363,8 +432,8 @@ def SFG_NLA_SSI(U_name="",
                                                            sheets_stored_num_structure))))
         # print(for_th_stored, sheets_num-1)
         # print(len(mj_structure), sheets_num)
-        m_list = []
-        mod_name_list = []
+        m_list, mod_name_list = [], []  # 无论 is_stripe 如何，都初始化他们，因为以后总要用
+
     if is_stripe == 2.2:
         from fun_CGH import structure_nonrect_chi2_Generate_2D
         # if structure_xy_mode == 'x':
@@ -434,96 +503,54 @@ def SFG_NLA_SSI(U_name="",
              sheets_num, sheets_stored_num,
              X, Y, Iz, size_PerPixel, )
 
-    border_width_x, border_width_y = Get("border_width_x"), Get("border_width_y")
+    # %%
 
-    def H3_zdz(diz):
-        return np.power(math.e, k3_z * diz * 1j)
-        # 注意 这里的 传递函数 的 指数是 正的 ！！！
+    gan_U_oe, gan_U_VHoe, gan_U12 = \
+        gan_U_12VHoe_iterate(is_birefringence_deduced, is_air,
+                             is_twin_pump, is_add_polarizer, izj,
+                             g_shift, g2, g_o, g_e,
+                             g_Vo, g_Ve, g_Ho, g_He,
+                             k1_z, k2_z, k1o_z, k1e_z,
+                             k1_Vo_z, k1_Ve_z, k1_Ho_z, k1_He_z, )
 
-    def H3_z(diz):
-        return (np.power(math.e, k3_z * diz * 1j) - 1) / k3_z ** 2 * size_PerPixel ** 2
-        # 注意 这里的 传递函数 的 指数是 正的 ！！！
+    # %%
+
+    match_type = kwargs.get("match_type", "oe")
+
+    # %%
 
     def fun1(for_th, fors_num, *args, **kwargs, ):
-        iz = izj[for_th]
+        global m_list, mod_name_list
+        modulation_squared_z, m_list, mod_name_list = \
+            gan_modulation_squared_z_SSI(for_th, for_th_stored, mj, izj,
+                                         Ix, Iy, my, Ty, Tz, Iz_frontface,
+                                         sheets_num_frontface, sheets_num_endface,
+                                         is_bulk, is_stripe, is_no_backgroud,
+                                         structure_xy_mode, modulation,
+                                         modulation_squared, modulation_opposite_squared,
+                                         modulation_lie_down,
+                                         m_list, mod_name_list, )
 
-        H1_z = np.power(math.e, k1_z * iz * 1j)
-        G1_z = g_shift * H1_z
-        U_z = ifft2(G1_z)
+        U1_z, U2_z, U1o_z, U1e_z, \
+        U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z = \
+            gan_U_12VHoe_z_iterate(is_birefringence_deduced, is_air,
+                                   for_th, is_add_polarizer,
+                                   gan_U_oe, gan_U_VHoe, gan_U12, )
 
-        if is_twin_pump == 1:
-            H2_z = np.power(math.e, k2_z * iz * 1j)
-            G2_z = g2 * H2_z
-            U2_z = ifft2(G2_z)
-        else:
-            U2_z = U_z
-
-        if is_bulk == 0:
-            if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                if mj[for_th] == '0':
-                    # print("???????????????")
-                    modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
-                elif is_stripe == 0:
-                    if mj[for_th] == '1':
-                        modulation_squared_z = modulation_squared
-                    elif mj[for_th] == '-1':
-                        modulation_squared_z = modulation_opposite_squared
-                elif is_stripe == 1:
-                    if structure_xy_mode == 'x':  # 往右（列） 线性平移 mj[for_th] 像素
-                        modulation_z = np.roll(modulation, mj[for_th], axis=1)
-                    elif structure_xy_mode == 'y':  # 往下（行） 线性平移 mj[for_th] 像素
-                        modulation_z = np.roll(modulation, mj[for_th], axis=0)
-                    elif structure_xy_mode == 'xy':  # 往右（列） 线性平移 mj[for_th] 像素
-                        modulation_z = np.roll(modulation, mj[for_th], axis=1)
-                        # modulation_z = np.roll(modulation_squared_z, mj[for_th] / (mx * Tx) * (my * Ty), axis=0)
-                        modulation_z = np.roll(modulation_z, int(my * Ty / Tz * (izj[for_th] - Iz_frontface)), axis=0)
-                    modulation_squared_z = np.pad(modulation_z,
-                                                  ((border_width_x, border_width_x),
-                                                   (border_width_y, border_width_y)),
-                                                  'constant',
-                                                  constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
-                    if for_th in for_th_stored:
-                        m_list.append(modulation_squared_z)
-                        mod_name_list.append("χ2_" + "tran_shift_" + str(for_th))
-
-                elif is_stripe == 2 or is_stripe == 2.1 or is_stripe == 2.2:
-                    # if structure_xy_mode == 'x':
-                    #     modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
-                    #     # 按行复制 多行，成一个方阵
-                    # elif structure_xy_mode == 'y':
-                    #     modulation_squared_z = np.tile(modulation_lie_down[:, for_th],
-                    #                                    (Get("Iy"), 1))  # 按列复制 多列，成一个方阵
-                    # modulation_squared_z = np.tile(modulation_lie_down[for_th], (Get("Ix"), 1))
-                    modulation_new_z = np.tile(modulation_lie_down[for_th], (modulation.shape[0], 1))
-                    # 按行复制 多行，成一个 与 modulation 尺寸相同 的 矩阵
-                    modulation_squared_z = np.pad(modulation_new_z,
-                                                  ((border_width_x, border_width_x),
-                                                   (border_width_y, border_width_y)),
-                                                  'constant',
-                                                  constant_values=(1 - is_no_backgroud, 1 - is_no_backgroud))
-
-                    if for_th in for_th_stored:
-                        m_list.append(modulation_squared_z)
-                        mod_name_list.append("χ2_" + "lie_down_" + str(for_th))
-
-            else:
-                modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
-        else:
-            modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
-
-        if is_NLAST == 1:
-            dG3_zdz = G3_z_modulation_NLAST(k1, k2, k3,
-                                            modulation_squared_z, U_z, U2_z, dizj[for_th], const,
-                                            Gz=0, )
-        else:
-            Q2_z = fft2(modulation_squared_z * U_z * U2_z)
-            dG3_zdz = const * Q2_z * H3_z(dizj[for_th])
-        # print(dizj*size_PerPixel)
+        dG3_zdz = NLA_iterate_123VHoe(is_birefringence_deduced, is_air,
+                                      is_add_polarizer, is_NLAST,
+                                      dizj[for_th], size_PerPixel,
+                                      const, match_type,
+                                      k1o, k1e, k1_Vo, k1_Ve, k1_Ho, k1_He,
+                                      k1, k2, k3, k3_z,
+                                      U1_z, U2_z,
+                                      U1o_z, U1e_z, U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z,
+                                      modulation_squared_z, )
         return dG3_zdz
 
     def fun2(for_th, fors_num, dG3_zdz, *args, **kwargs, ):
 
-        dset("G", dget("G") * H3_zdz(dizj[for_th]) + dG3_zdz)
+        dset("G", dget("G") * H_zdz(k3_z, dizj[for_th]) + dG3_zdz)
 
         return dget("G")
 
@@ -719,8 +746,8 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "o",
-         "polar3": "o", "ray": "3", 
+         "polar": "o", "match_type": "oe",
+         "polar3": "o", "ray": "3",
          }
 
     if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1

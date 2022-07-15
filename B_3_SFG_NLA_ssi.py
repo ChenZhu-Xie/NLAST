@@ -8,7 +8,6 @@ Created on Sun Dec 26 22:09:04 2021
 # %%
 
 import numpy as np
-import math
 from scipy.io import loadmat
 from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
@@ -19,9 +18,212 @@ from fun_nonlinear import G3_z_modulation_NLAST
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
+from b_1_AST import init_locals
+from b_1_AST_EVV import H_zdz
 from b_3_SFG_NLA import gan_gpnkE_123VHoe_xyzinc_SFG
 
 np.seterr(divide='ignore', invalid='ignore')
+
+
+# %%
+
+
+def NLA_iterate(diz, size_PerPixel,
+                k1, k2, k3, k3_z,
+                U_z, U2_z, const,
+                is_NLAST, modulation_squared_z, ):
+    if is_NLAST == 1:
+        dG3_zdz = G3_z_modulation_NLAST(k1, k2, k3,
+                                        modulation_squared_z, U_z, U2_z, diz, const,
+                                        Gz=0, )
+
+    else:
+        def H3_z(diz):
+            return (H_zdz(k3_z, diz) - 1) / k3_z ** 2 * size_PerPixel ** 2
+            # 注意 这里的 传递函数 的 指数是 正的 ！！！
+
+        Q3_z = fft2(modulation_squared_z * U_z * U2_z)
+        dG3_zdz = const * Q3_z * H3_z(diz)
+    # print(iz*size_PerPixel)
+    return dG3_zdz
+
+
+# %%
+
+def gan_modulation_squared_z_ssi(is_bulk, for_th, Ix, Iy,
+                                 sheets_num_endface, sheets_num_frontface,
+                                 is_no_backgroud, folder_address, is_save_txt, ):
+    if is_bulk == 0:
+        if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
+            modulation_squared_full_name = str(for_th - sheets_num_frontface) + (is_save_txt and ".txt" or ".mat")
+            modulation_squared_address = folder_address + "\\" + modulation_squared_full_name
+            modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
+        else:
+            # print("???????????????")
+            modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
+    else:
+        modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
+    return modulation_squared_z
+
+
+# %%
+
+def NLA_iterate_123VHoe(is_birefringence_deduced, is_air,
+                        is_add_polarizer, is_NLAST,
+                        diz, size_PerPixel,
+                        const, match_type,
+                        k1o, k1e, k1_Vo, k1_Ve, k1_Ho, k1_He,
+                        k1, k2, k3, k3_z,
+                        U_z, U2_z,
+                        U_o, U_e, U_Vo, U_Ve, U_Ho, U_He,
+                        modulation_squared_z, ):
+    def gan_args_NLA_iterate(k1, k2,
+                             U_z, U2_z, ):
+        return [diz, size_PerPixel,
+                k1, k2, k3, k3_z,
+                U_z, U2_z, const,
+                is_NLAST, modulation_squared_z, ]
+
+    if is_birefringence_deduced == 1 and is_air != 1:
+        if is_add_polarizer == 1:
+            if match_type == "oe" or match_type == "eo":
+                dG3_zdz = NLA_iterate(*gan_args_NLA_iterate(k1o, k1e,
+                                                            U_o, U_e, ), )
+            elif match_type == "oo":
+                dG3_zdz = NLA_iterate(*gan_args_NLA_iterate(k1o, k1o,
+                                                            U_o, U_o, ), )
+            elif match_type == "ee":
+                dG3_zdz = NLA_iterate(*gan_args_NLA_iterate(k1e, k1e,
+                                                            U_e, U_e, ), )
+        else:
+            if match_type == "oe" or match_type == "eo":
+                # 组内 和频
+                dG3_zdz_VoVe = NLA_iterate(*gan_args_NLA_iterate(k1_Vo, k1_Ve,
+                                                                 U_Vo, U_Ve, ), )
+
+                dG3_zdz_HoHe = NLA_iterate(*gan_args_NLA_iterate(k1_Ho, k1_He,
+                                                                 U_Ho, U_He, ), )
+
+                # 组间 和频
+                dG3_zdz_VoHe = NLA_iterate(*gan_args_NLA_iterate(k1_Vo, k1_He,
+                                                                 U_Vo, U_He, ), )
+
+                dG3_zdz_HoVe = NLA_iterate(*gan_args_NLA_iterate(k1_Ho, k1_Ve,
+                                                                 U_Ho, U_Ve, ), )
+
+                dG3_zdz = dG3_zdz_VoVe + dG3_zdz_HoHe + dG3_zdz_VoHe + dG3_zdz_HoVe
+            elif match_type == "oo":
+                # 组内 和频
+                dG3_zdz_VoVo = NLA_iterate(*gan_args_NLA_iterate(k1_Vo, k1_Vo,
+                                                                 U_Vo, U_Vo, ), )
+
+                dG3_zdz_HoHo = NLA_iterate(*gan_args_NLA_iterate(k1_Ho, k1_Ho,
+                                                                 U_Ho, U_Ho, ), )
+
+                # 组间 和频
+                dG3_zdz_VoHo = NLA_iterate(*gan_args_NLA_iterate(k1_Vo, k1_Ho,
+                                                                 U_Vo, U_Ho, ), )
+
+                dG3_zdz = dG3_zdz_VoVo + dG3_zdz_HoHo + dG3_zdz_VoHo
+            elif match_type == "ee":
+                # 组内 和频
+                dG3_zdz_VeVe = NLA_iterate(*gan_args_NLA_iterate(k1_Ve, k1_Ve,
+                                                                 U_Ve, U_Ve, ), )
+
+                dG3_zdz_HeHe = NLA_iterate(*gan_args_NLA_iterate(k1_He, k1_He,
+                                                                 U_He, U_He, ), )
+
+                # 组间 和频
+                dG3_zdz_VeHe = NLA_iterate(*gan_args_NLA_iterate(k1_Ve, k1_He,
+                                                                 U_Ve, U_He, ), )
+
+                dG3_zdz = dG3_zdz_VeVe + dG3_zdz_HeHe + dG3_zdz_VeHe
+    else:
+        dG3_zdz = NLA_iterate(*gan_args_NLA_iterate(k1, k2,
+                                                    U_z, U2_z, ), )
+    return dG3_zdz
+
+
+# %%
+
+def gan_U_12VHoe_iterate(is_birefringence_deduced, is_air,
+                         is_twin_pump, is_add_polarizer, izj,
+                         g_shift, g2, g_o, g_e,
+                         g_Vo, g_Ve, g_Ho, g_He,
+                         k1_z, k2_z, k1o_z, k1e_z,
+                         k1_Vo_z, k1_Ve_z, k1_Ho_z, k1_He_z, ):
+    gan_U_oe, gan_U_VHoe, gan_U12 = \
+        init_locals("gan_U_oe, gan_U_VHoe, gan_U12")
+
+    if is_birefringence_deduced == 1 and is_air != 1:
+        # %%
+
+        if is_add_polarizer == 1:
+
+            def gan_U_oe(for_th):
+                iz = izj[for_th]
+
+                G1o_z = g_o * H_zdz(k1o_z, iz)
+                G1e_z = g_e * H_zdz(k1e_z, iz)
+                from fun_linear import fft2
+                U1o_z, U1e_z = fft2(G1o_z), fft2(G1e_z)
+
+                return U1o_z, U1e_z
+
+        else:
+
+            def gan_U_VHoe(for_th):
+                iz = izj[for_th]
+
+                G1_Vo_z = g_Vo * H_zdz(k1_Vo_z, iz)
+                G1_Ve_z = g_Ve * H_zdz(k1_Ve_z, iz)
+                G1_Ho_z = g_Ho * H_zdz(k1_Ho_z, iz)
+                G1_He_z = g_He * H_zdz(k1_He_z, iz)
+                from fun_linear import fft2
+                U1_Vo_z, U1_Ve_z = fft2(G1_Vo_z), fft2(G1_Ve_z)
+                U1_Ho_z, U1_He_z = fft2(G1_Ho_z), fft2(G1_He_z)
+
+                return U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z
+
+    else:
+
+        def gan_U12(for_th):
+            iz = izj[for_th]
+
+            G1_z = g_shift * H_zdz(k1_z, iz)
+            U_z = ifft2(G1_z)
+
+            if is_twin_pump == 1:
+                G2_z = g2 * H_zdz(k2_z, iz)
+                U2_z = ifft2(G2_z)
+            else:
+                U2_z = U_z
+
+            return U_z, U2_z
+
+    return gan_U_oe, gan_U_VHoe, gan_U12
+
+
+# %%
+
+def gan_U_12VHoe_z_iterate(is_birefringence_deduced, is_air,
+                           for_th, is_add_polarizer,
+                           gan_U_oe, gan_U_VHoe, gan_U12, ):
+    U1_z, U2_z, U1o_z, U1e_z, \
+    U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z = \
+        init_locals("U1_z, U2_z, U1o_z, U1e_z, \
+                     U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z")
+
+    if is_birefringence_deduced == 1 and is_air != 1:
+        if is_add_polarizer == 1:
+            U1o_z, U1e_z = gan_U_oe(for_th)
+        else:
+            U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z = gan_U_VHoe(for_th)
+    else:
+        U1_z, U2_z = gan_U12(for_th)
+
+    return U1_z, U2_z, U1o_z, U1e_z, \
+           U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z
 
 
 # %%
@@ -306,53 +508,49 @@ def SFG_NLA_ssi(U_name="",
              sheets_num, sheets_stored_num,
              X, Y, Iz, size_PerPixel, )
 
-    def H3_zdz(diz):
-        return np.power(math.e, k3_z * diz * 1j)
-        # 注意 这里的 传递函数 的 指数是 正的 ！！！
+    # %%
 
-    def H3_z(diz):
-        return (np.power(math.e, k3_z * diz * 1j) - 1) / k3_z ** 2 * size_PerPixel ** 2
-        # 注意 这里的 传递函数 的 指数是 正的 ！！！
+    gan_U_oe, gan_U_VHoe, gan_U12 = \
+        gan_U_12VHoe_iterate(is_birefringence_deduced, is_air,
+                             is_twin_pump, is_add_polarizer, izj,
+                             g_shift, g2, g_o, g_e,
+                             g_Vo, g_Ve, g_Ho, g_He,
+                             k1_z, k2_z, k1o_z, k1e_z,
+                             k1_Vo_z, k1_Ve_z, k1_Ho_z, k1_He_z, )
+
+    # %%
+
+    match_type = kwargs.get("match_type", "oe")
+
+    # %%
 
     def fun1(for_th, fors_num, *args, **kwargs, ):
-        iz = izj[for_th]
 
-        H1_z = np.power(math.e, k1_z * iz * 1j)
-        G1_z = g_shift * H1_z
-        U_z = ifft2(G1_z)
+        modulation_squared_z = \
+            gan_modulation_squared_z_ssi(is_bulk, for_th, Ix, Iy,
+                                         sheets_num_endface, sheets_num_frontface,
+                                         is_no_backgroud, folder_address, is_save_txt, )
 
-        if is_twin_pump == 1:
-            H2_z = np.power(math.e, k2_z * iz * 1j)
-            G2_z = g2 * H2_z
-            U2_z = ifft2(G2_z)
-        else:
-            U2_z = U_z
+        U1_z, U2_z, U1o_z, U1e_z, \
+        U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z = \
+            gan_U_12VHoe_z_iterate(is_birefringence_deduced, is_air,
+                                   for_th, is_add_polarizer,
+                                   gan_U_oe, gan_U_VHoe, gan_U12, )
 
-        if is_bulk == 0:
-            if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                modulation_squared_full_name = str(for_th - sheets_num_frontface) + (is_save_txt and ".txt" or ".mat")
-                modulation_squared_address = folder_address + "\\" + modulation_squared_full_name
-                modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
-            else:
-                # print("???????????????")
-                modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
-        else:
-            modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
-
-        if is_NLAST == 1:
-            dG3_zdz = G3_z_modulation_NLAST(k1, k2, k3,
-                                            modulation_squared_z, U_z, U2_z, dizj[for_th], const,
-                                            Gz=0, )
-
-        else:
-            Q2_z = fft2(modulation_squared_z * U_z * U2_z)
-            dG3_zdz = const * Q2_z * H3_z(dizj[for_th])
-        # print(dizj[for_th]*size_PerPixel)
+        dG3_zdz = NLA_iterate_123VHoe(is_birefringence_deduced, is_air,
+                                      is_add_polarizer, is_NLAST,
+                                      dizj[for_th], size_PerPixel,
+                                      const, match_type,
+                                      k1o, k1e, k1_Vo, k1_Ve, k1_Ho, k1_He,
+                                      k1, k2, k3, k3_z,
+                                      U1_z, U2_z,
+                                      U1o_z, U1e_z, U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z,
+                                      modulation_squared_z, )
         return dG3_zdz
 
     def fun2(for_th, fors_num, dG3_zdz, *args, **kwargs, ):
 
-        dset("G", dget("G") * H3_zdz(dizj[for_th]) + dG3_zdz)
+        dset("G", dget("G") * H_zdz(k3_z, dizj[for_th]) + dG3_zdz)
 
         return dget("G")
 
@@ -488,7 +686,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "e",
+         "polar": "e", "match_type": "oe",
          "polar3": "e", "ray": "2",
          }
 

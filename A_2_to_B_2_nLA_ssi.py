@@ -246,6 +246,7 @@ if __name__ == '__main__':
          "lam1": 1.5, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1.5, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
+         # %%
          "Tx": 19.769, "Ty": 20, "Tz": 188,
          "mx": 1, "my": 1, "mz": 1,
          "is_stripe": 0,

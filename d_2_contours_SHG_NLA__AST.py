@@ -278,6 +278,7 @@ if __name__ == '__main__':
          # %%
          "lam1": 0.8, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
+         # %%
          "deff": 30, "is_fft": 1, "fft_mode": 0,
          "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
          "is_linear_convolution": 0,

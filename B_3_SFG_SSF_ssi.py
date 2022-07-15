@@ -8,8 +8,6 @@ Created on Sun Dec 26 22:09:04 2021
 # %%
 
 import numpy as np
-import math
-from scipy.io import loadmat
 from fun_os import U_dir
 from fun_img_Resize import if_image_Add_black_border
 from fun_pump import pump_pic_or_U
@@ -19,9 +17,176 @@ from fun_nonlinear import Eikz
 from fun_thread import my_thread
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, init_SSI, end_SSI, Get, dset, dget, fun3, \
     fget, fkey, fGHU_plot_save, fU_SSI_plot
+from b_1_AST_EVV import H_zdz
 from b_3_SFG_NLA import gan_gpnkE_123VHoe_xyzinc_SFG
+from B_3_SFG_NLA_ssi import gan_modulation_squared_z_ssi, gan_U_12VHoe_iterate, gan_U_12VHoe_z_iterate
 
 np.seterr(divide='ignore', invalid='ignore')
+
+
+# %%
+
+def H3_z(cal_mode, k3, diz, size_PerPixel,
+         k1_z, k2_z, k3_z, dk_z, ):
+    if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
+        dk_z = k1_z + k2_z - k3_z
+        return H_zdz(k3_z, diz) / (k3_z / size_PerPixel) * \
+               Eikz(dk_z * diz) * diz * size_PerPixel * \
+               (2 / (dk_z / k3_z + 2))
+    else:
+        return H_zdz(k3, diz) / (k3 / size_PerPixel) * \
+               Eikz(dk_z * diz) * diz * size_PerPixel * \
+               (2 / (dk_z / k3 + 2))
+
+
+# %%
+
+def SSF_ssi(diz, cal_mode, size_PerPixel,
+            k1_z, k2_z, k3_z, k3, dk_z,
+            U_z, U2_z, const,
+            modulation_squared_z, ):
+    def args_H3_z(diz):
+        return [cal_mode, diz, size_PerPixel,
+                k1_z, k2_z, k3_z, k3, dk_z, ]
+
+    if cal_mode[0] == 1:  # 如果以 G 算
+
+        if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
+            if cal_mode[1] == 1:  # 若 源项 也衍射
+                Q3_z = fft2(modulation_squared_z * U_z * U2_z * H3_z(*args_H3_z(diz)) / H_zdz(k3_z, diz))
+            else:
+                Q3_z = fft2(modulation_squared_z * U_z * U2_z * H3_z(*args_H3_z(diz)))
+        else:
+            Q3_z = fft2(modulation_squared_z * U_z * U2_z)
+
+        if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
+            dG3_zdz = const * Q3_z
+        else:
+            if cal_mode[1] == 1:  # 若 源项 也衍射
+                dG3_zdz = const * Q3_z * H3_z(*args_H3_z(diz)) / H_zdz(k3, diz)
+            else:
+                dG3_zdz = const * Q3_z * H3_z(*args_H3_z(diz))
+
+        return dG3_zdz
+
+    else:
+
+        S3_z = modulation_squared_z * U_z * U2_z
+
+        if cal_mode[1] == 1:  # 若 源项 也衍射
+            if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
+                dU3_zdz = const * S3_z * H3_z(*args_H3_z(diz)) / H_zdz(k3_z, diz)
+            else:
+                dU3_zdz = const * S3_z * H3_z(*args_H3_z(diz)) / H_zdz(k3, diz)
+        else:
+            dU3_zdz = const * S3_z * H3_z(*args_H3_z(diz))
+
+        return dU3_zdz
+
+
+# %%
+
+def SSF_iterate_123VHoe(is_birefringence_deduced, is_air,
+                        is_add_polarizer, cal_mode,
+                        diz, size_PerPixel,
+                        const, match_type,
+                        k1o_z, k1e_z, k1_Vo_z, k1_Ve_z, k1_Ho_z, k1_He_z,
+                        k1_z, k2_z, k3_z, k3, dk_z,
+                        U_z, U2_z,
+                        U_o, U_e, U_Vo, U_Ve, U_Ho, U_He,
+                        modulation_squared_z, ):
+    def gan_args_SSF_ssi(k1_z, k2_z,
+                         U_z, U2_z, ):
+        return [diz, cal_mode, size_PerPixel,
+                k1_z, k2_z, k3_z, k3, dk_z,
+                U_z, U2_z, const,
+                modulation_squared_z, ]  # dk_z 本身与 k1_inc, k2_inc, theta_x, theta_y 有关而需要 作为参数 传入 和 改变的
+        # 但 VHoe 的 情况 实在太复杂，以至于 甚至每个 k3_inc、k3_inc_z 都不同，要单独算完各个 dk_z 是很难的，计算量太大。
+        # 而且这个 SSF 本来就是错的，搞它干嘛。
+
+    if is_birefringence_deduced == 1 and is_air != 1:
+        if is_add_polarizer == 1:
+            if match_type == "oe" or match_type == "eo":
+                dG3_zdz = SSF_ssi(*gan_args_SSF_ssi(k1o_z, k1e_z,
+                                                    U_o, U_e, ), )
+            elif match_type == "oo":
+                dG3_zdz = SSF_ssi(*gan_args_SSF_ssi(k1o_z, k1o_z,
+                                                    U_o, U_o, ), )
+            elif match_type == "ee":
+                dG3_zdz = SSF_ssi(*gan_args_SSF_ssi(k1e_z, k1e_z,
+                                                    U_e, U_e, ), )
+        else:
+            if match_type == "oe" or match_type == "eo":
+                # 组内 和频
+                dG3_zdz_VoVe = SSF_ssi(*gan_args_SSF_ssi(k1_Vo_z, k1_Ve_z,
+                                                         U_Vo, U_Ve, ), )
+
+                dG3_zdz_HoHe = SSF_ssi(*gan_args_SSF_ssi(k1_Ho_z, k1_He_z,
+                                                         U_Ho, U_He, ), )
+
+                # 组间 和频
+                dG3_zdz_VoHe = SSF_ssi(*gan_args_SSF_ssi(k1_Vo_z, k1_He_z,
+                                                         U_Vo, U_He, ), )
+
+                dG3_zdz_HoVe = SSF_ssi(*gan_args_SSF_ssi(k1_Ho_z, k1_Ve_z,
+                                                         U_Ho, U_Ve, ), )
+
+                dG3_zdz = dG3_zdz_VoVe + dG3_zdz_HoHe + dG3_zdz_VoHe + dG3_zdz_HoVe
+            elif match_type == "oo":
+                # 组内 和频
+                dG3_zdz_VoVo = SSF_ssi(*gan_args_SSF_ssi(k1_Vo_z, k1_Vo_z,
+                                                         U_Vo, U_Vo, ), )
+
+                dG3_zdz_HoHo = SSF_ssi(*gan_args_SSF_ssi(k1_Ho_z, k1_Ho_z,
+                                                         U_Ho, U_Ho, ), )
+
+                # 组间 和频
+                dG3_zdz_VoHo = SSF_ssi(*gan_args_SSF_ssi(k1_Vo_z, k1_Ho_z,
+                                                         U_Vo, U_Ho, ), )
+
+                dG3_zdz = dG3_zdz_VoVo + dG3_zdz_HoHo + dG3_zdz_VoHo
+            elif match_type == "ee":
+                # 组内 和频
+                dG3_zdz_VeVe = SSF_ssi(*gan_args_SSF_ssi(k1_Ve_z, k1_Ve_z,
+                                                         U_Ve, U_Ve, ), )
+
+                dG3_zdz_HeHe = SSF_ssi(*gan_args_SSF_ssi(k1_He_z, k1_He_z,
+                                                         U_He, U_He, ), )
+
+                # 组间 和频
+                dG3_zdz_VeHe = SSF_ssi(*gan_args_SSF_ssi(k1_Ve_z, k1_He_z,
+                                                         U_Ve, U_He, ), )
+
+                dG3_zdz = dG3_zdz_VeVe + dG3_zdz_HeHe + dG3_zdz_VeHe
+    else:
+        dG3_zdz = SSF_ssi(*gan_args_SSF_ssi(k1_z, k2_z,
+                                            U_z, U2_z, ), )
+    return dG3_zdz
+
+
+# %%
+
+def SSF_fun2(cal_mode, dG3_zdz,
+             k3_z, diz):
+    if cal_mode[0] == 1:  # 如果以 G 算
+
+        if cal_mode[1] == 1:  # 若 源项 也衍射
+            dset("G", (dget("G") + dG3_zdz) * H_zdz(k3_z, diz))
+        else:
+            dset("G", dget("G") * H_zdz(k3_z, diz) + dG3_zdz)
+
+        return dget("G")
+
+    else:
+
+        dU3_zdz = dG3_zdz
+
+        if cal_mode[1] == 1:  # 若 源项 也衍射
+            dset("U", ifft2(fft2(dget("U") + dU3_zdz) * H_zdz(k3_z, diz)))
+        else:
+            dset("U", ifft2(fft2(dget("U")) * H_zdz(k3_z, diz)) + dU3_zdz)
+
+        return dget("U")
 
 
 # %%
@@ -313,103 +478,51 @@ def SFG_SSF_ssi(U_name="",
     # 用 G 算 会快很多
     # 不管是 G 还是 U，matrix 版的能量 总是要低一些，只不过 U 低得少些，没有数量级差异，而 G 少得很多
 
-    def H3_zdz(diz):
-        return np.power(math.e, k3_z * diz * 1j)
+    # %%
 
-    def H3_z(diz):
-        global dk_z
-        if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
-            dk_z = 2 * k1_z - k3_z
-            return np.power(math.e, k3_z * diz * 1j) / (k3_z / size_PerPixel) * Eikz(
-                dk_z * diz) * diz * size_PerPixel \
-                   * (2 / (dk_z / k3_z + 2))
-        else:
-            return np.power(math.e, k3 * diz * 1j) / (k3 / size_PerPixel) * Eikz(
-                dk_z * diz) * diz * size_PerPixel * (2 / (dk_z / k3 + 2))
+    gan_U_oe, gan_U_VHoe, gan_U12 = \
+        gan_U_12VHoe_iterate(is_birefringence_deduced, is_air,
+                             is_twin_pump, is_add_polarizer, izj,
+                             g_shift, g2, g_o, g_e,
+                             g_Vo, g_Ve, g_Ho, g_He,
+                             k1_z, k2_z, k1o_z, k1e_z,
+                             k1_Vo_z, k1_Ve_z, k1_Ho_z, k1_He_z, )
+
+    # %%
+
+    match_type = kwargs.get("match_type", "oe")
+
+    # %%
 
     def fun1(for_th, fors_num, *args, **kwargs, ):
-        iz = izj[for_th]
+        modulation_squared_z = \
+            gan_modulation_squared_z_ssi(is_bulk, for_th, Ix, Iy,
+                                         sheets_num_endface, sheets_num_frontface,
+                                         is_no_backgroud, folder_address, is_save_txt, )
 
-        H1_z = np.power(math.e, k1_z * iz * 1j)
-        G1_z = g_shift * H1_z
-        U_z = ifft2(G1_z)
+        U1_z, U2_z, U1o_z, U1e_z, \
+        U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z = \
+            gan_U_12VHoe_z_iterate(is_birefringence_deduced, is_air,
+                                   for_th, is_add_polarizer,
+                                   gan_U_oe, gan_U_VHoe, gan_U12, )
 
-        if is_twin_pump == 1:
-            H2_z = np.power(math.e, k2_z * iz * 1j)
-            G2_z = g2 * H2_z
-            U2_z = ifft2(G2_z)
-        else:
-            U2_z = U_z
-
-        if is_bulk == 0:
-            if for_th >= sheets_num_frontface and for_th <= sheets_num_endface - 1:
-                modulation_squared_full_name = str(for_th - sheets_num_frontface) + (is_save_txt and ".txt" or ".mat")
-                modulation_squared_address = folder_address + "\\" + modulation_squared_full_name
-                modulation_squared_z = loadmat(modulation_squared_address)['chi2_modulation_squared']
-            else:
-                modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
-        else:
-            modulation_squared_z = np.ones((Ix, Iy), dtype=np.int64()) - is_no_backgroud
-
-        if cal_mode[0] == 1:  # 如果以 G 算
-
-            if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
-                if cal_mode[1] == 1:  # 若 源项 也衍射
-                    Q2_z = fft2(
-                        modulation_squared_z * U_z * U2_z * H3_z(dizj[for_th])
-                        / np.power(math.e, k3_z * diz * 1j))
-                else:
-                    Q2_z = fft2(modulation_squared_z * U_z * U2_z * H3_z(dizj[for_th]))
-            else:
-                Q2_z = fft2(modulation_squared_z * U_z * U2_z)
-
-            if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
-                dG3_zdz = const * Q2_z
-            else:
-                if cal_mode[1] == 1:  # 若 源项 也衍射
-                    dG3_zdz = const * Q2_z * H3_z(dizj[for_th]) \
-                              / np.power(math.e, k3 * diz * 1j)
-                else:
-                    dG3_zdz = const * Q2_z * H3_z(dizj[for_th])
-
-            return dG3_zdz
-
-        else:
-
-            S2_z = modulation_squared_z * U_z ** 2
-
-            if cal_mode[1] == 1:  # 若 源项 也衍射
-                if cal_mode[2] == 1:  # dk_z, k_2z 若是 matrix 版
-                    dU2_zdz = const * S2_z * H3_z(dizj[for_th]) / \
-                              np.power(math.e, k3_z * diz * 1j)
-                else:
-                    dU2_zdz = const * S2_z * H3_z(dizj[for_th]) / np.power(math.e, k3 * diz * 1j)
-            else:
-                dU2_zdz = const * S2_z * H3_z(dizj[for_th])
-
-            return dU2_zdz
+        dG3_zdz = SSF_iterate_123VHoe(is_birefringence_deduced, is_air,
+                                      is_add_polarizer, cal_mode,
+                                      dizj[for_th], size_PerPixel,
+                                      const, match_type,
+                                      k1o_z, k1e_z, k1_Vo_z, k1_Ve_z, k1_Ho_z, k1_He_z,
+                                      k1_z, k2_z, k3_z, k3, dk_z,
+                                      U1_z, U2_z,
+                                      U1o_z, U1e_z, U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z,
+                                      modulation_squared_z, )
+        return dG3_zdz
 
     def fun2(for_th, fors_num, dG3_zdz, *args, **kwargs, ):
 
-        if cal_mode[0] == 1:  # 如果以 G 算
+        G3_zdz = SSF_fun2(cal_mode, dG3_zdz,
+                          k3_z, dizj[for_th])
 
-            if cal_mode[1] == 1:  # 若 源项 也衍射
-                dset("G", (dget("G") + dG3_zdz) * H3_zdz(dizj[for_th]))
-            else:
-                dset("G", dget("G") * H3_zdz(dizj[for_th]) + dG3_zdz)
-
-            return dget("G")
-
-        else:
-
-            dU2_zdz = dG3_zdz
-
-            if cal_mode[1] == 1:  # 若 源项 也衍射
-                dset("U", ifft2(fft2(dget("U") + dU2_zdz) * H3_zdz(dizj[for_th])))
-            else:
-                dset("U", ifft2(fft2(dget("U")) * H3_zdz(dizj[for_th])) + dU2_zdz)
-
-            return dget("U")
+        return G3_zdz
 
     # %%
 
@@ -549,7 +662,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "e",
+         "polar": "e", "match_type": "oe",
          "polar3": "e", "ray": "2",
          }
 

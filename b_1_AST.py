@@ -328,7 +328,8 @@ def gan_nkgE_oe(g_p, p_p, is_print,
         init_AST_12oe(*args_init_AST, is_print,
                       p_p=p_p, is_end2=-1,  # 这里 p_ray=ray + "p" 中的 p 代表 polar
                       **kwargs_init_AST, **kwargs)
-
+    theta_x_o = Get("theta_x")
+    theta_y_o = Get("theta_y")
     # %%  晶体 abc 坐标系 -x y z 下的 kxy 网格上 各点的 k 单位矢量： kx 向 左 为正，ky 向 上 为正
     kwargs["polar"] = "e"
     kwargs_init_AST["gp"] = g_p
@@ -336,6 +337,14 @@ def gan_nkgE_oe(g_p, p_p, is_print,
         init_AST_12oe(*args_init_AST, is_print,
                       p_p=p_p, add_level=1,
                       **kwargs_init_AST, **kwargs)
+    theta_x_e = Get("theta_x")
+    theta_y_e = Get("theta_y")
+    # %%
+    from fun_global_var import Set  # 在 b_3_SFG_NLA 中的 gan_args_SHG_oe 中的 accurate_args_SFG 中会用到，但也仅仅只是近似。
+    Set("theta_x", theta_x_o)
+    Set("theta_y", theta_y_o)
+    Set("theta2_x", theta_x_e)
+    Set("theta2_y", theta_y_e)
     return n1o_inc, n1o, k1o_inc, k1o, k1o_z, k1o_xy, g_o, E_uo, \
            n1e_inc, n1e, k1e_inc, k1e, k1e_z, k1e_xy, g_e, E_ue
 
@@ -351,7 +360,8 @@ def gan_nkgE_VHoe(g_V, p_V, g_H, p_H, is_print,
         init_AST_12oe(*args_init_AST, is_print,
                       p_p=p_V, p_ray="V", is_end2=-1,
                       **kwargs_init_AST, **kwargs)
-
+    theta_x_Vo = Get("theta_x")
+    theta_y_Vo = Get("theta_y")
     # %%  V 的 e 分量
     kwargs["polar"] = "e"
     kwargs_init_AST["gp"] = g_V
@@ -359,6 +369,8 @@ def gan_nkgE_VHoe(g_V, p_V, g_H, p_H, is_print,
         init_AST_12oe(*args_init_AST, is_print,
                       p_p=p_V, p_ray="V", add_level=1, is_end2=-1,
                       **kwargs_init_AST, **kwargs)
+    theta_x_Ve = Get("theta_x")
+    theta_y_Ve = Get("theta_y")
     # %%  H 的 o 分量
     kwargs["polar"] = "o"
     kwargs_init_AST["gp"] = g_H
@@ -366,7 +378,8 @@ def gan_nkgE_VHoe(g_V, p_V, g_H, p_H, is_print,
         init_AST_12oe(*args_init_AST, is_print,
                       p_p=p_H, p_ray="H", add_level=1, is_end2=-1,
                       **kwargs_init_AST, **kwargs)
-
+    theta_x_Ho = Get("theta_x")
+    theta_y_Ho = Get("theta_y")
     # %%  H 的 e 分量
     kwargs["polar"] = "e"
     kwargs_init_AST["gp"] = g_H
@@ -374,6 +387,14 @@ def gan_nkgE_VHoe(g_V, p_V, g_H, p_H, is_print,
         init_AST_12oe(*args_init_AST, is_print,
                       p_p=p_H, p_ray="H", add_level=1,
                       **kwargs_init_AST, **kwargs)
+    theta_x_He = Get("theta_x")
+    theta_y_He = Get("theta_y")
+    # %%
+    from fun_global_var import Set  # 在 b_3_SFG_NLA 中的 gan_args_SHG_VHoe 中的 accurate_args_SFG 中会用到，但也仅仅只是近似。
+    Set("theta_x", (theta_x_Vo + theta_x_Ho) / 2)
+    Set("theta_y", (theta_y_Vo + theta_y_Ho) / 2)
+    Set("theta2_x", (theta_x_Ve + theta_x_He) / 2)
+    Set("theta2_y", (theta_y_Ve + theta_y_He) / 2)
     # g_o = g_Vo + g_Ho  # 不知道 能不能 加在一起，他们的 D, k 方向一样，但 E, S 方向不一样
     # g_e = g_Ve + g_He  # 不知道 能不能 加在一起，他们的 D, k 方向一样，但 E, S 方向不一样
     return n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo, \
