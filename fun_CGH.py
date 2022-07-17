@@ -12,7 +12,7 @@ import numpy as np
 from fun_os import U_dir, U_amp_plot_save
 from fun_global_var import Get, tree_print
 from fun_pump import pump_pic_or_U_structure
-from fun_linear import init_AST_12oe, fft2
+from fun_linear import init_AST_12oe, fft2, ifft2
 from fun_nonlinear import args_SFG
 
 
@@ -279,8 +279,8 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     g_shift = kwargs.get("g1", 0)
     g2 = kwargs.get("g2", 0)
-    U_0 = fft2(g_shift) if type(g_shift) == np.ndarray else 0
-    U2_0 = fft2(g2) if type(g2) == np.ndarray else 0
+    U_0 = ifft2(g_shift) if type(g_shift) == np.ndarray else 0
+    U2_0 = ifft2(g2) if type(g2) == np.ndarray else 0
 
     args_init_AST = \
         [Ix, Iy, size_PerPixel,
@@ -796,9 +796,9 @@ def structure_n1_Generate_2D(U_structure_name="",
 
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_shift, E1_u = \
         init_AST_12oe(Ix, Iy, size_PerPixel,
-                     lam1, is_air, T,
-                     theta_x, theta_y, is_print,
-                     is_air_pump=is_air_pump, **kwargs, )
+                      lam1, is_air, T,
+                      theta_x, theta_y, is_print,
+                      is_air_pump=is_air_pump, **kwargs, )
 
     dk_z, lc, Tz, \
     Gx, Gy, Gz, \

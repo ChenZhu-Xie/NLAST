@@ -249,7 +249,7 @@ def propagation_profile_U(Ix=0, Iy=0, size_PerPixel=0.77,
     H_z0_shift = np.power(math.e, kz_shift * i_z0 * 1j)
 
     U_z0 = U * H_z0_shift
-    G_z0_shift = ifft2(U_z0)
+    G_z0_shift = fft2(U_z0)
 
     return U_z0, G_z0_shift
 

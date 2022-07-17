@@ -566,10 +566,10 @@ def NLA(iz, is_fft, fft_mode,
 # %%
 
 def gan_U_VHoe(g_o, g_e, g_Vo, g_Ho, g_Ve, g_He):
-    from fun_linear import fft2
-    U_o, U_e = fft2(g_o) if type(g_o) == np.ndarray else 0, fft2(g_e) if type(g_e) == np.ndarray else 0
-    U_Vo, U_Ve = fft2(g_Vo) if type(g_Vo) == np.ndarray else 0, fft2(g_Ve) if type(g_Ve) == np.ndarray else 0
-    U_Ho, U_He = fft2(g_Ho) if type(g_Ho) == np.ndarray else 0, fft2(g_He) if type(g_He) == np.ndarray else 0
+    from fun_linear import ifft2
+    U_o, U_e = ifft2(g_o) if type(g_o) == np.ndarray else 0, ifft2(g_e) if type(g_e) == np.ndarray else 0
+    U_Vo, U_Ve = ifft2(g_Vo) if type(g_Vo) == np.ndarray else 0, ifft2(g_Ve) if type(g_Ve) == np.ndarray else 0
+    U_Ho, U_He = ifft2(g_Ho) if type(g_Ho) == np.ndarray else 0, ifft2(g_He) if type(g_He) == np.ndarray else 0
     return U_o, U_e, U_Vo, U_Ve, U_Ho, U_He
 
 

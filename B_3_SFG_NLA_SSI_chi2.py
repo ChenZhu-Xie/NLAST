@@ -652,13 +652,13 @@ if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
          "img_full_name": "lena1.png",
-         "U_pixels_x": 500, "U_pixels_y": 500,
+         "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
          "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 10, "p": 0,
-         "theta_x": 1, "theta_y": 0,
+         "l": -50, "p": 0,
+         "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -677,9 +677,9 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_size": 1.5, "w0": 0.05,
+         "U_size": 1, "w0": 0.05,
          "L0_Crystal": 10, "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 2,
-         "SSI_zoomout_times": 1, "sheets_stored_num": 15,
+         "SSI_zoomout_times": 1, "sheets_stored_num": 10,
          "z0_section_1_expect": 1, "z0_section_2_expect": 1,
          "X": 0, "Y": 0,
          # %%
@@ -690,12 +690,12 @@ if __name__ == '__main__':
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_birefringence_SHG": 0 是否 考虑 双折射
-         "is_HOPS_SHG": 0,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "is_HOPS_SHG": 1,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
          # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
          "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
          # %%
-         "Tx": 18.769, "Ty": 20, "Tz": 1000,
+         "Tx": 18.769, "Ty": 20, "Tz": 500,
          "mx": 0, "my": 0, "mz": 0,
          "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
          # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
@@ -726,7 +726,7 @@ if __name__ == '__main__':
          "is_colorbar_on": 1, "is_colorbar_log": -1,
          "is_energy": 1,
          # %%
-         "plot_group": "Ga", "is_animated": 1,
+         "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %%
          "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
@@ -746,7 +746,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "o", "match_type": "oe",
+         "polar": "R", "match_type": "oe",
          "polar3": "o", "ray": "3",
          }
 
@@ -758,8 +758,8 @@ if __name__ == '__main__':
             # %%
             "z_pump2": -5,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 10, "p2": 0,
-            "theta2_x": 1, "theta2_y": 0,
+            "l2": 50, "p2": 0,
+            "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
             "is_H_l2": 0, "is_H_theta2": 0, "is_H_random_phase_2": 0,
@@ -767,7 +767,7 @@ if __name__ == '__main__':
             "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
-            "polar2": 'e',
+            "polar2": 'L',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
         # Object of type dict_keys is not JSON serializable，所以 得转为 list

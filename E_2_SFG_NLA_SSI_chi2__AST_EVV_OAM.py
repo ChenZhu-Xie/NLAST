@@ -309,7 +309,7 @@ if __name__ == '__main__':
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          "deff": 30,
          # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_birefringence_SHG": 0 是否 考虑 双折射
-         "is_HOPS_SHG": 0,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "is_HOPS_SHG": 2.1,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
          # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
          "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
@@ -326,7 +326,7 @@ if __name__ == '__main__':
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
          # %%
-         "is_save": 0, "is_no_data_save": 0,
+         "is_save": 1, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
          # %%
          "color_1d": 'b', "cmap_2d": 'viridis', "cmap_3d": 'rainbow',
@@ -367,7 +367,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "o", "match_type": "oe",
+         "polar": "V", "match_type": "oe",
          "polar3": "o", "ray": "3",
          }
 
@@ -388,7 +388,7 @@ if __name__ == '__main__':
             "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
-            "polar2": 'e',
+            "polar2": 'H',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
         # Object of type dict_keys is not JSON serializable，所以 得转为 list

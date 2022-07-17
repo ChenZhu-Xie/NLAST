@@ -165,8 +165,7 @@ def gan_U_12VHoe_iterate(is_birefringence_deduced, is_air,
 
                 G1o_z = g_o * H_zdz(k1o_z, iz)
                 G1e_z = g_e * H_zdz(k1e_z, iz)
-                from fun_linear import fft2
-                U1o_z, U1e_z = fft2(G1o_z), fft2(G1e_z)
+                U1o_z, U1e_z = ifft2(G1o_z), ifft2(G1e_z)
 
                 return U1o_z, U1e_z
 
@@ -179,9 +178,8 @@ def gan_U_12VHoe_iterate(is_birefringence_deduced, is_air,
                 G1_Ve_z = g_Ve * H_zdz(k1_Ve_z, iz)
                 G1_Ho_z = g_Ho * H_zdz(k1_Ho_z, iz)
                 G1_He_z = g_He * H_zdz(k1_He_z, iz)
-                from fun_linear import fft2
-                U1_Vo_z, U1_Ve_z = fft2(G1_Vo_z), fft2(G1_Ve_z)
-                U1_Ho_z, U1_He_z = fft2(G1_Ho_z), fft2(G1_He_z)
+                U1_Vo_z, U1_Ve_z = ifft2(G1_Vo_z), ifft2(G1_Ve_z)
+                U1_Ho_z, U1_He_z = ifft2(G1_Ho_z), ifft2(G1_He_z)
 
                 return U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z
 
@@ -678,7 +676,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          # %%
          "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）

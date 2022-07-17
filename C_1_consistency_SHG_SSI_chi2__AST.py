@@ -413,7 +413,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          # %%
          "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）

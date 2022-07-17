@@ -406,8 +406,7 @@ def SFG_NLA_EVV(U_name="",
                 if is_EVV_SSI == 1:
                     G1o_z = g_o * H_zdz(k1o_z, iz)
                     G1e_z = g_e * H_zdz(k1e_z, iz)
-                    from fun_linear import fft2
-                    U1o_z, U1e_z = fft2(G1o_z), fft2(G1e_z)
+                    U1o_z, U1e_z = ifft2(G1o_z), ifft2(G1e_z)
                 else:
                     G1o_z = g_o
                     G1e_z = g_e
@@ -425,9 +424,8 @@ def SFG_NLA_EVV(U_name="",
                     G1_Ve_z = g_Ve * H_zdz(k1_Ve_z, iz)
                     G1_Ho_z = g_Ho * H_zdz(k1_Ho_z, iz)
                     G1_He_z = g_He * H_zdz(k1_He_z, iz)
-                    from fun_linear import fft2
-                    U1_Vo_z, U1_Ve_z = fft2(G1_Vo_z), fft2(G1_Ve_z)
-                    U1_Ho_z, U1_He_z = fft2(G1_Ho_z), fft2(G1_He_z)
+                    U1_Vo_z, U1_Ve_z = ifft2(G1_Vo_z), ifft2(G1_Ve_z)
+                    U1_Ho_z, U1_He_z = ifft2(G1_Ho_z), ifft2(G1_He_z)
                 else:
                     G1_Vo_z = g_Vo
                     G1_Ve_z = g_Ve
@@ -605,7 +603,7 @@ if __name__ == '__main__':
          "U_pixels_x": 300, "U_pixels_y": 300,
          "is_phase_only": 0,
          # %%
-         "z_pump": 0,
+         "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
          "l": -50, "p": 0,
          "theta_x": 0, "theta_y": 0,
@@ -633,7 +631,7 @@ if __name__ == '__main__':
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
          # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_birefringence_SHG": 0 是否 考虑 双折射
-         "is_HOPS_SHG": 2.1,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         "is_HOPS_SHG": 1,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
          # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
          "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
@@ -651,7 +649,7 @@ if __name__ == '__main__':
          # %%
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
-         "is_stored": 0, "is_energy_evolution_on": 1,
+         "is_stored": 1, "is_energy_evolution_on": 1,
          # %%
          "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
@@ -669,13 +667,13 @@ if __name__ == '__main__':
                   'color': 'black',  # 'black','gray','darkred'
                   },
          # %%
-         "is_colorbar_on": 1, "is_colorbar_log": 2,
+         "is_colorbar_on": 1, "is_colorbar_log": -1,
          "is_energy": 1,
          # %%
          "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
          "X": 0, "Y": 0, "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
          # %%
-         "plot_group": "Ua", "is_animated": 1,
+         "plot_group": "UGa", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
          # %%
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
@@ -686,7 +684,7 @@ if __name__ == '__main__':
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
          # %%
-         "size_fig_x_scale": 10, "size_fig_y_scale": 1,
+         "size_fig_x_scale": 10, "size_fig_y_scale": 2,
          # %%
          "theta_z": 90, "phi_z": 90, "phi_c": 23.8,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
@@ -694,7 +692,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "V", "match_type": "oe",
+         "polar": "R", "match_type": "oe",
          "polar3": "o", "ray": "3",
          }
 
@@ -704,7 +702,7 @@ if __name__ == '__main__':
             "img2_full_name": "lena1.png",
             "is_phase_only_2": 0,
             # %%
-            "z_pump2": 0,
+            "z_pump2": -5,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
             "l2": 50, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
@@ -715,7 +713,7 @@ if __name__ == '__main__':
             "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
-            "polar2": 'H',
+            "polar2": 'L',
         }
         pump2_kwargs.update({"pump2_keys": list(pump2_kwargs.keys())})
         # Object of type dict_keys is not JSON serializable，所以 得转为 list
