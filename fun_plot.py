@@ -228,8 +228,8 @@ def is_mjrFormatter_sci(ticklabels):
 
 # %%
 
-def format_dict(fontsize, font, add_size=0):
-    return {"fontsize": fontsize + add_size, "fontdict": font}
+def format_dict(fontsize, font, add_size=1):
+    return {"fontsize": fontsize * add_size, "fontdict": font}
 
 
 # %%
@@ -253,6 +253,7 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
             # %% 可选 参数（可不传入）
             xlabel='', ylabel='', xlabel2='', ylabel2='', **kwargs, ):
     fontsize += 10  # plot_1d 的 图，稍微要大点，所以 字号 得大点
+    # print(size_fig_x)
     # %%
     # fig, ax1 = plt.subplots(1, 1, figsize=(size_fig_x, size_fig_y), dpi=dpi)
     fig = plt.figure(figsize=(size_fig_x, size_fig_y), dpi=dpi)
@@ -315,19 +316,19 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
                     xticks = kwargs["ax1_xticklabel"]  # 这个一般是 zj
                     xticklabels = [float('%.3f' % i) for i in xticks]
                     ax1.set_xticks(xticks)  # 则 第1个x轴的 label 需要与之 对齐，则保留原汁原味的 zj 作为 刻度 和 刻度的 label。
-                    ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+                    ax1.set_xticklabels(xticklabels, **format_dict(size_fig_y * 4, font))
                 else:
                     xticks, xticklabels = gan_ticks(ix_new[-1], ticks_num, Min=ix_new[0])
                     ax1.set_xticks(xticks)
-                    ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+                    ax1.set_xticklabels(xticklabels, **format_dict(size_fig_y * 4, font))
             else:
                 xticks, xticklabels = gan_ticks(Ix * size_PerPixel, ticks_num, is_centered=1)
                 ax1.set_xticks(xticks)
-                ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+                ax1.set_xticklabels(xticklabels, **format_dict(size_fig_y * 4, font))
         else:
             xticks, xticklabels = gan_ticks(Iz, ticks_num)
             ax1.set_xticks(xticks)
-            ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+            ax1.set_xticklabels(xticklabels, **format_dict(size_fig_y * 4, font))
 
         # if 'ax1_yscale' in kwargs or 'ax1_xticklabel' in kwargs:
         #     # ax1.set_yscale(kwargs.get('ax1_yscale', 'log'))
@@ -345,7 +346,7 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
 
         ax1_yticks, ax1_yticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
         ax1.set_yticks(ax1_yticks)
-        ax1.set_yticklabels(ax1_yticklabels, **format_dict(fontsize, font))
+        ax1.set_yticklabels(ax1_yticklabels, **format_dict(size_fig_y * 4, font))
 
         if is_mjrFormatter_sci(xticklabels):
             ax1.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
@@ -357,8 +358,8 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
                 # ax1.yaxis.set_major_formatter(logfmt)
                 ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_log))
 
-        ax1.set_xlabel(xlabel, **format_dict(fontsize, font))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_ylabel(ylabel, **format_dict(fontsize, font))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_xlabel(xlabel, **format_dict(size_fig_y * 4, font))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_ylabel(ylabel, **format_dict(size_fig_y * 4, font))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
 
     # %% 画 第 1 条 曲线
 
@@ -405,7 +406,7 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
                 else:
                     #  这里的 xticks 自动是 zj、ix_new、Ix 等，is_mm、is_propagation 都包含进了
                     ax2.set_xticks(xticks)  # ax2 是 Tz，不像 dkzQ，是非线性变化的，所以不能人工 gan 其刻度，也不能有 ix2_new。
-                    ax2.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+                    ax2.set_xticklabels(xticklabels, **format_dict(size_fig_y * 4, font))
             else:
                 ax2.set_xticks(())  # 否则 ax2 的 x 不设刻度
 
@@ -430,7 +431,7 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
 
             ax2_yticks, ax2_yticklabels = gan_ticks(vmax2, ticks_num, Min=vmin2)
             ax2.set_yticks(ax2_yticks)
-            ax2.set_yticklabels(ax2_yticklabels, **format_dict(fontsize, font))
+            ax2.set_yticklabels(ax2_yticklabels, **format_dict(size_fig_y * 4, font))
 
             if is_mjrFormatter_sci(xticklabels):
                 ax2.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
@@ -442,8 +443,8 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
                     # ax2.yaxis.set_major_formatter(logfmt)
                     ax2.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_log))
 
-            ax2.set_xlabel(xlabel2, **format_dict(fontsize, font))
-            ax2.set_ylabel(ylabel2, **format_dict(fontsize, font))
+            ax2.set_xlabel(xlabel2, **format_dict(size_fig_y * 4, font))
+            ax2.set_ylabel(ylabel2, **format_dict(size_fig_y * 4, font))
 
         ax2_plot_dict = {"color": color_1d2, "label": kwargs.get('label2', None)}
         ax2_plot_dict.update({"alpha": kwargs.get("ax2_alpha", 1),  # 1 即 不透明
@@ -534,9 +535,9 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
         # fig.suptitle(array1D_title, fontsize=fontsize+add_size, fontdict=font)
         # sgtitle 放置位置与 suptitle 相似，必须将其放在所有 subplot 的最后
         if "l2" in kwargs:
-            ax2.set_title(array1D_title, **format_dict(fontsize, font, kwargs.get("add_size", 5)))
+            ax2.set_title(array1D_title, **format_dict(size_fig_y * 4, font, 1.3))
         else:
-            ax1.set_title(array1D_title, **format_dict(fontsize, font, kwargs.get("add_size", 5)))
+            ax1.set_title(array1D_title, **format_dict(size_fig_y * 4, font, 1.3))
 
     plt.show()
 
@@ -579,7 +580,7 @@ def energy_log10_colorbar(array2D_new, is_energy,
 
 # %%
 
-def add_right_cax(ax, pad, width):
+def add_right_cax(ax, pad=0.05, width=0.05, height=0.0, ):
     '''
     在一个ax右边追加与之等高的cax.
     pad是cax与ax的间距.
@@ -588,9 +589,9 @@ def add_right_cax(ax, pad, width):
     axpos = ax.get_position()
     caxpos = mpl.transforms.Bbox.from_extents(
         axpos.x1 + pad,
-        axpos.y0,
+        axpos.y0 + height,
         axpos.x1 + pad + width,
-        axpos.y1
+        axpos.y1 - height,
     )
     cax = ax.figure.add_axes(caxpos)
 
@@ -622,7 +623,7 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
     fig = plt.figure(figsize=(size_fig, size_fig), dpi=dpi)
     ax1 = fig.add_subplot(111, label="1")
     fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-
+    # print(size_fig)
     # %% 插值 begin
 
     Ix, Iy = array2D.shape[1], array2D.shape[0]
@@ -682,13 +683,13 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
                 # xticks = [find_nearest(ix_new, z)[0] for z in xticks_z]
                 ax1.set_xticks(xticks)
                 # ax1.set_xticklabels([float('%.3f' % i) for i in ix_new[list(xticks_z)]], fontsize=fontsize, fontdict=font)
-                ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+                ax1.set_xticklabels(xticklabels, **format_dict(size_fig * 4, font))
             else:
                 xticks, xticklabels = gan_ticks(Ix * size_PerPixel, ticks_num, is_centered=1, I=Ix)
                 # array_x = np.arange(0, Ix*size_PerPixel, size_PerPixel)
                 # xticks = [find_nearest(array_x, x)[0] for x in xticks_x]
                 ax1.set_xticks(xticks)
-                ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+                ax1.set_xticklabels(xticklabels, **format_dict(size_fig * 4, font))
 
             if kwargs.get("is_propa_ax_reverse", 0) == 0:
                 yticks, yticklabels = gan_ticks(Iy * size_PerPixel, ticks_num, is_centered=1, I=Iy)
@@ -696,26 +697,26 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
                 # yticks = [find_nearest(array_y, y)[0] for y in yticks_y]
                 yticklabels = [-y for y in yticklabels]
                 ax1.set_yticks(yticks)
-                ax1.set_yticklabels(yticklabels, **format_dict(fontsize, font))
+                ax1.set_yticklabels(yticklabels, **format_dict(size_fig * 4, font))
             else:
                 yticks, yticklabels = gan_ticks(ix_new[-1], ticks_num, Min=ix_new[0], I=Iz_new, reverse=1)
                 ax1.set_yticks(yticks)
-                ax1.set_yticklabels(yticklabels, **format_dict(fontsize, font))
+                ax1.set_yticklabels(yticklabels, **format_dict(size_fig * 4, font))
         else:
             xticks, xticklabels = gan_ticks(Ix, ticks_num)
             ax1.set_xticks(xticks)
-            ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+            ax1.set_xticklabels(xticklabels, **format_dict(size_fig * 4, font))
             yticks, yticklabels = gan_ticks(Iy, ticks_num)
             ax1.set_yticks(yticks)
-            ax1.set_yticklabels(yticklabels, **format_dict(fontsize, font))
+            ax1.set_yticklabels(yticklabels, **format_dict(size_fig * 4, font))
 
         if is_mjrFormatter_sci(xticklabels):
             ax1.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
         if is_mjrFormatter_sci(yticklabels):
             ax1.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
 
-        ax1.set_xlabel(xlabel, **format_dict(fontsize, font))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_ylabel(ylabel, **format_dict(fontsize, font))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_xlabel(xlabel, **format_dict(size_fig * 4, font))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_ylabel(ylabel, **format_dict(size_fig * 4, font))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
 
     vmax = kwargs.get("vmax", np.max(array2D_new))
     vmin = kwargs.get("vmin", np.min(array2D_new))
@@ -746,7 +747,7 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
         cax = add_right_cax(ax1, pad=0.05, width=0.05)
         cb = fig.colorbar(img, cax=cax)
         # cb = fig.colorbar(img, cax=cax, extend='both')
-        cb.ax.tick_params(labelsize=fontsize)  # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
+        cb.ax.tick_params(labelsize=size_fig * 4)  # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
         if is_self_colorbar != 1:
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
@@ -756,11 +757,11 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
                 cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
             if kwargs.get("is_colorbar_log", 0) >= 1 and add_con:
                 cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_log))
-        cb.set_label(clabel, **format_dict(fontsize, font))  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
+        cb.set_label(clabel, **format_dict(size_fig * 4, font))  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
     array2D_title = array2D_title if is_energy != 1 else array2D_title + "_Squared"
     if is_title_on:
-        ax1.set_title(array2D_title, **format_dict(fontsize, font, kwargs.get("add_size", 3)))
+        ax1.set_title(array2D_title, **format_dict(size_fig * 4, font, 1.2))
 
     if is_title_on == 0 and is_axes_on == 0 and is_colorbar_on == 0:
         ax1.margins(0, 0)
@@ -875,26 +876,26 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
         if is_mm == 1:
             xticks, xticklabels = gan_ticks(ix_new[-1], ticks_num, Min=ix_new[0], I=Iz_new)
             ax1.set_xticks(xticks)
-            ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+            ax1.set_xticklabels(xticklabels, **format_dict(size_fig_3D_y * 1.2, font))
 
             yticks, yticklabels = gan_ticks(Ix * size_PerPixel, ticks_num, is_centered=1, I=Ix)
             ax1.set_yticks(yticks)
-            ax1.set_yticklabels(yticklabels, **format_dict(fontsize, font))
+            ax1.set_yticklabels(yticklabels, **format_dict(size_fig_3D_y * 1.2, font))
 
             zticks, zticklabels = gan_ticks(Iy * size_PerPixel, ticks_num, is_centered=1, I=Iy)
             # zticklabels = [-z for z in zticklabels]
             ax1.set_zticks(zticks)
-            ax1.set_zticklabels(zticklabels, **format_dict(fontsize, font))
+            ax1.set_zticklabels(zticklabels, **format_dict(size_fig_3D_y * 1.2, font))
         else:
             xticks, xticklabels = gan_ticks(Iz_new, ticks_num)
             ax1.set_xticks(xticks)
-            ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+            ax1.set_xticklabels(xticklabels, **format_dict(size_fig_3D_y * 1.2, font))
             yticks, yticklabels = gan_ticks(Ix, ticks_num)
             ax1.set_yticks(yticks)
-            ax1.set_yticklabels(yticklabels, **format_dict(fontsize, font))
+            ax1.set_yticklabels(yticklabels, **format_dict(size_fig_3D_y * 1.2, font))
             zticks, zticklabels = gan_ticks(Iy, ticks_num)
             ax1.set_zticks(zticks)
-            ax1.set_zticklabels(zticklabels, **format_dict(fontsize, font))
+            ax1.set_zticklabels(zticklabels, **format_dict(size_fig_3D_y * 1.2, font))
 
         if is_mjrFormatter_sci(xticklabels):
             ax1.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
@@ -903,9 +904,9 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
         if is_mjrFormatter_sci(zticklabels):
             ax1.zaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
 
-        ax1.set_xlabel(xlabel, **format_dict(fontsize, font))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_ylabel(ylabel, **format_dict(fontsize, font))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_zlabel(zlabel, **format_dict(fontsize, font))  # 设置 z 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_xlabel(xlabel, **format_dict(size_fig_3D_y * 1.2, font, 1.2))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_ylabel(ylabel, **format_dict(size_fig_3D_y * 1.2, font, 1.2))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_zlabel(zlabel, **format_dict(size_fig_3D_y * 1.2, font, 1.2))  # 设置 z 轴的 标签名、标签字体；字体大小 fontsize=fontsize
 
     ax1.view_init(elev=elev, azim=azim)  # 后一个为负 = 绕 z 轴逆时针
 
@@ -971,21 +972,21 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
                                 c=U_structure_end, **color_3d_dict, vmin=vmin, vmax=vmax)
 
     if is_colorbar_on == 1:
-        cax = add_right_cax(ax1, pad=0.05, width=0.05)
+        cax = add_right_cax(ax1, pad=0.03, width=0.03, height=0.2, )
         cb = fig.colorbar(img, cax=cax)
         # cb = fig.colorbar(img, cax=cax, extend='both')
-        cb.ax.tick_params(labelsize=fontsize)  # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
+        cb.ax.tick_params(labelsize=size_fig_3D_y * 1.2)  # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
         if is_self_colorbar != 1:
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
             if is_mjrFormatter_sci(cticklabels):
                 cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
-        cb.set_label(clabel, **format_dict(fontsize, font))  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
+        cb.set_label(clabel, **format_dict(size_fig_3D_y * 1.2, font))  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
     img_title = img_title if is_energy != 1 else img_title + "_Squared"
     if is_title_on:
-        ax1.set_title(img_title, **format_dict(fontsize, font, kwargs.get("add_size", 3)))
+        ax1.set_title(img_title, **format_dict(size_fig_3D_y * 1.2, font, 1.2))
 
     plt.show()
 
@@ -1056,26 +1057,26 @@ def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
         if is_mm == 1:
             xticks, xticklabels = gan_ticks(ix_new[-1], ticks_num, Min=ix_new[0], I=Iz_new)
             ax1.set_xticks(xticks)
-            ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+            ax1.set_xticklabels(xticklabels, **format_dict(size_fig_3D_y * 1.2, font))
 
             yticks, yticklabels = gan_ticks(Ix * size_PerPixel, ticks_num, is_centered=1, I=Ix)
             ax1.set_yticks(yticks)
-            ax1.set_yticklabels(yticklabels, **format_dict(fontsize, font))
+            ax1.set_yticklabels(yticklabels, **format_dict(size_fig_3D_y * 1.2, font))
 
             zticks, zticklabels = gan_ticks(Iy * size_PerPixel, ticks_num, is_centered=1, I=Iy)
             # zticklabels = [-z for z in zticklabels]
             ax1.set_zticks(zticks)
-            ax1.set_zticklabels(zticklabels, **format_dict(fontsize, font))
+            ax1.set_zticklabels(zticklabels, **format_dict(size_fig_3D_y * 1.2, font))
         else:
             xticks, xticklabels = gan_ticks(Iz_new, ticks_num)
             ax1.set_xticks(xticks)
-            ax1.set_xticklabels(xticklabels, **format_dict(fontsize, font))
+            ax1.set_xticklabels(xticklabels, **format_dict(size_fig_3D_y * 1.2, font))
             yticks, yticklabels = gan_ticks(Ix, ticks_num)
             ax1.set_yticks(yticks)
-            ax1.set_yticklabels(yticklabels, **format_dict(fontsize, font))
+            ax1.set_yticklabels(yticklabels, **format_dict(size_fig_3D_y * 1.2, font))
             zticks, zticklabels = gan_ticks(Iy, ticks_num)
             ax1.set_zticks(zticks)
-            ax1.set_zticklabels(zticklabels, **format_dict(fontsize, font))
+            ax1.set_zticklabels(zticklabels, **format_dict(size_fig_3D_y * 1.2, font))
 
         if is_mjrFormatter_sci(xticklabels):
             ax1.xaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
@@ -1084,9 +1085,9 @@ def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
         if is_mjrFormatter_sci(zticklabels):
             ax1.zaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
 
-        ax1.set_xlabel(xlabel, **format_dict(fontsize, font))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_ylabel(ylabel, **format_dict(fontsize, font))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_zlabel(zlabel, **format_dict(fontsize, font))  # 设置 z 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_xlabel(xlabel, **format_dict(size_fig_3D_y * 1.2, font, 1.2))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_ylabel(ylabel, **format_dict(size_fig_3D_y * 1.2, font, 1.2))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_zlabel(zlabel, **format_dict(size_fig_3D_y * 1.2, font, 1.2))  # 设置 z 轴的 标签名、标签字体；字体大小 fontsize=fontsize
 
     ax1.view_init(elev=elev, azim=azim);  # 后一个为负 = 绕 z 轴逆时针
 
@@ -1132,21 +1133,21 @@ def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
                                 vmin=vmin, vmax=vmax)
 
     if is_colorbar_on == 1:
-        cax = add_right_cax(ax1, pad=0.05, width=0.05)
+        cax = add_right_cax(ax1, pad=0.03, width=0.03, height=0.03, )
         cb = fig.colorbar(img, cax=cax)
         # cb = fig.colorbar(img, cax=cax, extend='both')
-        cb.ax.tick_params(labelsize=fontsize)  # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
+        cb.ax.tick_params(labelsize=size_fig_3D_y * 1.2)  # 设置 colorbar 刻度字体；字体大小 labelsize=fontsize。 # Text 对象没有 fontdict 标签
         if is_self_colorbar != 1:
             cticks, cticklabels = gan_ticks(vmax, ticks_num, Min=vmin)
             cb.set_ticks(cticks)
             cb.set_ticklabels(cticklabels)
             if is_mjrFormatter_sci(cticklabels):
                 cb.ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
-        cb.set_label(clabel, **format_dict(fontsize, font))  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
+        cb.set_label(clabel, **format_dict(size_fig_3D_y * 1.2, font))  # 设置 colorbar 的 标签名、标签字体；字体大小 fontsize=fontsize
 
     img_title = img_title if is_energy != 1 else img_title + "_Squared"
     if is_title_on:
-        ax1.set_title(img_title, **format_dict(fontsize, font, kwargs.get("add_size", 3)))
+        ax1.set_title(img_title, **format_dict(size_fig_3D_y * 1.2, font, 1.2))
 
     plt.show()
 

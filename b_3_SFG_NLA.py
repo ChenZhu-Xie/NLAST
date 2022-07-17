@@ -229,17 +229,20 @@ def plot_n_123(ray_tag, is_save,
                args_U_amp_plot_save,
                kwargs_U_amp_plot_save, **kwargs, ):
     from fun_os import U_dir, U_amp_plot_save
+    kwargs['p_dir'] = 'PUMP'
+    method = "DIFF"
     # %% 晶体内 o 光 折射率 分布
 
-    n_p1_name = "n" + "p1"
+    n_p1_name = method + " - " + "n" + "p1"
     folder_address = U_dir(n_p1_name, is_save, **kwargs, )
     U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1, n_p1_name),
                     **kwargs_U_amp_plot_save, **kwargs, )
-    n_p2_name = "n" + "p2"
+    # kwargs['p_dir'] = 'PUMP - 2'
+    n_p2_name = method + " - " + "n" + "p2"
     folder_address = U_dir(n_p2_name, is_save, **kwargs, )
     U_amp_plot_save(*args_U_amp_plot_save(folder_address, n2, n_p2_name),
                     **kwargs_U_amp_plot_save, **kwargs, )
-    n_p2_name = "n" + ray_tag + "3"
+    n_p2_name = method + " - " + "n" + ray_tag + "3"
     folder_address = U_dir(n_p2_name, is_save, **kwargs, )
     U_amp_plot_save(*args_U_amp_plot_save(folder_address, n3, n_p2_name),
                     **kwargs_U_amp_plot_save, **kwargs, )
@@ -917,7 +920,7 @@ def SFG_NLA(U_name="",
                 is_save_txt,
                 # %%
                 [], 1, size_PerPixel,
-                0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                is_save, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
                 # %%
                 cmap_2d, ticks_num, is_contourf,
                 is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0

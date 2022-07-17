@@ -249,7 +249,7 @@ def SFG_SSF_SSI(U_name="",
                 is_save_txt,
                 # %%
                 [], 1, size_PerPixel,
-                0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                is_save, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
                 # %%
                 cmap_2d, ticks_num, is_contourf,
                 is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0

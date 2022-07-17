@@ -412,19 +412,21 @@ def plot_n_VHoe(n_name, is_save,
                 args_U_amp_plot_save,
                 kwargs_U_amp_plot_save, **kwargs, ):
     from fun_os import U_dir, U_amp_plot_save
+    kwargs['p_dir'] = 'PUMP'
+    method = "DIFF"
     # %% 晶体内 o 光 折射率 分布
 
     if is_add_polarizer == 1:
-        no_name = n_name + "o"
+        no_name = method + " - " + n_name + "o"
         folder_address = U_dir(no_name, is_save, **kwargs, )
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1o, no_name),
                         **kwargs_U_amp_plot_save, **kwargs, )
     else:
-        n_Vo_name = n_name + "Vo"
+        n_Vo_name = method + " - " + n_name + "Vo"
         folder_address = U_dir(n_Vo_name, is_save, **kwargs, )
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Vo, n_Vo_name),
                         **kwargs_U_amp_plot_save, **kwargs, )
-        n_Ho_name = n_name + "Ho"
+        n_Ho_name = method + " - " + n_name + "Ho"
         folder_address = U_dir(n_Ho_name, is_save, **kwargs, )
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Ho, n_Ho_name),
                         **kwargs_U_amp_plot_save, **kwargs, )
@@ -432,16 +434,16 @@ def plot_n_VHoe(n_name, is_save,
     # %% 晶体内 e 光 折射率 分布
 
     if is_add_polarizer == 1:
-        ne_name = n_name + "e"
+        ne_name = method + " - " + n_name + "e"
         folder_address = U_dir(ne_name, is_save, **kwargs, )
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1e, ne_name),
                         **kwargs_U_amp_plot_save, **kwargs, )
     else:
-        n_Ve_name = n_name + "Ve"
+        n_Ve_name = method + " - " + n_name + "Ve"
         folder_address = U_dir(n_Ve_name, is_save, **kwargs, )
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Ve, n_Ve_name),
                         **kwargs_U_amp_plot_save, **kwargs, )
-        n_He_name = n_name + "He"
+        n_He_name = method + " - " + n_name + "He"
         folder_address = U_dir(n_He_name, is_save, **kwargs, )
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_He, n_He_name),
                         **kwargs_U_amp_plot_save, **kwargs, )
@@ -526,6 +528,8 @@ def plot_GU_oe_energy_add(G_oe_energy_add, U_oe_energy_add,
                           kwargs_U_amp_plot_save,
                           z=0, is_end=0, **kwargs, ):
     from fun_os import U_dir, U_amp_plot_save, U_energy_print
+    kwargs['p_dir'] = 'GU_oe_energy_add_XY'
+    # %%
 
     if z == 0:
         G_oe_energy_add_name = Get("method") + ' - ' + "g" + Get("ray") + "_oe_energy_add"
@@ -855,7 +859,7 @@ def AST(U_name="",
                 is_save_txt,
                 # %%
                 [], 1, size_PerPixel,
-                0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                is_save, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
                 # %%
                 cmap_2d, ticks_num, is_contourf,
                 is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0

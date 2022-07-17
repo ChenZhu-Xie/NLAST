@@ -261,7 +261,8 @@ def gan_Uz_dir_address(U_name, **kwargs, ):
     folder_name, U_name_no_seq, method_and_way, Part_2, ugHGU, ray = gan_Uz_name(U_name, 0,
                                                                                  **kwargs, )  # 不加 序列号 # 没有 method （诸如 'AST'）
     # print(folder_name)
-    if ugHGU in "gHGU":
+    # print(ugHGU, ray)
+    if ugHGU in "ngHGU":
         folder_name = add___between_ugHGU_and_ray(folder_name, ugHGU, ray)
     if "p_dir" in kwargs:
         folder_address_relative = kwargs["p_dir"] + "\\" + folder_name
