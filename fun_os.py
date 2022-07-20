@@ -935,10 +935,10 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
 def U_slices_plot_save(folder_address,
                        U_XZ, U_XZ_name,
                        U_YZ, U_YZ_name,
-                       img_name_extension,
+                       zj, img_name_extension,
                        is_save_txt,
                        # %%
-                       zj, sample, size_PerPixel,
+                       sample, size_PerPixel,
                        is_save, dpi, size_fig,
                        # %%
                        cmap_2d, ticks_num, is_contourf,
@@ -1303,7 +1303,8 @@ def U_amps_z_plot_save(folder_address,
                        # %%
                        z_stored, is_animated,
                        duration, fps, loop,
-                       z, **kwargs, ):  # 必须要传 z 序列、is_animated 进来；kwargs 是 is_save_txt, is_no_data_save、is_colorbar_log
+                       z, *args,
+                       **kwargs, ):  # 必须要传 z 序列、is_animated 进来；kwargs 是 is_save_txt, is_no_data_save、is_colorbar_log
     # 其实不用传 z 进来，直接用 z_stored[-1] 就行，不过这样保险点
     if kwargs.get("is_colorbar_log", 0) == -1:
         v_kwargs = {}
@@ -1319,27 +1320,51 @@ def U_amps_z_plot_save(folder_address,
     titles_list = []
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
-    for sheet_stored_th in range(U.shape[2]):
-        U_amp_plot_address, U_amp_title = U_amp_plot_save(folder_address,
-                                                          # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                                                          U[:, :, sheet_stored_th], U_name,
-                                                          img_name_extension,
-                                                          is_save_txt,
-                                                          # %%
-                                                          [], sample, size_PerPixel,
-                                                          is_save, dpi, size_fig,
-                                                          # %%
-                                                          cmap_2d, ticks_num, is_contourf,
-                                                          is_title_on, is_axes_on, is_mm, 0,
-                                                          fontsize, font,
-                                                          # %%
-                                                          0, is_colorbar_on, is_energy,
-                                                          **v_kwargs,
-                                                          # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
-                                                          # %%
-                                                          z=z_stored[sheet_stored_th], **kwargs, )
-        imgs_address_list.append(U_amp_plot_address)
-        titles_list.append(U_amp_title)  # 每张图片都用单独list的形式加入到图片序列中
+    if len(args) >= 3:
+        for i in range(len(args[0])):  # 查看 随便哪个 额外传入的参数 arg 的 第一个 维度的大小 or 长度。
+            for sheet_stored_th in range(U.shape[2]):
+                U_amp_plot_address, U_amp_title = \
+                    U_amp_plot_save(folder_address,
+                                    # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                                    args[0][i][:, :, sheet_stored_th], args[1][i],
+                                    img_name_extension,
+                                    is_save_txt,
+                                    # %%
+                                    [], sample, size_PerPixel,
+                                    is_save, dpi, size_fig,
+                                    # %%
+                                    cmap_2d, ticks_num, is_contourf,
+                                    is_title_on, is_axes_on, is_mm, 0,
+                                    fontsize, font,
+                                    # %%
+                                    0, is_colorbar_on, is_energy,
+                                    # %%
+                                    **v_kwargs,  # 这里的 v_kwargs 不出意外，用的是 非线性过程中的，但后面的 线性过程 应该也适用
+                                    z=args[2][i][sheet_stored_th], **kwargs, )
+                imgs_address_list.append(U_amp_plot_address)
+                titles_list.append(U_amp_title)  # 每张图片都用单独list的形式加入到图片序列中
+    else:
+        for sheet_stored_th in range(U.shape[2]):
+            U_amp_plot_address, U_amp_title = \
+                U_amp_plot_save(folder_address,
+                                # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                                U[:, :, sheet_stored_th], U_name,
+                                img_name_extension,
+                                is_save_txt,
+                                # %%
+                                [], sample, size_PerPixel,
+                                is_save, dpi, size_fig,
+                                # %%
+                                cmap_2d, ticks_num, is_contourf,
+                                is_title_on, is_axes_on, is_mm, 0,
+                                fontsize, font,
+                                # %%
+                                0, is_colorbar_on, is_energy,
+                                # %%
+                                **v_kwargs,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                                z=z_stored[sheet_stored_th], **kwargs, )
+            imgs_address_list.append(U_amp_plot_address)
+            titles_list.append(U_amp_title)  # 每张图片都用单独list的形式加入到图片序列中
     kwargs["is_no_data_save"] = is_no_data_save
 
     if is_save == 1:  # 只有 储存后，才能根据 储存的图片 生成 gif
@@ -1387,13 +1412,13 @@ def U_amps_z_plot_save(folder_address,
             imgs2gif_art(imgs_address_list, gif_address, dpi,
                          duration, fps, loop, )
 
-        if kwargs.get("is_no_data_save", 0) == 0:
+        if kwargs.get("is_no_data_save", 0) == 0 and len(args) == 0:  # 开启 gif 合并模式，则 除了 gif 外，不额外 储存 mat 数据。
             suffix = "_amp"
             U_address, ugHGU = U_save(U, U_name + suffix, folder_address,
                                       is_save, is_save_txt,
                                       z=z, suffix=suffix, **kwargs, )
 
-            suffix = '_z_stored'
+            suffix = '_z_stored'  # 已经有一个 z 当数字，以致于 U_name_no_suffix 会有 2 个 z...，但 U_name 确实只有 1 个 z。
             U_address, ugHGU = U_save(z_stored, U_name + suffix, folder_address,
                                       is_save, is_save_txt,
                                       z=z, suffix=suffix, **kwargs, )
@@ -1419,7 +1444,7 @@ def U_phases_z_plot_save(folder_address,
                          # %%
                          z_stored, is_animated,
                          duration, fps, loop,
-                         z,
+                         z, *args,
                          **kwargs, ):  # 必须要传 z 序列、is_animated 进来， # args 是 is_save_txt、is_no_data_save、is_colorbar_log
     if kwargs.get("is_colorbar_log", 0) == -1:
         v_kwargs = {}
@@ -1435,25 +1460,50 @@ def U_phases_z_plot_save(folder_address,
     titles_list = []
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
-    for sheet_stored_th in range(U.shape[2]):
-        U_phase_plot_address, U_phase_title = U_phase_plot_save(folder_address,
-                                                                U[:, :, sheet_stored_th], U_name,
-                                                                img_name_extension,
-                                                                is_save_txt,
-                                                                # %%
-                                                                [], sample, size_PerPixel,
-                                                                is_save, dpi, size_fig,
-                                                                # %%
-                                                                cmap_2d, ticks_num, is_contourf,
-                                                                is_title_on, is_axes_on, is_mm, 0,
-                                                                fontsize, font,
-                                                                # %%
-                                                                0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
-                                                                # %%
-                                                                **v_kwargs,
-                                                                z=z_stored[sheet_stored_th], **kwargs, )
-        imgs_address_list.append(U_phase_plot_address)
-        titles_list.append(U_phase_title)  # 每张图片都用单独list的形式加入到图片序列中
+    if len(args) >= 3:
+        for i in range(len(args[0])):  # 查看 随便哪个 额外传入的参数 arg 的 第一个 维度的大小 or 长度。
+            for sheet_stored_th in range(U.shape[2]):
+                U_phase_plot_address, U_phase_title = \
+                    U_phase_plot_save(folder_address,
+                                      # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
+                                      args[0][i][:, :, sheet_stored_th], args[1][i],
+                                      img_name_extension,
+                                      is_save_txt,
+                                      # %%
+                                      [], sample, size_PerPixel,
+                                      is_save, dpi, size_fig,
+                                      # %%
+                                      cmap_2d, ticks_num, is_contourf,
+                                      is_title_on, is_axes_on, is_mm, 0,
+                                      fontsize, font,
+                                      # %%
+                                      0, is_colorbar_on,
+                                      # %%
+                                      **v_kwargs,  # 这里的 v_kwargs 不出意外，用的是 非线性过程中的，但后面的 线性过程 应该也适用
+                                      z=args[2][i][sheet_stored_th], **kwargs, )
+                imgs_address_list.append(U_phase_plot_address)
+                titles_list.append(U_phase_title)  # 每张图片都用单独list的形式加入到图片序列中
+    else:
+        for sheet_stored_th in range(U.shape[2]):
+            U_phase_plot_address, U_phase_title = \
+                U_phase_plot_save(folder_address,
+                                  U[:, :, sheet_stored_th], U_name,
+                                  img_name_extension,
+                                  is_save_txt,
+                                  # %%
+                                  [], sample, size_PerPixel,
+                                  is_save, dpi, size_fig,
+                                  # %%
+                                  cmap_2d, ticks_num, is_contourf,
+                                  is_title_on, is_axes_on, is_mm, 0,
+                                  fontsize, font,
+                                  # %%
+                                  0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
+                                  # %%
+                                  **v_kwargs,
+                                  z=z_stored[sheet_stored_th], **kwargs, )
+            imgs_address_list.append(U_phase_plot_address)
+            titles_list.append(U_phase_title)  # 每张图片都用单独list的形式加入到图片序列中
     kwargs["is_no_data_save"] = is_no_data_save
 
     if is_save == 1:  # 只有 储存后，才能根据 储存的图片 生成 gif
@@ -2046,10 +2096,10 @@ def U_SSI_plot(G_stored, G_name,
                 U_slices_plot_save(folder_address,
                                    G_YZ, G_name + "_YZ",
                                    G_XZ, G_name + "_XZ",
-                                   img_name_extension,
+                                   zj, img_name_extension,
                                    is_save_txt,
                                    # %%
-                                   zj, sample, size_PerPixel,
+                                   sample, size_PerPixel,
                                    is_save, dpi, size_fig,
                                    # %%
                                    cmap_2d, ticks_num, is_contourf,
@@ -2075,10 +2125,10 @@ def U_SSI_plot(G_stored, G_name,
                 U_slices_plot_save(folder_address,
                                    U_YZ, U_name + "_YZ",
                                    U_XZ, U_name + "_XZ",
-                                   img_name_extension,
+                                   zj, img_name_extension,
                                    is_save_txt,
                                    # %%
-                                   zj, sample, size_PerPixel,
+                                   sample, size_PerPixel,
                                    is_save, dpi, size_fig,
                                    # %%
                                    cmap_2d, ticks_num, is_contourf,
@@ -2460,7 +2510,8 @@ def get_Data_info(Data_Seq):
     with open(txt_address, "r") as txt:
         lines = txt.readlines()  # 注意是 readlines 不是 readline，否则 只读了 一行，而不是 所有行 构成的 列表
         # lines = lines[:-1] # 把 最后一行 的 换行 去掉（不用去了，每个 \n 包含在上一行了）
-    Data_Seq = str(Data_Seq) + (("." + str(Get("level_min"))) if '.' not in str(Data_Seq) else '')  # 不加括号 有问题，也是醉了
+    Data_Seq = str(Data_Seq) + (("." + str(Get("level_min"))) if '.' not in str(Data_Seq) else '')
+    # 不加括号 有问题，也是醉了；转成 str 且加上点...
     attr_list = []
     for line in lines:
         line = line[:-1]
@@ -2502,8 +2553,9 @@ def get_Data_new_attrs(Data_Seq, *attr_names):
     return attr_values
 
 
-def get_items_new_attr(Data_Seq, is_save_txt, is_print, ):
-    # %% 分析 all_data_info.txt
+def get_items_new_attr(Data_Seq, is_save_txt, is_print, fetch_mode=-1, ):
+    # %% 先分析 all_data_info.txt，读其中 Data_Seq 所在的行，对应的 data_info.txt 所在的目录，也就是 folder_new_address
+    # 再逐行分析 folder_new_address 中的 data_info.txt 的每一行
 
     new_root_dir, folder_new_address, U_new_address = get_Data_new_root_dir(Data_Seq)
     # U_new_address 没用，可用 *_ 代替其解包
@@ -2513,39 +2565,126 @@ def get_items_new_attr(Data_Seq, is_save_txt, is_print, ):
     txt_address = folder_new_address + "\\" + "data_info.txt"
     with open(txt_address, "r") as txt:
         lines = txt.readlines()
+    len_of_data_info = len(lines)
+    # print(len_of_data_info)
+    # %%
 
-    Data_Seq_list, ugHGU_list, U_name_list, U_address_list, U_list, z_list, U_name_no_suffix_list = \
-        [], [], [], [], [], [], []
-    is_end = [0] * (len(lines) - 1) + [1]
-    add_level = [-1] + [0] * (len(lines) - 1)
-    for i in range(len(lines)):
-        line = lines[i]
-        line = line[:-1]  # 把 每一行的 换行 去掉
+    if fetch_mode == -1:
 
-        Data_Seq_line, ugHGU, U_name, U_address, root_dir, z, U_name_no_suffix = \
-            attrs_line_get(line, "Data_Seq", "ugHGU", "U_name", "U_address",
-                           "root_dir", "z_str", "U_name_no_suffix")  # 防重名
-        U_new_address = U_address.replace(root_dir, new_root_dir)  # 用新的 root_dir 去覆盖 旧的 root_dir
-        U = np.loadtxt(U_new_address, dtype=np.float64()) if is_save_txt == 1 else loadmat(U_new_address)[ugHGU]
-        # print(U.shape[0])
-        if U.shape[0] == 1:  # savemat 会使 1维 数组 变成 2维，也就是 会在外面 多加个 [], 但 2维 数组 保持不变
-            U = U if is_save_txt == 1 else U[0]
-        # print(U)
-        # print(U_name_no_suffix)
+        Data_Seq_list, ugHGU_list, U_name_list, U_address_list, U_list, z_list, U_name_no_suffix_list = \
+            [], [], [], [], [], [], []
+        is_end = [0] * (len(lines) - 1) + [1]
+        add_level = [-1] + [0] * (len(lines) - 1)
+        for i in range(len(lines)):
+            line = lines[i]
+            line = line[:-1]  # 把 每一行的 换行 去掉
+            # print(line)
 
-        is_print and print(tree_print(is_end[i], add_level=add_level[i]) + "U_name = {}".format(U_name))
+            Data_Seq_line, ugHGU, U_name, U_address, root_dir, z, U_name_no_suffix = \
+                attrs_line_get(line, "Data_Seq", "ugHGU", "U_name", "U_address",
+                               "root_dir", "z_str", "U_name_no_suffix")  # 防重名
+            U_new_address = U_address.replace(root_dir, new_root_dir)  # 用新的 root_dir 去覆盖 旧的 root_dir
+            U = np.loadtxt(U_new_address, dtype=np.float64()) if is_save_txt == 1 else loadmat(U_new_address)[ugHGU]
+            # print(U.shape[0])
+            if U.shape[0] == 1:  # savemat 会使 1维 数组 变成 2维，也就是 会在外面 多加个 [], 但 2维 数组 保持不变
+                U = U if is_save_txt == 1 else U[0]
+            # print(U)
+            # print(U_name_no_suffix)
 
-        Data_Seq_list.append(Data_Seq_line)  # 防重名
-        ugHGU_list.append(ugHGU)
-        U_name_list.append(U_name)
-        U_address_list.append(U_new_address)
+            Data_Seq_list.append(Data_Seq_line)  # 防重名
+            ugHGU_list.append(ugHGU)
+            U_name_list.append(U_name)
+            U_address_list.append(U_new_address)
 
-        U_list.append(U)
-        z_list.append(float(z))  # z 不能是 str
-        U_name_no_suffix_list.append(U_name_no_suffix)
+            U_list.append(U)
+            z_list.append(float(z))  # z 不能是 str
+            U_name_no_suffix_list.append(U_name_no_suffix)
 
-    Data_Seq = str(Data_Seq) + (("." + str(Get("level_min"))) if '.' not in str(Data_Seq) else '')  # 先转成 str
-    index = Data_Seq_list.index(Data_Seq)  # 找到 相应 Data_Seq 的 索引，然后往下读
+            is_print and print(tree_print(is_end[i], add_level=add_level[i]) + "U_name = {}".format(U_name))
+
+        Data_Seq = str(Data_Seq) + (("." + str(Get("level_min"))) if '.' not in str(Data_Seq) else '')  # 先转成 str
+        index = Data_Seq_list.index(Data_Seq)  # 找到 相应 Data_Seq 的 索引，然后往下读
+    else:
+        txt_address = Get("root_dir") + "\\" + "all_data_info.txt"
+        with open(txt_address, "r") as txt:
+            lines = txt.readlines()  # 注意是 readlines 不是 readline，否则 只读了 一行，而不是 所有行 构成的 列表
+
+        Data_Seq_list, ugHGU_list, U_name_list, U_address_list, U_list, z_list, U_name_no_suffix_list = \
+            [], [], [], [], [], [], []
+        is_end = []
+        add_level = []
+
+        Data_Seq = str(Data_Seq) + (("." + str(Get("level_min"))) if '.' not in str(Data_Seq) else '')
+        main_py_name_set = saver_name_set = ""  # 初始化 空的 2 名字，以使 在遇见正确的 Data_Seq 之前，不进行任何操作
+        found_one_key = 0
+        len_of_target_lines = 0
+        for i in range(len(lines)):
+            line = lines[i]
+            line = line[:-1]  # 把 每一行的 换行 去掉
+            # print(line)
+
+            main_py_name, saver_name, \
+            Data_Seq_line, ugHGU, U_name, U_address, root_dir, z, U_name_no_suffix = \
+                attrs_line_get(line, "main_py_name", "saver_name",
+                               "Data_Seq", "ugHGU", "U_name", "U_address",
+                               "root_dir", "z_str", "U_name_no_suffix")
+
+            if Data_Seq == Data_Seq_line:
+                from fun_global_var import init_accu
+                # if init_accu("get_items_new_attr", 1) <= 1:
+                # 第一次（好像也只有一次机会） 遇见 正确的 钥匙 Data_Seq 后，记录下 2 把 新钥匙
+                main_py_name_set = main_py_name
+                saver_name_set = saver_name
+                found_one_key = 1
+
+            if main_py_name == main_py_name_set:
+                if saver_name_set == saver_name:  # 如果 2 把 新钥匙 都是对的
+                    # print(Data_Seq_line)
+                    U_new_address = U_address.replace(root_dir, Get("root_dir"))  # 用新的 root_dir 去覆盖 旧的 root_dir
+                    U = np.loadtxt(U_new_address, dtype=np.float64()) if is_save_txt == 1 else loadmat(U_new_address)[
+                        ugHGU]
+                    if U.shape[0] == 1:  # savemat 会使 1维 数组 变成 2维，也就是 会在外面 多加个 [], 但 2维 数组 保持不变
+                        U = U if is_save_txt == 1 else U[0]
+
+                    len_of_target_lines += 1
+                    if len_of_target_lines <= len_of_data_info:
+                        Data_Seq_list.append(Data_Seq_line)  # 防重名
+                        ugHGU_list.append(ugHGU)
+                        U_address_list.append(U_new_address)
+
+                        U_list.append([U])
+                        U_name_list.append([U_name])
+                        U_name_no_suffix_list.append([U_name_no_suffix])
+                        z_list.append([float(z)])  # z 不能是 str
+                    else:
+                        index = np.mod(len_of_target_lines, len_of_data_info) - 1
+                        # if U.shape[0] == 1:
+                        #     U_list[index] = np.hstack((U_list[index], U))
+                        # else:
+                        #     U_list[index] = np.vstack((U_list[index], U))
+                        U_list[index].append(U)
+                        U_name_list[index].append(U_name)
+                        U_name_no_suffix_list[index].append(U_name_no_suffix)
+                        z_list[index].append(float(z))
+
+                    is_end.append(0)  # 最后一次的 is_end = 1，之前 全是 0
+                    add_level.append(-1 if Data_Seq == Data_Seq_line else 0)  # 第一次的 add_level = -1，后续 全是 0
+            else:  # 如果 第 1 把钥匙 都不过关（在之前 获得过 第一把 钥匙的 前提下），则 直接退出 for 循环，因为 潜在的 钥匙对们 已经找齐了
+                if found_one_key == 1:
+                    break
+        # print(U_name_list)
+
+        # print(is_end)
+        is_end[-1] = 1  # 覆盖 最后一个 is_end：最后一次的 is_end = 1，之前 全是 0
+        for i in range(len(is_end)):
+            # print(i)
+            # is_print and print(tree_print(is_end[i], add_level=add_level[i]) + "U_name = {}".format(U_name_list[i]))
+            # is_print and print(tree_print(is_end[i], add_level=add_level[i]) + "U_name = {}".
+            #                    format(U_name_list[i // 2][np.mod(i, 2)]))
+            is_print and print(tree_print(is_end[i], add_level=add_level[i]) + "U_name = {}".
+                               format(U_name_list[np.mod(i, 2)][i // 2]))
+
+        index = Data_Seq_list.index(Data_Seq)  # 找到 相应 Data_Seq 的 索引，然后往下读
 
     return folder_new_address, index, U_list, U_name_list, U_name_no_suffix_list, z_list
 

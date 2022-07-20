@@ -12,14 +12,15 @@ import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_global_var import init_GLV_DICT, tree_print, Get
 from b_1_AST_EVV import AST_EVV
-from b_3_SFG_NLA_EVV import SFG_NLA_EVV
+from B_3_SFG_NLA_SSI_chi2 import SFG_NLA_SSI
+from B_3_SFG_SSF_SSI_chi2 import SFG_SSF_SSI
 
 np.seterr(divide='ignore', invalid='ignore')
 
 
 # %%
 
-def SFG_NLA_EVV__AST_EVV(U_name="",
+def SFG_NLA_SSI__AST_EVV(U_name="",
                          img_full_name="Grating.png",
                          is_phase_only=0,
                          # %%
@@ -46,15 +47,22 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                          # %%
                          U_size=1, w0=0.3,
                          L0_Crystal=1, z_AST=1, sheets_stored_num=10,
+                         # %% 不关心
+                         z0_structure_frontface_expect=0, deff_structure_length_expect=10,
+                         SSI_zoomout_times=1,
+                         z0_section_1_expect=0, z0_section_2_expect=0,
+                         X=0, Y=0,
+                         # %%
+                         is_bulk=1, is_show_structure_face=0,
+                         is_stored=1, is_energy_evolution_on=1,
                          # %%
                          lam1=0.8, is_air_pump=0, is_air=0, T=25,
                          is_air_pump_structure=0,
-                         deff=30, is_fft=1, fft_mode=0,
-                         is_sum_Gm=0, mG=0,
-                         is_linear_convolution=0,
+                         deff=30,
                          # %%
                          Tx=10, Ty=10, Tz="2*lc",
                          mx=0, my=0, mz=0,
+                         is_stripe=0, is_NLAST=1,
                          # %%
                          # 生成横向结构
                          Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, Duty_Cycle_z=0.5,
@@ -62,7 +70,6 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                          # %%
                          is_continuous=0, is_target_far_field=1, is_transverse_xy=0,
                          is_reverse_xy=0, is_positive_xy=1, is_no_backgroud=0,
-                         is_stored=1, is_energy_evolution_on=1,
                          # %%
                          is_save=0, is_save_txt=0, dpi=100,
                          # %%
@@ -83,7 +90,7 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                          is_energy=0,
                          # %%
                          is_plot_EVV=1, is_plot_3d_XYz=0, is_plot_selective=0,
-                         X=0, Y=0, is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
+                         is_plot_YZ_XZ=1, is_plot_3d_XYZ=0,
                          # %%
                          plot_group="UGa", is_animated=1,
                          loop=0, duration=0.033, fps=5,
@@ -91,11 +98,11 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                          is_print=1, is_contours=1, n_TzQ=1,
                          Gz_max_Enhance=1, match_mode=1,
                          # %% 该程序 独有 -------------------------------
-                         is_EVV_SSI=0, is_add_lens=0,
+                         is_NLA=1, is_EVV_SSI=0, is_add_lens=0,
                          # %%
                          **kwargs, ):
     # %%
-    info = "先 NLA_EVV，后 AST_EVV"
+    info = "先 NLA_SSI，后 AST_EVV"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
     kwargs.pop("is_end", None);
     kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
@@ -106,7 +113,7 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
 
     # %%
 
-    def args_EVV(z_SFG):
+    def args_SSI(z_SFG):
         return [U_name,
                 img_full_name,
                 is_phase_only,
@@ -133,24 +140,27 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                 is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
                 # %%
                 U_size, w0,
-                z_SFG, sheets_stored_num,
+                z_SFG, z0_structure_frontface_expect, deff_structure_length_expect,
+                SSI_zoomout_times, sheets_stored_num,
+                z0_section_1_expect, z0_section_2_expect,
+                X, Y,
+                # %%
+                is_bulk, is_no_backgroud,
+                is_stored, is_show_structure_face, is_energy_evolution_on,
                 # %%
                 lam1, is_air_pump, is_air, T,
                 is_air_pump_structure,
-                deff, is_fft, fft_mode,
-                is_sum_Gm, mG,
-                is_linear_convolution,
+                deff,
                 # %%
                 Tx, Ty, Tz,
                 mx, my, mz,
+                is_stripe, is_NLAST,
                 # %%
                 # 生成横向结构
                 Duty_Cycle_x, Duty_Cycle_y, Duty_Cycle_z,
                 Depth, structure_xy_mode,
-                # %%
                 is_continuous, is_target_far_field, is_transverse_xy,
-                is_reverse_xy, is_positive_xy, is_no_backgroud,
-                is_stored, is_energy_evolution_on,
+                is_reverse_xy, is_positive_xy,
                 # %%
                 is_save, is_save_txt, dpi,
                 # %%
@@ -158,24 +168,21 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                 elev, azim, alpha,
                 # %%
                 sample, ticks_num, is_contourf,
-                is_title_on, is_axes_on,
-                is_mm,
+                is_title_on, is_axes_on, is_mm,
                 # %%
                 fontsize, font,
                 # %%
                 is_colorbar_on, is_colorbar_log,
                 is_energy,
                 # %%
-                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
-                X, Y, is_plot_YZ_XZ, is_plot_3d_XYZ,
-                # %%
                 plot_group, is_animated,
                 loop, duration, fps,
                 # %%
-                is_print, is_contours, n_TzQ,
-                Gz_max_Enhance, match_mode,
+                is_plot_EVV, is_plot_3d_XYz, is_plot_selective,
+                is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
-                is_EVV_SSI, ]
+                is_print, is_contours, n_TzQ,
+                Gz_max_Enhance, match_mode, ]
 
     def args_AST(z_AST):
         return ["",
@@ -221,13 +228,14 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
                 plot_group, is_animated,
                 loop, duration, fps, ]
 
-    kwargs_EVV = copy.deepcopy(kwargs)
-    U2_NLA, G2_NLA, ray2_NLA, method_and_way2_NLA, U_key2_NLA = \
-        SFG_NLA_EVV(*args_EVV(L0_Crystal), **kwargs_EVV, )
+    kwargs_SSI = copy.deepcopy(kwargs)
+    U2_SSI, G2_SSI, ray2_SSI, method_and_way2_SSI, U_key2_SSI = \
+        SFG_NLA_SSI(*args_SSI(L0_Crystal), **kwargs_SSI, ) if is_NLA == 1 else \
+            SFG_SSF_SSI(*args_SSI(L0_Crystal), **kwargs_SSI, )
 
     kwargs_AST = copy.deepcopy(kwargs)
     if "polar2" in kwargs_AST: kwargs_AST.pop("polar2")
-    kwargs_AST.update({"U": U2_NLA, "ray": ray2_NLA,
+    kwargs_AST.update({"U": U2_SSI, "ray": ray2_SSI,
                        "lam3": Get("lam3"), "polar": kwargs_AST["polar3"], })
 
     if is_add_lens != 1:
@@ -260,13 +268,13 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
 if __name__ == '__main__':
     kwargs = \
         {"U_name": "",
-         "img_full_name": "spaceship.png",
-         "U_pixels_x": 300, "U_pixels_y": 300,
+         "img_full_name": "lena1.png",
+         "U_pixels_x": 400, "U_pixels_y": 400,
          "is_phase_only": 0,
          # %%
          "z_pump": 0,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 3, "p": 0,
+         "l": 50, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -286,23 +294,30 @@ if __name__ == '__main__':
          "is_random_phase_Structure": 0,
          "is_H_l_Structure": 0, "is_H_theta_Structure": 0, "is_H_random_phase_Structure": 0,
          # %%
-         "U_size": 1, "w0": 0.05,
-         "L0_Crystal": 15, "z_AST": 20, "sheets_stored_num": 10,
+         "U_size": 1.5, "w0": 0.05,
+         "L0_Crystal": 1, "z_AST": 12, "sheets_stored_num": 10,
+         # %% 不关心
+         "z0_structure_frontface_expect": 0, "deff_structure_length_expect": 10,
+         "SSI_zoomout_times": 1,
+         "z0_section_1_expect": 0, "z0_section_2_expect": 0,
+         "X": 0, "Y": 0,
+         # %%
+         "is_bulk": 0, "is_show_structure_face": 0,
+         "is_stored": 1, "is_energy_evolution_on": 1,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 0, "T": 25,
          "lam_structure": 1.064, "is_air_pump_structure": 1, "T_structure": 25,
+         "deff": 30,
          # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_birefringence_SHG": 0 是否 考虑 双折射
          "is_HOPS_SHG": 0,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
          # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
          "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
          # %%
-         "deff": 30, "is_fft": 1, "fft_mode": 0,
-         "is_sum_Gm": 0, "mG": 0, 'is_NLAST_sum': 0,
-         "is_linear_convolution": 0,
-         # %%
-         "Tx": 16, "Ty": 25, "Tz": 0,
-         "mx": 1, "my": 0, "mz": 0,
+         "Tx": 18.769, "Ty": 20, "Tz": 0,
+         "mx": 0, "my": 0, "mz": 1,
+         "is_stripe": 0, "is_NLAST": 1,  # 注意，如果 z 向有周期，或是 z 向 无周期的 2d PPLN，这个不能填 0，也就是必须用 NLAST，否则不准；
+         # 如果 斜条纹，则 根本不能用这个 py 文件， 因为 z 向无周期了，必须 划分细小周期
          # %%
          # 生成横向结构
          "Duty_Cycle_x": 0.5, "Duty_Cycle_y": 0.5, "Duty_Cycle_z": 0.5,
@@ -310,7 +325,6 @@ if __name__ == '__main__':
          # %%
          "is_continuous": 0, "is_target_far_field": 1, "is_transverse_xy": 0,
          "is_reverse_xy": 0, "is_positive_xy": 1, "is_no_backgroud": 0,
-         "is_stored": 1, "is_energy_evolution_on": 1,
          # %%
          "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
@@ -332,7 +346,7 @@ if __name__ == '__main__':
          "is_energy": 1,
          # %%
          "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
-         "X": 0, "Y": 0, "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
+         "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
          # %%
          "plot_group": "Ua", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
@@ -340,7 +354,7 @@ if __name__ == '__main__':
          "is_print": 1, "is_contours": 0, "n_TzQ": 1,
          "Gz_max_Enhance": 1, "match_mode": 1,
          # %% 该程序 独有 -------------------------------
-         "is_EVV_SSI": 0, "is_add_lens": 0,
+         "is_NLA": 1, "is_EVV_SSI": 0, "is_add_lens": 1,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
          "border_percentage": 0.1, "is_end": -1,
@@ -354,7 +368,7 @@ if __name__ == '__main__':
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "e", "match_type": "oe",
-         "polar3": "e", "ray": "3", 
+         "polar3": "e", "ray": "3",
          }
 
     if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
@@ -365,7 +379,7 @@ if __name__ == '__main__':
             # %%
             "z_pump2": 0,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": 3, "p2": 0,
+            "l2": -50, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
@@ -381,7 +395,7 @@ if __name__ == '__main__':
         kwargs.update(pump2_kwargs)
 
     kwargs = init_GLV_DICT(**kwargs)
-    SFG_NLA_EVV__AST_EVV(**kwargs)
+    SFG_NLA_SSI__AST_EVV(**kwargs)
 
     # SFG_NLA_EVV(U_name="",
     #             img_full_name="lena1.png",

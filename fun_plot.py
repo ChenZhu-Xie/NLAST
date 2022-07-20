@@ -538,9 +538,11 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
         # fig.suptitle(array1D_title, fontsize=fontsize+add_size, fontdict=font)
         # sgtitle 放置位置与 suptitle 相似，必须将其放在所有 subplot 的最后
         if "l2" in kwargs:
-            ax2.set_title(array1D_title, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+            ax2.set_title(array1D_title, pad=fontsize_set / 2,
+                          **format_dict(fontsize_set, font, title_fontsize_enlarge))
         else:
-            ax1.set_title(array1D_title, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+            ax1.set_title(array1D_title, pad=fontsize_set / 2,
+                          **format_dict(fontsize_set, font, title_fontsize_enlarge))
 
     plt.show()
 
@@ -767,7 +769,7 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
 
     array2D_title = array2D_title if is_energy != 1 else array2D_title + "_Squared"
     if is_title_on:
-        ax1.set_title(array2D_title, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_title(array2D_title, pad=fontsize_set / 2, **format_dict(fontsize_set, font, title_fontsize_enlarge))
 
     if is_title_on == 0 and is_axes_on == 0 and is_colorbar_on == 0:
         ax1.margins(0, 0)
@@ -913,9 +915,9 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
         if is_mjrFormatter_sci(zticklabels):
             ax1.zaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
 
-        ax1.set_xlabel(xlabel, **format_dict(fontsize_set, font, title_fontsize_enlarge))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_ylabel(ylabel, **format_dict(fontsize_set, font, title_fontsize_enlarge))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_zlabel(zlabel, **format_dict(fontsize_set, font, title_fontsize_enlarge))  # 设置 z 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_xlabel(xlabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_ylabel(ylabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_zlabel(zlabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
 
     ax1.view_init(elev=elev, azim=azim)  # 后一个为负 = 绕 z 轴逆时针
 
@@ -995,7 +997,7 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
 
     img_title = img_title if is_energy != 1 else img_title + "_Squared"
     if is_title_on:
-        ax1.set_title(img_title, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_title(img_title, pad=fontsize_set / 2, **format_dict(fontsize_set, font, title_fontsize_enlarge))
 
     plt.show()
 
@@ -1097,9 +1099,9 @@ def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
         if is_mjrFormatter_sci(zticklabels):
             ax1.zaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
 
-        ax1.set_xlabel(xlabel, **format_dict(fontsize_set, font, title_fontsize_enlarge))  # 设置 x 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_ylabel(ylabel, **format_dict(fontsize_set, font, title_fontsize_enlarge))  # 设置 y 轴的 标签名、标签字体；字体大小 fontsize=fontsize
-        ax1.set_zlabel(zlabel, **format_dict(fontsize_set, font, title_fontsize_enlarge))  # 设置 z 轴的 标签名、标签字体；字体大小 fontsize=fontsize
+        ax1.set_xlabel(xlabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_ylabel(ylabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_zlabel(zlabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
 
     ax1.view_init(elev=elev, azim=azim);  # 后一个为负 = 绕 z 轴逆时针
 
@@ -1159,7 +1161,7 @@ def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
 
     img_title = img_title if is_energy != 1 else img_title + "_Squared"
     if is_title_on:
-        ax1.set_title(img_title, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_title(img_title, pad=fontsize_set / 2, **format_dict(fontsize_set, font, title_fontsize_enlarge))
 
     plt.show()
 

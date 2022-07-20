@@ -846,7 +846,7 @@ def G3_z_modulation_NLAST(k1, k2, k3,
             g1_U0_Squared_modulated = fft2(modulation * U1_0 * U2_0)
             molecule = G1_Uz_Squared_modulated * math.e ** (Gz * iz * 1j) \
                        - g1_U0_Squared_modulated * math.e ** (k3_z * iz * 1j)
-            dismatch = const * molecule / denominator
+            dismatch = const * molecule / denominator  # 完全匹配时，会出问题，但我似乎没打算修正它
 
             return dismatch
 
