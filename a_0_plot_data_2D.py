@@ -14,7 +14,7 @@ from fun_global_var import init_GLV_DICT, tree_print
 
 # %%
 
-def plot_2D_test(plot_mode=3,
+def plot_data_2D(plot_mode=3,
                  Data_Seq=0,
                  img_full_name="lena1.png",
                  is_phase_only=0,
@@ -213,7 +213,7 @@ if __name__ == '__main__':
          # %%
          "U_size": 0.9,
          # %%
-         "is_save": 1, "is_no_data_save": 0,
+         "is_save": -1, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,
          # %%
          "is_show_structure_face": 1, "is_print": 1,
@@ -240,7 +240,7 @@ if __name__ == '__main__':
          "is_end": -1, }
 
     kwargs = init_GLV_DICT(**kwargs)
-    plot_2D_test(**kwargs)
+    plot_data_2D(**kwargs)
 
     # plot_1D_test(plot_mode=3,
     #              Data_Seq=24,

@@ -458,14 +458,14 @@ def U_amp_plot_save(folder_address,
                                                                    **kwargs, )
     # %%
 
-    plot_2d(zj_plot_2d, sample, size_PerPixel,  # 防止 kwargs 里 出现 关键字 zj 后重名
-            U, U_amp_plot_address, U_amp_title,
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf,
-            is_title_on, is_axes_on, is_mm, is_propagation,
-            fontsize, font,
-            is_self_colorbar, is_colorbar_on, is_energy,
-            **kwargs)
+    U_amp_img = plot_2d(zj_plot_2d, sample, size_PerPixel,  # 防止 kwargs 里 出现 关键字 zj 后重名
+                        U, U_amp_plot_address, U_amp_title,
+                        is_save, dpi, size_fig,
+                        cmap_2d, ticks_num, is_contourf,
+                        is_title_on, is_axes_on, is_mm, is_propagation,
+                        fontsize, font,
+                        is_self_colorbar, is_colorbar_on, is_energy,
+                        **kwargs)
 
     if kwargs.get("is_no_data_save", 0) == 0:
         kwargs["suffix"] = kwargs.get("suffix", '_amp')
@@ -473,7 +473,7 @@ def U_amp_plot_save(folder_address,
                                   is_save, is_save_txt,
                                   **kwargs, )
 
-    return U_amp_plot_address, U_amp_title
+    return U_amp_plot_address, U_amp_title, U_amp_img
 
 
 # %%
@@ -532,14 +532,14 @@ def U_phase_plot_save(folder_address,
                                                                          **kwargs, )
     # %%
 
-    plot_2d(zj_plot_2d, sample, size_PerPixel,  # 防止 kwargs 里 出现 关键字 zj 后重名
-            U, U_phase_plot_address, U_phase_title,
-            is_save, dpi, size_fig,
-            cmap_2d, ticks_num, is_contourf,
-            is_title_on, is_axes_on, is_mm, is_propagation,
-            fontsize, font,
-            is_self_colorbar, is_colorbar_on, 0,
-            **kwargs)  # 相位 不能有 is_energy = 1
+    U_phase_img = plot_2d(zj_plot_2d, sample, size_PerPixel,  # 防止 kwargs 里 出现 关键字 zj 后重名
+                          U, U_phase_plot_address, U_phase_title,
+                          is_save, dpi, size_fig,
+                          cmap_2d, ticks_num, is_contourf,
+                          is_title_on, is_axes_on, is_mm, is_propagation,
+                          fontsize, font,
+                          is_self_colorbar, is_colorbar_on, 0,
+                          **kwargs)  # 相位 不能有 is_energy = 1
 
     if kwargs.get("is_no_data_save", 0) == 0:
         suffix = '_phase'
@@ -547,7 +547,7 @@ def U_phase_plot_save(folder_address,
                                   is_save, is_save_txt,
                                   suffix=suffix, **kwargs, )
 
-    return U_phase_plot_address, U_phase_title
+    return U_phase_plot_address, U_phase_title, U_phase_img
 
 
 # %%
@@ -602,37 +602,39 @@ def U_plot(folder_address,
            # %%                          何况 一般默认 is_self_colorbar = 1...
            **kwargs, ):  # args 是 z 或 ()、is_save_txt、is_no_data_save
 
-    U_amp_plot_address = U_amp_plot_save(folder_address,
-                                         np.abs(U), U_name,
-                                         img_name_extension,
-                                         is_save_txt,
-                                         # %%
-                                         [], sample, size_PerPixel,
-                                         is_save, dpi, size_fig,
-                                         # %%
-                                         cmap_2d, ticks_num, is_contourf,
-                                         is_title_on, is_axes_on, is_mm, 0,
-                                         fontsize, font,
-                                         # %%
-                                         0, is_colorbar_on, is_energy,
-                                         # %% 何况 一般默认 is_self_colorbar = 1...
-                                         **kwargs, )
+    U_amp_plot_address, U_amp_title, U_amp_img = \
+        U_amp_plot_save(folder_address,
+                        np.abs(U), U_name,
+                        img_name_extension,
+                        is_save_txt,
+                        # %%
+                        [], sample, size_PerPixel,
+                        is_save, dpi, size_fig,
+                        # %%
+                        cmap_2d, ticks_num, is_contourf,
+                        is_title_on, is_axes_on, is_mm, 0,
+                        fontsize, font,
+                        # %%
+                        0, is_colorbar_on, is_energy,
+                        # %% 何况 一般默认 is_self_colorbar = 1...
+                        **kwargs, )
 
-    U_phase_plot_address = U_phase_plot_save(folder_address,
-                                             np.angle(U), U_name,
-                                             img_name_extension,
-                                             is_save_txt,
-                                             # %%
-                                             [], sample, size_PerPixel,
-                                             is_save, dpi, size_fig,
-                                             # %%
-                                             cmap_2d, ticks_num, is_contourf,
-                                             is_title_on, is_axes_on, is_mm, 0,
-                                             fontsize, font,
-                                             # %%
-                                             0, is_colorbar_on,
-                                             # %% 何况 一般默认 is_self_colorbar = 1...
-                                             **kwargs, )
+    U_phase_plot_address, U_phase_title, U_phase_img = \
+        U_phase_plot_save(folder_address,
+                          np.angle(U), U_name,
+                          img_name_extension,
+                          is_save_txt,
+                          # %%
+                          [], sample, size_PerPixel,
+                          is_save, dpi, size_fig,
+                          # %%
+                          cmap_2d, ticks_num, is_contourf,
+                          is_title_on, is_axes_on, is_mm, 0,
+                          fontsize, font,
+                          # %%
+                          0, is_colorbar_on,
+                          # %% 何况 一般默认 is_self_colorbar = 1...
+                          **kwargs, )
 
     return U_amp_plot_address, U_phase_plot_address
 
@@ -1318,12 +1320,13 @@ def U_amps_z_plot_save(folder_address,
     # global imgs_address_list, titles_list
     imgs_address_list = []
     titles_list = []
+    imgs_list = []
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
     if len(args) >= 3:
         for i in range(len(args[0])):  # 查看 随便哪个 额外传入的参数 arg 的 第一个 维度的大小 or 长度。
             for sheet_stored_th in range(U.shape[2]):
-                U_amp_plot_address, U_amp_title = \
+                U_amp_plot_address, U_amp_title, U_amp_img = \
                     U_amp_plot_save(folder_address,
                                     # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                                     args[0][i][:, :, sheet_stored_th], args[1][i],
@@ -1343,9 +1346,10 @@ def U_amps_z_plot_save(folder_address,
                                     z=args[2][i][sheet_stored_th], **kwargs, )
                 imgs_address_list.append(U_amp_plot_address)
                 titles_list.append(U_amp_title)  # 每张图片都用单独list的形式加入到图片序列中
+                imgs_list.append(U_amp_img)
     else:
         for sheet_stored_th in range(U.shape[2]):
-            U_amp_plot_address, U_amp_title = \
+            U_amp_plot_address, U_amp_title, U_amp_img = \
                 U_amp_plot_save(folder_address,
                                 # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                                 U[:, :, sheet_stored_th], U_name,
@@ -1365,9 +1369,10 @@ def U_amps_z_plot_save(folder_address,
                                 z=z_stored[sheet_stored_th], **kwargs, )
             imgs_address_list.append(U_amp_plot_address)
             titles_list.append(U_amp_title)  # 每张图片都用单独list的形式加入到图片序列中
+            imgs_list.append(U_amp_img)
     kwargs["is_no_data_save"] = is_no_data_save
 
-    if is_save == 1:  # 只有 储存后，才能根据 储存的图片 生成 gif
+    if abs(is_save) == 1:  # 只有 储存后，才能根据 储存的图片 生成 gif
 
         """ plot2d 无法多线程，因为会挤占 同一个 fig 这个 全局的画布资源？ 注释了 plt.show() 也没用，应该不是它的锅。
         不过其实可以在 U_amp_plot 里面搞多线程，因为 获取 address 和 title 不是全局的 """
@@ -1404,15 +1409,19 @@ def U_amps_z_plot_save(folder_address,
         gif_address = imgs_address_list[-1].replace(img_name_extension, ".gif")
         if is_animated == 0:
             imgs2gif_imgio(imgs_address_list, gif_address,
+                           imgs_list, is_save,
                            duration, fps, loop, )
         elif is_animated == -1:
             imgs2gif_PIL(imgs_address_list, gif_address,
+                         imgs_list, is_save,
                          duration, fps, loop, )
         else:
             imgs2gif_art(imgs_address_list, gif_address, dpi,
+                         imgs_list, is_save,
                          duration, fps, loop, )
 
-        if kwargs.get("is_no_data_save", 0) == 0 and len(args) == 0:  # 开启 gif 合并模式，则 除了 gif 外，不额外 储存 mat 数据。
+        if is_save == 1 and kwargs.get("is_no_data_save", 0) == 0 and len(
+                args) == 0:  # 开启 gif 合并模式，则 除了 gif 外，不额外 储存 mat 数据。
             suffix = "_amp"
             U_address, ugHGU = U_save(U, U_name + suffix, folder_address,
                                       is_save, is_save_txt,
@@ -1455,15 +1464,18 @@ def U_phases_z_plot_save(folder_address,
             "vmax": U_phase_max,
             "vmin": U_phase_min,
         }
+    # %%
     # global imgs_address_list, titles_list
     imgs_address_list = []
     titles_list = []
+    imgs_list = []
+    # %%
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
     if len(args) >= 3:
         for i in range(len(args[0])):  # 查看 随便哪个 额外传入的参数 arg 的 第一个 维度的大小 or 长度。
             for sheet_stored_th in range(U.shape[2]):
-                U_phase_plot_address, U_phase_title = \
+                U_phase_plot_address, U_phase_title, U_phase_img = \
                     U_phase_plot_save(folder_address,
                                       # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
                                       args[0][i][:, :, sheet_stored_th], args[1][i],
@@ -1483,9 +1495,10 @@ def U_phases_z_plot_save(folder_address,
                                       z=args[2][i][sheet_stored_th], **kwargs, )
                 imgs_address_list.append(U_phase_plot_address)
                 titles_list.append(U_phase_title)  # 每张图片都用单独list的形式加入到图片序列中
+                imgs_list.append(U_phase_img)
     else:
         for sheet_stored_th in range(U.shape[2]):
-            U_phase_plot_address, U_phase_title = \
+            U_phase_plot_address, U_phase_title, U_phase_img = \
                 U_phase_plot_save(folder_address,
                                   U[:, :, sheet_stored_th], U_name,
                                   img_name_extension,
@@ -1504,9 +1517,10 @@ def U_phases_z_plot_save(folder_address,
                                   z=z_stored[sheet_stored_th], **kwargs, )
             imgs_address_list.append(U_phase_plot_address)
             titles_list.append(U_phase_title)  # 每张图片都用单独list的形式加入到图片序列中
+            imgs_list.append(U_phase_img)
     kwargs["is_no_data_save"] = is_no_data_save
 
-    if is_save == 1:  # 只有 储存后，才能根据 储存的图片 生成 gif
+    if abs(is_save) == 1:  # 只有 储存后，才能根据 储存的图片 生成 gif
 
         """ plot2d 无法多线程，因为会挤占 同一个 fig 这个 全局的画布资源？ 注释了 plt.show() 也没用，应该不是它的锅。
         不过其实可以在 U_amp_plot 里面搞多线程，因为 获取 address 和 title 不是全局的 """
@@ -1541,15 +1555,18 @@ def U_phases_z_plot_save(folder_address,
         gif_address = imgs_address_list[-1].replace(img_name_extension, ".gif")
         if is_animated == 0:
             imgs2gif_imgio(imgs_address_list, gif_address,
+                           imgs_list, is_save,
                            duration, fps, loop, )
         elif is_animated == -1:
             imgs2gif_PIL(imgs_address_list, gif_address,
+                         imgs_list, is_save,
                          duration, fps, loop, )
         else:
             imgs2gif_art(imgs_address_list, gif_address, dpi,
+                         imgs_list, is_save,
                          duration, fps, loop, )
 
-        if kwargs.get("is_no_data_save", 0) == 0:
+        if is_save == 1 and kwargs.get("is_no_data_save", 0) == 0 and len(args) == 0:
             suffix = "_phase"
             U_address, ugHGU = U_save(U, U_name + suffix, folder_address,
                                       is_save, is_save_txt,

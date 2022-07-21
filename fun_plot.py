@@ -775,16 +775,114 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
         ax1.margins(0, 0)
         if is_save == 1:
             fig.savefig(array2D_address, transparent=True, pad_inches=0)  # 不包含图例等，且无白边
+        elif is_save == -1:
+            img = savefig_to_buffer(transparent=True, pad_inches=0)
     else:
         if is_save == 1:
             fig.savefig(array2D_address, transparent=True, bbox_inches='tight')  # 包含图例等，但有白边
             # fig.savefig(array2D_address, transparent = True, bbox_inches='tight', pad_inches=0) # 包含图例，且无白边
+        elif is_save == -1:
+            img = savefig_to_buffer(transparent=True, bbox_inches='tight')
 
+    # img = AxesImage_to_Image(fig)  #  plt.close() 之前截获 fig
+    # img = fig2data(fig)  # plt.close() 之前截获 fig
+    # img = fig2array(fig)
+    # %%
     plt.show()
     # plt.cla() # 清除所有 活动的 ax1，但其他不关
     # plt.clf() # 清除所有 ax1，但 fig 不关，可用同一个 fig 作图 新的 ax1（复用 设定好的 同一个 fig）
     # plt.close() # 关闭 fig（似乎 spyder 和 pycharm 的 scitific mode 自动就 close 了，内存本身就 不会上去）
 
+    return img
+
+# %% https://blog.csdn.net/aa846555831/article/details/52372884
+
+def savefig_to_buffer(**kwargs):  # using buffer, great way!
+    import PIL
+    from io import BytesIO
+
+    buffer_ = BytesIO()  # 申请缓冲地址
+    plt.savefig(buffer_, **kwargs)  # 保存在内存中，而不是在本地磁盘，注意这个默认认为你要保存的就是plt中的内容
+    buffer_.seek(0)
+    dataPIL = PIL.Image.open(buffer_)  # 用PIL或CV2从内存中读取
+    data = np.asarray(dataPIL)  # 转换为nparrary，PIL转换就非常快了,data 即为所需
+    # import cv2
+    # cv2.imshow('image', data)
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()
+    buffer_.close()  # 释放缓存
+    return data
+
+# %% https://blog.csdn.net/tequila53/article/details/123486737
+
+def AxesImage_to_Image(fig):
+    from PIL import Image
+    from matplotlib.backends.backend_agg import FigureCanvasAgg  # 需要用到matplotlib的后端
+    canvas = FigureCanvasAgg(fig)  # 由当前图表获取整体画布
+    canvas.draw()  # 绘制图像
+    w, h = canvas.get_width_height()  # 获取图像尺寸
+    buf = np.frombuffer(canvas.tostring_argb(), dtype=np.uint8)
+    # 解码string 得到argb图像，原博主是用fromstring，目前的np推荐是frombuffer
+    buf.shape = (w, h, 4)  # w,h,a*r*g*b
+    buf = np.roll(buf, 3, axis=2)  # w,h,r*g*b*a
+    img = Image.frombytes('RGBA', (w, h), buf.tobytes())  # 从axes转为PIL
+    # 同样的，原博主使用tostring()，使用tobytes()更符合目前标准
+    img = np.asarray(img)
+    return img
+
+
+# %% https://blog.csdn.net/guyuealian/article/details/104179723
+
+def fig2data(fig):
+    """
+    fig = plt.figure()
+    image = fig2data(fig)
+    @brief Convert a Matplotlib figure to a 4D numpy array with RGBA channels and return it
+    @param fig a matplotlib figure
+    @return a numpy 3D array of RGBA values
+    """
+    import PIL.Image as Image
+    # draw the renderer
+    fig.canvas.draw()
+
+    # Get the RGBA buffer from the figure
+    w, h = fig.canvas.get_width_height()
+    buf = np.fromstring(fig.canvas.tostring_argb(), dtype=np.uint8)
+    buf.shape = (w, h, 4)
+
+    # canvas.tostring_argb give pixmap in ARGB mode. Roll the ALPHA channel to have it in RGBA mode
+    buf = np.roll(buf, 3, axis=2)
+    image = Image.frombytes("RGBA", (w, h), buf.tostring())
+    image = np.asarray(image)
+    return image
+
+
+# %% https://blog.csdn.net/u012762410/article/details/119038022
+
+def fig2array(fig):
+    '''
+    matplotlib.figure.Figure转为np.ndarray
+    '''
+    fig.canvas.draw()
+    w, h = fig.canvas.get_width_height()
+    buf_ndarray = np.frombuffer(fig.canvas.tostring_rgb(), dtype='u1')
+    im = buf_ndarray.reshape(h, w, 3)
+    return im
+
+
+def fig2img(fig):
+    '''
+    matplotlib.figure.Figure转为PIL image
+    '''
+    from PIL import Image
+    fig.canvas.draw()
+    w, h = fig.canvas.get_width_height()
+    # 将Image.frombytes替换为Image.frombuffer,图像会倒置
+    img = Image.frombytes('RGB', (w, h), fig.canvas.tostring_rgb())
+    return img
+
+
+# %%
 
 def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
                 # %%
@@ -915,9 +1013,9 @@ def plot_3d_XYZ(zj, sample=1, size_PerPixel=0.007,
         if is_mjrFormatter_sci(zticklabels):
             ax1.zaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
 
-        ax1.set_xlabel(xlabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
-        ax1.set_ylabel(ylabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
-        ax1.set_zlabel(zlabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_xlabel(xlabel, labelpad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_ylabel(ylabel, labelpad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_zlabel(zlabel, labelpad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
 
     ax1.view_init(elev=elev, azim=azim)  # 后一个为负 = 绕 z 轴逆时针
 
@@ -1099,9 +1197,9 @@ def plot_3d_XYz(zj, sample=1, size_PerPixel=0.007,
         if is_mjrFormatter_sci(zticklabels):
             ax1.zaxis.set_major_formatter(mpl.ticker.FuncFormatter(mjrFormatter_sci))
 
-        ax1.set_xlabel(xlabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
-        ax1.set_ylabel(ylabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
-        ax1.set_zlabel(zlabel, pad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_xlabel(xlabel, labelpad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_ylabel(ylabel, labelpad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
+        ax1.set_zlabel(zlabel, labelpad=fontsize_set, **format_dict(fontsize_set, font, title_fontsize_enlarge))
 
     ax1.view_init(elev=elev, azim=azim);  # 后一个为负 = 绕 z 轴逆时针
 

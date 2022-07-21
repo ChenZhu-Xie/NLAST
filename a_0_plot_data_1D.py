@@ -14,7 +14,7 @@ from fun_global_var import init_GLV_DICT, Get, tree_print
 
 # %%
 
-def plot_1D_test(plot_mode=3, is_energy_normalized=0,
+def plot_data_1D(plot_mode=3, is_energy_normalized=0,
                  Data_Seq=0,
                  img_full_name="lena1.png",
                  is_phase_only=0,
@@ -146,9 +146,9 @@ if __name__ == '__main__':
          "ax_yscale": 'linear', "xticklabels_rotate": 45, }
 
     kwargs = init_GLV_DICT(**kwargs)
-    plot_1D_test(**kwargs)
+    plot_data_1D(**kwargs)
 
-    # plot_1D_test(plot_mode=3,
+    # plot_data_1D(plot_mode=3,
     #              Data_Seq=24,
     #              img_full_name="lena1.png",
     #              is_phase_only=0,

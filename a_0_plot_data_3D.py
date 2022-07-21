@@ -14,7 +14,7 @@ from fun_global_var import init_GLV_DICT, tree_print
 
 # %%
 
-def plot_3D_test(plot_mode=3,
+def plot_data_3D(plot_mode=3,
                  Data_Seq=0,
                  img_full_name="lena1.png",
                  is_phase_only=0,
@@ -204,7 +204,7 @@ if __name__ == '__main__':
          "is_end": -1, }
 
     kwargs = init_GLV_DICT(**kwargs)
-    plot_3D_test(**kwargs)
+    plot_data_3D(**kwargs)
 
     # plot_1D_test(plot_mode=3,
     #              Data_Seq=24,
