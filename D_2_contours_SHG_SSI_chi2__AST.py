@@ -260,16 +260,16 @@ def consistency_SHG_SSI__AST(img_full_name="Grating.png",
     fset("U", U2_Z_ADD)
 
     folder_address = U_plot_save(fget("U"), fkey("U"), 1,
-                                 img_name_extension,
+                                 img_name_extension, is_save_txt,
                                  # %%
-                                 size_PerPixel,
-                                 is_save, is_save_txt, dpi, size_fig,
+                                 size_PerPixel, dpi, size_fig,
                                  # %%
                                  cmap_2d, ticks_num, is_contourf,
                                  is_title_on, is_axes_on, is_mm,
                                  fontsize, font,
                                  # %%
-                                 is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                 is_colorbar_on, is_save,
+                                 is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
                                  z=Z, is_end=1, )
 

@@ -913,20 +913,18 @@ def SFG_NLA(U_name="",
          Gz_max_Enhance, match_mode, ]
 
     def args_U_amp_plot_save(folder_address, U, U_name):
-        return [folder_address,
-                # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                U, U_name,
-                Get("img_name_extension"),
-                is_save_txt,
+        return [U, U_name,
+                [], folder_address,
+                Get("img_name_extension"), is_save_txt,
                 # %%
-                [], 1, size_PerPixel,
-                is_save, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                size_PerPixel, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
                 # %%
                 cmap_2d, ticks_num, is_contourf,
-                is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                is_title_on, is_axes_on, is_mm,
                 fontsize, font,
                 # %%
-                1, is_colorbar_on, 0, ]  # 折射率分布差别很小，而 is_self_colorbar = 0 只看前 3 位小数的差异，因此用自动 colorbar。
+                is_colorbar_on, is_save,
+                1, 0, 1, 0, ]  # 折射率分布差别很小，而 is_self_colorbar = 0 只看前 3 位小数的差异，因此用自动 colorbar。
 
     kwargs_U_amp_plot_save = {"suffix": ""}
 

@@ -58,59 +58,48 @@ def plot_data_1D(plot_mode=3, is_energy_normalized=0,
                                   U_size, dpi,
                                   is_phase_only, **kwargs, )
 
+    share_args_1D = [img_name_extension, is_save_txt,
+                     # %%
+                     sample, size_PerPixel,
+                     is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
+                     # %%
+                     color_1d, ticks_num,
+                     is_title_on, is_axes_on, is_mm,
+                     fontsize, font, ]
+    # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+    # %%
+
     if plot_func == "U_energy_plot_save":
-        U_energy_plot_save(U_list[index+0], U_name_no_suffix_list[index+0],
-                           img_name_extension,
-                           is_save_txt,
+        U_energy_plot_save(U_list[index + 0], U_name_no_suffix_list[index + 0],
+                           U_list[index + 1],
+                           *share_args_1D,
                            # %%
-                           U_list[index+1], sample, size_PerPixel,
-                           is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
-                           color_1d, ticks_num, is_title_on, is_axes_on, is_mm,
-                           fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
-                           # %%
-                           z_list[index+0], **kwargs, )
+                           z_list[index + 0], **kwargs, )
     elif plot_func == "U_error_energy_plot_save":
-        U_error_energy_plot_save(U_list[index+0], U_list[index+1], U_list[index+2], U_name_no_suffix_list[index+0],
-                                 img_name_extension, is_save_txt,
+        U_error_energy_plot_save(U_list[index + 0], U_list[index + 1], U_list[index + 2],
+                                 U_name_no_suffix_list[index + 0],
+                                 U_list[index + 3], U_list[index + 4],
+                                 *share_args_1D, color_1d2,
                                  # %%
-                                 U_list[index+3], U_list[index+4], sample, size_PerPixel,
-                                 is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
-                                 # %%
-                                 color_1d, color_1d2,
-                                 ticks_num, is_title_on, is_axes_on, is_mm,
-                                 fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
-                                 # %%
-                                 z_list[index+0], **kwargs, )
+                                 z_list[index + 0], **kwargs, )
     elif plot_func == "U_twin_energy_error_plot_save":
-        U_twin_energy_error_plot_save(U_list[index+0], U_list[index+1], U_name_no_suffix_list[index+0],
-                                      img_name_extension, is_save_txt,
+        U_twin_energy_error_plot_save(U_list[index + 0], U_list[index + 1], U_name_no_suffix_list[index + 0],
+                                      U_list[index + 2], U_list[index + 3],
+                                      *share_args_1D, color_1d2,
                                       # %%
-                                      U_list[index+2], U_list[index+3], sample, size_PerPixel,
-                                      is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
-                                      # %%
-                                      color_1d, color_1d2,
-                                      ticks_num, is_title_on, is_axes_on, is_mm,
-                                      fontsize, font,
-                                      # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
-                                      # %%
-                                      z_list[index+0],
+                                      z_list[index + 0],
                                       # %%
                                       is_energy_normalized=is_energy_normalized, **kwargs, )
     elif plot_func == "U_twin_error_energy_plot_save":
-        U_twin_error_energy_plot_save(U_list[index+0], U_list[index+1], U_list[index+2], U_name_no_suffix_list[index+0],
-                                      img_name_extension, is_save_txt,
+        U_twin_error_energy_plot_save(U_list[index + 0], U_list[index + 1], U_list[index + 2],
+                                      U_name_no_suffix_list[index + 0],
+                                      U_list[index + 3], U_list[index + 4],
+                                      *share_args_1D, color_1d2,
                                       # %%
-                                      U_list[index+3], U_list[index+4], sample, size_PerPixel,
-                                      is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
-                                      # %%
-                                      color_1d, color_1d2,
-                                      ticks_num, is_title_on, is_axes_on, is_mm,
-                                      fontsize, font,
-                                      # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
-                                      # %%
-                                      z_list[index+0],
+                                      z_list[index + 0],
                                       # %%
                                       is_energy_normalized=is_energy_normalized, **kwargs, )
+
 
 if __name__ == '__main__':
     kwargs = \
@@ -132,10 +121,10 @@ if __name__ == '__main__':
          # %%
          "fontsize": 10.0,
          "font": {'family': 'serif',
-               'style': 'normal',  # 'normal', 'italic', 'oblique'
-               'weight': 'normal',
-               'color': 'black',  # 'black','gray','darkred'
-               },
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
          "is_print": 1,
          "is_energy_normalized": 2,
          # %% 该程序 作为 主入口时 -------------------------------

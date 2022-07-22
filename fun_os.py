@@ -438,22 +438,22 @@ def U_phase_error_plot_address_and_title(U_name, folder_address, img_name_extens
 
 # %%
 
-def U_amp_plot_save(folder_address,
-                    U, U_name,
-                    img_name_extension,
-                    is_save_txt,
+def U_amp_plot_save(U, U_name,
+                    zj_plot_2d, folder_address,
+                    img_name_extension, is_save_txt,
                     # %%
-                    zj_plot_2d, sample, size_PerPixel,
-                    is_save, dpi, size_fig,
+                    size_PerPixel, dpi, size_fig,
                     # %%
                     cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm, is_propagation,
+                    is_title_on, is_axes_on, is_mm,
                     fontsize, font,
                     # %%
-                    is_self_colorbar, is_colorbar_on, is_energy,
+                    is_colorbar_on, is_save,
+                    sample, is_energy, is_self_colorbar, is_propagation,
                     # %%
                     **kwargs, ):  # args 是 z 或 ()、is_save_txt、is_no_data_save
 
+    # print(img_name_extension)
     U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U_name, folder_address, img_name_extension,
                                                                    **kwargs, )
     # %%
@@ -478,18 +478,19 @@ def U_amp_plot_save(folder_address,
 
 # %%
 
-def U_amp_error_plot(folder_address,
-                     U, U_name,
+def U_amp_error_plot(U, U_name,
+                     zj, folder_address,
                      img_name_extension,
                      # %%
-                     zj, sample, size_PerPixel,
-                     is_save, dpi, size_fig,
+                     size_PerPixel, dpi, size_fig,
                      # %%
                      cmap_2d, ticks_num, is_contourf,
-                     is_title_on, is_axes_on, is_mm, is_propagation,
+                     is_title_on, is_axes_on, is_mm,
                      fontsize, font,
                      # %%
-                     is_self_colorbar, is_colorbar_on, is_energy,
+                     is_colorbar_on, is_save,
+                     sample, is_energy,
+                     is_self_colorbar, is_propagation,
                      # %%
                      **kwargs, ):  # args 是 z 或 ()
 
@@ -512,19 +513,19 @@ def U_amp_error_plot(folder_address,
 
 # %%
 
-def U_phase_plot_save(folder_address,
-                      U, U_name,
-                      img_name_extension,
-                      is_save_txt,
+def U_phase_plot_save(U, U_name,
+                      zj_plot_2d, folder_address,
+                      img_name_extension, is_save_txt,
                       # %%
-                      zj_plot_2d, sample, size_PerPixel,
-                      is_save, dpi, size_fig,
+                      size_PerPixel, dpi, size_fig,
                       # %%
                       cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm, is_propagation,
+                      is_title_on, is_axes_on, is_mm,
                       fontsize, font,
                       # %%
-                      is_self_colorbar, is_colorbar_on,
+                      is_colorbar_on, is_save,
+                      sample,
+                      is_self_colorbar, is_propagation,
                       # %%
                       **kwargs, ):  # args 是 z 或 ()、is_save_txt、is_no_data_save
 
@@ -552,18 +553,19 @@ def U_phase_plot_save(folder_address,
 
 # %%
 
-def U_phase_error_plot(folder_address,
-                       U, U_name,
+def U_phase_error_plot(U, U_name,
+                       zj, folder_address,
                        img_name_extension,
                        # %%
-                       zj, sample, size_PerPixel,
-                       is_save, dpi, size_fig,
+                       size_PerPixel, dpi, size_fig,
                        # %%
                        cmap_2d, ticks_num, is_contourf,
-                       is_title_on, is_axes_on, is_mm, is_propagation,
+                       is_title_on, is_axes_on, is_mm,
                        fontsize, font,
                        # %%
-                       is_self_colorbar, is_colorbar_on,
+                       is_colorbar_on, is_save,
+                       sample,
+                       is_self_colorbar, is_propagation,
                        # %%
                        **kwargs, ):  # args 是 z 或 ()
 
@@ -586,53 +588,43 @@ def U_phase_error_plot(folder_address,
 
 # %%
 
-def U_plot(folder_address,
-           U, U_name,
-           img_name_extension,
-           is_save_txt,
+def U_plot(U, U_name,
+           folder_address,
+           img_name_extension, is_save_txt,
            # %%
-           sample, size_PerPixel,
-           is_save, dpi, size_fig,
+           size_PerPixel, dpi, size_fig,
            # %%
            cmap_2d, ticks_num, is_contourf,
            is_title_on, is_axes_on, is_mm,
            fontsize, font,
            # %%
-           is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+           is_colorbar_on, is_save,
+           sample, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
            # %%                          何况 一般默认 is_self_colorbar = 1...
            **kwargs, ):  # args 是 z 或 ()、is_save_txt、is_no_data_save
 
+    args_plot_save = [U_name,
+                      [], folder_address,
+                      img_name_extension, is_save_txt,
+                      # %%
+                      size_PerPixel, dpi, size_fig,
+                      # %%
+                      cmap_2d, ticks_num, is_contourf,
+                      is_title_on, is_axes_on, is_mm,
+                      fontsize, font,
+                      # %%
+                      is_colorbar_on, is_save,
+                      sample, ]
+
     U_amp_plot_address, U_amp_title, U_amp_img = \
-        U_amp_plot_save(folder_address,
-                        np.abs(U), U_name,
-                        img_name_extension,
-                        is_save_txt,
-                        # %%
-                        [], sample, size_PerPixel,
-                        is_save, dpi, size_fig,
-                        # %%
-                        cmap_2d, ticks_num, is_contourf,
-                        is_title_on, is_axes_on, is_mm, 0,
-                        fontsize, font,
-                        # %%
-                        0, is_colorbar_on, is_energy,
+        U_amp_plot_save(np.abs(U), *args_plot_save, is_energy,
+                        0, 0,
                         # %% 何况 一般默认 is_self_colorbar = 1...
                         **kwargs, )
 
     U_phase_plot_address, U_phase_title, U_phase_img = \
-        U_phase_plot_save(folder_address,
-                          np.angle(U), U_name,
-                          img_name_extension,
-                          is_save_txt,
-                          # %%
-                          [], sample, size_PerPixel,
-                          is_save, dpi, size_fig,
-                          # %%
-                          cmap_2d, ticks_num, is_contourf,
-                          is_title_on, is_axes_on, is_mm, 0,
-                          fontsize, font,
-                          # %%
-                          0, is_colorbar_on,
+        U_phase_plot_save(np.angle(U), *args_plot_save,
+                          0, 0,
                           # %% 何况 一般默认 is_self_colorbar = 1...
                           **kwargs, )
 
@@ -641,18 +633,18 @@ def U_plot(folder_address,
 
 # %%
 
-def U_error_plot(folder_address,
-                 U, U_0, ugHGU,
+def U_error_plot(U, U_0, ugHGU,
+                 folder_address,
                  img_name_extension,
                  # %%
-                 sample, size_PerPixel,
-                 is_save, dpi, size_fig,
+                 size_PerPixel, dpi, size_fig,
                  # %%
                  cmap_2d, ticks_num, is_contourf,
                  is_title_on, is_axes_on, is_mm,
                  fontsize, font,
                  # %%
-                 is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                 is_colorbar_on, is_save,
+                 sample, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                  # %%                          何况 一般默认 is_self_colorbar = 1...
                  **kwargs, ):  # args 是 z 或 ()
 
@@ -661,33 +653,26 @@ def U_error_plot(folder_address,
     U_amp_error = np.abs(U) - np.abs(U_0)
     U_phase_error = np.angle(U) - np.angle(U_0)
 
-    U_amp_error_plot_address = U_amp_error_plot(folder_address,
-                                                U_amp_error, fkey(ugHGU),
-                                                img_name_extension,
-                                                # %%
-                                                [], sample, size_PerPixel,
-                                                is_save, dpi, size_fig,
-                                                # %%
-                                                cmap_2d, ticks_num, is_contourf,
-                                                is_title_on, is_axes_on, is_mm, 0,
-                                                fontsize, font,
-                                                # %%
-                                                0, is_colorbar_on, is_energy,
+    args_error_plot = [fkey(ugHGU),
+                       [], folder_address,
+                       img_name_extension,
+                       # %%
+                       size_PerPixel, dpi, size_fig,
+                       # %%
+                       cmap_2d, ticks_num, is_contourf,
+                       is_title_on, is_axes_on, is_mm,
+                       fontsize, font,
+                       # %%
+                       is_colorbar_on, is_save,
+                       sample, ]
+
+    U_amp_error_plot_address = U_amp_error_plot(U_amp_error, *args_error_plot, is_energy,
+                                                0, 0,
                                                 # %% 何况 一般默认 is_self_colorbar = 1...
                                                 **kwargs, )
 
-    U_phase_error_plot_address = U_phase_error_plot(folder_address,
-                                                    U_phase_error, fkey(ugHGU),
-                                                    img_name_extension,
-                                                    # %%
-                                                    [], sample, size_PerPixel,
-                                                    is_save, dpi, size_fig,
-                                                    # %%
-                                                    cmap_2d, ticks_num, is_contourf,
-                                                    is_title_on, is_axes_on, is_mm, 0,
-                                                    fontsize, font,
-                                                    # %%
-                                                    0, is_colorbar_on,
+    U_phase_error_plot_address = U_phase_error_plot(U_phase_error, *args_error_plot,
+                                                    0, 0,
                                                     # %% 何况 一般默认 is_self_colorbar = 1...
                                                     **kwargs, )
 
@@ -697,16 +682,16 @@ def U_error_plot(folder_address,
 # %%
 
 def U_plot_save(U, U_name, is_print,
-                img_name_extension,
+                img_name_extension, is_save_txt,
                 # %%
-                size_PerPixel,
-                is_save, is_save_txt, dpi, size_fig,
+                size_PerPixel, dpi, size_fig,
                 # %%
                 cmap_2d, ticks_num, is_contourf,
                 is_title_on, is_axes_on, is_mm,
                 fontsize, font,
                 # %%
-                is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                is_colorbar_on, is_save,
+                is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                 # %%                          何况 一般默认 is_self_colorbar = 1...
                 **kwargs, ):  # **kwargs = z
 
@@ -733,17 +718,18 @@ def U_plot_save(U, U_name, is_print,
     # 绘图：U
 
     kwargs["is_no_data_save"] = 1
-    U_amp_plot_address, U_phase_plot_address = U_plot(folder_address,
-                                                      U, U_name,
-                                                      img_name_extension,
-                                                      is_save_txt,
+    U_amp_plot_address, U_phase_plot_address = U_plot(U, U_name,
+                                                      folder_address,
+                                                      img_name_extension, is_save_txt,
                                                       # %%
-                                                      1, size_PerPixel,
-                                                      is_save, dpi, size_fig,
+                                                      size_PerPixel, dpi, size_fig,
+                                                      # %%
                                                       cmap_2d, ticks_num, is_contourf,
                                                       is_title_on, is_axes_on, is_mm,
                                                       fontsize, font,
-                                                      is_colorbar_on, is_energy,
+                                                      # %%
+                                                      is_colorbar_on, is_save,
+                                                      1, is_energy,
                                                       # %%
                                                       **kwargs, )
     kwargs.pop("is_no_data_save", None)
@@ -761,16 +747,16 @@ def U_plot_save(U, U_name, is_print,
 # %%
 
 def U_error_plot_save(U, U_0, ugHGU, is_print,
-                      img_name_extension,
+                      img_name_extension, is_save_txt,
                       # %%
-                      size_PerPixel,
-                      is_save, is_save_txt, dpi, size_fig,
+                      size_PerPixel, dpi, size_fig,
                       # %%
                       cmap_2d, ticks_num, is_contourf,
                       is_title_on, is_axes_on, is_mm,
                       fontsize, font,
                       # %%
-                      is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                      is_colorbar_on, is_save,
+                      is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                       # %%                          何况 一般默认 is_self_colorbar = 1...
                       **kwargs, ):  # **kwargs = z
 
@@ -815,16 +801,18 @@ def U_error_plot_save(U, U_0, ugHGU, is_print,
     # diverging colormaps:
     # "coolwarm", "bwr", "seismic", "Spectral", "RdBu", "RdYIBu"
 
-    U_amp_error_plot_address, U_phase_error_plot_address = U_error_plot(folder_address,
-                                                                        U, U_0, ugHGU,
+    U_amp_error_plot_address, U_phase_error_plot_address = U_error_plot(U, U_0, ugHGU,
+                                                                        folder_address,
                                                                         img_name_extension,
                                                                         # %%
-                                                                        1, size_PerPixel,
-                                                                        is_save, dpi, size_fig,
+                                                                        size_PerPixel, dpi, size_fig,
+                                                                        # %%
                                                                         cmap_2d, ticks_num, is_contourf,
                                                                         is_title_on, is_axes_on, is_mm,
                                                                         fontsize, font,
-                                                                        is_colorbar_on, is_energy,
+                                                                        # %%
+                                                                        is_colorbar_on, is_save,
+                                                                        1, is_energy,
                                                                         # %%
                                                                         **kwargs, )
 
@@ -863,91 +851,67 @@ def GHU_plot_save(G, G_name, is_energy_evolution_on,  # 默认 全自动 is_auto
     kwargs.pop("add_level", None)
     # %%
     kwargs['p_dir'] = 'GHU_XY'
+    args_U_plot_save = [img_name_extension, is_save_txt,
+                        # %%
+                        size_PerPixel, dpi, size_fig,
+                        # %%
+                        cmap_2d, ticks_num, is_contourf,
+                        is_title_on, is_axes_on, is_mm,
+                        fontsize, font,
+                        # %%
+                        is_colorbar_on, is_save,
+                        is_energy, ]
     # %%
     folder_address = U_plot_save(G, G_name, 0,
-                                 img_name_extension,
-                                 # %%
-                                 size_PerPixel,
-                                 is_save, is_save_txt, dpi, size_fig,
-                                 # %%
-                                 cmap_2d, ticks_num, is_contourf,
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font,
-                                 # %%
-                                 is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                 *args_U_plot_save,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
                                  z=z, **kwargs, )
 
     folder_address = U_plot_save(H, H_name, 0,
-                                 img_name_extension,
-                                 # %%
-                                 size_PerPixel,
-                                 is_save, is_save_txt, dpi, size_fig,
-                                 # %%
-                                 cmap_2d, ticks_num, is_contourf,
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font,
-                                 # %%
-                                 is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                 *args_U_plot_save,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
                                  z=z, **kwargs, )
 
     folder_address = U_plot_save(U, U_name, is_print,
-                                 img_name_extension,
-                                 # %%
-                                 size_PerPixel,
-                                 is_save, is_save_txt, dpi, size_fig,
-                                 # %%
-                                 cmap_2d, ticks_num, is_contourf,
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font,
-                                 # %%
-                                 is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                 *args_U_plot_save,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                  # %%                          何况 一般默认 is_self_colorbar = 1...
                                  z=z, is_end=is_end, **kwargs, )
 
+    args_energy_plot_save = [zj,
+                             img_name_extension, is_save_txt,
+                             # %%
+                             sample, size_PerPixel,
+                             is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
+                             color_1d, ticks_num,
+                             is_title_on, is_axes_on, is_mm,
+                             fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                             # %%
+                             z, ]
     if is_energy_evolution_on == 1:
         kwargs['p_dir'] = 'GU_energy(z)'
         # %% G
         U_energy_plot_save(G_energy, G_name,
-                           img_name_extension,
-                           is_save_txt,
-                           # %%
-                           zj, sample, size_PerPixel,
-                           is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
-                           color_1d, ticks_num, is_title_on, is_axes_on, is_mm,
-                           fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
-                           # %%
-                           z, **kwargs, )
+                           *args_energy_plot_save, **kwargs, )
         # %% U
         U_energy_plot_save(U_energy, U_name,
-                           img_name_extension,
-                           is_save_txt,
-                           # %%
-                           zj, sample, size_PerPixel,
-                           is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
-                           color_1d, ticks_num, is_title_on, is_axes_on, is_mm,
-                           fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
-                           # %%
-                           z, **kwargs, )
+                           *args_energy_plot_save, **kwargs, )
 
 
 # %%
 
-def U_slices_plot_save(folder_address,
-                       U_XZ, U_XZ_name,
+def U_slices_plot_save(U_XZ, U_XZ_name,
                        U_YZ, U_YZ_name,
-                       zj, img_name_extension,
-                       is_save_txt,
+                       zj, folder_address,
+                       img_name_extension, is_save_txt,
                        # %%
-                       sample, size_PerPixel,
-                       is_save, dpi, size_fig,
+                       size_PerPixel, dpi, size_fig,
                        # %%
                        cmap_2d, ticks_num, is_contourf,
                        is_title_on, is_axes_on, is_mm,
                        fontsize, font,
                        # %%
-                       is_colorbar_on, is_energy,
+                       is_colorbar_on, is_save,
+                       sample, is_energy,
                        # %%
                        X, Y, **kwargs, ):  # args 是 X 和 Y， is_save_txt、is_no_data_save
     if kwargs.get("is_colorbar_log", 0) == -1:
@@ -961,39 +925,30 @@ def U_slices_plot_save(folder_address,
             "vmax": U_YZ_XZ_amp_max,
             "vmin": U_YZ_XZ_amp_min,
         }
+    args_plot_save = [zj, folder_address,
+                      img_name_extension, is_save_txt,
+                      # %%
+                      size_PerPixel, dpi, size_fig,
+                      # %%
+                      cmap_2d, ticks_num, is_contourf,
+                      is_title_on, is_axes_on, is_mm,
+                      fontsize, font,
+                      # %%
+                      is_colorbar_on, is_save,
+                      sample, ]
 
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
-    U_amp_plot_save(folder_address,
-                    np.abs(U_YZ), U_YZ_name,  # 不能是 U_YZ_amp，因为 不能包含平方 np.abs(U_YZ_amp) ** 2，因为 plot_2d 里还会平方
-                    img_name_extension,
-                    is_save_txt,
-                    # %%
-                    zj, sample, size_PerPixel,
-                    is_save, dpi, size_fig,
-                    # %%
-                    cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm, 1,
-                    fontsize, font,
-                    # %%
-                    0, is_colorbar_on, is_energy,
+    U_amp_plot_save(np.abs(U_YZ), U_YZ_name,
+                    *args_plot_save, is_energy,
+                    0, 1,
                     **v_kwargs,
                     # %%
                     z=X, **kwargs, )
 
-    U_amp_plot_save(folder_address,
-                    np.abs(U_XZ), U_XZ_name,
-                    img_name_extension,
-                    is_save_txt,
-                    # %%
-                    zj, sample, size_PerPixel,
-                    is_save, dpi, size_fig,
-                    # %%
-                    cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm, 1,
-                    fontsize, font,
-                    # %%
-                    0, is_colorbar_on, is_energy,
+    U_amp_plot_save(np.abs(U_XZ), U_XZ_name,
+                    *args_plot_save, is_energy,
+                    0, 1,
                     **v_kwargs,
                     # %%
                     z=Y, **kwargs, )
@@ -1010,36 +965,16 @@ def U_slices_plot_save(folder_address,
             "vmin": U_YZ_XZ_phase_min,
         }
 
-    U_phase_plot_save(folder_address,
-                      np.angle(U_YZ), U_YZ_name,
-                      img_name_extension,
-                      is_save_txt,
-                      # %%
-                      zj, sample, size_PerPixel,
-                      is_save, dpi, size_fig,
-                      # %%
-                      cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm, 1,
-                      fontsize, font,
-                      # %%
-                      0, is_colorbar_on,
+    U_phase_plot_save(np.angle(U_YZ), U_YZ_name,
+                      *args_plot_save,
+                      0, 1,
                       **v_kwargs,
                       # %%
                       z=X, **kwargs, )
 
-    U_phase_plot_save(folder_address,
-                      np.angle(U_XZ), U_XZ_name,
-                      img_name_extension,
-                      is_save_txt,
-                      # %%
-                      zj, sample, size_PerPixel,
-                      is_save, dpi, size_fig,
-                      # %%
-                      cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm, 1,
-                      fontsize, font,
-                      # %%
-                      0, is_colorbar_on,
+    U_phase_plot_save(np.angle(U_XZ), U_XZ_name,
+                      *args_plot_save,
+                      0, 1,
                       **v_kwargs,
                       # %%
                       z=Y, **kwargs, )
@@ -1068,24 +1003,23 @@ def U_slices_plot_save(folder_address,
 
 # %%
 
-def U_selects_plot_save(folder_address,
-                        U_1, U_1_name,
+def U_selects_plot_save(U_1, U_1_name,
                         U_2, U_2_name,
                         U_f, U_f_name,
                         U_e, U_e_name,
-                        img_name_extension,
-                        is_save_txt,
+                        z_1, z_2, z_f, z_e,
+                        folder_address,
+                        img_name_extension, is_save_txt,
                         # %%
-                        sample, size_PerPixel,
-                        is_save, dpi, size_fig,
+                        size_PerPixel, dpi, size_fig,
                         # %%
                         cmap_2d, ticks_num, is_contourf,
                         is_title_on, is_axes_on, is_mm,
                         fontsize, font,
                         # %%
-                        is_colorbar_on, is_energy, is_show_structure_face,
+                        is_colorbar_on, is_save,
+                        sample, is_energy, is_show_structure_face,
                         # %%
-                        z_1, z_2, z_f, z_e,
                         **kwargs, ):  # kwargs 是 is_save_txt、is_no_data_save
 
     if kwargs.get("is_colorbar_log", 0) == -1:
@@ -1107,74 +1041,45 @@ def U_selects_plot_save(folder_address,
             "vmax": U_amps_max,
             "vmin": U_amps_min,
         }
+    args_plot_save = [[], folder_address,
+                      img_name_extension, is_save_txt,
+                      # %%
+                      size_PerPixel, dpi, size_fig,
+                      # %%
+                      cmap_2d, ticks_num, is_contourf,
+                      is_title_on, is_axes_on, is_mm,
+                      fontsize, font,
+                      # %%
+                      is_colorbar_on, is_save,
+                      sample, ]
 
     is_no_data_save = kwargs.get("is_no_data_save", 0)
     kwargs["is_no_data_save"] = 1
-    U_amp_plot_save(folder_address,
-                    np.abs(U_1), U_1_name,  # 不能是 U_1_amp，因为 不能包含平方 np.abs(U_1) ** 2，因为 plot_2d 里还会平方
-                    img_name_extension,
-                    is_save_txt,
-                    # %%
-                    [], sample, size_PerPixel,
-                    is_save, dpi, size_fig,
-                    # %%
-                    cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm, 0,
-                    fontsize, font,
-                    # %%
-                    0, is_colorbar_on, is_energy,
+    U_amp_plot_save(np.abs(U_1), U_1_name,
+                    *args_plot_save, is_energy,
+                    0, 0,
                     **v_kwargs,
                     # %%
                     z=z_1, **kwargs, )
 
-    U_amp_plot_save(folder_address,
-                    np.abs(U_2), U_2_name,
-                    img_name_extension,
-                    is_save_txt,
-                    # %%
-                    [], sample, size_PerPixel,
-                    is_save, dpi, size_fig,
-                    # %%
-                    cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm, 0,
-                    fontsize, font,
-                    # %%
-                    0, is_colorbar_on, is_energy,
+    U_amp_plot_save(np.abs(U_2), U_2_name,
+                    *args_plot_save, is_energy,
+                    0, 0,
                     **v_kwargs,
                     # %%
                     z=z_2, **kwargs, )
 
     if is_show_structure_face == 1:
-        U_amp_plot_save(folder_address,
-                        np.abs(U_f), U_f_name,
-                        img_name_extension,
-                        is_save_txt,
-                        # %%
-                        [], sample, size_PerPixel,
-                        is_save, dpi, size_fig,
-                        # %%
-                        cmap_2d, ticks_num, is_contourf,
-                        is_title_on, is_axes_on, is_mm, 0,
-                        fontsize, font,
-                        # %%
-                        0, is_colorbar_on, is_energy,
+        U_amp_plot_save(np.abs(U_f), U_f_name,
+                        *args_plot_save, is_energy,
+                        0, 0,
                         **v_kwargs,
                         # %%
                         z=z_f, **kwargs, )
 
-        U_amp_plot_save(folder_address,
-                        np.abs(U_e), U_e_name,
-                        img_name_extension,
-                        is_save_txt,
-                        # %%
-                        [], sample, size_PerPixel,
-                        is_save, dpi, size_fig,
-                        # %%
-                        cmap_2d, ticks_num, is_contourf,
-                        is_title_on, is_axes_on, is_mm, 0,
-                        fontsize, font,
-                        # %%
-                        0, is_colorbar_on, is_energy,
+        U_amp_plot_save(np.abs(U_e), U_e_name,
+                        *args_plot_save, is_energy,
+                        0, 0,
                         **v_kwargs,
                         # %%
                         z=z_e, **kwargs, )
@@ -1199,71 +1104,31 @@ def U_selects_plot_save(folder_address,
             "vmin": U_phases_min,
         }
 
-    U_phase_plot_save(folder_address,
-                      np.angle(U_1), U_1_name,
-                      img_name_extension,
-                      is_save_txt,
-                      # %%
-                      [], sample, size_PerPixel,
-                      is_save, dpi, size_fig,
-                      # %%
-                      cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm, 0,
-                      fontsize, font,
-                      # %%
-                      0, is_colorbar_on,
+    U_phase_plot_save(np.angle(U_1), U_1_name,
+                      *args_plot_save,
+                      0, 0,
                       **v_kwargs,
                       # %%
                       z=z_1, **kwargs, )
 
-    U_phase_plot_save(folder_address,
-                      np.angle(U_2), U_2_name,
-                      img_name_extension,
-                      is_save_txt,
-                      # %%
-                      [], sample, size_PerPixel,
-                      is_save, dpi, size_fig,
-                      # %%
-                      cmap_2d, ticks_num, is_contourf,
-                      is_title_on, is_axes_on, is_mm, 0,
-                      fontsize, font,
-                      # %%
-                      0, is_colorbar_on,
+    U_phase_plot_save(np.angle(U_2), U_2_name,
+                      *args_plot_save,
+                      0, 0,
                       **v_kwargs,
                       # %%
                       z=z_2, **kwargs, )
 
     if is_show_structure_face == 1:
-        U_phase_plot_save(folder_address,
-                          np.angle(U_f), U_f_name,
-                          img_name_extension,
-                          is_save_txt,
-                          # %%
-                          [], sample, size_PerPixel,
-                          is_save, dpi, size_fig,
-                          # %%
-                          cmap_2d, ticks_num, is_contourf,
-                          is_title_on, is_axes_on, is_mm, 0,
-                          fontsize, font,
-                          # %%
-                          0, is_colorbar_on,
+        U_phase_plot_save(np.angle(U_f), U_f_name,
+                          *args_plot_save,
+                          0, 0,
                           **v_kwargs,
                           # %%
                           z=z_f, **kwargs, )
 
-        U_phase_plot_save(folder_address,
-                          np.angle(U_e), U_e_name,
-                          img_name_extension,
-                          is_save_txt,
-                          # %%
-                          [], sample, size_PerPixel,
-                          is_save, dpi, size_fig,
-                          # %%
-                          cmap_2d, ticks_num, is_contourf,
-                          is_title_on, is_axes_on, is_mm, 0,
-                          fontsize, font,
-                          # %%
-                          0, is_colorbar_on,
+        U_phase_plot_save(np.angle(U_e), U_e_name,
+                          *args_plot_save,
+                          0, 0,
                           **v_kwargs,
                           # %%
                           z=z_e, **kwargs, )
@@ -1289,22 +1154,21 @@ def U_selects_plot_save(folder_address,
 
 # %%
 
-def U_amps_z_plot_save(folder_address,
-                       U, U_name,
-                       img_name_extension,
-                       is_save_txt,
+def U_amps_z_plot_save(U, U_name,
+                       z_stored, folder_address,
+                       img_name_extension, is_save_txt,
                        # %%
-                       sample, size_PerPixel,
-                       is_save, dpi, size_fig,
+                       size_PerPixel, dpi, size_fig,
                        # %%
                        cmap_2d, ticks_num, is_contourf,
                        is_title_on, is_axes_on, is_mm,
                        fontsize, font,
                        # %%
-                       is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                       is_colorbar_on, is_save,
+                       sample, is_energy,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                        # %%
-                       z_stored, is_animated,
-                       duration, fps, loop,
+                       is_animated, duration, fps, loop,
+                       # %%
                        z, *args,
                        **kwargs, ):  # 必须要传 z 序列、is_animated 进来；kwargs 是 is_save_txt, is_no_data_save、is_colorbar_log
     # 其实不用传 z 进来，直接用 z_stored[-1] 就行，不过这样保险点
@@ -1317,6 +1181,19 @@ def U_amps_z_plot_save(folder_address,
             "vmax": U_amp_max,
             "vmin": U_amp_min,
         }
+    args_U_amp_plot_save = [[], folder_address,
+                            img_name_extension, is_save_txt,
+                            # %%
+                            size_PerPixel, dpi, size_fig,
+                            # %%
+                            cmap_2d, ticks_num, is_contourf,
+                            is_title_on, is_axes_on, is_mm,
+                            fontsize, font,
+                            # %%
+                            is_colorbar_on, is_save,
+                            sample, is_energy,
+                            0, 0, ]  # is_self_colorbar = 0，统一 colorbar
+    # %%
     # global imgs_address_list, titles_list
     imgs_address_list = []
     titles_list = []
@@ -1327,20 +1204,8 @@ def U_amps_z_plot_save(folder_address,
         for i in range(len(args[0])):  # 查看 随便哪个 额外传入的参数 arg 的 第一个 维度的大小 or 长度。
             for sheet_stored_th in range(U.shape[2]):
                 U_amp_plot_address, U_amp_title, U_amp_img = \
-                    U_amp_plot_save(folder_address,
-                                    # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                                    args[0][i][:, :, sheet_stored_th], args[1][i],
-                                    img_name_extension,
-                                    is_save_txt,
-                                    # %%
-                                    [], sample, size_PerPixel,
-                                    is_save, dpi, size_fig,
-                                    # %%
-                                    cmap_2d, ticks_num, is_contourf,
-                                    is_title_on, is_axes_on, is_mm, 0,
-                                    fontsize, font,
-                                    # %%
-                                    0, is_colorbar_on, is_energy,
+                    U_amp_plot_save(args[0][i][:, :, sheet_stored_th], args[1][i],
+                                    *args_U_amp_plot_save,
                                     # %%
                                     **v_kwargs,  # 这里的 v_kwargs 不出意外，用的是 非线性过程中的，但后面的 线性过程 应该也适用
                                     z=args[2][i][sheet_stored_th], **kwargs, )
@@ -1350,20 +1215,8 @@ def U_amps_z_plot_save(folder_address,
     else:
         for sheet_stored_th in range(U.shape[2]):
             U_amp_plot_address, U_amp_title, U_amp_img = \
-                U_amp_plot_save(folder_address,
-                                # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                                U[:, :, sheet_stored_th], U_name,
-                                img_name_extension,
-                                is_save_txt,
-                                # %%
-                                [], sample, size_PerPixel,
-                                is_save, dpi, size_fig,
-                                # %%
-                                cmap_2d, ticks_num, is_contourf,
-                                is_title_on, is_axes_on, is_mm, 0,
-                                fontsize, font,
-                                # %%
-                                0, is_colorbar_on, is_energy,
+                U_amp_plot_save(U[:, :, sheet_stored_th], U_name,
+                                *args_U_amp_plot_save,
                                 # %%
                                 **v_kwargs,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                                 z=z_stored[sheet_stored_th], **kwargs, )
@@ -1407,18 +1260,15 @@ def U_amps_z_plot_save(folder_address,
 
         if fps > 0: duration = 1 / fps  # 如果传入了 fps，则可 over write duration
         gif_address = imgs_address_list[-1].replace(img_name_extension, ".gif")
+        args_imgs2gif = [imgs_address_list, gif_address,
+                         imgs_list, is_save,
+                         duration, fps, loop, ]
         if is_animated == 0:
-            imgs2gif_imgio(imgs_address_list, gif_address,
-                           imgs_list, is_save,
-                           duration, fps, loop, )
+            imgs2gif_imgio(*args_imgs2gif, )
         elif is_animated == -1:
-            imgs2gif_PIL(imgs_address_list, gif_address,
-                         imgs_list, is_save,
-                         duration, fps, loop, )
+            imgs2gif_PIL(*args_imgs2gif, )
         else:
-            imgs2gif_art(imgs_address_list, gif_address, dpi,
-                         imgs_list, is_save,
-                         duration, fps, loop, )
+            imgs2gif_art(dpi, *args_imgs2gif, )
 
         if is_save == 1 and kwargs.get("is_no_data_save", 0) == 0 and len(
                 args) == 0:  # 开启 gif 合并模式，则 除了 gif 外，不额外 储存 mat 数据。
@@ -1437,22 +1287,21 @@ def U_amps_z_plot_save(folder_address,
 
 # %%
 
-def U_phases_z_plot_save(folder_address,
-                         U, U_name,
-                         img_name_extension,
-                         is_save_txt,
+def U_phases_z_plot_save(U, U_name,
+                         z_stored, folder_address,
+                         img_name_extension, is_save_txt,
                          # %%
-                         sample, size_PerPixel,
-                         is_save, dpi, size_fig,
+                         size_PerPixel, dpi, size_fig,
                          # %%
                          cmap_2d, ticks_num, is_contourf,
                          is_title_on, is_axes_on, is_mm,
                          fontsize, font,
                          # %%
-                         is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                         is_colorbar_on, is_save,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+                         sample,
                          # %%
-                         z_stored, is_animated,
-                         duration, fps, loop,
+                         is_animated, duration, fps, loop,
+                         # %%
                          z, *args,
                          **kwargs, ):  # 必须要传 z 序列、is_animated 进来， # args 是 is_save_txt、is_no_data_save、is_colorbar_log
     if kwargs.get("is_colorbar_log", 0) == -1:
@@ -1464,6 +1313,18 @@ def U_phases_z_plot_save(folder_address,
             "vmax": U_phase_max,
             "vmin": U_phase_min,
         }
+    args_U_phase_plot_save = [[], folder_address,
+                              img_name_extension, is_save_txt,
+                              # %%
+                              size_PerPixel, dpi, size_fig,
+                              # %%
+                              cmap_2d, ticks_num, is_contourf,
+                              is_title_on, is_axes_on, is_mm,
+                              fontsize, font,
+                              # %%
+                              is_colorbar_on, is_save,
+                              sample,
+                              0, 0, ]  # is_self_colorbar = 0，统一 colorbar
     # %%
     # global imgs_address_list, titles_list
     imgs_address_list = []
@@ -1476,20 +1337,8 @@ def U_phases_z_plot_save(folder_address,
         for i in range(len(args[0])):  # 查看 随便哪个 额外传入的参数 arg 的 第一个 维度的大小 or 长度。
             for sheet_stored_th in range(U.shape[2]):
                 U_phase_plot_address, U_phase_title, U_phase_img = \
-                    U_phase_plot_save(folder_address,
-                                      # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                                      args[0][i][:, :, sheet_stored_th], args[1][i],
-                                      img_name_extension,
-                                      is_save_txt,
-                                      # %%
-                                      [], sample, size_PerPixel,
-                                      is_save, dpi, size_fig,
-                                      # %%
-                                      cmap_2d, ticks_num, is_contourf,
-                                      is_title_on, is_axes_on, is_mm, 0,
-                                      fontsize, font,
-                                      # %%
-                                      0, is_colorbar_on,
+                    U_phase_plot_save(args[0][i][:, :, sheet_stored_th], args[1][i],
+                                      *args_U_phase_plot_save,
                                       # %%
                                       **v_kwargs,  # 这里的 v_kwargs 不出意外，用的是 非线性过程中的，但后面的 线性过程 应该也适用
                                       z=args[2][i][sheet_stored_th], **kwargs, )
@@ -1499,19 +1348,8 @@ def U_phases_z_plot_save(folder_address,
     else:
         for sheet_stored_th in range(U.shape[2]):
             U_phase_plot_address, U_phase_title, U_phase_img = \
-                U_phase_plot_save(folder_address,
-                                  U[:, :, sheet_stored_th], U_name,
-                                  img_name_extension,
-                                  is_save_txt,
-                                  # %%
-                                  [], sample, size_PerPixel,
-                                  is_save, dpi, size_fig,
-                                  # %%
-                                  cmap_2d, ticks_num, is_contourf,
-                                  is_title_on, is_axes_on, is_mm, 0,
-                                  fontsize, font,
-                                  # %%
-                                  0, is_colorbar_on,  # is_self_colorbar = 0，统一 colorbar
+                U_phase_plot_save(U[:, :, sheet_stored_th], U_name,
+                                  *args_U_phase_plot_save,  # is_self_colorbar = 0，统一 colorbar
                                   # %%
                                   **v_kwargs,
                                   z=z_stored[sheet_stored_th], **kwargs, )
@@ -1553,18 +1391,15 @@ def U_phases_z_plot_save(folder_address,
 
         if fps > 0: duration = 1 / fps  # 如果传入了 fps，则可 over write duration
         gif_address = imgs_address_list[-1].replace(img_name_extension, ".gif")
+        args_imgs2gif = [imgs_address_list, gif_address,
+                         imgs_list, is_save,
+                         duration, fps, loop, ]
         if is_animated == 0:
-            imgs2gif_imgio(imgs_address_list, gif_address,
-                           imgs_list, is_save,
-                           duration, fps, loop, )
+            imgs2gif_imgio(*args_imgs2gif, )
         elif is_animated == -1:
-            imgs2gif_PIL(imgs_address_list, gif_address,
-                         imgs_list, is_save,
-                         duration, fps, loop, )
+            imgs2gif_PIL(*args_imgs2gif, )
         else:
-            imgs2gif_art(imgs_address_list, gif_address, dpi,
-                         imgs_list, is_save,
-                         duration, fps, loop, )
+            imgs2gif_art(dpi, *args_imgs2gif, )
 
         if is_save == 1 and kwargs.get("is_no_data_save", 0) == 0 and len(args) == 0:
             suffix = "_phase"
@@ -1582,10 +1417,9 @@ def U_phases_z_plot_save(folder_address,
 
 # %%
 
-def U_amp_plot_save_3d_XYz(folder_address,
-                           U, U_name,
-                           img_name_extension,
-                           is_save_txt,
+def U_amp_plot_save_3d_XYz(U, U_name,
+                           z_stored, folder_address,
+                           img_name_extension, is_save_txt,
                            # %%
                            sample, size_PerPixel,
                            is_save, dpi, size_fig,
@@ -1597,7 +1431,7 @@ def U_amp_plot_save_3d_XYz(folder_address,
                            # %%
                            is_colorbar_on, is_energy,
                            # %%
-                           zj, z_stored, **kwargs, ):
+                           zj, **kwargs, ):
     # args 是 z 或 ()，但 z 可从 z_stored 中 提取，所以这里 省略了 *args，外面不用传 z 进来（得保证 z 是最后一个）
     # kwargs 是 is_no_data_save， is_save_txt， is_colorbar_log
 
@@ -1634,10 +1468,9 @@ def U_amp_plot_save_3d_XYz(folder_address,
 
 # %%
 
-def U_phase_plot_save_3d_XYz(folder_address,
-                             U, U_name,
-                             img_name_extension,
-                             is_save_txt,
+def U_phase_plot_save_3d_XYz(U, U_name,
+                             z_stored, folder_address,
+                             img_name_extension, is_save_txt,
                              # %%
                              sample, size_PerPixel,
                              is_save, dpi, size_fig,
@@ -1649,7 +1482,7 @@ def U_phase_plot_save_3d_XYz(folder_address,
                              # %%
                              is_colorbar_on,
                              # %%
-                             zj, z_stored, **kwargs, ):
+                             zj, **kwargs, ):
     # args 是 z 或 ()，但 z 可从 z_stored 中 提取，所以这里 省略了 *args，外面不用传 z 进来
 
     U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U_name, folder_address, img_name_extension,
@@ -1685,16 +1518,15 @@ def U_phase_plot_save_3d_XYz(folder_address,
 
 # %%
 
-def U_amp_plot_save_3d_XYZ(folder_address,
-                           U_name,
+def U_amp_plot_save_3d_XYZ(U_name,
                            U_YZ, U_XZ,
                            U_1, U_2,
                            U_f, U_e,
                            th_X, th_Y,
                            th_1, th_2,
                            th_f, th_e,
-                           img_name_extension,
-                           is_save_txt,
+                           zj, folder_address,
+                           img_name_extension, is_save_txt,
                            # %%
                            sample, size_PerPixel,
                            is_save, dpi, size_fig,
@@ -1706,7 +1538,7 @@ def U_amp_plot_save_3d_XYZ(folder_address,
                            # %%
                            is_colorbar_on, is_energy, is_show_structure_face,
                            # %%
-                           zj, **kwargs, ):  # args 是 z 或 ()
+                           **kwargs, ):  # args 是 z 或 ()
     # kwargs 是 is_no_data_save， is_save_txt
 
     U_amp_plot_address, U_amp_title = U_amp_plot_address_and_title(U_name, folder_address, img_name_extension,
@@ -1755,16 +1587,15 @@ def U_amp_plot_save_3d_XYZ(folder_address,
 
 # %%
 
-def U_phase_plot_save_3d_XYZ(folder_address,
-                             U_name,
+def U_phase_plot_save_3d_XYZ(U_name,
                              U_YZ, U_XZ,
                              U_1, U_2,
                              U_f, U_e,
                              th_X, th_Y,
                              th_1, th_2,
                              th_f, th_e,
-                             img_name_extension,
-                             is_save_txt,
+                             zj, folder_address,
+                             img_name_extension, is_save_txt,
                              # %%
                              sample, size_PerPixel,
                              is_save, dpi, size_fig,
@@ -1776,7 +1607,7 @@ def U_phase_plot_save_3d_XYZ(folder_address,
                              # %%
                              is_colorbar_on, is_show_structure_face,
                              # %%
-                             zj, **kwargs, ):  # args 是 z 或 ()
+                             **kwargs, ):  # args 是 z 或 ()
 
     U_phase_plot_address, U_phase_title = U_phase_plot_address_and_title(U_name, folder_address, img_name_extension,
                                                                          **kwargs, )
@@ -1826,112 +1657,81 @@ def U_phase_plot_save_3d_XYZ(folder_address,
 
 def U_EVV_plot(G_stored, G_name,
                U_stored, U_name,
-               img_name_extension,
-               is_save_txt,
+               img_name_extension, is_save_txt,
                # %%
-               sample, size_PerPixel,
-               is_save, dpi, size_fig,
-               elev, azim, alpha,
+               size_PerPixel, dpi, size_fig,
                # %%
-               cmap_2d, cmap_3d,
-               ticks_num, is_contourf,
+               cmap_2d, ticks_num, is_contourf,
                is_title_on, is_axes_on, is_mm,
                fontsize, font,
                # %%
-               is_colorbar_on, is_energy,
+               is_colorbar_on, is_save,
+               sample, is_energy,
                # %%
                plot_group, is_animated,
                loop, duration, fps,
                # %%
-               is_plot_3d_XYz,
+               cmap_3d, is_plot_3d_XYz,
+               elev, azim, alpha,
                # %%
                zj, z_stored, z,
                # %%
                **kwargs, ):  # kwargs 是 is_no_data_save， is_save_txt， is_colorbar_log
     p_dir = 'GU_XY(z)'
+    args_z_plot_save = [img_name_extension, is_save_txt,
+                        # %%
+                        size_PerPixel, dpi, size_fig,
+                        # %%
+                        cmap_2d, ticks_num, is_contourf,
+                        is_title_on, is_axes_on, is_mm,
+                        fontsize, font,
+                        # %%
+                        is_colorbar_on, is_save,
+                        sample, ]  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
     # -------------------------
     if ("G" in plot_group and "a" in plot_group):
         folder_address = U_dir(G_name + "_XY_amp", is_save,
                                z=z, p_dir=p_dir, **kwargs)
-        gif_address = U_amps_z_plot_save(folder_address,
-                                         np.abs(G_stored), G_name,
-                                         img_name_extension,
-                                         is_save_txt,
+        gif_address = U_amps_z_plot_save(np.abs(G_stored), G_name,
+                                         z_stored, folder_address,
+                                         *args_z_plot_save, is_energy,
                                          # %%
-                                         sample, size_PerPixel,
-                                         is_save, dpi, size_fig,
+                                         is_animated, duration, fps, loop,
                                          # %%
-                                         cmap_2d, ticks_num, is_contourf,
-                                         is_title_on, is_axes_on, is_mm,
-                                         fontsize, font,
-                                         # %%
-                                         is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                                         # %%                          何况 一般默认 is_self_colorbar = 1...
-                                         z_stored, is_animated,
-                                         duration, fps, loop,
                                          z, **kwargs, )  # 传 z 是为了 储存时，给 G_stored 命名
     if ("G" in plot_group and "p" in plot_group):
         folder_address = U_dir(G_name + "_XY_phase", is_save,
                                z=z, p_dir=p_dir, **kwargs)
-        gif_address = U_phases_z_plot_save(folder_address,
-                                           np.angle(G_stored), G_name,
-                                           img_name_extension,
-                                           is_save_txt,
+        gif_address = U_phases_z_plot_save(np.angle(G_stored), G_name,
+                                           z_stored, folder_address,
+                                           *args_z_plot_save,
                                            # %%
-                                           sample, size_PerPixel,
-                                           is_save, dpi, size_fig,
+                                           is_animated, duration, fps, loop,
                                            # %%
-                                           cmap_2d, ticks_num, is_contourf,
-                                           is_title_on, is_axes_on, is_mm,
-                                           fontsize, font,
-                                           # %%
-                                           is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
-                                           # %%
-                                           z_stored, is_animated,
-                                           duration, fps, loop,
                                            z, **kwargs, )
 
     # -------------------------
     if ("U" in plot_group and "a" in plot_group):
         folder_address = U_dir(U_name + "_XY_amp", is_save,
                                z=z, p_dir=p_dir, **kwargs)
-        gif_address = U_amps_z_plot_save(folder_address,
-                                         np.abs(U_stored), U_name,
-                                         img_name_extension,
-                                         is_save_txt,
-                                         # %%
-                                         sample, size_PerPixel,
-                                         is_save, dpi, size_fig,
-                                         # %%
-                                         cmap_2d, ticks_num, is_contourf,
-                                         is_title_on, is_axes_on, is_mm,
-                                         fontsize, font,
-                                         # %%
-                                         is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+        gif_address = U_amps_z_plot_save(np.abs(U_stored), U_name,
+                                         z_stored, folder_address,
+                                         *args_z_plot_save, is_energy,
+                                         # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                          # %%                          何况 一般默认 is_self_colorbar = 1...
-                                         z_stored, is_animated,
-                                         duration, fps, loop,
+                                         is_animated, duration, fps, loop,
+                                         # %%
                                          z, **kwargs, )
 
     if ("U" in plot_group and "p" in plot_group):
         folder_address = U_dir(U_name + "_XY_phase", is_save,
                                z=z, p_dir=p_dir, **kwargs)
-        gif_address = U_phases_z_plot_save(folder_address,
-                                           np.angle(U_stored), U_name,
-                                           img_name_extension,
-                                           is_save_txt,
+        gif_address = U_phases_z_plot_save(np.angle(U_stored), U_name,
+                                           z_stored, folder_address,
+                                           *args_z_plot_save,
                                            # %%
-                                           sample, size_PerPixel,
-                                           is_save, dpi, size_fig,
+                                           is_animated, duration, fps, loop,
                                            # %%
-                                           cmap_2d, ticks_num, is_contourf,
-                                           is_title_on, is_axes_on, is_mm,
-                                           fontsize, font,
-                                           # %%
-                                           is_colorbar_on,  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
-                                           # %%
-                                           z_stored, is_animated,
-                                           duration, fps, loop,
                                            z, **kwargs, )
 
     # %%
@@ -1943,10 +1743,9 @@ def U_EVV_plot(G_stored, G_name,
         suffix = "_XYz"
         folder_address = U_dir(G_name + suffix + "_amp", is_save,
                                z=z, p_dir=p_dir, **kwargs)
-        U_amp_plot_address = U_amp_plot_save_3d_XYz(folder_address,
-                                                    np.abs(U_stored), U_name + suffix,
-                                                    img_name_extension,
-                                                    is_save_txt,
+        U_amp_plot_address = U_amp_plot_save_3d_XYz(np.abs(U_stored), U_name + suffix,
+                                                    z_stored, folder_address,
+                                                    img_name_extension, is_save_txt,
                                                     # %%
                                                     sample, size_PerPixel,
                                                     is_save, dpi, size_fig,
@@ -1958,7 +1757,7 @@ def U_EVV_plot(G_stored, G_name,
                                                     # %%
                                                     is_colorbar_on, is_energy,
                                                     # %%
-                                                    zj, z_stored, **kwargs, )
+                                                    zj, **kwargs, )
 
 
 # %%
@@ -1999,29 +1798,28 @@ def U_SSI_plot(G_stored, G_name,
                z_1, z_2,
                z_f, z_e,
                zj, z_stored, z, ):
+    args_plot = [img_name_extension, is_save_txt,
+                 # %%
+                 size_PerPixel, dpi, size_fig,
+                 # %%
+                 cmap_2d, ticks_num, is_contourf,
+                 is_title_on, is_axes_on, is_mm,
+                 fontsize, font,
+                 # %%
+                 is_colorbar_on, is_save,
+                 sample, is_energy, ]
     # %%
 
     if is_plot_EVV == 1:
         U_EVV_plot(G_stored, G_name,
                    U_stored, U_name,
-                   img_name_extension,
-                   is_save_txt,
-                   # %%
-                   sample, size_PerPixel,
-                   is_save, dpi, size_fig,
-                   elev, azim, alpha,
-                   # %%
-                   cmap_2d, cmap_3d,
-                   ticks_num, is_contourf,
-                   is_title_on, is_axes_on, is_mm,
-                   fontsize, font,
-                   # %%
-                   is_colorbar_on, is_energy,
+                   *args_plot,
                    # %%
                    plot_group, is_animated,
                    loop, duration, fps,
                    # %%
-                   is_plot_3d_XYz,
+                   cmap_3d, is_plot_3d_XYz,
+                   elev, azim, alpha,
                    # %%
                    zj, z_stored, z,
                    # %%
@@ -2042,24 +1840,13 @@ def U_SSI_plot(G_stored, G_name,
             # ------------------------- 储存 G1_section_1_shift_phase、G1_section_1_shift_phase、G1_structure_frontface_shift_phase、G1_structure_endface_shift_phase
 
             G_amps_max, G_amps_min, G_phases_max, G_phases_min = \
-                U_selects_plot_save(folder_address,
-                                    G_1, G_name + "_sec1",
+                U_selects_plot_save(G_1, G_name + "_sec1",
                                     G_2, G_name + "_sec2",
                                     G_f, G_name + "_front",
                                     G_e, G_name + "_end",
-                                    img_name_extension,
-                                    is_save_txt,
-                                    # %%
-                                    sample, size_PerPixel,
-                                    is_save, dpi, size_fig,
-                                    # %%
-                                    cmap_2d, ticks_num, is_contourf,
-                                    is_title_on, is_axes_on, is_mm,
-                                    fontsize, font,
-                                    # %%
-                                    is_colorbar_on, is_energy, is_show_structure_face,
-                                    # %%
                                     z_1, z_2, z_f, z_e,
+                                    folder_address,
+                                    *args_plot, is_show_structure_face,
                                     # %%
                                     is_no_data_save=is_no_data_save,
                                     is_colorbar_log=is_colorbar_log, )
@@ -2074,24 +1861,13 @@ def U_SSI_plot(G_stored, G_name,
             # ------------------------- 储存 U0_section_1_phase、U0_section_1_phase、U0_structure_frontface_phase、U0_structure_endface_phase
 
             U_amps_max, U_amps_min, U_phases_max, U_phases_min = \
-                U_selects_plot_save(folder_address,
-                                    U_1, U_name + "_sec1",
+                U_selects_plot_save(U_1, U_name + "_sec1",
                                     U_2, U_name + "_sec2",
                                     U_f, U_name + "_front",
                                     U_e, U_name + "_end",
-                                    img_name_extension,
-                                    is_save_txt,
-                                    # %%
-                                    sample, size_PerPixel,
-                                    is_save, dpi, size_fig,
-                                    # %%
-                                    cmap_2d, ticks_num, is_contourf,
-                                    is_title_on, is_axes_on, is_mm,
-                                    fontsize, font,
-                                    # %%
-                                    is_colorbar_on, is_energy, is_show_structure_face,
-                                    # %%
                                     z_1, z_2, z_f, z_e,
+                                    folder_address,
+                                    *args_plot, is_show_structure_face,
                                     # %%
                                     is_no_data_save=is_no_data_save,
                                     is_colorbar_log=is_colorbar_log, )
@@ -2110,20 +1886,10 @@ def U_SSI_plot(G_stored, G_name,
             folder_address = U_dir(G_name + "_X(Y)Z", is_save,
                                    z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
             G_YZ_XZ_amp_max, G_YZ_XZ_amp_min, G_YZ_XZ_phase_max, G_YZ_XZ_phase_min = \
-                U_slices_plot_save(folder_address,
-                                   G_YZ, G_name + "_YZ",
+                U_slices_plot_save(G_YZ, G_name + "_YZ",
                                    G_XZ, G_name + "_XZ",
-                                   zj, img_name_extension,
-                                   is_save_txt,
-                                   # %%
-                                   sample, size_PerPixel,
-                                   is_save, dpi, size_fig,
-                                   # %%
-                                   cmap_2d, ticks_num, is_contourf,
-                                   is_title_on, is_axes_on, is_mm,
-                                   fontsize, font,
-                                   # %%
-                                   is_colorbar_on, is_energy,
+                                   zj, folder_address,
+                                   *args_plot,
                                    # %%
                                    X, Y,
                                    # %%
@@ -2139,20 +1905,10 @@ def U_SSI_plot(G_stored, G_name,
             folder_address = U_dir(U_name + "_X(Y)Z", is_save,
                                    z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
             U_YZ_XZ_amp_max, U_YZ_XZ_amp_min, U_YZ_XZ_phase_max, U_YZ_XZ_phase_min = \
-                U_slices_plot_save(folder_address,
-                                   U_YZ, U_name + "_YZ",
+                U_slices_plot_save(U_YZ, U_name + "_YZ",
                                    U_XZ, U_name + "_XZ",
-                                   zj, img_name_extension,
-                                   is_save_txt,
-                                   # %%
-                                   sample, size_PerPixel,
-                                   is_save, dpi, size_fig,
-                                   # %%
-                                   cmap_2d, ticks_num, is_contourf,
-                                   is_title_on, is_axes_on, is_mm,
-                                   fontsize, font,
-                                   # %%
-                                   is_colorbar_on, is_energy,
+                                   zj, folder_address,
+                                   *args_plot,
                                    # %%
                                    X, Y,
                                    # %%
@@ -2162,6 +1918,24 @@ def U_SSI_plot(G_stored, G_name,
         if is_plot_3d_XYZ == 1:
             # %%
             p_dir = "GU_XYZ"
+
+            def args_plot_save_3d_XYZ(folder_address):
+                return [th_X, th_Y,
+                        th_1, th_2,
+                        th_f, th_e,
+                        zj, folder_address,
+                        img_name_extension, is_save_txt,
+                        # %%
+                        sample, size_PerPixel,
+                        is_save, dpi, size_fig,
+                        elev, azim, alpha,
+                        # %%
+                        cmap_3d, ticks_num,
+                        is_title_on, is_axes_on, is_mm,
+                        fontsize, font,
+                        # %%
+                        is_colorbar_on, is_energy, is_show_structure_face, ]
+
             # %%
             # 绘制 G1_amp 的 侧面 3D 分布图，以及 初始 和 末尾的 G1_amp（现在 可以 任选位置 了）
 
@@ -2177,28 +1951,13 @@ def U_SSI_plot(G_stored, G_name,
                 suffix = "_XYZ"
                 folder_address = U_dir(G_name + suffix + "_amp", is_save,
                                        z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
-                U_amp_plot_address = U_amp_plot_save_3d_XYZ(folder_address,
-                                                            G_name + suffix,
+                U_amp_plot_address = U_amp_plot_save_3d_XYZ(G_name + suffix,
                                                             np.abs(G_YZ), np.abs(G_XZ),
                                                             np.abs(G_1), np.abs(G_2),
                                                             np.abs(G_f), np.abs(G_e),
-                                                            th_X, th_Y,
-                                                            th_1, th_2,
-                                                            th_f, th_e,
-                                                            img_name_extension,
-                                                            is_save_txt,
+                                                            *args_plot_save_3d_XYZ(folder_address),
                                                             # %%
-                                                            sample, size_PerPixel,
-                                                            is_save, dpi, size_fig,
-                                                            elev, azim, alpha,
-                                                            # %%
-                                                            cmap_3d, ticks_num,
-                                                            is_title_on, is_axes_on, is_mm,
-                                                            fontsize, font,
-                                                            # %%
-                                                            is_colorbar_on, is_energy, is_show_structure_face,
-                                                            # %%
-                                                            zj, z=z,
+                                                            z=z,
                                                             is_no_data_save=is_no_data_save,
                                                             is_colorbar_log=is_colorbar_log,
                                                             # %%
@@ -2219,28 +1978,13 @@ def U_SSI_plot(G_stored, G_name,
                 suffix = "_XYZ"
                 folder_address = U_dir(G_name + suffix + "_phase", is_save,
                                        z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
-                U_phase_plot_address = U_phase_plot_save_3d_XYZ(folder_address,
-                                                                G_name + suffix,
+                U_phase_plot_address = U_phase_plot_save_3d_XYZ(G_name + suffix,
                                                                 np.angle(G_YZ), np.angle(G_XZ),
                                                                 np.angle(G_1), np.angle(G_2),
                                                                 np.angle(G_f), np.angle(G_e),
-                                                                th_X, th_Y,
-                                                                th_1, th_2,
-                                                                th_f, th_e,
-                                                                img_name_extension,
-                                                                is_save_txt,
+                                                                *args_plot_save_3d_XYZ(folder_address),
                                                                 # %%
-                                                                sample, size_PerPixel,
-                                                                is_save, dpi, size_fig,
-                                                                elev, azim, alpha,
-                                                                # %%
-                                                                cmap_3d, ticks_num,
-                                                                is_title_on, is_axes_on, is_mm,
-                                                                fontsize, font,
-                                                                # %%
-                                                                is_colorbar_on, is_show_structure_face,
-                                                                # %%
-                                                                zj, z=z,
+                                                                z=z,
                                                                 is_no_data_save=is_no_data_save,
                                                                 is_colorbar_log=is_colorbar_log,
                                                                 # %%
@@ -2261,28 +2005,13 @@ def U_SSI_plot(G_stored, G_name,
                 suffix = "_XYZ"
                 folder_address = U_dir(U_name + suffix + "_amp", is_save,
                                        z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
-                U_amp_plot_address = U_amp_plot_save_3d_XYZ(folder_address,
-                                                            U_name + suffix,
+                U_amp_plot_address = U_amp_plot_save_3d_XYZ(U_name + suffix,
                                                             np.abs(U_YZ), np.abs(U_XZ),
                                                             np.abs(U_1), np.abs(U_2),
                                                             np.abs(U_f), np.abs(U_e),
-                                                            th_X, th_Y,
-                                                            th_1, th_2,
-                                                            th_f, th_e,
-                                                            img_name_extension,
-                                                            is_save_txt,
+                                                            *args_plot_save_3d_XYZ(folder_address),
                                                             # %%
-                                                            sample, size_PerPixel,
-                                                            is_save, dpi, size_fig,
-                                                            elev, azim, alpha,
-                                                            # %%
-                                                            cmap_3d, ticks_num,
-                                                            is_title_on, is_axes_on, is_mm,
-                                                            fontsize, font,
-                                                            # %%
-                                                            is_colorbar_on, is_energy, is_show_structure_face,
-                                                            # %%
-                                                            zj, z=z,
+                                                            z=z,
                                                             is_no_data_save=is_no_data_save,
                                                             is_colorbar_log=is_colorbar_log,
                                                             # %%
@@ -2303,28 +2032,13 @@ def U_SSI_plot(G_stored, G_name,
                 suffix = "_XYZ"
                 folder_address = U_dir(U_name + suffix + "_phase", is_save,
                                        z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
-                U_phase_plot_address = U_phase_plot_save_3d_XYZ(folder_address,
-                                                                U_name + suffix,
+                U_phase_plot_address = U_phase_plot_save_3d_XYZ(U_name + suffix,
                                                                 np.angle(U_YZ), np.angle(U_XZ),
                                                                 np.angle(U_1), np.angle(U_2),
                                                                 np.angle(U_f), np.angle(U_e),
-                                                                th_X, th_Y,
-                                                                th_1, th_2,
-                                                                th_f, th_e,
-                                                                img_name_extension,
-                                                                is_save_txt,
+                                                                *args_plot_save_3d_XYZ(folder_address),
                                                                 # %%
-                                                                sample, size_PerPixel,
-                                                                is_save, dpi, size_fig,
-                                                                elev, azim, alpha,
-                                                                # %%
-                                                                cmap_3d, ticks_num,
-                                                                is_title_on, is_axes_on, is_mm,
-                                                                fontsize, font,
-                                                                # %%
-                                                                is_colorbar_on, is_show_structure_face,
-                                                                # %%
-                                                                zj, z=z,
+                                                                z=z,
                                                                 is_no_data_save=is_no_data_save,
                                                                 is_colorbar_log=is_colorbar_log,
                                                                 # %%
@@ -2744,12 +2458,14 @@ def U_energy_plot(folder_address,
 
 
 def U_energy_plot_save(U, U_name,
-                       img_name_extension,
-                       is_save_txt,
+                       zj,
+                       img_name_extension, is_save_txt,
                        # %%
-                       zj, sample, size_PerPixel,
+                       sample, size_PerPixel,
                        is_save, dpi, size_fig_x, size_fig_y,
-                       color_1d, ticks_num, is_title_on, is_axes_on, is_mm,
+                       # %%
+                       color_1d, ticks_num,
+                       is_title_on, is_axes_on, is_mm,
                        fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
                        # %%
                        z, **kwargs, ):
@@ -2780,14 +2496,16 @@ def U_energy_plot_save(U, U_name,
 # %%
 
 def U_error_energy_plot_save(U, l2, l3, U_name,
+                             zj, ax2_xticklabel,
                              img_name_extension, is_save_txt,
                              # %%
-                             zj, ax2_xticklabel, sample, size_PerPixel,
+                             sample, size_PerPixel,
                              is_save, dpi, size_fig_x, size_fig_y,
                              # %%
-                             color_1d, color_1d2,
-                             ticks_num, is_title_on, is_axes_on, is_mm,
+                             color_1d, ticks_num,
+                             is_title_on, is_axes_on, is_mm,
                              fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                             color_1d2,
                              # %%
                              z, **kwargs, ):
     kwargs['p_dir'] = 'GU_error(dk)'
@@ -2846,14 +2564,16 @@ def U_error_energy_plot_save(U, l2, l3, U_name,
 
 
 def U_twin_energy_error_plot_save(U, l2, U_name,
+                                  zj, zj2,
                                   img_name_extension, is_save_txt,
                                   # %%
-                                  zj, zj2, sample, size_PerPixel,
+                                  sample, size_PerPixel,
                                   is_save, dpi, size_fig_x, size_fig_y,
                                   # %%
-                                  color_1d, color_1d2,
-                                  ticks_num, is_title_on, is_axes_on, is_mm,
+                                  color_1d, ticks_num,
+                                  is_title_on, is_axes_on, is_mm,
                                   fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                                  color_1d2,
                                   # %%
                                   z, **kwargs, ):
     kwargs['p_dir'] = 'GU_energy_error(z)'
@@ -2916,14 +2636,16 @@ def U_twin_energy_error_plot_save(U, l2, U_name,
 
 
 def U_twin_error_energy_plot_save(U, l2, l3, U_name,
+                                  zj, zj2,
                                   img_name_extension, is_save_txt,
                                   # %%
-                                  zj, zj2, sample, size_PerPixel,
+                                  sample, size_PerPixel,
                                   is_save, dpi, size_fig_x, size_fig_y,
                                   # %%
-                                  color_1d, color_1d2,
-                                  ticks_num, is_title_on, is_axes_on, is_mm,
+                                  color_1d, ticks_num,
+                                  is_title_on, is_axes_on, is_mm,
                                   fontsize, font,  # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                                  color_1d2,
                                   # %%
                                   z, **kwargs, ):
     kwargs['p_dir'] = 'GU_error(z)'

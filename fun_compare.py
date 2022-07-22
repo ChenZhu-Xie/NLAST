@@ -9,54 +9,59 @@ import numpy as np
 from fun_os import split_parts, U_plot_save, U_error_plot_save, U_plot, U_energy_print, U_custom_print
 from fun_global_var import Get, fkey, tree_print
 
-#%%
+
+# %%
 
 def U_compare(U, U_0, U_0_title, z,
-              #%%
-              img_name_extension, size_PerPixel, size_fig, 
               # %%
-              is_save=0, is_save_txt=0, dpi=100, 
-              #%%
-              cmap_2d = 'viridis', 
-              #%%
-              ticks_num = 6, is_contourf = 0, 
-              is_title_on = 1, is_axes_on = 1, is_mm = 1,
-              #%%
-              fontsize = 9, 
-              font = {'family': 'serif',
-                      'style': 'normal', # 'normal', 'italic', 'oblique'
-                      'weight': 'normal',
-                      'color': 'black', # 'black','gray','darkred'
-                      }, 
-              #%%
-              is_colorbar_on = 1, is_energy = 1,
-              #%%
-              is_amp_relative = 1, is_print = 2, **kwargs, ):
+              img_name_extension, size_PerPixel, size_fig,
+              # %%
+              is_save=0, is_save_txt=0, dpi=100,
+              # %%
+              cmap_2d='viridis',
+              # %%
+              ticks_num=6, is_contourf=0,
+              is_title_on=1, is_axes_on=1, is_mm=1,
+              # %%
+              fontsize=9,
+              font={'family': 'serif',
+                    'style': 'normal',  # 'normal', 'italic', 'oblique'
+                    'weight': 'normal',
+                    'color': 'black',  # 'black','gray','darkred'
+                    },
+              # %%
+              is_colorbar_on=1, is_energy=1,
+              # %%
+              is_amp_relative=1, is_print=2, **kwargs, ):
     kwargs['p_dir'] = 'GU_error_2d'
-    #%%
+    # %%
     U_name_no_seq, method_and_way, Part_2, ugHGU, ray_seq = split_parts(U_0_title)
 
     info = ugHGU + "_" + str(float(Get('f_f') % z)) + "mm" + "_对比"
     is_print and print(tree_print(kwargs.get("is_end", 0), add_level=2) + info)
-    kwargs.pop("is_end", None); kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
+    kwargs.pop("is_end", None);
+    kwargs.pop("add_level", None)  # 该 def 子分支 后续默认 is_end = 0，如果 kwargs 还会被 继续使用 的话。
 
-    #%%
+    # %%
     # 画一下 两个待比较的 对象，并 print 一下 能量情况
 
     U_energy_print(U_0, U_0_title, is_print,
                    z=z, )
 
-    U_plot("",
-           U_0, U_0_title,
-           img_name_extension,
-           is_save_txt,
-           # %%
-           1, size_PerPixel, # sample = 1
-           0, dpi, size_fig, # 不 save
-           cmap_2d, ticks_num, is_contourf,
-           is_title_on, is_axes_on, is_mm,
-           fontsize, font,
-           is_colorbar_on, is_energy,  # 自己 colorbar
+    args_U_plot = ["",
+                   img_name_extension, is_save_txt,
+                   # %%
+                   size_PerPixel, dpi, size_fig,  # 不 save
+                   # %%
+                   cmap_2d, ticks_num, is_contourf,
+                   is_title_on, is_axes_on, is_mm,
+                   fontsize, font,
+                   # %%
+                   is_colorbar_on, 0,
+                   1, is_energy, ]  # 自己 colorbar
+
+    U_plot(U_0, U_0_title,
+           *args_U_plot,
            # %%
            z=z, is_no_data_save=1, )
 
@@ -66,17 +71,8 @@ def U_compare(U, U_0, U_0_title, z,
     U_energy_print(U, U_title, is_print,
                    z=z, )
 
-    U_plot("",
-           U, U_title,
-           img_name_extension,
-           is_save_txt,
-           # %%
-           1, size_PerPixel, # sample = 1
-           0, dpi, size_fig, # 不 save
-           cmap_2d, ticks_num, is_contourf,
-           is_title_on, is_axes_on, is_mm,
-           fontsize, font,
-           is_colorbar_on, is_energy,  # 自己 colorbar
+    U_plot(U, U_title,
+           *args_U_plot,  # 自己 colorbar
            # %%
            z=z, is_no_data_save=1, )
 
@@ -85,9 +81,9 @@ def U_compare(U, U_0, U_0_title, z,
     if is_save == 2:
         is_save = 1
 
-    if is_amp_relative == 1: # 归一化
+    if is_amp_relative == 1:  # 归一化
         # print(np.max(np.abs(U)), np.max(np.abs(U_0)))
-        U_norm = U/np.max(np.abs(U)) if np.max(np.abs(U)) != 0 else U
+        U_norm = U / np.max(np.abs(U)) if np.max(np.abs(U)) != 0 else U
         U_0_norm = U_0 / np.max(np.abs(U_0)) if np.max(np.abs(U_0)) != 0 else U_0
     else:
         U_norm = U
@@ -99,37 +95,24 @@ def U_compare(U, U_0, U_0_title, z,
     info = ugHGU + "_先误差_后取模或相位"
     is_print and print(tree_print(add_level=2) + info)
 
+    args_U_plot_save = [is_print,
+                        *args_U_plot[1:-3],
+                        is_save,
+                        is_energy, ]  # 自己 colorbar
+
     U_error = U_norm - U_0_norm
     U_error_name = U_title + "_error"
-    folder_address = U_plot_save(U_error, U_error_name, is_print,
-                                 img_name_extension,
-                                 # %%
-                                 size_PerPixel,
-                                 is_save, is_save_txt, dpi, size_fig,
-                                 # %%
-                                 cmap_2d, ticks_num, is_contourf,
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font,
-                                 # %%
-                                 is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                                 # %%                          何况 一般默认 is_self_colorbar = 1...
+    folder_address = U_plot_save(U_error, U_error_name,
+                                 *args_U_plot_save,
                                  z=z, is_end=1, **kwargs, )
 
-    #%%
+    # %%
 
-    folder_address, U_amp_error_energy = U_error_plot_save(U_norm, U_0_norm, ugHGU, is_print,
-                                                          img_name_extension,
-                                                          # %%
-                                                          size_PerPixel,
-                                                          is_save, is_save_txt, dpi, size_fig,
-                                                          # %%
-                                                          cmap_2d, ticks_num, is_contourf,
-                                                          is_title_on, is_axes_on, is_mm,
-                                                          fontsize, font,
-                                                          # %%
-                                                          is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                                                          # %%                          何况 一般默认 is_self_colorbar = 1...
-                                                          z=z, **kwargs, )
+    folder_address, U_amp_error_energy = U_error_plot_save(U_norm, U_0_norm, ugHGU,
+                                                           *args_U_plot_save,
+                                                           # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                                           # %%                          何况 一般默认 is_self_colorbar = 1...
+                                                           z=z, **kwargs, )
 
     U_0_norm_energy = np.sum(np.abs(U_0_norm) ** 2)
     # print(U_amp_error_energy)
@@ -305,4 +288,3 @@ def U_compare(U, U_0, U_0_title, z,
     #
     # # if is_save == 1:
     # np.savetxt(U_relative_error_full_name, U_relative_error) if is_save_txt else savemat(U_relative_error_full_name, {ugHGU:U_relative_error})
-    

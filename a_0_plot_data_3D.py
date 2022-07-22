@@ -65,107 +65,65 @@ def plot_data_3D(plot_mode=3,
                                   U_size, dpi,
                                   is_phase_only, **kwargs, )
 
-    if plot_func == "U_amp_plot_save_3d_XYz":
-        U_amp_plot_save_3d_XYz(folder_new_address,
-                               U_list[index+0], U_name_no_suffix_list[index+0],  # 这个倒是可以用 U_name_no_suffix，否则会双倍 suffix，而不覆盖之前的，生成新 .mat
-                               img_name_extension,
-                               is_save_txt,
-                               # %%
-                               sample, size_PerPixel,
-                               is_save, dpi, size_fig,
-                               elev, azim, alpha,
-                               # %%
-                               cmap_3d, ticks_num,
-                               is_title_on, is_axes_on, is_mm,
-                               fontsize, font,
-                               # %%
-                               is_colorbar_on, is_energy,
-                               # %%
-                               U_list[index+1], U_list[index+2],
-                               is_colorbar_log=is_colorbar_log,
-                               **kwargs, )
-    elif plot_func == "U_phase_plot_save_3d_XYz":
-        U_phase_plot_save_3d_XYz(folder_new_address,
-                                 U_list[index+0], U_name_no_suffix_list[index+0],  # 这个倒是可以用 U_name_no_suffix，否则会双倍 suffix，而不覆盖之前的，生成新 .mat
-                                 img_name_extension,
-                                 is_save_txt,
-                                 # %%
-                                 sample, size_PerPixel,
-                                 is_save, dpi, size_fig,
-                                 elev, azim, alpha,
-                                 # %%
-                                 cmap_3d, ticks_num,
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font,
-                                 # %%
-                                 is_colorbar_on,
-                                 # %%
-                                 U_list[index+1], U_list[index+2],
-                                 is_colorbar_log=is_colorbar_log,
-                                 **kwargs, )
-    elif plot_func == "U_amp_plot_save_3d_XYZ":
-        if is_colorbar_log == -1:
-            v_kwargs = {}
-        else:
-            v_kwargs = {
-                "vmax": U_list[index+3][0],
-                "vmin": U_list[index+3][1],
-            }
-        U_amp_plot_save_3d_XYZ(folder_new_address,
-                               U_name_no_suffix_list[index+0],  # 这个倒是可以用 U_name_no_suffix，否则会双倍 suffix，而不覆盖之前的，生成新 .mat
-                               U_list[index+0][0], U_list[index+0][1],
-                               U_list[index+0][2], U_list[index+0][3],
-                               U_list[index+0][4], U_list[index+0][5],
-                               U_list[index+1][0], U_list[index+1][1],
-                               U_list[index+1][2], U_list[index+1][3],
-                               U_list[index+1][4], U_list[index+1][5],
-                               img_name_extension,
-                               is_save_txt,
-                               # %%
-                               sample, size_PerPixel,
-                               is_save, dpi, size_fig,
-                               elev, azim, alpha,
-                               # %%
-                               cmap_3d, ticks_num,
-                               is_title_on, is_axes_on, is_mm,
-                               fontsize, font,
-                               # %%
-                               is_colorbar_on, is_energy, is_show_structure_face,
-                               # %%
-                               U_list[index+2], z=U_list[index+2][-1],
-                               # %%
-                               **v_kwargs, **kwargs, )
-    elif plot_func == "U_phase_plot_save_3d_XYZ":
-        if is_colorbar_log == -1:
-            v_kwargs = {}
-        else:
-            v_kwargs = {
-                "vmax": U_list[index+3][0],
-                "vmin": U_list[index+3][1],
-            }
-        U_phase_plot_save_3d_XYZ(folder_new_address,
-                                 U_name_no_suffix_list[index + 0],  # 这个倒是可以用 U_name_no_suffix，否则会双倍 suffix，而不覆盖之前的，生成新 .mat
+    share_args_3D = [folder_new_address,
+                     img_name_extension, is_save_txt,
+                     # %%
+                     sample, size_PerPixel,
+                     is_save, dpi, size_fig,
+                     elev, azim, alpha,
+                     # %%
+                     cmap_3d, ticks_num,
+                     is_title_on, is_axes_on, is_mm,
+                     fontsize, font,
+                     # %%
+                     is_colorbar_on, is_energy, ]
+
+    if "plot_save_3d_XYz" in plot_func:
+        args_plot_save_3d_XYz = [U_list[index + 0], U_name_no_suffix_list[index + 0],
+                                 # 这个倒是可以用 U_name_no_suffix，否则会双倍 suffix，而不覆盖之前的，生成新 .mat
+                                 U_list[index + 2], ]
+    elif "plot_save_3d_XYZ" in plot_func:
+        args_plot_save_3d_XYZ = [U_name_no_suffix_list[index + 0],
+                                 # 这个倒是可以用 U_name_no_suffix，否则会双倍 suffix，而不覆盖之前的，生成新 .mat
                                  U_list[index + 0][0], U_list[index + 0][1],
                                  U_list[index + 0][2], U_list[index + 0][3],
                                  U_list[index + 0][4], U_list[index + 0][5],
                                  U_list[index + 1][0], U_list[index + 1][1],
                                  U_list[index + 1][2], U_list[index + 1][3],
                                  U_list[index + 1][4], U_list[index + 1][5],
-                                 img_name_extension,
-                                 is_save_txt,
+                                 U_list[index + 2], ]
+
+        if is_colorbar_log == -1:
+            v_kwargs = {}
+        else:
+            v_kwargs = {
+                "vmax": U_list[index + 3][0],
+                "vmin": U_list[index + 3][1],
+            }
+
+    if plot_func == "U_amp_plot_save_3d_XYz":
+        U_amp_plot_save_3d_XYz(*args_plot_save_3d_XYz, *share_args_3D,
+                               # %%
+                               U_list[index + 1],
+                               is_colorbar_log=is_colorbar_log,
+                               **kwargs, )
+    elif plot_func == "U_phase_plot_save_3d_XYz":
+        U_phase_plot_save_3d_XYz(*args_plot_save_3d_XYz, *share_args_3D[:-1],
                                  # %%
-                                 sample, size_PerPixel,
-                                 is_save, dpi, size_fig,
-                                 elev, azim, alpha,
+                                 U_list[index + 1],
+                                 is_colorbar_log=is_colorbar_log,
+                                 **kwargs, )
+    elif plot_func == "U_amp_plot_save_3d_XYZ":
+        U_amp_plot_save_3d_XYZ(*args_plot_save_3d_XYZ,
+                               *share_args_3D, is_show_structure_face,
+                               # %%
+                               z=U_list[index + 2][-1],
+                               **v_kwargs, **kwargs, )
+    elif plot_func == "U_phase_plot_save_3d_XYZ":
+        U_phase_plot_save_3d_XYZ(*args_plot_save_3d_XYZ,
+                                 *share_args_3D[:-1], is_show_structure_face,
                                  # %%
-                                 cmap_3d, ticks_num,
-                                 is_title_on, is_axes_on, is_mm,
-                                 fontsize, font,
-                                 # %%
-                                 is_colorbar_on, is_show_structure_face,
-                                 # %%
-                                 U_list[index + 2], z=U_list[index + 2][-1],
-                                 # %%
+                                 z=U_list[index + 2][-1],
                                  **v_kwargs, **kwargs, )
 
 

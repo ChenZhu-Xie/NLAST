@@ -346,15 +346,17 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
 
         if is_energy_evolution_on == 1:
             U_twin_energy_error_plot_save(U2_energy_SSI, U2_energy_EVV, U_key2_SSI.replace("_SSI", ""),
+                                          zj_SSI, zj_EVV,
                                           img_name_extension, is_save_txt,
                                           # %%
-                                          zj_SSI, zj_EVV, sample, size_PerPixel,
+                                          sample, size_PerPixel,
                                           is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                           # %%
-                                          color_1d, color_1d2,
-                                          ticks_num, is_title_on, is_axes_on, is_mm,
+                                          color_1d, ticks_num,
+                                          is_title_on, is_axes_on, is_mm,
                                           fontsize, font,
                                           # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                                          color_1d2,
                                           # %%
                                           L0_Crystal,
                                           # %%
@@ -452,30 +454,34 @@ def compare_SFG_NLA_EVV__SSI(U_name_Structure="",
         if is_energy_evolution_on == 1:
             U_twin_error_energy_plot_save(U2_energy_SSI, U2_energy_EVV, G_error_energy,
                                           U_key2_SSI.replace("_SSI", "").replace("U", "G"),
+                                          zj_SSI, zj_EVV,
                                           img_name_extension, is_save_txt,
                                           # %%
-                                          zj_SSI, zj_EVV, sample, size_PerPixel,
+                                          sample, size_PerPixel,
                                           is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                           # %%
-                                          color_1d, color_1d2,
-                                          ticks_num, is_title_on, is_axes_on, is_mm,
+                                          color_1d, ticks_num,
+                                          is_title_on, is_axes_on, is_mm,
                                           fontsize, font,
                                           # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                                          color_1d2,
                                           # %%
                                           L0_Crystal,
                                           # %%
                                           is_energy_normalized=is_energy_normalized, **kwargs, )
 
             U_twin_error_energy_plot_save(U2_energy_SSI, U2_energy_EVV, U_error_energy, U_key2_SSI.replace("_SSI", ""),
+                                          zj_SSI, zj_EVV,
                                           img_name_extension, is_save_txt,
                                           # %%
-                                          zj_SSI, zj_EVV, sample, size_PerPixel,
+                                          sample, size_PerPixel,
                                           is_save, dpi, Get("size_fig_x"), Get("size_fig_y"),
                                           # %%
-                                          color_1d, color_1d2,
-                                          ticks_num, is_title_on, is_axes_on, is_mm,
+                                          color_1d, ticks_num,
+                                          is_title_on, is_axes_on, is_mm,
                                           fontsize, font,
                                           # 默认无法 外界设置，只能 自动设置 y 轴 max 和 min 了（不是 但 类似 colorbar），还有 is_energy
+                                          color_1d2,
                                           # %%
                                           L0_Crystal,
                                           # %%

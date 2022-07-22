@@ -426,19 +426,21 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
     name = "G" + ray
     title = method + " - " + name
 
+    args_U_plot_save = [Get("img_name_extension"), is_save_txt,
+                        # %%
+                        size_PerPixel, dpi, Get("size_fig"),
+                        # %%
+                        cmap_2d, ticks_num, is_contourf,
+                        is_title_on, is_axes_on, is_mm,
+                        fontsize, font,
+                        # %%
+                        is_colorbar_on, is_save,
+                        is_energy, ]
+
     # print(kwargs)
     kwargs.pop('U', None)  # 要想把 kwargs 传入 U_plot_save，kwargs 里不能含 'U'
     U_plot_save(G_z0_shift, title, 0,
-                Get("img_name_extension"),
-                # %%
-                size_PerPixel,
-                is_save, is_save_txt, dpi, Get("size_fig"),
-                # %%
-                cmap_2d, ticks_num, is_contourf,
-                is_title_on, is_axes_on, is_mm,
-                fontsize, font,
-                # %%
-                is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                *args_U_plot_save,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                 # %%                          何况 一般默认 is_self_colorbar = 1...
                 z=z, **kwargs, )
 
@@ -448,16 +450,7 @@ def pump(Ix=0, Iy=0, size_PerPixel=0.77,
     title = method + " - " + name
 
     U_plot_save(U_z0, title, 1,
-                Get("img_name_extension"),
-                # %%
-                size_PerPixel,
-                is_save, is_save_txt, dpi, Get("size_fig"),
-                # %%
-                cmap_2d, ticks_num, is_contourf,
-                is_title_on, is_axes_on, is_mm,
-                fontsize, font,
-                # %%
-                is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                *args_U_plot_save,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                 # %%                          何况 一般默认 is_self_colorbar = 1...
                 z=z, **kwargs, )
 

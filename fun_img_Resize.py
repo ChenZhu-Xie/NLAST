@@ -129,16 +129,18 @@ def if_image_Add_black_border(U_name, img_full_name,
         # print(1, kwargs)
         # init_GLV_DICT(**kwargs) # 这里初始化的 init_GLV 传了参数进去 —— 没懂为什么得是 **....，不然传进去变成位置参数 args 中的一元素了
         kwargs.pop("is_end", 0)
+        is_twin_pump = int(kwargs.get('ray', "2") == "3" or
+                           kwargs.get('is_HOPS_AST', 0) >= 1 or kwargs.get('is_HOPS_SHG', 0) >= 1)
         if ((type(U_name) != str) or U_name == "") and ("U" not in kwargs and "U1" not in kwargs):
             border_percentage = kwargs["border_percentage"] if "border_percentage" in kwargs else 0.1
             kwargs.pop("border_percentage", None)
 
-            is_end_last=-1 if kwargs.get('ray', "2") == "3" else 1
+            is_end_last = -1 if is_twin_pump == 1 else 1
             image_Add_black_border(img_full_name,  # 预处理 导入图片 为方形，并加边框
                                    border_percentage,
                                    is_print, is_end_last=is_end_last)  # 没把 kwargs 传进来，因此 外面的 is_end = 1 不会进来，也就不会 使加黑边 为 末尾
 
-        if kwargs.get('ray', "2") == "3" or kwargs.get('is_HOPS_AST', 0) > 0 or kwargs.get('is_HOPS', 0) > 0:
+        if is_twin_pump == 1:
             U2_name, img2_full_name = kwargs.get("U2_name", U_name), kwargs.get("img2_full_name", img_full_name)
             if ((type(U2_name) != str) or U2_name == "") and ("U2" not in kwargs):
                 border_percentage = kwargs["border_percentage"] if "border_percentage" in kwargs else 0.1

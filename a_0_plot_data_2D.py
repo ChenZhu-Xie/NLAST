@@ -83,83 +83,61 @@ def plot_data_2D(plot_mode=3,
                                   U_size, dpi,
                                   is_phase_only, **kwargs, )
 
-    share_args_2 = [img_name_extension,
-                    is_save_txt,
-                    # %%
-                    sample, size_PerPixel,
-                    is_save, dpi, size_fig,
-                    # %%
-                    cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm,
-                    fontsize, font,
-                    # %%
-                    is_colorbar_on, is_energy, ]
+    share_args_2D = [folder_new_address,
+                     img_name_extension, is_save_txt,
+                     # %%
+                     size_PerPixel, dpi, size_fig,
+                     # %%
+                     cmap_2d, ticks_num, is_contourf,
+                     is_title_on, is_axes_on, is_mm,
+                     fontsize, font,
+                     # %%
+                     is_colorbar_on, is_save,
+                     sample, is_energy, ]
 
     if plot_func == "U_plot_save":
         # 如果函数的参数 只有 U_list[0] 一个，则不按 folder 来读，而直接读条目；
         # 但这样 便 意味着 不会有 多条属性（否则 不止传入 1 个 U_list data）? 并不，其实还可以 往下读！
         # 不要往上继续找 相同 saver_name 的 第一个，因为 那仍可能是 上一次 的结果，而不是这一次的结果
         U_plot_save(U_list[index], U_name_list[index], 0,  # 不 print energy
-                    img_name_extension,
-                    # %%
-                    size_PerPixel,
-                    is_save, is_save_txt, dpi, size_fig,
-                    # %%
-                    cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, is_mm,
-                    fontsize, font,
-                    # %%
-                    is_colorbar_on, is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                    *share_args_2D[1:-2],
+                    is_energy,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                     # %%                          何况 一般默认 is_self_colorbar = 1...
                     z=z_list[index], **kwargs, )
     elif plot_func == "U_amp_plot_save":
-        U_amp_plot_save(folder_new_address,
-                        # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                        U_list[index], U_name_no_suffix_list[index],  # 这个倒是可以用 U_name_no_suffix，因为是 _amp
-                        img_name_extension,
-                        is_save_txt,
-                        # %%
-                        [], 1, size_PerPixel,
-                        is_save, dpi, size_fig,
-                        # %%
-                        cmap_2d, ticks_num, is_contourf,
-                        is_title_on, is_axes_on, is_mm, 0,
-                        fontsize, font,
-                        # %%
-                        0, is_colorbar_on, 0,  # 大部分 U_amp_plot_save 是没有 vmax,vmin 的，所以 将就大部分 使用情况
+        U_amp_plot_save(U_list[index], U_name_no_suffix_list[index],  # 这个倒是可以用 U_name_no_suffix，因为是 _amp
+                        [], *share_args_2D[:-2],
+                        1, 0, 0, 0,  # 大部分 U_amp_plot_save 是没有 vmax,vmin 的，所以 将就大部分 使用情况
                         # %%
                         suffix="", **kwargs, )
     elif plot_func == "U_selects_plot_save":
-        U_selects_plot_save(folder_new_address,
-                            U_list[index + 0], U_name_list[index + 0],
+        U_selects_plot_save(U_list[index + 0], U_name_list[index + 0],
                             U_list[index + 1], U_name_list[index + 1],
                             U_list[index + 2], U_name_list[index + 2],
                             U_list[index + 3], U_name_list[index + 3],
-                            *share_args_2, is_show_structure_face,
-                            # %%
                             z_list[index + 0], z_list[index + 1], z_list[index + 2], z_list[index + 3],
+                            *share_args_2D, is_show_structure_face,
                             # %%
                             is_no_data_save=kwargs.get("is_no_data_save", 0),
                             is_colorbar_log=is_colorbar_log, )
     elif plot_func == "U_amps_z_plot_save":
         if plot_mode == -1:
-            U_amps_z_plot_save(folder_new_address,
-                               U_list[index + 0], U_name_no_suffix_list[index + 0],  # 这个倒是可以用 U_name_no_suffix，因为是 _amp
-                               *share_args_2,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+            U_amps_z_plot_save(U_list[index + 0], U_name_no_suffix_list[index + 0],  # 这个倒是可以用 U_name_no_suffix，因为是 _amp
+                               U_list[index + 1],
+                               *share_args_2D,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                # %%                          何况 一般默认 is_self_colorbar = 1...
-                               U_list[index + 1], is_animated,
-                               duration, fps, loop,
+                               is_animated, duration, fps, loop,
+                               # %%
                                z_list[index + 0],
                                # %%
                                is_colorbar_log=is_colorbar_log,
                                **kwargs, )  # 传 z 是为了 储存时，给 G_stored 命名
         else:
-            U_amps_z_plot_save(folder_new_address,
-                               U_list[index + 0][0], U_name_no_suffix_list[index + 0][0],  # 这 3 不传入 也行
-                               *share_args_2,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+            U_amps_z_plot_save(U_list[index + 0][0], U_name_no_suffix_list[index + 0][0],  # 这 3 不传入 也行
+                               U_list[index + 1][0],
+                               *share_args_2D,  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
                                # %%                          何况 一般默认 is_self_colorbar = 1...
-                               U_list[index + 1][0], is_animated,
-                               duration, fps, loop,
+                               is_animated, duration, fps, loop,
                                z_list[index + 0][0],
                                # %%
                                U_list[index + 0], U_name_no_suffix_list[index + 0], U_list[index + 1],
@@ -168,34 +146,34 @@ def plot_data_2D(plot_mode=3,
                                **kwargs, )  # 传 z 是为了 储存时，给 G_stored 命名
     elif plot_func == "U_phases_z_plot_save":
         if plot_mode == -1:
-            U_phases_z_plot_save(folder_new_address,
-                                 U_list[index + 0], U_name_no_suffix_list[index + 0],  # 这个倒是可以用 U_name_no_suffix，因为是 _phase
-                                 *share_args_2[:-1],  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
+            U_phases_z_plot_save(U_list[index + 0], U_name_no_suffix_list[index + 0],
+                                 U_list[index + 1],  # 这个倒是可以用 U_name_no_suffix，因为是 _phase
+                                 *share_args_2D[:-1],  # 默认无法 外界设置 vmax 和 vmin，默认 自动统一 colorbar
                                  # %%
-                                 U_list[index + 1], is_animated,
-                                 duration, fps, loop,
+                                 is_animated, duration, fps, loop,
+                                 # %%
                                  z_list[index + 0],
                                  # %%
                                  is_colorbar_log=is_colorbar_log,
                                  **kwargs, )
         else:
-            U_phases_z_plot_save(folder_new_address,
-                               U_list[index + 0][0], U_name_no_suffix_list[index + 0][0],  # 这 3 不传入 也行
-                               *share_args_2[:-1],  # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
-                               # %%                          何况 一般默认 is_self_colorbar = 1...
-                               U_list[index + 1][0], is_animated,
-                               duration, fps, loop,
-                               z_list[index + 0][0],
-                               # %%
-                               U_list[index + 0], U_name_no_suffix_list[index + 0], U_list[index + 1],
-                               # %%
-                               is_colorbar_log=is_colorbar_log,
-                               **kwargs, )  # 传 z 是为了 储存时，给 G_stored 命名
+            U_phases_z_plot_save(U_list[index + 0][0], U_name_no_suffix_list[index + 0][0],  # 这 3 不传入 也行
+                                 U_list[index + 1][0],
+                                 *share_args_2D[:-1],
+                                 # 默认无法 外界设置 vmax 和 vmin，因为 同时画 振幅 和 相位 得 传入 2*2 个 v
+                                 # %%                          何况 一般默认 is_self_colorbar = 1...
+                                 is_animated, duration, fps, loop,
+                                 # %%
+                                 z_list[index + 0][0],
+                                 # %%
+                                 U_list[index + 0], U_name_no_suffix_list[index + 0], U_list[index + 1],
+                                 # %%
+                                 is_colorbar_log=is_colorbar_log,
+                                 **kwargs, )  # 传 z 是为了 储存时，给 G_stored 命名
     elif plot_func == "U_slices_plot_save":
-        U_slices_plot_save(folder_new_address,
-                           U_list[index + 0], U_name_list[index + 0],
+        U_slices_plot_save(U_list[index + 0], U_name_list[index + 0],
                            U_list[index + 1], U_name_list[index + 1],
-                           U_list[index + 2], *share_args_2,
+                           U_list[index + 2], *share_args_2D,
                            # %%
                            z_list[index + 0], z_list[index + 1],
                            # %%

@@ -257,20 +257,18 @@ def AST_EVV(U_name="",
     kwargs_gan_g_eoa = copy.deepcopy(kwargs)
 
     def args_U_amp_plot_save(folder_address, U, U_name):
-        return [folder_address,
-                # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                U, U_name,
-                Get("img_name_extension"),
-                is_save_txt,
+        return [U, U_name,
+                [], folder_address,
+                Get("img_name_extension"), is_save_txt,
                 # %%
-                [], 1, size_PerPixel,
-                is_save, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                size_PerPixel, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
                 # %%
                 cmap_2d, ticks_num, is_contourf,
-                is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                is_title_on, is_axes_on, is_mm,
                 fontsize, font,
                 # %%
-                1, is_colorbar_on, 0, ]  # 折射率分布差别很小，而 is_self_colorbar = 0 只看前 3 位小数的差异，因此用自动 colorbar。
+                is_colorbar_on, is_save,
+                1, 0, 1, 0, ]  # 折射率分布差别很小，而 is_self_colorbar = 0 只看前 3 位小数的差异，因此用自动 colorbar。
 
     kwargs_U_amp_plot_save = {"suffix": ""}
 
@@ -537,7 +535,7 @@ if __name__ == '__main__':
          # %%
          "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 50, "p": 0,
+         "l": 3, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -579,8 +577,8 @@ if __name__ == '__main__':
          "sample": 1, "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
          # %%
-         "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 1,
-         "X": 0, "Y": 0, "is_plot_YZ_XZ": 1, "is_plot_3d_XYZ": 1,
+         "is_plot_EVV": 1, "is_plot_3d_XYz": 0, "is_plot_selective": 0,
+         "X": 0, "Y": 0, "is_plot_YZ_XZ": 0, "is_plot_3d_XYZ": 0,
          # %%
          "plot_group": "Ua", "is_animated": 1,
          "loop": 0, "duration": 0.033, "fps": 5,
@@ -605,7 +603,7 @@ if __name__ == '__main__':
             # %%
             "z_pump2": -5,
             "is_LG_2": 1, "is_Gauss_2": 1, "is_OAM_2": 1,
-            "l2": -50, "p2": 0,
+            "l2": -10, "p2": 0,
             "theta2_x": 0, "theta2_y": 0,
             # %%
             "is_random_phase_2": 0,
@@ -614,7 +612,7 @@ if __name__ == '__main__':
             "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
-            "polar2": 'H',
+            "polar2": 'V',
             # 有双泵浦，则必然考虑偏振、起偏，和检偏，且原 "polar2": 'e'、 "polar": "e" 已再不起作用
             # 取而代之的是，既然原 "polar": "e" 不再 work 但还存在，就不能浪费 它的存在，让其 重新规定 第一束光
             # 偏振方向 为 "VHRL" 中的一个，而不再规定其 极化方向 为 “oe” 中的一个；这里 第二束 泵浦的 偏振方向 默认与之 正交，因而可以 不用填写

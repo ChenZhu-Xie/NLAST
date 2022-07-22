@@ -274,20 +274,18 @@ def structure_n1_3D(U_name="",
 
     if is_stripe > 0:
         for i in range(sheets_stored_num):
-            U_amp_plot_save(folder_address,
-                            # 因为 要返回的话，太多了；返回一个 又没啥意义，而且 返回了 基本也用不上
-                            m_list[i], mod_name_list[i],
-                            Get("img_name_extension"),
-                            is_save_txt,
+            U_amp_plot_save(m_list[i], mod_name_list[i],
+                            [], folder_address,
+                            Get("img_name_extension"), is_save_txt,
                             # %%
-                            [], 1, size_PerPixel,
-                            0, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
+                            size_PerPixel, dpi, Get("size_fig"),  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了
                             # %%
                             cmap_2d, ticks_num, is_contourf,
-                            is_title_on, is_axes_on, is_mm, 0,  # 1, 1 或 0, 0
+                            is_title_on, is_axes_on, is_mm,
                             fontsize, font,
                             # %%
-                            0, is_colorbar_on, 0,
+                            is_colorbar_on, 0,
+                            1, 0, 0, 0,
                             # %%
                             suffix="", **kwargs, )
 
