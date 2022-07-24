@@ -146,53 +146,53 @@ def structure_Generate_2D_radial_G(Ix, Iy,
     return structure
 
 
-def structure_chi2_Generate_2D(U_structure_name="",
-                               img_full_name="Grating.png",
-                               is_phase_only=0,
-                               # %%
-                               z_pump=0,
-                               is_LG=0, is_Gauss=0, is_OAM=0,
-                               l=0, p=0,
-                               theta_x=0, theta_y=0,
-                               # %%
-                               is_random_phase=0,
-                               is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                               # %%
-                               U_0_size=1, w0=0.3, structure_size_Shrink=0.1,
-                               Duty_Cycle_x=0.5, Duty_Cycle_y=0.5,
-                               structure_xy_mode='x', Depth=2,
-                               # %%
-                               is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
-                               is_reverse_xy=0, is_positive_xy=1,
-                               is_bulk=0, is_no_backgroud=1,
-                               # %%
-                               lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
-                               Tx=10, Ty=10, Tz="2*lc",
-                               mx=0, my=0, mz=0,
-                               # %%
-                               is_save=0, is_save_txt=0, dpi=100,
-                               # %%
-                               cmap_2d='viridis',
-                               # %%
-                               ticks_num=6, is_contourf=0,
-                               is_title_on=1, is_axes_on=1, is_mm=1,
-                               # %%
-                               fontsize=9,
-                               font={'family': 'serif',
-                                     'style': 'normal',  # 'normal', 'italic', 'oblique'
-                                     'weight': 'normal',
-                                     'color': 'black',  # 'black','gray','darkred'
-                                     },
-                               # %%
-                               is_colorbar_on=1, is_energy=0,
-                               # %%
-                               is_print=1,
-                               # %% --------------------- for Info_find_contours_SHG
-                               deff_structure_length_expect=1,
-                               is_contours=1, n_TzQ=1,
-                               Gz_max_Enhance=1, match_mode=1,
-                               # %%
-                               is_plot_n=0, is_print2=0, **kwargs, ):
+def chi2_2D(U_structure_name="",
+            img_full_name="Grating.png",
+            is_phase_only=0,
+            # %%
+            z_pump=0,
+            is_LG=0, is_Gauss=0, is_OAM=0,
+            l=0, p=0,
+            theta_x=0, theta_y=0,
+            # %%
+            is_random_phase=0,
+            is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+            # %%
+            U_0_size=1, w0=0.3, structure_size_Shrink=0.1,
+            Duty_Cycle_x=0.5, Duty_Cycle_y=0.5,
+            structure_xy_mode='x', Depth=2,
+            # %%
+            is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
+            is_reverse_xy=0, is_positive_xy=1,
+            is_bulk=0, is_no_backgroud=1,
+            # %%
+            lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
+            Tx=10, Ty=10, Tz="2*lc",
+            mx=0, my=0, mz=0,
+            # %%
+            is_save=0, is_save_txt=0, dpi=100,
+            # %%
+            cmap_2d='viridis',
+            # %%
+            ticks_num=6, is_contourf=0,
+            is_title_on=1, is_axes_on=1, is_mm=1,
+            # %%
+            fontsize=9,
+            font={'family': 'serif',
+                  'style': 'normal',  # 'normal', 'italic', 'oblique'
+                  'weight': 'normal',
+                  'color': 'black',  # 'black','gray','darkred'
+                  },
+            # %%
+            is_colorbar_on=1, is_energy=0,
+            # %%
+            is_print=1,
+            # %% --------------------- for Info_find_contours_SHG
+            deff_structure_length_expect=1,
+            is_contours=1, n_TzQ=1,
+            Gz_max_Enhance=1, match_mode=1,
+            # %%
+            is_plot_n=0, is_print2=0, **kwargs, ):
     # print(kwargs)
     # %%
     is_HOPS = kwargs.get("is_HOPS_SHG", 0)
@@ -311,9 +311,9 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
     kwargs_U_amp_plot_save = {"suffix": ""}
 
-    # %%  只提供 Gx, Gy 给自己，也提供 dk 给 A_3_structure_chi2_Generate_3D 的 Info_find_contours_SHG
+    # %%  只提供 Gx, Gy 给自己，也提供 dk 给 C1z_chi2_3D_ssi 的 Info_find_contours_SHG
     # 也提供 dk 来矫正 Tz...
-    from b_3_SFG_NLA import gan_gpnkE_123VHoe_xyzinc_SFG
+    from c1_SFG_NLA import gan_gpnkE_123VHoe_xyzinc_SFG
 
     g_p, p_p, g_V, g_H, p_V, p_H, \
     n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
@@ -487,40 +487,40 @@ def structure_chi2_Generate_2D(U_structure_name="",
 
 # %%
 
-def structure_nonrect_chi2_Generate_2D(z_pump=0,
-                                       is_LG=0, is_Gauss=0, is_OAM=0,
-                                       l=0, p=0,
-                                       theta_x=0, theta_y=0,
-                                       # %%
-                                       is_random_phase=0,
-                                       is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                                       # %%
-                                       Ix_structure=1, Iy_structure=1, w0=0.3,
-                                       Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, structure_xy_mode='x', Depth=2,
-                                       # %%
-                                       is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
-                                       is_reverse_xy=0, is_positive_xy=1,
-                                       is_bulk=0, is_no_backgroud=1,
-                                       # %%
-                                       lam1=0.8, is_air_pump_structure=0, T=25,
-                                       # %%
-                                       is_save=0, is_save_txt=0, dpi=100,
-                                       # %%
-                                       cmap_2d='viridis',
-                                       # %%
-                                       ticks_num=6, is_contourf=0,
-                                       is_title_on=1, is_axes_on=1, is_mm=1, zj_structure=[],
-                                       # %%
-                                       fontsize=9,
-                                       font={'family': 'serif',
-                                             'style': 'normal',  # 'normal', 'italic', 'oblique'
-                                             'weight': 'normal',
-                                             'color': 'black',  # 'black','gray','darkred'
-                                             },
-                                       # %%
-                                       is_colorbar_on=1, is_energy=0,
-                                       # %%
-                                       **kwargs, ):
+def nonrect_chi2_2D(z_pump=0,
+                    is_LG=0, is_Gauss=0, is_OAM=0,
+                    l=0, p=0,
+                    theta_x=0, theta_y=0,
+                    # %%
+                    is_random_phase=0,
+                    is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+                    # %%
+                    Ix_structure=1, Iy_structure=1, w0=0.3,
+                    Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, structure_xy_mode='x', Depth=2,
+                    # %%
+                    is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
+                    is_reverse_xy=0, is_positive_xy=1,
+                    is_bulk=0, is_no_backgroud=1,
+                    # %%
+                    lam1=0.8, is_air_pump_structure=0, T=25,
+                    # %%
+                    is_save=0, is_save_txt=0, dpi=100,
+                    # %%
+                    cmap_2d='viridis',
+                    # %%
+                    ticks_num=6, is_contourf=0,
+                    is_title_on=1, is_axes_on=1, is_mm=1, zj_structure=[],
+                    # %%
+                    fontsize=9,
+                    font={'family': 'serif',
+                          'style': 'normal',  # 'normal', 'italic', 'oblique'
+                          'weight': 'normal',
+                          'color': 'black',  # 'black','gray','darkred'
+                          },
+                    # %%
+                    is_colorbar_on=1, is_energy=0,
+                    # %%
+                    **kwargs, ):
     lam_structure = kwargs.get("lam_structure", lam1)
     T_structure = kwargs.get("T_structure", T)
     kwargs.pop("lam_structure", None)
@@ -621,26 +621,26 @@ def structure_nonrect_chi2_Generate_2D(z_pump=0,
 
 # %%
 
-def structure_nonrect_chi2_interp2d_2D(folder_address=1, modulation=1,
-                                       sheets_num=1,
-                                       # %%
-                                       is_save_txt=0, dpi=100,
-                                       # %%
-                                       cmap_2d='viridis',
-                                       # %%
-                                       ticks_num=6, is_contourf=0,
-                                       is_title_on=1, is_axes_on=1, is_mm=1, zj_structure=[],
-                                       # %%
-                                       fontsize=9,
-                                       font={'family': 'serif',
-                                             'style': 'normal',  # 'normal', 'italic', 'oblique'
-                                             'weight': 'normal',
-                                             'color': 'black',  # 'black','gray','darkred'
-                                             },
-                                       # %%
-                                       is_colorbar_on=1,
-                                       # %%
-                                       **kwargs, ):
+def interp2d_nonrect_chi2_2D(folder_address=1, modulation=1,
+                             sheets_num=1,
+                             # %%
+                             is_save_txt=0, dpi=100,
+                             # %%
+                             cmap_2d='viridis',
+                             # %%
+                             ticks_num=6, is_contourf=0,
+                             is_title_on=1, is_axes_on=1, is_mm=1, zj_structure=[],
+                             # %%
+                             fontsize=9,
+                             font={'family': 'serif',
+                                   'style': 'normal',  # 'normal', 'italic', 'oblique'
+                                   'weight': 'normal',
+                                   'color': 'black',  # 'black','gray','darkred'
+                                   },
+                             # %%
+                             is_colorbar_on=1,
+                             # %%
+                             **kwargs, ):
     # %%
     from scipy.interpolate import interp2d
     ix, iy = range(modulation.shape[1]), range(modulation.shape[0])
@@ -687,48 +687,48 @@ def structure_nonrect_chi2_interp2d_2D(folder_address=1, modulation=1,
 
 # %%
 
-def structure_n1_Generate_2D(U_structure_name="",
-                             img_full_name="Grating.png",
-                             is_phase_only=0,
-                             # %%
-                             z_pump=0,
-                             is_LG=0, is_Gauss=0, is_OAM=0,
-                             l=0, p=0,
-                             theta_x=0, theta_y=0,
-                             # %%
-                             is_random_phase=0,
-                             is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                             # %%
-                             U_0_size=1, w0=0.3, structure_size_Shrink=0.1,
-                             Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, structure_xy_mode='x', Depth=2,
-                             # %%
-                             is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
-                             is_reverse_xy=0, is_positive_xy=1,
-                             is_bulk=0,
-                             # %%
-                             lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
-                             Tx=10, Ty=10, Tz="2*lc",
-                             mx=0, my=0, mz=0,
-                             # %%
-                             is_save=0, is_save_txt=0, dpi=100,
-                             # %%
-                             cmap_2d='viridis',
-                             # %%
-                             ticks_num=6, is_contourf=0,
-                             is_title_on=1, is_axes_on=1, is_mm=1,
-                             # %%
-                             fontsize=9,
-                             font={'family': 'serif',
-                                   'style': 'normal',  # 'normal', 'italic', 'oblique'
-                                   'weight': 'normal',
-                                   'color': 'black',  # 'black','gray','darkred'
-                                   },
-                             # %%
-                             is_colorbar_on=1, is_energy=0,
-                             # %%
-                             is_print=1,
-                             # %%
-                             **kwargs, ):
+def n1_2D(U_structure_name="",
+          img_full_name="Grating.png",
+          is_phase_only=0,
+          # %%
+          z_pump=0,
+          is_LG=0, is_Gauss=0, is_OAM=0,
+          l=0, p=0,
+          theta_x=0, theta_y=0,
+          # %%
+          is_random_phase=0,
+          is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+          # %%
+          U_0_size=1, w0=0.3, structure_size_Shrink=0.1,
+          Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, structure_xy_mode='x', Depth=2,
+          # %%
+          is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
+          is_reverse_xy=0, is_positive_xy=1,
+          is_bulk=0,
+          # %%
+          lam1=0.8, is_air_pump_structure=0, is_air=0, T=25,
+          Tx=10, Ty=10, Tz="2*lc",
+          mx=0, my=0, mz=0,
+          # %%
+          is_save=0, is_save_txt=0, dpi=100,
+          # %%
+          cmap_2d='viridis',
+          # %%
+          ticks_num=6, is_contourf=0,
+          is_title_on=1, is_axes_on=1, is_mm=1,
+          # %%
+          fontsize=9,
+          font={'family': 'serif',
+                'style': 'normal',  # 'normal', 'italic', 'oblique'
+                'weight': 'normal',
+                'color': 'black',  # 'black','gray','darkred'
+                },
+          # %%
+          is_colorbar_on=1, is_energy=0,
+          # %%
+          is_print=1,
+          # %%
+          **kwargs, ):
     lam_structure = kwargs.get("lam_structure", lam1)
     T_structure = kwargs.get("T_structure", T)
     kwargs.pop("lam_structure", None)
@@ -936,40 +936,40 @@ def structure_n1_Generate_2D(U_structure_name="",
 
 # %%
 
-def structure_nonrect_n1_Generate_2D(z_pump=0,
-                                     is_LG=0, is_Gauss=0, is_OAM=0,
-                                     l=0, p=0,
-                                     theta_x=0, theta_y=0,
-                                     # %%
-                                     is_random_phase=0,
-                                     is_H_l=0, is_H_theta=0, is_H_random_phase=0,
-                                     # %%
-                                     Ix_structure=1, Iy_structure=1, w0=0.3,
-                                     Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, structure_xy_mode='x', Depth=2,
-                                     # %%
-                                     is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
-                                     is_reverse_xy=0, is_positive_xy=1,
-                                     is_bulk=0,
-                                     # %%
-                                     lam1=0.8, is_air_pump_structure=0, n1_inc=1, T=25,
-                                     # %%
-                                     is_save=0, is_save_txt=0, dpi=100,
-                                     # %%
-                                     cmap_2d='viridis',
-                                     # %%
-                                     ticks_num=6, is_contourf=0,
-                                     is_title_on=1, is_axes_on=1, is_mm=1, zj_structure=[],
-                                     # %%
-                                     fontsize=9,
-                                     font={'family': 'serif',
-                                           'style': 'normal',  # 'normal', 'italic', 'oblique'
-                                           'weight': 'normal',
-                                           'color': 'black',  # 'black','gray','darkred'
-                                           },
-                                     # %%
-                                     is_colorbar_on=1, is_energy=0,
-                                     # %%
-                                     **kwargs, ):
+def nonrect_n1_2D(z_pump=0,
+                  is_LG=0, is_Gauss=0, is_OAM=0,
+                  l=0, p=0,
+                  theta_x=0, theta_y=0,
+                  # %%
+                  is_random_phase=0,
+                  is_H_l=0, is_H_theta=0, is_H_random_phase=0,
+                  # %%
+                  Ix_structure=1, Iy_structure=1, w0=0.3,
+                  Duty_Cycle_x=0.5, Duty_Cycle_y=0.5, structure_xy_mode='x', Depth=2,
+                  # %%
+                  is_continuous=1, is_target_far_field=1, is_transverse_xy=0,
+                  is_reverse_xy=0, is_positive_xy=1,
+                  is_bulk=0,
+                  # %%
+                  lam1=0.8, is_air_pump_structure=0, n1_inc=1, T=25,
+                  # %%
+                  is_save=0, is_save_txt=0, dpi=100,
+                  # %%
+                  cmap_2d='viridis',
+                  # %%
+                  ticks_num=6, is_contourf=0,
+                  is_title_on=1, is_axes_on=1, is_mm=1, zj_structure=[],
+                  # %%
+                  fontsize=9,
+                  font={'family': 'serif',
+                        'style': 'normal',  # 'normal', 'italic', 'oblique'
+                        'weight': 'normal',
+                        'color': 'black',  # 'black','gray','darkred'
+                        },
+                  # %%
+                  is_colorbar_on=1, is_energy=0,
+                  # %%
+                  **kwargs, ):
     lam_structure = kwargs.get("lam_structure", lam1)
     T_structure = kwargs.get("T_structure", T)
     kwargs.pop("lam_structure", None)
@@ -1067,26 +1067,26 @@ def structure_nonrect_n1_Generate_2D(z_pump=0,
     return modulation_lie_down, folder_address
 
 
-def structure_nonrect_n1_interp2d_2D(folder_address=1, modulation=1,
-                                     sheets_num=1,
-                                     # %%
-                                     is_save_txt=0, dpi=100,
-                                     # %%
-                                     cmap_2d='viridis',
-                                     # %%
-                                     ticks_num=6, is_contourf=0,
-                                     is_title_on=1, is_axes_on=1, is_mm=1, zj_structure=[],
-                                     # %%
-                                     fontsize=9,
-                                     font={'family': 'serif',
-                                           'style': 'normal',  # 'normal', 'italic', 'oblique'
-                                           'weight': 'normal',
-                                           'color': 'black',  # 'black','gray','darkred'
-                                           },
-                                     # %%
-                                     is_colorbar_on=1,
-                                     # %%
-                                     **kwargs, ):
+def interp2d_nonrect_n1_2D(folder_address=1, modulation=1,
+                           sheets_num=1,
+                           # %%
+                           is_save_txt=0, dpi=100,
+                           # %%
+                           cmap_2d='viridis',
+                           # %%
+                           ticks_num=6, is_contourf=0,
+                           is_title_on=1, is_axes_on=1, is_mm=1, zj_structure=[],
+                           # %%
+                           fontsize=9,
+                           font={'family': 'serif',
+                                 'style': 'normal',  # 'normal', 'italic', 'oblique'
+                                 'weight': 'normal',
+                                 'color': 'black',  # 'black','gray','darkred'
+                                 },
+                           # %%
+                           is_colorbar_on=1,
+                           # %%
+                           **kwargs, ):
     # %%
     from scipy.interpolate import interp2d
     ix, iy = range(modulation.shape[1]), range(modulation.shape[0])
@@ -1117,7 +1117,7 @@ def structure_nonrect_n1_interp2d_2D(folder_address=1, modulation=1,
                     Get("size_PerPixel"), dpi, Get("size_fig"),
                     # %%
                     cmap_2d, ticks_num, is_contourf,
-                    is_title_on, is_axes_on, 1,   # 1, 1 或 0, 0
+                    is_title_on, is_axes_on, 1,  # 1, 1 或 0, 0
                     fontsize, font,
                     # %%
                     is_colorbar_on, 0,  # is_save = 1 - is_bulk 改为 不储存，因为 反正 都储存了

@@ -79,7 +79,7 @@ def Cal_GxGyGz(mx, my, mz,
                        "Tx = {} μm, Ty = {} μm, Tz = {} μm".format(Tx, Ty, Tz))
 
     from fun_global_var import init_Set
-    init_Set("Gx", Gx)  # structure_nonrect_chi2_Generate_2D 会用到
+    init_Set("Gx", Gx)  # nonrect_chi2_2D 会用到
     init_Set("Gy", Gy)
 
     return Gx, Gy, Gz

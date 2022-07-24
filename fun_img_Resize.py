@@ -124,7 +124,9 @@ def image_Add_black_border(img_full_name="Grating.png",
 def if_image_Add_black_border(U_name, img_full_name,
                               is_name_main, is_print, **kwargs, ):  # 没有 该函数作为起始的 py 文件，需要加 init_GLV_DICT
 
-    if is_name_main:  # 等价于：如果是 第一次 进入该程序
+    # if is_name_main:  # 等价于：如果是 第一次 进入该程序
+    from fun_global_var import init_accu
+    if init_accu("if_image_Add_black_border", 1) <= 1:  # 不如直接：第一次 进入该程序，这才是 更现代的 解决方案
         # %% 开始 加边框
         # print(1, kwargs)
         # init_GLV_DICT(**kwargs) # 这里初始化的 init_GLV 传了参数进去 —— 没懂为什么得是 **....，不然传进去变成位置参数 args 中的一元素了
