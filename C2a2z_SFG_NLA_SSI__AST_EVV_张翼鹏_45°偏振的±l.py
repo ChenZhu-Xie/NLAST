@@ -8,7 +8,7 @@ Created on Sun Dec 26 22:09:04 2021
 # %%
 
 from fun_global_var import init_GLV_DICT
-from E_2_SFG_NLA_SSI__AST_EVV import SFG_NLA_SSI__AST_EVV
+from C2a2_SFG_NLA_SSI__AST_EVV import SFG_NLA_SSI__AST_EVV
 
 if __name__ == '__main__':
     kwargs = \

@@ -565,7 +565,7 @@ def SFG_SSF_SSI(U_name="",
                 **kwargs, )
 
     import inspect
-    if inspect.stack()[1][3] == "SFG_NLA_reverse":
+    if kwargs.get("p_inspect", inspect.stack()[1][3]) == "SFG_NLA_reverse":
         from fun_statistics import find_Kxyz
         from fun_linear import fft2
         K1_z, K1_xy = find_Kxyz(fft2(U_0), k1)
@@ -576,7 +576,7 @@ def SFG_SSF_SSI(U_name="",
         return fget("U"), U_0, U2_0, modulation_squared, k1_inc, k2_inc, \
                theta_x, theta_y, theta2_x, theta2_y, kiizQ, \
                k1, k2, k3, const, Iz, Gz
-    elif inspect.stack()[1][3] == "SFG_NLA_SSI__AST_EVV":
+    elif kwargs.get("p_inspect", inspect.stack()[1][3]) == "SFG_NLA_SSI__AST_EVV":
         Set("k3", k3)
         Set("lam3", lam3)
 

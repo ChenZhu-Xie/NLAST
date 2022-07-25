@@ -141,8 +141,7 @@ def Gan_refractive_index_ellipsoid(is_air, lam, T):
 
 
 def Cal_n(size_PerPixel,
-          is_air,
-          lam, T, p="e", **kwargs):
+          is_air, lam, T, p="e", **kwargs):
     if is_air != 1 and type(kwargs.get("phi_z", 0)) != str:
 
         # %%
