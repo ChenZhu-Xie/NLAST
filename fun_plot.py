@@ -370,11 +370,11 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
     # 如果有第 2 个 ax 加进来，则提高 第 1 个 ax 的 透明度
     ax1_plot_dict.update({"alpha": kwargs.get("ax1_alpha", 0.5 if "l2" in kwargs else 1),
                           "linestyle": kwargs.get("ax1_linestyle", '-'),  # 线型
-                          "linewidth": kwargs.get("ax1_linewidth", 2), })  # 线宽
+                          "linewidth": kwargs.get("ax1_linewidth", int(fontsize_set / 10) + 1)})  # 线宽
     ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", ''),  # 标记点：'+' 'x' '.' '|' ''
                           "markeredgecolor": kwargs.get("ax1_markeredgecolor", color_1d),  # 标记点颜色 ‘green’
-                          "markersize": kwargs.get("ax1_markersize", '5'),  # 标记点大小
-                          "markeredgewidth": kwargs.get("ax1_markeredgewidth", 2), })  # 标记点边宽
+                          "markersize": kwargs.get("ax1_markersize", str(int(fontsize_set))),  # 标记点大小
+                          "markeredgewidth": kwargs.get("ax1_markeredgewidth", int(fontsize_set / 10) + 1), })  # 标记点边宽
 
     # ax1.set_yscale(kwargs.get('ax1_yscale', 'linear')) # linear 会覆盖 之前的 set_yticks，如果该语句在 set_yticks 之后的话
 
@@ -452,11 +452,11 @@ def plot_1d(zj, sample=1, size_PerPixel=0.007,
         ax2_plot_dict = {"color": color_1d2, "label": kwargs.get('label2', None)}
         ax2_plot_dict.update({"alpha": kwargs.get("ax2_alpha", 1),  # 1 即 不透明
                               "linestyle": kwargs.get("ax2_linestyle", '-'),  # 线型
-                              "linewidth": kwargs.get("ax2_linewidth", 2), })  # 线宽
+                              "linewidth": kwargs.get("ax2_linewidth", int(fontsize_set / 10) + 1), })  # 线宽
         ax2_marker_dict = {"marker": kwargs.get("ax2_marker", '|'),  # 标记点
                            "markeredgecolor": kwargs.get("ax2_markeredgecolor", 'purple'),  # 标记点颜色
-                           "markersize": kwargs.get("ax2_markersize", '20'),  # 标记点大小
-                           "markeredgewidth": kwargs.get("ax2_markeredgewidth", 2), }
+                           "markersize": kwargs.get("ax2_markersize", str(int(fontsize_set))),  # 标记点大小
+                           "markeredgewidth": kwargs.get("ax2_markeredgewidth", int(fontsize_set / 10) + 1), }
         ax2_plot_dict.update(ax2_marker_dict)
 
         # %% ax1
@@ -605,6 +605,17 @@ def add_right_cax(ax, pad=0.05, width=0.05, height=0.0, ):
 
 # %%
 
+def find_U_center(U):
+    ix, iy = np.meshgrid(range(U.shape[1]), range(U.shape[0]))
+    U_energy = np.sum(np.abs(U) ** 2)
+    U_weight = np.abs(U) ** 2 / U_energy
+    Uc_x = int(np.sum(U_weight * ix))  # U 点阵 的 坐标系 与 ix, iy 的 相同么 ？
+    Uc_y = int(np.sum(U_weight * iy))
+    return Uc_x, Uc_y
+
+
+# %%
+
 def plot_2d(zj, sample=1, size_PerPixel=0.007,
             # %%
             array2D=0, array2D_address=os.path.dirname(os.path.abspath(__file__)), array2D_title='',
@@ -622,7 +633,9 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
             # %%
             is_self_colorbar=1, is_colorbar_on=1, is_energy=1,
             # %% 可选 参数（可不传入）
-            xlabel='', ylabel='', clabel='', **kwargs, ):
+            xlabel='', ylabel='', clabel='', 
+            # %%
+            plot_center=0, **kwargs, ):
     # %%
     # fig, ax1 = plt.subplots(1, 1, figsize=(size_fig, size_fig), dpi=dpi)
     fig = plt.figure(figsize=(size_fig, size_fig), dpi=dpi)
@@ -659,6 +672,8 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
     white_list.append("U_amp_plot_save")
     add_con = inspect.stack()[1][3] in white_list
 
+    if add_con and plot_center == 1:
+        Uc_x, Uc_y = find_U_center(array2D_new)
     array2D_new = energy_log10_colorbar(array2D_new, is_energy,
                                         add_con=add_con, **kwargs, )
     # %% 插值 end
@@ -750,6 +765,18 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
             img = ax1.contourf(array2D_new, cmap=cmap_2d, vmin=vmin, vmax=vmax, )
         else:
             img = ax1.imshow(array2D_new, cmap=cmap_2d, vmin=vmin, vmax=vmax, )
+    if add_con and plot_center == 1:
+        # print(fontsize_set)
+        color_1d = "white"
+        ax1_plot_dict = {"color": color_1d, "label": kwargs.get('label', None)}
+        ax1_plot_dict.update({"alpha": kwargs.get("ax1_alpha", 1),
+                              "linestyle": kwargs.get("ax1_linestyle", '-'),  # 线型
+                              "linewidth": kwargs.get("ax1_linewidth", 1)})  # 线宽
+        ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", 'x'),  # 标记点：'+' 'x' '.' '|' ''
+                              "markeredgecolor": kwargs.get("ax1_markeredgecolor", color_1d),  # 标记点颜色 ‘green’
+                              "markersize": kwargs.get("ax1_markersize", str(int(fontsize_set/3)+1)),  # 标记点大小
+                              "markeredgewidth": kwargs.get("ax1_markeredgewidth", 1), })  # 标记点边宽
+        ax1.plot([Uc_x, Iy // 2], [Uc_y, Ix // 2], **ax1_plot_dict, )
 
     if is_colorbar_on == 1:
         cax = add_right_cax(ax1, pad=0.05, width=0.05)
@@ -795,6 +822,7 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
 
     return img
 
+
 # %% https://blog.csdn.net/aa846555831/article/details/52372884
 
 def savefig_to_buffer(**kwargs):  # using buffer, great way!
@@ -812,6 +840,7 @@ def savefig_to_buffer(**kwargs):  # using buffer, great way!
     # cv2.destroyAllWindows()
     buffer_.close()  # 释放缓存
     return data
+
 
 # %% https://blog.csdn.net/tequila53/article/details/123486737
 

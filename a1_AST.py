@@ -39,7 +39,7 @@ def gan_p_xyp(**kwargs):
     if type(kwargs.get("phi_p", 0)) == str:
         phi = float(kwargs["phi_p"]) / 180 * np.pi
     else:
-        phi = kwargs.get("phi_p", 0) / 180 * np.pi
+        phi = kwargs.get("phi_p", 90) / 180 * np.pi
     # phi = np.pi / 2 - phi  # x上y右z里 的 右手系 转换成 x右y上z里 笛卡尔 左手 坐标系
     p_ux, p_uy = np.cos(phi), np.sin(phi)  # 笛卡尔坐标系 下的 x,y 向 复振幅 占比
     # 基于 上述 规定的 线偏振方向 的 单位矢量，所以 理应先有 基矢，再有这个比例，即 p_ux, p_uy = np.dot(p_p, p_x), np.dot(p_p, p_y)
@@ -71,7 +71,7 @@ def gan_p_a(**kwargs):
 
 def gan_gp_a(g_oe, E_u, **kwargs):  # analyzer
     p_a = gan_p_a(**kwargs)
-    g_a = g_oe * np.dot(E_u, p_a)
+    g_a = g_oe * np.dot(E_u, p_a)  # E_u 投影到 p_a
     # 不能是 p_a * E_u，得是 E_u * p_a，因为 E_u 的 最末维度 是 2，而 p_a 的 第一个维度 也是 2
     return g_a
 
@@ -87,12 +87,15 @@ def gan_g_eoa(g_o, g_e, E_uo, E_ue, **kwargs):
 
 # %%
 
-def gan_gp_p(g_shift, **kwargs):
-    phi_p = kwargs.get("phi_p", 0)
-    if type(phi_p) == str:  # 如果 是 str，则认为 不加偏振片，但初始 线偏振 从 p_y 变为 p_p 方向，也就是 纯转了偏振。
+def gan_gp_p(g_shift, polar_g, **kwargs):
+    phi_p = kwargs.get("phi_p", 90)
+    if type(phi_p) == str:  # 如果 是 str，则认为 不加偏振片，但 g 的 初始 线偏振 从 p_x 或 p_y 变为 p_p 方向，也就是 纯转了偏振。
         p_g = gan_p_g(float(phi_p), **kwargs)
     else:
-        p_g = gan_p_g(90, **kwargs)  # 否则 默认 g 的偏振 p_g 沿 y 方向：p_y
+        if polar_g == "o" or polar_g == "H":
+            p_g = gan_p_g(0, **kwargs)  # 若 g 的偏振 p_g 沿 x 方向：p_x
+        elif polar_g == "e" or polar_g == "V":
+            p_g = gan_p_g(90, **kwargs)  # 否则 默认 g 的偏振 p_g 沿 y 方向：p_y
     g_p, p_p = gan_g_p(g_shift, p_g, **kwargs)  # 朝 偏振方向 投影之后，g_p 大小改变，方向从 p_g 方向，变为 偏振片的 p_p 方向
     return g_p, p_p
 
@@ -101,16 +104,16 @@ def gan_gp_p(g_shift, **kwargs):
 
 def Gan_gp_p(is_HOPS, g_shift,
              U_0, U2_0, polar_2, **kwargs):  # 为了不与 kwargs 里 polar2 重复
-    if is_HOPS == 0:
-        g_p, p_p = gan_gp_p(g_shift, **kwargs)
+    polar = kwargs.get("polar", "V")  # 默认 第一个 泵浦 是 竖直的
+    if is_HOPS > 0 and is_HOPS < 1:
+        g_p, p_p = gan_gp_p(g_shift, polar, **kwargs)
     else:
-        polar = kwargs.get("polar", "V")  # 默认 第一个 泵浦 是 竖直的
-        if is_HOPS >= 1 and is_HOPS < 2:
+        if is_HOPS > 1 and is_HOPS < 2:
             U_V, U_H, g_V, g_H = U_12_to_gU_HOPS_CP(U_0, U2_0, polar, polar_2, **kwargs)
-        elif is_HOPS >= 2:
+        elif is_HOPS > 2:
             U_V, U_H, g_V, g_H = U_12_to_gU_LP(U_0, U2_0, polar, polar_2)
-        g_Vp, p_p = gan_gp_p(g_V, **kwargs)
-        g_Hp, p_p = gan_gp_p(g_H, **kwargs)
+        g_Vp, p_p = gan_gp_p(g_V, "V", **kwargs)
+        g_Hp, p_p = gan_gp_p(g_H, "H", **kwargs)
         g_p = g_Vp + g_Hp
     return g_p, p_p
 
@@ -119,9 +122,9 @@ def Gan_gp_p(is_HOPS, g_shift,
 
 def Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs):
     polar = kwargs.get("polar", "V")  # 默认 第一个 泵浦 是 竖直的
-    if is_HOPS >= 1 and is_HOPS < 2:
+    if is_HOPS == 1:
         U_V, U_H, g_V, g_H = U_12_to_gU_HOPS_CP(U_0, U2_0, polar, polar2, **kwargs)
-    elif is_HOPS >= 2:
+    elif is_HOPS == 2:
         U_V, U_H, g_V, g_H = U_12_to_gU_LP(U_0, U2_0, polar, polar2)
     p_V = gan_p_g(90, **kwargs)  # 对应 V 方向 的 偏振矢量，给 g_V 用
     p_H = gan_p_g(0, **kwargs)  # 对应 H 方向 的 偏振矢量，给 g_H 用
@@ -1064,11 +1067,11 @@ if __name__ == '__main__':
          "z0": 10,
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
-         # %%  控制 单双泵浦 和 绘图方式：0 代表 无双折射 "is_linear_birefringence": 0 是否 考虑 双折射
-         "is_HOPS_AST": 1,  # 0.x 代表 单泵浦，1 代表 高阶庞加莱球，2 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
+         # %%  控制 单双泵浦 和 绘图方式："is_HOPS": 0 代表 无双折射，即 "is_linear_birefringence": 0
+         "is_HOPS_AST": 1,  # 0.x 代表 单泵浦，1.x 代表 高阶庞加莱球，2.x 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
-         # 是否 使用 起偏器（0 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
-         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
+         # 是否 使用 起偏器（"is_HOPS": 整数 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
+         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器（"phi_a": str 则不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
          "plot_group_AST": "r",  # m 代表 oe 的 mix，o,e 代表 ~，fb 代表 frontface / backface
          # %%
          "is_save": 0, "is_no_data_save": 0,
@@ -1102,7 +1105,7 @@ if __name__ == '__main__':
          "polar": "R", "ray": "1",
          }
 
-    if kwargs.get("is_HOPS_AST", 0) > 0:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "spaceship.png",

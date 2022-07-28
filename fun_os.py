@@ -1773,8 +1773,7 @@ def U_SSI_plot(G_stored, G_name,
                th_X, th_Y,
                th_1, th_2,
                th_f, th_e,
-               img_name_extension,
-               is_no_data_save, is_save_txt,
+               img_name_extension, is_save_txt,
                # %%
                sample, size_PerPixel,
                is_save, dpi, size_fig,
@@ -1797,7 +1796,9 @@ def U_SSI_plot(G_stored, G_name,
                X, Y,
                z_1, z_2,
                z_f, z_e,
-               zj, z_stored, z, ):
+               zj, z_stored, z,
+               # %%
+               **kwargs):
     args_plot = [img_name_extension, is_save_txt,
                  # %%
                  size_PerPixel, dpi, size_fig,
@@ -1823,8 +1824,9 @@ def U_SSI_plot(G_stored, G_name,
                    # %%
                    zj, z_stored, z,
                    # %%
-                   is_no_data_save=is_no_data_save,
-                   is_colorbar_log=is_colorbar_log, )
+                   is_colorbar_log=is_colorbar_log,
+                   # %%
+                   **kwargs, )
 
     # %%
     p_dir = "GU_XYs"
@@ -1834,7 +1836,7 @@ def U_SSI_plot(G_stored, G_name,
 
         if "G" in plot_group:
             folder_address = U_dir(G_name + "_XYs", is_save,
-                                   z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
+                                   z=z, p_dir=p_dir, )
 
             # ------------------------- 储存 G1_section_1_shift_amp、G1_section_1_shift_amp、G1_structure_frontface_shift_amp、G1_structure_endface_shift_amp
             # ------------------------- 储存 G1_section_1_shift_phase、G1_section_1_shift_phase、G1_structure_frontface_shift_phase、G1_structure_endface_shift_phase
@@ -1848,14 +1850,14 @@ def U_SSI_plot(G_stored, G_name,
                                     folder_address,
                                     *args_plot, is_show_structure_face,
                                     # %%
-                                    is_no_data_save=is_no_data_save,
-                                    is_colorbar_log=is_colorbar_log, )
+                                    is_colorbar_log=is_colorbar_log,
+                                    **kwargs, )
 
         # %%
 
         if "U" in plot_group:
             folder_address = U_dir(U_name + "_XYs", is_save,
-                                   z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
+                                   z=z, p_dir=p_dir, )
 
             # ------------------------- 储存 U0_section_1_amp、U0_section_1_amp、U0_structure_frontface_amp、U0_structure_endface_amp
             # ------------------------- 储存 U0_section_1_phase、U0_section_1_phase、U0_structure_frontface_phase、U0_structure_endface_phase
@@ -1869,8 +1871,8 @@ def U_SSI_plot(G_stored, G_name,
                                     folder_address,
                                     *args_plot, is_show_structure_face,
                                     # %%
-                                    is_no_data_save=is_no_data_save,
-                                    is_colorbar_log=is_colorbar_log, )
+                                    is_colorbar_log=is_colorbar_log,
+                                    **kwargs, )
 
     # %%
 
@@ -1884,7 +1886,7 @@ def U_SSI_plot(G_stored, G_name,
 
         if "G" in plot_group:
             folder_address = U_dir(G_name + "_X(Y)Z", is_save,
-                                   z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
+                                   z=z, p_dir=p_dir, )
             G_YZ_XZ_amp_max, G_YZ_XZ_amp_min, G_YZ_XZ_phase_max, G_YZ_XZ_phase_min = \
                 U_slices_plot_save(G_YZ, G_name + "_YZ",
                                    G_XZ, G_name + "_XZ",
@@ -1893,7 +1895,6 @@ def U_SSI_plot(G_stored, G_name,
                                    # %%
                                    X, Y,
                                    # %%
-                                   is_no_data_save=is_no_data_save,
                                    is_colorbar_log=is_colorbar_log, )
 
         # %%
@@ -1903,7 +1904,7 @@ def U_SSI_plot(G_stored, G_name,
 
         if "U" in plot_group:
             folder_address = U_dir(U_name + "_X(Y)Z", is_save,
-                                   z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
+                                   z=z, p_dir=p_dir, )
             U_YZ_XZ_amp_max, U_YZ_XZ_amp_min, U_YZ_XZ_phase_max, U_YZ_XZ_phase_min = \
                 U_slices_plot_save(U_YZ, U_name + "_YZ",
                                    U_XZ, U_name + "_XZ",
@@ -1912,7 +1913,6 @@ def U_SSI_plot(G_stored, G_name,
                                    # %%
                                    X, Y,
                                    # %%
-                                   is_no_data_save=is_no_data_save,
                                    is_colorbar_log=is_colorbar_log, )
 
         if is_plot_3d_XYZ == 1:
@@ -1950,7 +1950,7 @@ def U_SSI_plot(G_stored, G_name,
 
                 suffix = "_XYZ"
                 folder_address = U_dir(G_name + suffix + "_amp", is_save,
-                                       z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
+                                       z=z, p_dir=p_dir, )
                 U_amp_plot_address = U_amp_plot_save_3d_XYZ(G_name + suffix,
                                                             np.abs(G_YZ), np.abs(G_XZ),
                                                             np.abs(G_1), np.abs(G_2),
@@ -1958,7 +1958,6 @@ def U_SSI_plot(G_stored, G_name,
                                                             *args_plot_save_3d_XYZ(folder_address),
                                                             # %%
                                                             z=z,
-                                                            is_no_data_save=is_no_data_save,
                                                             is_colorbar_log=is_colorbar_log,
                                                             # %%
                                                             **v_kwargs, )
@@ -1977,7 +1976,7 @@ def U_SSI_plot(G_stored, G_name,
 
                 suffix = "_XYZ"
                 folder_address = U_dir(G_name + suffix + "_phase", is_save,
-                                       z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
+                                       z=z, p_dir=p_dir, )
                 U_phase_plot_address = U_phase_plot_save_3d_XYZ(G_name + suffix,
                                                                 np.angle(G_YZ), np.angle(G_XZ),
                                                                 np.angle(G_1), np.angle(G_2),
@@ -1985,7 +1984,6 @@ def U_SSI_plot(G_stored, G_name,
                                                                 *args_plot_save_3d_XYZ(folder_address),
                                                                 # %%
                                                                 z=z,
-                                                                is_no_data_save=is_no_data_save,
                                                                 is_colorbar_log=is_colorbar_log,
                                                                 # %%
                                                                 **v_kwargs, )
@@ -2004,7 +2002,7 @@ def U_SSI_plot(G_stored, G_name,
 
                 suffix = "_XYZ"
                 folder_address = U_dir(U_name + suffix + "_amp", is_save,
-                                       z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
+                                       z=z, p_dir=p_dir, )
                 U_amp_plot_address = U_amp_plot_save_3d_XYZ(U_name + suffix,
                                                             np.abs(U_YZ), np.abs(U_XZ),
                                                             np.abs(U_1), np.abs(U_2),
@@ -2012,7 +2010,6 @@ def U_SSI_plot(G_stored, G_name,
                                                             *args_plot_save_3d_XYZ(folder_address),
                                                             # %%
                                                             z=z,
-                                                            is_no_data_save=is_no_data_save,
                                                             is_colorbar_log=is_colorbar_log,
                                                             # %%
                                                             **v_kwargs, )
@@ -2031,7 +2028,7 @@ def U_SSI_plot(G_stored, G_name,
 
                 suffix = "_XYZ"
                 folder_address = U_dir(U_name + suffix + "_phase", is_save,
-                                       z=z, p_dir=p_dir, is_no_data_save=is_no_data_save, )
+                                       z=z, p_dir=p_dir, )
                 U_phase_plot_address = U_phase_plot_save_3d_XYZ(U_name + suffix,
                                                                 np.angle(U_YZ), np.angle(U_XZ),
                                                                 np.angle(U_1), np.angle(U_2),
@@ -2039,7 +2036,6 @@ def U_SSI_plot(G_stored, G_name,
                                                                 *args_plot_save_3d_XYZ(folder_address),
                                                                 # %%
                                                                 z=z,
-                                                                is_no_data_save=is_no_data_save,
                                                                 is_colorbar_log=is_colorbar_log,
                                                                 # %%
                                                                 **v_kwargs, )

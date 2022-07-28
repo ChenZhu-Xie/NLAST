@@ -1350,7 +1350,7 @@ def init_AST_12oe(Ix, Iy, size_PerPixel,
         # print(D_u[0])
         # print(D_u[:,0])
         # print(D_u[0,0])
-        if type(p_p) == np.ndarray:
+        if type(p_p) == np.ndarray:  # p_p 投影到 E_u（因为 E_u 只允许是 某 2 个方向）
             g_oe = g_p * np.dot(E_u, p_p)  # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
         else:
             g_oe = g_p

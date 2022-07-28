@@ -920,8 +920,7 @@ def fU_SSI_plot(th_f, th_e,
                    Get("th_X"), Get("th_Y"),
                    Get("sheet_th_sec1"), Get("sheet_th_sec2"),
                    th_f, th_e,
-                   img_name_extension,
-                   kwargs.get("is_no_data_save", 0), is_save_txt,
+                   img_name_extension, is_save_txt,
                    # %%
                    sample, size_PerPixel,
                    is_save, dpi, size_fig,
@@ -1021,8 +1020,7 @@ def fU_EVV_plot(img_name_extension,
                    Get("th_X"), Get("th_Y"),
                    0, len(Get("zj")) - 1,
                    0, len(Get("zj")) - 1,
-                   img_name_extension,
-                   kwargs.get("is_no_data_save", 0), is_save_txt,
+                   img_name_extension, is_save_txt,
                    # %%
                    sample, size_PerPixel,
                    is_save, dpi, size_fig,
@@ -1045,7 +1043,9 @@ def fU_EVV_plot(img_name_extension,
                    Get("X"), Get("Y"),  # 这个也可 顺便 设成 global 的，懒得搞
                    Get("zj")[0], Get("zj")[-1],
                    Get("zj")[0], Get("zj")[-1],
-                   Get("zj"), Get("z_stored"), z, )
+                   Get("zj"), Get("z_stored"), z,
+                   # %%
+                   **kwargs)
 
 
 def GU_error_energy_plot_save(G0_energy, G_energy, G_error_energy,
