@@ -87,20 +87,33 @@ def gan_g_eoa(g_o, g_e, E_uo, E_ue, **kwargs):
 
 # %%
 
-def gan_gp_p(g_shift, polar_g, **kwargs):
-    phi_p = kwargs.get("phi_p", 90)
-    if type(phi_p) == str:  # 如果 是 str，则认为 不加偏振片，但 g 的 初始 线偏振 从 p_x 或 p_y 变为 p_p 方向，也就是 纯转了偏振。
-        p_g = gan_p_g(float(phi_p), **kwargs)
-    else:
-        if polar_g == "o" or polar_g == "H":
-            p_g = gan_p_g(0, **kwargs)  # 若 g 的偏振 p_g 沿 x 方向：p_x
-        elif polar_g == "e" or polar_g == "V":
-            p_g = gan_p_g(90, **kwargs)  # 否则 默认 g 的偏振 p_g 沿 y 方向：p_y
-    g_p, p_p = gan_g_p(g_shift, p_g, **kwargs)  # 朝 偏振方向 投影之后，g_p 大小改变，方向从 p_g 方向，变为 偏振片的 p_p 方向
+def gp_p(g_shift, polar_g, **kwargs):
+    if polar_g in "RrLl":
+        from fun_linear import ifft2
+        U_V, U_H, g_V, g_H = U_to_gU_LP(ifft2(g_shift), polar_g)
+        p_V = gan_p_g(90, **kwargs)  # 对应 V 方向 的 偏振矢量，给 g_V 用
+        p_H = gan_p_g(0, **kwargs)  # 对应 H 方向 的 偏振矢量，给 g_H 用
+        g_Vp, p_p = gan_g_p(g_V, p_V, **kwargs)
+        g_Hp, p_p = gan_g_p(g_H, p_H, **kwargs)
+        g_p = g_Vp + g_Hp
+    elif polar_g in "VvHh":
+        if polar_g in "Vv":
+            p_g = gan_p_g(90, **kwargs)  # 若 g 的偏振 p_g 沿 y 方向：p_y
+        elif polar_g in "Hh":  # polar_g in "Hh" or polar_g == "o"
+            p_g = gan_p_g(0, **kwargs)  # 否则 默认 g 的偏振 p_g 沿 x 方向：p_x
+        g_p, p_p = gan_g_p(g_shift, p_g, **kwargs)  # 朝 偏振方向 投影之后，g_p 大小改变，方向从 p_g 方向，变为 偏振片的 p_p 方向
     return g_p, p_p
 
 
-# %%
+def gan_gp_p(g_shift, polar_g, **kwargs):
+    phi_p = kwargs.get("phi_p", 90)
+    if type(phi_p) == str:  # 如果 是 str，则认为 不加偏振片，但 g 的 初始 线偏振 从 p_x 或 p_y 或 RL 均变为 p_p 方向，也就是 纯转成了 线偏振。
+        p_g = gan_p_g(float(phi_p), **kwargs)
+        g_p, p_p = gan_g_p(g_shift, p_g, **kwargs)  # 朝 偏振方向 投影之后，g_p 大小改变，方向从 p_g 方向，变为 偏振片的 p_p 方向
+    else:
+        g_p, p_p = gp_p(g_shift, polar_g, **kwargs)
+    return g_p, p_p
+
 
 def Gan_gp_p(is_HOPS, g_shift,
              U_0, U2_0, polar_2, **kwargs):  # 为了不与 kwargs 里 polar2 重复
@@ -112,8 +125,8 @@ def Gan_gp_p(is_HOPS, g_shift,
             U_V, U_H, g_V, g_H = U_12_to_gU_HOPS_CP(U_0, U2_0, polar, polar_2, **kwargs)
         elif is_HOPS > 2:
             U_V, U_H, g_V, g_H = U_12_to_gU_LP(U_0, U2_0, polar, polar_2)
-        g_Vp, p_p = gan_gp_p(g_V, "V", **kwargs)
-        g_Hp, p_p = gan_gp_p(g_H, "H", **kwargs)
+        g_Vp, p_p = gp_p(g_V, "V", **kwargs)
+        g_Hp, p_p = gp_p(g_H, "H", **kwargs)
         g_p = g_Vp + g_Hp
     return g_p, p_p
 
@@ -122,7 +135,9 @@ def Gan_gp_p(is_HOPS, g_shift,
 
 def Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs):
     polar = kwargs.get("polar", "V")  # 默认 第一个 泵浦 是 竖直的
-    if is_HOPS == 1:
+    if is_HOPS == 0:
+        U_V, U_H, g_V, g_H = U_to_gU_LP(U_0, polar)
+    elif is_HOPS == 1:
         U_V, U_H, g_V, g_H = U_12_to_gU_HOPS_CP(U_0, U2_0, polar, polar2, **kwargs)
     elif is_HOPS == 2:
         U_V, U_H, g_V, g_H = U_12_to_gU_LP(U_0, U2_0, polar, polar2)
@@ -183,94 +198,102 @@ def projection_factor(base_polar_Coeff_from_target_polar):  # target_polar 朝 r
 # %%  基底 改变后，U 分量 在 新基底 下的 系数
 
 def U_LP_to_LP(U, polar):  # 线偏 → 线偏，单入 双出
-    if polar == "V":
+    if polar in "Vv":
         U_V = U
         U_H = np.zeros((U.shape[0], U.shape[1]))
-    elif polar == "H":
+    elif polar in "Hh":
         U_V = np.zeros((U.shape[0], U.shape[1]))
         U_H = U
     return U_V, U_H
 
 
 def U_CP_to_CP(U, polar):  # 圆偏 → 圆偏，单入 双出
-    if polar == "R":
+    if polar in "Rr":
         U_R = U
         U_L = np.zeros((U.shape[0], U.shape[1]))
-    elif polar == "L":
+    elif polar in "Ll":
         U_R = np.zeros((U.shape[0], U.shape[1]))
         U_L = U
     return U_R, U_L
 
 
 def U_CP_to_LP(U, polar):  # 圆偏 → 线偏，单入 双出
-    if polar == "R":
+    if polar in "Rr":
         U_V = projection_factor("VR") * U
         U_H = projection_factor("HR") * U
-    if polar == "L":
+    if polar in "Ll":
         U_V = projection_factor("VL") * U
         U_H = projection_factor("HL") * U
     return U_V, U_H
 
 
 def U_LP_to_CP(U, polar):  # 线偏 → 圆偏，单入 双出
-    if polar == "V":
+    if polar in "Vv":
         U_R = projection_factor("RV") * U
         U_L = projection_factor("LV") * U
-    if polar == "H":
+    if polar in "Hh":
         U_R = projection_factor("RH") * U
         U_L = projection_factor("LH") * U
     return U_R, U_L
 
 
 def Reverse_U_LCP(U, polar):  # 线偏 ←→ 圆偏，单入 双出
-    if polar == "R" or polar == "L":
+    if polar in "RrLl":
         return U_CP_to_LP(U, polar)
-    if polar == "V" or polar == "H":
+    if polar in "VvHh":
         return U_LP_to_CP(U, polar)
 
 
 # %% 2 个 U 合成后，总体在 线偏基 或 圆偏基 下的 2 个分量（基方向） 的 场叠加
 
+def U_to_LP(U, polar):  # 线偏，圆偏 → 线偏，单入 双出
+    if polar in "VvHh":
+        U_V, U_H = U_LP_to_LP(U, polar)
+    if polar in "RrLl":
+        U_V, U_H = U_CP_to_LP(U, polar)
+    return U_V, U_H
+
+
+def U_to_CP(U, polar):  # 线偏，圆偏 → 圆偏，单入 双出
+    if polar in "RrLl":
+        U_R, U_L = U_CP_to_CP(U, polar)
+    if polar in "VvHh":
+        U_R, U_L = U_LP_to_CP(U, polar)
+    return U_R, U_L
+
+
+# %%
+
 def U_12_to_LP(U1, U2, polar1, polar2):  # 线偏，圆偏 → 线偏，双入 双出
-    if polar1 == "V" or polar1 == "H":
-        U1_V, U1_H = U_LP_to_LP(U1, polar1)
-    if polar1 == "R" or polar1 == "L":
-        U1_V, U1_H = U_CP_to_LP(U1, polar1)
-    if polar2 == "V" or polar2 == "H":
-        U2_V, U2_H = U_LP_to_LP(U2, polar2)
-    if polar2 == "R" or polar2 == "L":
-        U2_V, U2_H = U_CP_to_LP(U2, polar2)
+    U1_V, U1_H = U_to_LP(U1, polar1)
+    U2_V, U2_H = U_to_LP(U2, polar2)
     U_V = U1_V + U2_V
     U_H = U1_H + U2_H
     return U_V, U_H
 
 
 def U_12_to_CP(U1, U2, polar1, polar2):  # 线偏，圆偏 → 圆偏，双入 双出
-    if polar1 == "R" or polar1 == "L":
-        U1_R, U1_L = U_CP_to_CP(U1, polar1)
-    if polar1 == "V" or polar1 == "H":
-        U1_R, U1_L = U_LP_to_CP(U1, polar1)
-    if polar2 == "R" or polar2 == "L":
-        U2_R, U2_L = U_CP_to_CP(U2, polar2)
-    if polar2 == "V" or polar2 == "H":
-        U2_R, U2_L = U_LP_to_CP(U2, polar2)
+    U1_R, U1_L = U_to_CP(U1, polar1)
+    U2_R, U2_L = U_to_CP(U2, polar2)
     U_R = U1_R + U2_R
     U_L = U1_L + U2_L
     return U_R, U_L
 
+
+# %%
 
 def U_12_to_HOPS_LP(U_0, U2_0, p, p2, **kwargs):  # 系数
     Theta = kwargs.get("Theta", 0) / 180 * np.pi
     Phi = kwargs.get("Phi", 0) / 180 * np.pi
     V_factor = np.cos(Theta + np.pi / 4) * np.e ** (1j * Phi)
     H_factor = np.sin(Theta + np.pi / 4) * np.e ** (-1j * Phi)
-    if p == "V":
+    if p in "Vv":
         U_0 *= V_factor
-    elif p == "H":
+    elif p in "Hh":
         U_0 *= H_factor
-    if p2 == "V":
+    if p2 in "Vv":
         U2_0 *= V_factor
-    elif p2 == "H":
+    elif p2 in "Hh":
         U2_0 *= H_factor
     return U_0, U2_0
 
@@ -280,18 +303,34 @@ def U_12_to_HOPS_CP(U_0, U2_0, p, p2, **kwargs):  # 系数
     Phi = kwargs.get("Phi", 0) / 180 * np.pi
     R_factor = np.cos(Theta + np.pi / 4) * np.e ** (1j * Phi)
     L_factor = np.sin(Theta + np.pi / 4) * np.e ** (-1j * Phi)
-    if p == "R":
+    if p in "Rr":
         U_0 *= R_factor
-    elif p == "L":
+    elif p in "Ll":
         U_0 *= L_factor
-    if p2 == "R":
+    if p2 in "Rr":
         U2_0 *= R_factor
-    elif p2 == "L":
+    elif p2 in "Ll":
         U2_0 *= L_factor
     return U_0, U2_0
 
 
 # %%
+
+def U_to_gU_LP(U_0, polar):
+    from fun_linear import fft2
+    U_V, U_H = U_to_LP(U_0, polar)
+    g_V = fft2(U_V)
+    g_H = fft2(U_H)
+    return U_V, U_H, g_V, g_H
+
+
+def U_to_gU_CP(U_0, polar):
+    from fun_linear import fft2
+    U_R, U_L = U_to_CP(U_0, polar)
+    g_R = fft2(U_R)
+    g_L = fft2(U_L)
+    return U_R, U_L, g_R, g_L
+
 
 def U_12_to_gU_LP(U_0, U2_0, polar, polar2):  # 投影
     from fun_linear import fft2
@@ -719,7 +758,7 @@ def AST(U_name="",
     # %%
     is_HOPS = kwargs.get("is_HOPS_AST", 0)
     is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_HOPS == 0.x 的情况 仍是单泵浦
-    is_single_pump_birefringence = int(is_HOPS > 0 and is_HOPS < 1)
+    is_single_pump_birefringence = int(0 <= is_HOPS < 1 and kwargs.get("polar", "e") in "VvHhRrLl")
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)  # 等价于 is_HOPS > 0
     is_add_polarizer = int(is_HOPS > 0 and type(is_HOPS) != int)  # 等价于 is_birefringence_deduced == 1 and ...
     is_add_analyzer = int(type(kwargs.get("phi_a", 0)) != str)

@@ -107,7 +107,7 @@ def SFG_SSF_SSI(U_name="",
     # %%
     is_HOPS = kwargs.get("is_HOPS_SHG", 0)
     is_twin_pump_degenerate = int(is_HOPS >= 1)  # is_HOPS == 0.x 的情况 仍是单泵浦
-    is_single_pump_birefringence = int(is_HOPS > 0 and is_HOPS < 1)
+    is_single_pump_birefringence = int(0 <= is_HOPS < 1 and kwargs.get("polar", "e") in "VvHhRrLl")
     is_birefringence_deduced = int(is_twin_pump_degenerate == 1 or is_single_pump_birefringence == 1)
     kwargs['ray'] = "2" if is_birefringence_deduced == 1 else kwargs.get('ray', "2")
     ray_tag = "f" if kwargs['ray'] == "3" else "h"

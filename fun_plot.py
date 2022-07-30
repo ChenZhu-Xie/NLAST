@@ -633,13 +633,14 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
             # %%
             is_self_colorbar=1, is_colorbar_on=1, is_energy=1,
             # %% 可选 参数（可不传入）
-            xlabel='', ylabel='', clabel='', 
+            xlabel='', ylabel='', clabel='',
             # %%
             plot_center=0, **kwargs, ):
     # %%
     # fig, ax1 = plt.subplots(1, 1, figsize=(size_fig, size_fig), dpi=dpi)
     fig = plt.figure(figsize=(size_fig, size_fig), dpi=dpi)
     fontsize_set = size_fig * 4 if type(fontsize) != int else fontsize
+    # print(fontsize_set)
     title_fontsize_enlarge = 1.3
 
     ax1 = fig.add_subplot(111, label="1")
@@ -766,17 +767,55 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
         else:
             img = ax1.imshow(array2D_new, cmap=cmap_2d, vmin=vmin, vmax=vmax, )
     if add_con and plot_center == 1:
-        # print(fontsize_set)
-        color_1d = "white"
-        ax1_plot_dict = {"color": color_1d, "label": kwargs.get('label', None)}
+        # %%  头尾 标记点：相同形状
+        # ax1_plot_dict = {"color": "white", "label": kwargs.get('label', None)}
+        # ax1_plot_dict.update({"alpha": kwargs.get("ax1_alpha", 1),
+        #                       "linestyle": kwargs.get("ax1_linestyle", '-'),  # 线型
+        #                       "linewidth": kwargs.get("ax1_linewidth", 1)})  # 线宽（marker = 'o' 时生效）
+        # # ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", 'x'),  # 标记点：'+' 'x' '.' '|' 'o'
+        # #                       "markeredgecolor": kwargs.get("ax1_markeredgecolor", color_1d),  # 标记点颜色 ‘green’
+        # #                       "markersize": kwargs.get("ax1_markersize", str(int(fontsize_set/3)+1)),  # 标记点大小
+        # #                       "markeredgewidth": kwargs.get("ax1_markeredgewidth", 1), })  # 标记点边宽
+        # ax1.plot([Iy // 2, Uc_x], [Ix // 2, Uc_y], **ax1_plot_dict, )
+        # %%  头尾 标记点：不同形状 和 颜色
+        # ax1.plot([Iy // 2, Uc_x], [Ix // 2, Uc_y], **ax1_plot_dict, )
+        # ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", '1'),  # 标记点：'+' 'x' '.' '|' '_' 'o' ',' 's' '^'
+        #                       "markeredgecolor": kwargs.get("ax1_markeredgecolor", "springgreen"),  # 标记点颜色 ‘lime’
+        #                       "markersize": kwargs.get("ax1_markersize", str(int(fontsize_set/3)+1)),  # 标记点大小
+        #                       "markeredgewidth": kwargs.get("ax1_markeredgewidth", 1), })  # 标记点边宽
+        # ax1.plot([Iy // 2], [Ix // 2], **ax1_plot_dict, )
+        # ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", '2'),  # 标记点：'+' 'x' '.' '|' '_' 'o' ',' '1' '2'
+        #                       "markeredgecolor": kwargs.get("ax1_markeredgecolor", "yellow"),  # 标记点颜色 ‘gold’
+        #                       "markersize": kwargs.get("ax1_markersize", str(int(fontsize_set/3)+1)), })  # 标记点大小
+        # ax1.plot([Uc_x], [Uc_y], **ax1_plot_dict, )
+        # %%  线条 与 标记点 均：颜色渐变
+        def gan_points_dl(points_x, points_y):
+            dx, dy = (points_x - Iy // 2) * size_PerPixel, (points_y - Ix // 2) * size_PerPixel
+            dl = (dx ** 2 + dy ** 2) ** 0.5
+            return dl
+
+        points_num = int(2 * gan_points_dl(Uc_x, Uc_y) / size_PerPixel)
+        points_x, points_y = np.linspace(Iy // 2, Uc_x, points_num), np.linspace(Ix // 2, Uc_y, points_num)
+        ax1_plot_dict = {"cmap": 'summer', }  # 渐变 'cool' 'Wistia' 'spring' 'summer' 'autumn' 'winter'; 突变 'Pastel1' 'Pastel2' 'Paired' 'Set3'
         ax1_plot_dict.update({"alpha": kwargs.get("ax1_alpha", 1),
-                              "linestyle": kwargs.get("ax1_linestyle", '-'),  # 线型
-                              "linewidth": kwargs.get("ax1_linewidth", 1)})  # 线宽
-        ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", 'x'),  # 标记点：'+' 'x' '.' '|' ''
-                              "markeredgecolor": kwargs.get("ax1_markeredgecolor", color_1d),  # 标记点颜色 ‘green’
-                              "markersize": kwargs.get("ax1_markersize", str(int(fontsize_set/3)+1)),  # 标记点大小
-                              "markeredgewidth": kwargs.get("ax1_markeredgewidth", 1), })  # 标记点边宽
-        ax1.plot([Uc_x, Iy // 2], [Uc_y, Ix // 2], **ax1_plot_dict, )
+                              # "linestyle": kwargs.get("ax1_linestyle", '-'),  # 线型
+                              "linewidth": kwargs.get("ax1_linewidth", 1),  # 边缘线宽
+                              "edgecolors": None, })  # edgecolors → 散点的 边缘颜色
+        ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", '.'),  # 标记点：'+' 'x' '.' '|' 'o' ','
+                              "s": 1, })  # 散点的面积
+        ax1.scatter(points_x, points_y, c=gan_points_dl(points_x, points_y), **ax1_plot_dict, )
+        ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", '.'),  # 标记点：'+' 'x' '.' '|' 'o' ','
+                              "s": (int(fontsize_set / 3) + 1) ** 2, })  # 散点的面积
+        points_x, points_y = np.array([Iy // 2, Uc_x]), np.array([Ix // 2, Uc_y])
+        ax1.scatter(points_x, points_y, c=gan_points_dl(points_x, points_y), **ax1_plot_dict, )
+        # %%  线条：颜色渐变，头尾 标记点：不同形状（但相同颜色）
+        # ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", '1'),  # 标记点：'+' 'x' '.' '|' 'o' ','
+        #                       "s": (int(fontsize_set / 3) + 1) ** 2, })  # 散点的面积
+        # point_x, point_y = np.array([Iy // 2]), np.array([Ix // 2])
+        # ax1.scatter(point_x, point_y, c=gan_points_dl(point_x, point_y), **ax1_plot_dict, )
+        # ax1_plot_dict.update({"marker": kwargs.get("ax1_marker", '2'), })  # 标记点：'+' 'x' '.' '|' 'o' ','
+        # point_x, point_y = np.array([Uc_x]), np.array([Uc_y])
+        # ax1.scatter(point_x, point_y, c=gan_points_dl(point_x, point_y), **ax1_plot_dict, )
 
     if is_colorbar_on == 1:
         cax = add_right_cax(ax1, pad=0.05, width=0.05)

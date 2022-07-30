@@ -25,7 +25,7 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_size": 1.5, "w0": 0.05,
+         "U_size": 1, "w0": 0.05,
          "z0": 10,
          # %%  控制 单双泵浦 和 绘图方式："is_HOPS": 0 代表 无双折射，即 "is_linear_birefringence": 0
          "is_HOPS_AST": 2,  # 0.x 代表 单泵浦，1.x 代表 高阶庞加莱球，2.x 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
@@ -77,6 +77,7 @@ if __name__ == '__main__':
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "V", "ray": "1",
+         "plot_center": 1,
          }
 
     if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1

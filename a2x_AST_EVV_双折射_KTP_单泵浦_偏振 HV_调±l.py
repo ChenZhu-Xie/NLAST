@@ -31,7 +31,7 @@ if __name__ == '__main__':
          "is_HOPS_AST": 0.1,  # 0.x 代表 单泵浦，1.x 代表 高阶庞加莱球，2.x 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
          # 是否 使用 起偏器（"is_HOPS": 整数 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
-         "phi_p": "0", "phi_a": "45",  # 是否 使用 检偏器（"phi_a": str 则不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
+         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器（"phi_a": str 则不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
          "plot_group_AST": "r",  # m 代表 oe 的 mix，o,e 代表 ~，fb 代表 frontface / backface
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
@@ -56,7 +56,7 @@ if __name__ == '__main__':
          # %%
          "is_print": 1,
          # %% 该程序 独有 -------------------------------
-         "is_EVV_SSI": 0, "is_stored": 1, "sheets_stored_num": 10,
+         "is_EVV_SSI": 0, "is_stored": 0, "sheets_stored_num": 10,
          # %%
          "sample": 1, "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
