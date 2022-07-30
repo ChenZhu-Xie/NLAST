@@ -19,7 +19,7 @@ if __name__ == '__main__':
          # %%
          "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 50, "p": 0,
+         "l": -50, "p": 0,
          "theta_x": 0, "theta_y": 0,
          # %%
          "is_random_phase": 0,
@@ -56,7 +56,7 @@ if __name__ == '__main__':
          # %%
          "is_print": 1,
          # %% 该程序 独有 -------------------------------
-         "is_EVV_SSI": 0, "is_stored": 1, "sheets_stored_num": 10,
+         "is_EVV_SSI": 0, "is_stored": 0, "sheets_stored_num": 10,
          # %%
          "sample": 1, "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -76,7 +76,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "V", "ray": "1",
+         "polar": "R", "ray": "1",
          "plot_center": 1,
          }
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
             "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
-            "polar2": 'V',
+            "polar2": 'L',
             # 有双泵浦，则必然考虑偏振、起偏，和检偏，且原 "polar2": 'e'、 "polar": "e" 已再不起作用
             # 取而代之的是，既然原 "polar": "e" 不再 work 但还存在，就不能浪费 它的存在，让其 重新规定 第一束光
             # 偏振方向 为 "VHRL" 中的一个，而不再规定其 极化方向 为 “oe” 中的一个；这里 第二束 泵浦的 偏振方向 默认与之 正交，因而可以 不用填写
