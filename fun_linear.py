@@ -1359,8 +1359,7 @@ def init_AST_12oe(Ix, Iy, size_PerPixel,
             output_nk_xyz(lam1, size_PerPixel,
                           k1, k1_z, k1_xy,
                           s, s_z, s_xy,
-                          delta_sk_pz, PG_vz,
-                          mode=1.3)
+                          delta_sk_pz, PG_vz, )
     else:
         g_oe = 0
         E_u = 0
@@ -1400,7 +1399,7 @@ def output_nk_xyz(lam1, size_PerPixel,
                   k1, k1_z, k1_xy,
                   s, s_z, s_xy,
                   delta_sk_pz, PG_vz,
-                  mode=1.3):
+                  mode=1.1):
     k1, k1_z, k1_xy = output_k_xyz(k1, k1_z, k1_xy,
                                    s, s_z, s_xy,
                                    delta_sk_pz, PG_vz,

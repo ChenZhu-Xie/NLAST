@@ -234,8 +234,7 @@ def init_SFG_3oe(Ix, Iy, size_PerPixel,
             output_nk_xyz(lam3, size_PerPixel,
                           k3, k3_z, k3_xy,
                           s, s_z, s_xy,
-                          delta_sk_pz, PG_vz,
-                          mode=1.3)
+                          delta_sk_pz, PG_vz, )
     else:
         E_u = 0
     # %%
