@@ -767,7 +767,7 @@ def plot_2d(zj, sample=1, size_PerPixel=0.007,
         else:
             img = ax1.imshow(array2D_new, cmap=cmap_2d, vmin=vmin, vmax=vmax, )
     if add_con and plot_center == 1:
-        center_mode = 1
+        center_mode = 3
         if center_mode <= 1:
             # %%  头尾 标记点：相同形状
             ax1_plot_dict = {"color": "white", "label": kwargs.get('label', None)}

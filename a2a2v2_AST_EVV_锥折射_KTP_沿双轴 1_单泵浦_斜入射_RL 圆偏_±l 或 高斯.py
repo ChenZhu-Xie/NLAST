@@ -19,8 +19,8 @@ if __name__ == '__main__':
          # %%
          "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
-         "l": 0, "p": 0,
-         "theta_x": 0, "theta_y": 0,
+         "l": 2, "p": 0,
+         "theta_x": 2, "theta_y": 0,
          # %%
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
@@ -76,7 +76,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "H", "ray": "1",
+         "polar": "R", "ray": "1",
          "plot_center": 0,
          }
     
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     print(Omega)
     kwargs["theta_z"] += Omega  # 本来是 = Omega 即覆盖，但这里 改为了 增量，为的是 微调 Omega，看看效果。
 
-    if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "spaceship.png",
@@ -116,4 +116,24 @@ if __name__ == '__main__':
         kwargs.update(pump2_kwargs)
 
     kwargs = init_GLV_DICT(**kwargs)
-    AST_EVV(**kwargs)
+
+    Gz_o, Gz_e, E_uo, E_ue, \
+    Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, \
+    Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
+    ray, method_and_way, U_key = AST_EVV(**kwargs)
+
+    # %%  再次衍射 z0
+
+    import copy
+
+    if kwargs.get("is_end", -1) == 0:  # 如果 上一个 is_EVV 的 kwargs["is_end"] == -1，则不 再次衍射 z0
+        kwargs_AST = copy.deepcopy(kwargs)
+        kwargs_AST.update({"z0": 5, "is_air": 1, "ray": ray, "is_end": -1, })
+        kwargs_AST.update({"g_o": Gz_o, "g_e": Gz_e, "E_uo": E_uo, "E_ue": E_ue,
+                           "g_Vo": Gz_Vo, "g_Ve": Gz_Ve, "E_u_Vo": E_u_Vo, "E_u_Ve": E_u_Ve,
+                           "g_Ho": Gz_Ho, "g_He": Gz_He, "E_u_Ho": E_u_Ho, "E_u_He": E_u_He, })
+
+        Gz_o, Gz_e, E_uo, E_ue, \
+        Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, \
+        Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
+        ray, method_and_way, U_key = AST_EVV(**kwargs_AST)

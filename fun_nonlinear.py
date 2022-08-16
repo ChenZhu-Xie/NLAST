@@ -243,13 +243,13 @@ def init_SFG_3oe(Ix, Iy, size_PerPixel,
 
 # %%
 
-def gan_k_vector(k_inc, theta_x, theta_y, ):  # 仍是 Cal_Unit_kxkykz_based_on_theta_xy 的 左手系
+def gan_k_vector(k_inc, theta_x, theta_y, ):  # 仍是 Cal_Unit_kxkykz_based_on_theta_xy 的 左手系，y 轴向上
     # theta_y = - theta_y （之后 用到 theta3_y 的时候 会自动转 theta3_y，所以 这里 就不用 转 theta_y 和 theta2_y 了）
     # theta2_y = - theta2_y 这里只需保证用 标准笛卡尔坐标系下的 theta_y 和 theta2_y 生成 同样笛卡尔坐标系下的 theta3_y 即可
     theta_x = theta_x / 180 * math.pi
-    theta_y = theta_y / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
+    theta_y = theta_y / 180 * math.pi  # 笛卡尔 左手系，y 轴向上
 
-    from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy
+    from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy  # x 右，y 上 的 左手系下的 左手 球面三角坐标系 到 相应 直角坐标系 的 转换
     kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )
     kx, ky, kz = k_inc * kx, k_inc * ky, k_inc * kz
     return kx, ky, kz

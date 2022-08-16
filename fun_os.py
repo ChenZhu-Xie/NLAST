@@ -438,6 +438,34 @@ def U_phase_error_plot_address_and_title(U_name, folder_address, img_name_extens
 
 # %%
 
+def U_test_plot(method, U_name, U):  # 快捷画图
+    def args_U_amp_plot_save(folder_address, U, U_name):
+        return [U, U_name,
+                [], folder_address,
+                Get("img_name_extension"), 0,  # is_save_txt = 0
+                # %%
+                Get("size_PerPixel"), U.shape[0] / Get("size_fig"), Get("size_fig"),
+                # %%
+                'viridis', 6, 0,
+                1, 1, 0,
+                '10', {'family': 'serif',
+                       'style': 'normal',  # 'normal', 'italic', 'oblique'
+                       'weight': 'normal',
+                       'color': 'black',  # 'black','gray','darkred'
+                       },
+                # %%
+                1, 0,  # is_colorbar_on = 1, is_save = 0
+                1, 0, 1, 0, ]  # 折射率分布差别很小，而 is_self_colorbar = 0 只看前 3 位小数的差异，因此用自动 colorbar。
+
+    kwargs_U_amp_plot_save = {"suffix": ""}
+
+    mesh_title_name = method + " - " + U_name
+    folder_address = U_dir(mesh_title_name, 0, )
+    U_amp_plot_save(*args_U_amp_plot_save(folder_address, U, mesh_title_name), **kwargs_U_amp_plot_save, )
+
+
+# %%
+
 def U_amp_plot_save(U, U_name,
                     zj_plot_2d, folder_address,
                     img_name_extension, is_save_txt,

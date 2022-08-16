@@ -10,9 +10,9 @@ Created on Sun Dec 26 22:09:04 2021
 import numpy as np
 from fun_img_Resize import if_image_Add_black_border
 from fun_global_var import init_GLV_DICT, tree_print, init_GLV_rmw, end_AST, g_oea_vs_g_AST, \
-    Get, fget, fkey, fGHU_plot_save
+    Get, Set, fget, fkey, fGHU_plot_save
 from fun_pump import pump_pic_or_U
-from fun_linear import init_AST_12oe
+from fun_linear import init_AST_12oe, gan_g_p_xy
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -29,6 +29,7 @@ def define_lam_n_AST(lam1, **kwargs):
         n_name += "2"
     else:
         n_name += "1"
+    Set("lam1", lam1)
     return lam1, n_name
 
 
@@ -49,12 +50,13 @@ def gan_p_xyp(**kwargs):
 
 def gan_p_g(phi_p_cover, **kwargs):  # 不与 kwargs 中的 phi_p 冲突
     kwargs["phi_p"] = phi_p_cover  # 覆盖 kwargs 中的 phi_p
-    return gan_p_xyp(**kwargs)[0]
+    p_g = gan_p_xyp(**kwargs)[0]
+    return p_g
 
 
-def gan_g_p(g_shift, p_g=np.array([0, 1, 0]), **kwargs):  # polarizer
+def gan_g_p(g_shift, p_g=np.array([0, 1, 0]), **kwargs):  # polarizer # 默认 g 的 偏振 p_g = p_y
     p_p = gan_p_xyp(**kwargs)[0]
-    g_p = g_shift * np.dot(p_p, p_g)  # 默认 p_g = p_y
+    g_p = g_shift * np.dot(p_p, p_g) # 默认 g 的 偏振 p_g = p_y = [0, 1, 0]
     return g_p, p_p
 
 
@@ -79,9 +81,13 @@ def gan_gp_a(g_oe, E_u, **kwargs):  # analyzer
 # %%
 
 def gan_g_eoa(g_o, g_e, E_uo, E_ue, **kwargs):
+    # %% 旧版
     g_oa = gan_gp_a(g_o, E_uo, **kwargs)
     g_ea = gan_gp_a(g_e, E_ue, **kwargs)
     g_a = g_ea + g_oa
+    # %% 新版
+    # p_a = gan_p_a(**kwargs)  # p_a 是 要输出的、xy 面 的 粗糙 检偏偏振，之后会被 外面 init_AST 使用
+    # g_a = gan_g_p_xy(g_o, g_e, p_a, k_o, k_e, E_uo, E_ue)
     return g_a
 
 
@@ -91,17 +97,29 @@ def gp_p(g_shift, polar_g, **kwargs):
     if polar_g in "RrLl":
         from fun_linear import ifft2
         U_V, U_H, g_V, g_H = U_to_gU_LP(ifft2(g_shift), polar_g)
+        # %% 旧版
         p_V = gan_p_g(90, **kwargs)  # 对应 V 方向 的 偏振矢量，给 g_V 用
         p_H = gan_p_g(0, **kwargs)  # 对应 H 方向 的 偏振矢量，给 g_H 用
         g_Vp, p_p = gan_g_p(g_V, p_V, **kwargs)
         g_Hp, p_p = gan_g_p(g_H, p_H, **kwargs)
         g_p = g_Vp + g_Hp
+        # %% 新版
+        # p_p = gan_p_xyp(**kwargs)[0]  # p_p 是 要输出的、xy 面 的 粗糙 起偏偏振，之后会被 外面 init_AST 使用
+        # g_p = gan_g_p_xy(g_H, g_V, p_p)
     elif polar_g in "VvHh":
+        # %% 旧版
         if polar_g in "Vv":
             p_g = gan_p_g(90, **kwargs)  # 若 g 的偏振 p_g 沿 y 方向：p_y
         elif polar_g in "Hh":  # polar_g in "Hh" or polar_g == "o"
             p_g = gan_p_g(0, **kwargs)  # 否则 默认 g 的偏振 p_g 沿 x 方向：p_x
         g_p, p_p = gan_g_p(g_shift, p_g, **kwargs)  # 朝 偏振方向 投影之后，g_p 大小改变，方向从 p_g 方向，变为 偏振片的 p_p 方向
+        # %% 新版
+        # if polar_g in "Vv":
+        #     g_H, g_V = np.zeros((Get("Ix"), Get("Iy")), ), g_shift
+        # elif polar_g in "Hh":
+        #     g_H, g_V = g_shift, np.zeros((Get("Ix"), Get("Iy")), )
+        # p_p = gan_p_xyp(**kwargs)[0]  # p_p 是 要输出的、xy 面 的 粗糙 起偏偏振，之后会被 外面 init_AST 使用
+        # g_p = gan_g_p_xy(g_H, g_V, p_p)
     return g_p, p_p
 
 
@@ -125,15 +143,20 @@ def Gan_gp_p(is_HOPS, g_shift,
             U_V, U_H, g_V, g_H = U_12_to_gU_HOPS_CP(U_0, U2_0, polar, polar_2, **kwargs)
         elif is_HOPS > 2:
             U_V, U_H, g_V, g_H = U_12_to_gU_LP(U_0, U2_0, polar, polar_2)
+        # %% 旧版
         g_Vp, p_p = gp_p(g_V, "V", **kwargs)
         g_Hp, p_p = gp_p(g_H, "H", **kwargs)
         g_p = g_Vp + g_Hp
+        # %% 新版
+        # p_p = gan_p_xyp(**kwargs)[0]  # p_p 是 要输出的、xy 面 的 粗糙 起偏偏振，之后会被 外面 init_AST 使用
+        # g_p = gan_g_p_xy(g_H, g_V, p_p)
     return g_p, p_p
 
 
 # %%
 
-def Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs):
+def Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs):  # 我觉得 圆偏 是个 假命题、不靠谱的基。。不然 g 的 z 分量怎么描述？
+    # ...硬要描述也是可以，但还得转换为线偏基，才能用角谱描述
     polar = kwargs.get("polar", "V")  # 默认 第一个 泵浦 是 竖直的
     if is_HOPS == 0:
         U_V, U_H, g_V, g_H = U_to_gU_LP(U_0, polar)
@@ -464,6 +487,11 @@ def plot_n_VHoe(n_name, is_save,
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1o, no_name),
                         **kwargs_U_amp_plot_save, **kwargs, )
     else:
+        # no_name = method + " - " + n_name + "o"
+        # folder_address = U_dir(no_name, is_save, **kwargs, )
+        # U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Vo, no_name),
+        #                 **kwargs_U_amp_plot_save, **kwargs, )
+        # %%  由于 V 到 o 的折射，和 H 到 o 的折射，均与 矢量光 的 相位部分 的 连续性 有关，即 遵循相同的 折射定律，所以 共用同一个 n 和 k 椭球
         n_Vo_name = method + " - " + n_name + "Vo"
         folder_address = U_dir(n_Vo_name, is_save, **kwargs, )
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Vo, n_Vo_name),
@@ -481,6 +509,11 @@ def plot_n_VHoe(n_name, is_save,
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1e, ne_name),
                         **kwargs_U_amp_plot_save, **kwargs, )
     else:
+        # ne_name = method + " - " + n_name + "e"
+        # folder_address = U_dir(ne_name, is_save, **kwargs, )
+        # U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Ve, ne_name),
+        #                 **kwargs_U_amp_plot_save, **kwargs, )
+        # %%  由于 V 到 e 的折射，和 H 到 e 的折射，均与 矢量光 的 相位部分 的 连续性 有关，即 遵循相同的 折射定律，所以 共用同一个 n 和 k 椭球
         n_Ve_name = method + " - " + n_name + "Ve"
         folder_address = U_dir(n_Ve_name, is_save, **kwargs, )
         U_amp_plot_save(*args_U_amp_plot_save(folder_address, n1_Ve, n_Ve_name),
@@ -637,7 +670,7 @@ def gan_gpnkE_VHoe_xyzinc_AST(is_birefringence_deduced, is_air,
     # 主要是 is_add_polarizer 和 def 导致的，有些变量 没声明，却在 def 的 形参中 出现了，以致于 实参 在用到时 报错
     # 其实就是 把 pycharm 所提示的 “可能在赋值前引用” 的 局部变量 先赋好值
 
-    if is_birefringence_deduced == 1 and is_air != 1:  # 双线偏泵浦时，必然考虑 偏振态
+    if is_birefringence_deduced == 1:  # 考虑 偏振态 的 条件；is_air == 1 时 也可以 有偏振态，与是否 所处介质 无关
         # %% 起偏
 
         # if is_HOPS == 0:
@@ -701,6 +734,14 @@ def gan_gpnkE_VHoe_xyzinc_AST(is_birefringence_deduced, is_air,
             plot_n(n1, n_name, is_save,
                    args_U_amp_plot_save,
                    kwargs_U_amp_plot_save, **kwargs, )
+
+    E1_u = kwargs.get("E1_u", E1_u)  # 允许 被外界传入的 同名 关键字参数 覆盖
+    g_o, E_uo = kwargs.get("g_o", g_o), kwargs.get("E_uo", E_uo)
+    g_e, E_ue = kwargs.get("g_e", g_e), kwargs.get("E_ue", E_ue)
+    g_Vo, E_u_Vo = kwargs.get("g_Vo", g_Vo), kwargs.get("E_u_Vo", E_u_Vo)
+    g_Ve, E_u_Ve = kwargs.get("g_Ve", g_Ve), kwargs.get("E_u_Ve", E_u_Ve)
+    g_Ho, E_u_Ho = kwargs.get("g_Ho", g_Ho), kwargs.get("E_u_Ho", E_u_Ho)
+    g_He, E_u_He = kwargs.get("g_He", g_He), kwargs.get("E_u_He", E_u_He)
 
     return g_p, p_p, g_V, g_H, p_V, p_H, \
            n1_inc, n1, k1_inc, k1, k1_z, k1_xy, E1_u, \
@@ -806,6 +847,10 @@ def AST(U_name="",
     # kwargs['ray'] = init_GLV_rmw(U_name, "~", "", "AST", **kwargs)
     init_GLV_rmw(U_name, "l", "AST", "", **kwargs)
 
+    # %% 确定 波长（得在 所有用 lam1 的 函数 之前）
+
+    lam1, n_name = define_lam_n_AST(lam1, **kwargs)
+
     # %%
 
     img_name, img_name_extension, img_squared, \
@@ -881,10 +926,6 @@ def AST(U_name="",
     if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
         kwargs.pop("U")
 
-    # %% 确定 波长
-
-    lam1, n_name = define_lam_n_AST(lam1, **kwargs)
-
     # %% 确定 公有参数
 
     args_init_AST = \
@@ -955,7 +996,7 @@ def AST(U_name="",
                                   kwargs_init_AST, kwargs_U_amp_plot_save,
                                   is_plot_n=1, **kwargs)
 
-    if is_birefringence_deduced == 1 and is_air != 1:  # 双线偏泵浦时，必然考虑 偏振态
+    if is_birefringence_deduced == 1:  # 考虑 偏振态 的 条件；is_air == 1 时 也可以 有偏振态，与是否 所处介质 无关
         # %% 衍射前（前端面 但 晶体内），g_o，绘图
 
         if "o" in plot_group_AST or "f" in plot_group_AST:
@@ -1059,6 +1100,7 @@ def AST(U_name="",
                               Gz_a, Gz_Va, Gz_Ha,
                               args_fGHU_plot_save,
                               is_Gz=1, **kwargs, )
+
         else:
             if "m" in plot_group_AST or "b" in plot_group_AST or "r" in plot_group_AST:  # 必然要 plot 的（也不一定），就不设条件了
                 # 如果 传进来的 phi_a 不是数字，则说明 没加 偏振片，则 正交线偏 oe 直接叠加后，gUH 的 相位 就 没用了；只有 gU 的 能量分布 才有用
@@ -1074,7 +1116,10 @@ def AST(U_name="",
                                       kwargs_U_amp_plot_save,
                                       z=z0, is_end=1, **kwargs, )
 
-            return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
+        return Gz_o, Gz_e, E_uo, E_ue, \
+               Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, \
+               Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
+               Get("ray"), Get("method_and_way"), fkey("U")  # 加不加 起偏 或 检偏 器，都可能 会有 VH 两个分量，所以 将 return 写在外面
 
     else:
         # %% 后续绘图
@@ -1144,7 +1189,7 @@ if __name__ == '__main__':
          "polar": "R", "ray": "1",
          }
 
-    if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "spaceship.png",

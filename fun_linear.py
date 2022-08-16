@@ -102,10 +102,10 @@ def Cal_based_on_g(nx, ny, nz, lam, p, size_PerPixel,
                    k_nxny, g, ):
     from fun_statistics import find_Kxyz
     K_z, K_xy = find_Kxyz(g, k_nxny)
-    kx, ky = K_xy[0], K_xy[1]
+    kx, ky = K_xy[0], K_xy[1]  # 下增右增 的 图片坐标系
     theta_z_inc = 0  # 初值 认为 是 0（其实有 K_z 的话，可以 用 atan 等算出来 更准的初值）
     # phi_z_inc = atan2(-kx, -ky)  # -x, y, z 实验室 / 旋转前 晶体 c 坐标系 下 的 方位角
-    phi_z_inc = np.arctan2(-ky, -kx)
+    phi_z_inc = np.arctan2(-ky, -kx)  # -x, y, z 实验室 / 旋转前 晶体 c 坐标系 下 的 方位角
     # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
     theta_z_inc, = solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
                                            nx, ny, nz, lam, p, size_PerPixel,
@@ -122,9 +122,10 @@ def atan2(x, y):  # 与 np.arctan2 输入相反，且返回 0~2π
     return (1 - step(X)) * 2 * np.pi + X
 
 
-def theta_phi_z_inc_to_theta_xy_inc(theta_z_inc, phi_z_inc):  # 有问题
-    kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_inc, phi_z_inc)
-    theta_x_inc, theta_y_inc = xyz_to_theta_xy_inc(kx, ky, kz)
+def theta_phi_z_inc_to_theta_xy_inc(theta_z_inc,
+                                    phi_z_inc):  # 旋转前的 晶体 abc 坐标系 -x y z 下的 球坐标系 theta, phi，到 x右 y上 z里 的 左手系 kx, ky, kz
+    kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_inc, phi_z_inc)  # 旋转前的 晶体 abc 坐标系 -x y z 下的 球坐标系，到其下的 直角坐标系
+    theta_x_inc, theta_y_inc = xyz_to_theta_xy_inc(kx, ky, kz)  # 晶体 c 系下的 kx, ky, kz，到 x右 y上 z里 的 左手系，
     # theta_x_inc = - np.sin(theta_z_inc) * np.cos(phi_z_inc)  # 晶体 坐标系 c 转到 x右y下 图片 坐标系 或 x右y上 左手 坐标系
     # theta_y_inc = np.sin(theta_z_inc) * np.sin(phi_z_inc)  # 晶体 坐标系 c 转到 x右y上 左手 坐标系，
     # 因为 之后会进入 gan_k_vector 中的 Cal_Unit_kxkykz_based_on_theta_xy 中去，所以到 左手系
@@ -148,7 +149,13 @@ def Cal_n(size_PerPixel,
         # 基波 与 倍频 都同享 同一个 theta_x：二者 的 中心波矢 k 差不多 共线，尽管 二次谐波 的 中心 k 还与 结构关系很大，甚至没有 中心 k 一说
         # （旧）"gamma_x" 为 晶体 c 轴 偏离 传播方向 的 夹角 θ<c,propa>，与 "theta_x" 共享 同一个 实验室 坐标系：x 朝右为正
         # （旧）有 "gamma_x" 关键字，则晶体 c 轴 躺在 垂直于 y 轴 的面内，则无 "phi_z" 关键字 可言
-        # （旧）"gamma_y" 与 "theta_y" 共享 同一个 实验室 坐标系，也 y 朝上为正（实验室 坐标系，同时 也是 电脑坐标系），所以也得 取负
+        # （旧）"gamma_y" 与 "theta_y" 共享 同一个 实验室 坐标系，也 y 朝上为正，所以也得 取负
+
+        #  不论 z 轴朝里 还是 朝外，只要 kz 同向于 z 轴即可，这样 kz 总是正的
+        #  为了 叉乘 等计算方便，以及顺应 历史 潮流，咱还是 将其理解为 kz 朝面外 的 右手系，这样 z 的增加，对应 场朝面外传播，以及 逆着 左手系的 z 轴看去
+        #  但 theta_xy 确实得是 左手系 下的，对应 顺着左手系的 z 轴看去（这样更符合人性）
+
+        #  实验室 坐标系 = 初始 晶体坐标系 c，是 右手系
 
         # print(kwargs)
         theta_x = kwargs["theta_x"] / 180 * math.pi if "theta_x" in kwargs else 0
@@ -162,7 +169,7 @@ def Cal_n(size_PerPixel,
         phi_z_c = kwargs["phi_z"] / 180 * math.pi if "phi_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 方位角
         # （新）"phi_z_c" 晶体 c 轴 与 传播方向 k 轴 的夹角，朝四周 都为正，不一定朝上为正。
         # print(phi_z_c)
-        phi_c_c = kwargs["phi_c"] / 180 * math.pi if "phi_c" in kwargs else 0  # 晶体坐标系' 对 晶轴 c（初始晶体坐标系） 的 方位角
+        phi_c_c = kwargs["phi_c"] / 180 * math.pi if "phi_c" in kwargs else 0  # 晶体坐标系 c' 对 晶轴 c（初始晶体坐标系） 的 方位角
         # （新）"phi_c_c" 晶体 绕 自身 c 轴， 自旋 方位角，朝 a → b 为正。
         # print(phi_c_c)
 
@@ -186,10 +193,10 @@ def Cal_n(size_PerPixel,
 
         mesh_nx_ny_shift = mesh_shift(Ix, Iy)
         mesh_kx_ky_shift = np.dstack(
-            (2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Iy, 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Ix))
+            (- 2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Iy, - 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Ix))
         # Iy 才是 笛卡尔坐标系中 x 方向 的 像素数...
-
-        # %%
+        # mesh_kxky 从 图片坐标系 转换为了 c 系
+        # %% 初始晶体坐标系 c 下，网格 各点的 theta_z, phi_z
         sin_theta_z_inc_nxny = (mesh_kx_ky_shift[:, :, 0] ** 2 + mesh_kx_ky_shift[:, :, 1] ** 2) ** 0.5 / k_z
         # 注意 是 kx,ky 或 nx,ny 的 函数（这里 假设了 k 附近的 采样点 分布 是个球面，半径为 k_z。那这也不准：k_inc 从一开始，就不是个 标量）
         theta_z_inc_nxny = np.arcsin(sin_theta_z_inc_nxny)  # 类比 Cal_theta_phi_z_inc 中的 theta_z_inc = math.acos(kz)
@@ -197,7 +204,7 @@ def Cal_n(size_PerPixel,
         # 但极角本身的取值 0~π，约束我们最好用 arccos 的。只是这里 不需要用、且没法用，罢了。
         # print(np.min(theta_z_inc_nxny) / math.pi * 180, np.max(theta_z_inc_nxny) / math.pi * 180)
         # phi_z_inc_nxny = atan2(- mesh_kx_ky_shift[:, :, 0], - mesh_kx_ky_shift[:, :, 1])
-        phi_z_inc_nxny = np.arctan2(- mesh_kx_ky_shift[:, :, 1], - mesh_kx_ky_shift[:, :, 0])
+        phi_z_inc_nxny = np.arctan2(mesh_kx_ky_shift[:, :, 1], mesh_kx_ky_shift[:, :, 0])
         # phi_z_inc_nxny = np.arctan((- mesh_kx_ky_shift[:, :, 1]) / (- mesh_kx_ky_shift[:, :, 0]))  # 需要 变换到 直角坐标系下
         # print(np.max(phi_z_inc_nxny) / math.pi * 180, np.min(phi_z_inc_nxny) / math.pi * 180)
         # print(phi_z_inc_nxny / math.pi * 180)
@@ -229,7 +236,7 @@ def Cal_n(size_PerPixel,
                                 theta_z_inc_nxny, phi_z_inc_nxny, phi_c_def,
                                 record_delta_name="delta_nxny")
 
-        # %% 算 中心级 相对 实验室坐标系 方向 z 的 方位角 和 极角
+        # %% 实验室坐标系 c 下，中心级 相对 的 z 轴 的 方位角 和 极角
 
         if "k3_inc_x" in kwargs and "k3_inc_y" in kwargs:  # 如果算的是 k3_inc，则需要采取特殊的策略：
             # 已知的不是 theta3_x 和 theta3_y，而是 k3_inc_x, k3_inc_y，则不能用 Cal_theta_phi_z_inc
@@ -279,10 +286,13 @@ def Cal_n(size_PerPixel,
                 Set("theta3_y", theta_y)
 
     else:  # KTP 有所谓 的 o 光么？
-        n_inc = n_nxny = get_n(is_air, lam, T, p)
-        k_inc = k_nxny = 2 * math.pi * size_PerPixel / (lam / 1000 / n_inc)  # lam / 1000 即以 mm 为单位
+        from fun_global_var import Get
+        n_inc = get_n(is_air, lam, T, p)
+        k_inc = 2 * math.pi * size_PerPixel / (lam / 1000 / n_inc)  # lam / 1000 即以 mm 为单位
+        n_nxny = np.ones((Get("Ix"), Get("Iy"))) * n_inc
+        k_nxny = np.ones((Get("Ix"), Get("Iy"))) * k_inc
 
-    # if inspect.stack()[1][3] == "pump_pic_or_U" or inspect.stack()[1][3] == "pump_pic_or_U2":
+        # if inspect.stack()[1][3] == "pump_pic_or_U" or inspect.stack()[1][3] == "pump_pic_or_U2":
     # print(n_inc, n_nxny)
     return n_inc, n_nxny, k_inc, k_nxny
 
@@ -520,7 +530,8 @@ def Gan_D_vector(is_air, lam, T,
     # if mode == 1:
     #     print(D_ux, D_uy, D_uz)
     # D_uz = - D_uz  # 旋转前的 晶体坐标系 c，变到 笛卡尔 右手 坐标系（+z 反平行于 k 即 传播 的方向）
-    D_ux = - D_ux  # 旋转前的 晶体坐标系 c，变到 笛卡尔 左/右手 坐标系（不变 z 的话，就是左手系）
+    D_ux, D_uy = -D_ux, -D_uy  # 旋转前的 晶体坐标系 c，旋转 180 度，变到 图片坐标系，都是 右手 坐标系（x 右，y 下，z 里）
+    # 以与 外部的 k 和 图片同，方便外部运算
     D_u = merge_array_xyz(D_ux, D_uy, D_uz)
     return D_u, theta_D_u, phi_D_u
 
@@ -542,7 +553,7 @@ def xyz_to_theta_phi_vertical(kx, ky, kz):  # 未旋转前 的 c 系下的 kx,ky
     return theta_z, phi_z
 
 
-def xyz_to_theta_xy_inc(kx, ky, kz):  # 晶体 c 系下的 kx, ky, kz，到 x右y上 的 左手系，
+def xyz_to_theta_xy_inc(kx, ky, kz):  # 晶体 c 系下的 kx, ky, kz，到 x右 y上 z里 的 左手系，
     kx = -kx  # 将 kx, ky, kz 转换到 左手系，方便生成 同一 左手系 下的 theta_x, theta_y
     theta_x_inc = np.arctan(kx / kz)
     theta_y_inc = np.arctan(ky / kz)
@@ -557,7 +568,7 @@ def Gan_E_vector(is_air, lam, T,
     phi_z_c = kwargs["phi_z"] / 180 * np.pi if "phi_z" in kwargs else 0  # 晶轴 c 对 实验室坐标系 方向 z 的 方位角
     # %% 将 D_u 从直角坐标系 写成 旋转前 晶体坐标系 c 下的 极坐标形式 theta_z_D, phi_z_D
     D_ux, D_uy, D_uz = split_Array_to_xyz(D_u)
-    D_ux *= -1  # 注意这里的 D_u 仍是 左手系下的（因为 Gan_D_vector 输出的是 左手系），需要变换
+    D_ux, D_uy = -D_ux, -D_uy  # 将 图片 坐标系（x 右，y 下，z 里），变换为 旋转前的 晶体坐标系 c
     theta_z_D, phi_z_D = xyz_to_theta_phi(D_ux, D_uy, D_uz)  # Dz_u
     # if type(theta_z_D) != np.ndarray:
     #     print(theta_z_D, phi_z_D)
@@ -623,7 +634,7 @@ def Gan_E_vector(is_air, lam, T,
     theta_E_u = format_f_scalar(theta_E_u)
     phi_E_u = format_f_scalar(phi_E_u)
 
-    E_ux = - E_ux  # 旋转前的 晶体坐标系 c，变到 笛卡尔 左手 坐标系（x 右，y 上，z 里）
+    E_ux, E_uy = -E_ux, -E_uy  # 旋转前的 晶体坐标系 c，变到 图片 坐标系（x 右，y 下，z 里），以与 外部的 k 和 图片同，方便外部运算
     E_u = merge_array_xyz(E_ux, E_uy, E_uz)
 
     return E_u, theta_E_u, phi_E_u
@@ -642,6 +653,7 @@ def Gan_S_vector(is_air, lam, T,
     p, theta_x, theta_y, \
     delta, theta_z_c, phi_z_c = get_p_theta_xy_from_kwargs(mode, **kwargs)
     # %% 旋转前的 晶体 abc 坐标系 -x y z 下的 晶轴 c 方向 的 单位矢量： kx 向 左 为正，ky 向 上 为正
+    # 图片坐标系（x 右，y 下，z 里） 到 c 系
     k_z_inc_u, k_z_inc_ux, k_z_inc_uy, k_z_inc_uz = Gan_k_z_inc_u(is_air, lam, T,
                                                                   p, size_PerPixel,
                                                                   theta_x, theta_y,
@@ -651,8 +663,8 @@ def Gan_S_vector(is_air, lam, T,
     # %% 将 D_u 从直角坐标系 写成 旋转前 晶体坐标系 c 下的 极坐标形式 theta_z_D, phi_z_D
     D_ux, D_uy, D_uz = split_Array_to_xyz(D_u)
     E_ux, E_uy, E_uz = split_Array_to_xyz(E_u)
-    D_ux *= -1  # 注意这里的 D_u 仍是 左手系下的（因为 Gan_D_vector 输出的是 左手系），需要变换
-    E_ux *= -1
+    D_ux, D_uy = -D_ux, -D_uy  # 将 图片 坐标系（x 右，y 下，z 里），变换为 旋转前的 晶体坐标系 c
+    E_ux, E_uy = -E_ux, -E_uy  # 将 图片 坐标系（x 右，y 下，z 里），变换为 旋转前的 晶体坐标系 c
     D_u = merge_array_xyz(D_ux, D_uy, D_uz)
     E_u = merge_array_xyz(E_ux, E_uy, E_uz)
     # %%
@@ -693,7 +705,7 @@ def Gan_S_vector(is_air, lam, T,
         # print(S_ux[:, 0])
         s_z_inc_x, s_z_inc_y, s_z_inc_z = s_z_inc * k_z_inc_ux, s_z_inc * k_z_inc_uy, s_z_inc * k_z_inc_uz
         # s_z_inc_x, s_z_inc_y, s_z_inc_z = s_z_inc * S_ux, s_z_inc * S_uy, s_z_inc * S_uz
-        s_z_inc = Rotate_180(s_z_inc)
+        s_z_inc = Rotate_180(s_z_inc)  # 变换回 图片 坐标系（x 右，y 下，z 里）
         s_z_inc_x = Rotate_180(s_z_inc_x)
         s_z_inc_y = Rotate_180(s_z_inc_y)
         s_z_inc_z = Rotate_180(s_z_inc_z)
@@ -702,7 +714,7 @@ def Gan_S_vector(is_air, lam, T,
         # # print(k_z_inc[0])
         # # print(s_z_inc[:, 0])
         # # print(k_z_inc[:, 0])
-    walk_off_angle = np.arccos(cos_walk_off_angle)
+    walk_off_angle = np.arccos(cos_walk_off_angle)  # c 系
     from fun_global_var import Set, Get
     if mode == 1:
         Set("walk_off_angle_z", walk_off_angle)  # 等会会用之，各向同性地（标量地） 为 vector_k_to_s_vertical_to_z 赋予长度
@@ -711,13 +723,13 @@ def Gan_S_vector(is_air, lam, T,
     # %%  法二：同一 z = z0 面处，s 方向 与 z = z0 面 的 交点 的 相位， 相比 k 方向 与 z = z0 面 的 交点 的 相位，超前的 倍率
     # %%
     # 错误的方法：是平面的，但实际是立体的
-    z = np.array([0, 0, 1])
+    z = np.array([0, 0, 1])  # 笛卡尔 左手系（x 右，y 上，z 里）、图片坐标系（x 右，y 下，z 里）与 旋转前的 晶体 abc 坐标系（x 左，y 上，z 里）都是这个
     # # sin_sz = vector_amp(np.cross(S_u, z))  # python 的 叉乘 在幅值上 这么不靠谱？
     # cos_sz = np.dot(S_u, z)  # np.abs(np.dot(S_u, z))
     # sin_sz = (1 - cos_sz ** 2) ** 0.5
     # tan_sz = sin_sz / cos_sz
     # # sin_kz = vector_amp(np.cross(k_z_inc_u, z))
-    cos_kz = np.dot(k_z_inc_u, z)  # np.abs(np.dot(k_z_inc_u, z))
+    cos_kz = np.dot(k_z_inc_u, z)  # np.abs(np.dot(k_z_inc_u, z))  两个 旋转前的 晶体 abc 坐标系 下的 坐标值 的 点积
     # sin_kz = (1 - cos_kz ** 2) ** 0.5
     # tan_kz = sin_kz / cos_kz
     # delta_sk = (tan_sz - tan_kz) * tan_kz
@@ -726,13 +738,13 @@ def Gan_S_vector(is_air, lam, T,
     vector_k_to_s_vertical_to_z = \
         scale_vector(1 / S_uz, v=S_u)[0] - scale_vector(1 / k_z_inc_uz, v=k_z_inc_u)[0]  # 共享 z 向长度 1
     if mode < 3:
-        vector_k_to_s_vertical_to_z *= walk_off_angle
+        vector_k_to_s_vertical_to_z *= walk_off_angle  # c 系
     elif mode == 3:
-        vector_k_to_s_vertical_to_z *= np.tan(Get("walk_off_angle_z"))
+        vector_k_to_s_vertical_to_z *= np.tan(Get("walk_off_angle_z"))  # c 系
         # 各向同性地（标量地） 为 vector_k_to_s_vertical_to_z 赋予长度
         # vector_k_to_s_vertical_to_z = scale_vector(walk_off_angle, v=vector_k_to_s_vertical_to_z)[0]
         # 各向异性地（矢量地） 为 vector_k_to_s_vertical_to_z 赋予长度
-    v_x, v_y, v_z = split_Array_to_xyz(vector_k_to_s_vertical_to_z)
+    v_x, v_y, v_z = split_Array_to_xyz(vector_k_to_s_vertical_to_z)  # c 系
     # 提前为 后面 法三 做铺垫，因为 等会 vector_k_to_s_vertical_to_z 会因 delta_sk_parallel_to_k 而改变（被覆盖）
     # %%  看看更物理（积累相位更多）的 vector_k_to_s_vertical_to_z 对 delta_sk_parallel_to_z 有效果没
     # vector_k_to_s_vertical_to_z = scale_vector(k_z_inc_uz / S_uz, v=S_u)[0] - k_z_inc_u  # 共享 z 向长度 k_z_inc_uz
@@ -758,7 +770,7 @@ def Gan_S_vector(is_air, lam, T,
     # %%
     delta_sk_parallel_to_k = np.sum(vector_k_to_s_vertical_to_z * k_z_inc_u, -1)
     # print(delta_sk_parallel_to_k)
-    delta_sk_parallel_to_z = delta_sk_parallel_to_k / cos_kz
+    delta_sk_parallel_to_z = delta_sk_parallel_to_k / cos_kz  # c 系
     if mode == 1:
         pass
         # print(S_u)
@@ -772,7 +784,7 @@ def Gan_S_vector(is_air, lam, T,
     if mode == 3:
         # print(np.arcsin(sin_sz) / math.pi * 180)
         from fun_array_Transform import Rotate_180
-        delta_sk_parallel_to_z = Rotate_180(delta_sk_parallel_to_z)
+        delta_sk_parallel_to_z = Rotate_180(delta_sk_parallel_to_z)  # 图片 坐标系
         # print(delta_sk[0])
         # print(delta_sk[:, 0])
         delta_sk_parallel_to_z += 1
@@ -796,7 +808,7 @@ def Gan_S_vector(is_air, lam, T,
             Set("v_inc_y", v_y)
     elif mode == 3:
         from fun_array_Generate import mesh_shift
-        mesh_Ix0_Iy0_shift = mesh_shift(v_x.shape[0], v_y.shape[1])
+        mesh_Ix0_Iy0_shift = mesh_shift(v_x.shape[0], v_y.shape[1])  # 生成 图片坐标系 下的 网格
         # %% 标量 梯度相位
         # 左手系 变到 图片坐标系，x 保持不变，y 反
         v_x, v_y = Get("v_z_x"), - Get("v_z_y")
@@ -826,10 +838,13 @@ def Gan_S_vector(is_air, lam, T,
     else:
         g_p = 0
     # %%
-    walk_off_angle = walk_off_angle / np.pi * 180
 
     theta_x_S_u = format_f_scalar(theta_x_S_u)
     theta_y_S_u = format_f_scalar(theta_y_S_u)
+    S_ux, S_uy = -S_ux, -S_uy  # 旋转前的 晶体坐标系 c，变到 图片 坐标系（x 右，y 下，z 里），以与 外部的 k 和 图片同，方便外部运算
+    S_u = merge_array_xyz(S_ux, S_uy, S_uz)
+
+    walk_off_angle = walk_off_angle / np.pi * 180
     walk_off_angle = format_f_scalar(walk_off_angle)
     delta_sk_parallel_to_z = format_e_scalar(delta_sk_parallel_to_z)
 
@@ -1028,8 +1043,8 @@ def cal_nk(nx, ny, nz, lam, p, size_PerPixel,
 
 # %%
 
-def Cal_theta_phi_z_inc(theta_x, theta_y, ):
-    from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy
+def Cal_theta_phi_z_inc(theta_x, theta_y, ):  # 笛卡尔 左手系 下，的 theta_xy，转 c 系 右手系 下，的 theta, phi
+    from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy  # x 右，y 上 的 左手系下的 左手 球面三角坐标系 到 相应 直角坐标系 的 转换
     kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )
     kx = - kx  # 即以 k 为 z 轴正向的 右手系 下的值（且已经 归一化 or 单位化）
     # ky = - ky  # 之前 theta_y = - kwargs["theta_y"] 给 搞成电脑坐标系下的了，所以 ky 也得取负 变成 y 轴向上...
@@ -1187,14 +1202,21 @@ def Cal_n_eo(nx, ny, nz, theta, phi, delta, ):
 
 # %% 生成 kz 网格
 
-def Cal_kz(Ix, Iy, k):  # 不仅 kz，连 k 现在 都是个 椭球面了
+def Cal_kz(Ix, Iy, k):  # 不仅 kz，连 k 现在 都是个 椭球面了；该坐标系是 右加下加 的 图片坐标系
     mesh_nx_ny_shift = mesh_shift(Ix, Iy)
     mesh_kx_ky_shift = np.dstack(
         (2 * math.pi * mesh_nx_ny_shift[:, :, 0] / Iy, 2 * math.pi * mesh_nx_ny_shift[:, :, 1] / Ix))
-    # Iy 才是 笛卡尔坐标系中 x 方向 的 像素数...
+    # 从图片中读到的 Iy = img.shape[1] 才是 笛卡尔坐标系中 x 方向 的 像素数...
 
     # print(k.shape, mesh_kx_ky_shift.shape)
     kz_shift = (k ** 2 - mesh_kx_ky_shift[:, :, 0] ** 2 - mesh_kx_ky_shift[:, :, 1] ** 2 + 0j) ** 0.5
+
+    # %%  plot 一下，看看分布 是否是 笛卡尔坐标系
+    from fun_os import U_test_plot
+    # method = "k_MESH"
+    # U_test_plot(method, "kx", mesh_kx_ky_shift[:, :, 0])
+    # U_test_plot(method, "ky", mesh_kx_ky_shift[:, :, 1])
+    # U_test_plot(method, "kz", kz_shift)
 
     return kz_shift, mesh_kx_ky_shift
 
@@ -1335,6 +1357,7 @@ def init_AST_12oe(Ix, Iy, size_PerPixel,
         walk_off_angle, delta_sk_pz, PG_vz, \
         s, s_z, s_xy, g_p = gan_DESu_0kx0kyzinc(args_Gan_D_vector, k1_inc,
                                                 args_Gan_E_vector, **kwargs, )
+        # 既然 g_V, g_H 满足 E 的 切向连续，那么按理，不能在 s 里面 处理 g_p，要处理也得在 通过连续性，投影以 得到 g_o, g_e 之后
 
         # %%
 
@@ -1350,16 +1373,38 @@ def init_AST_12oe(Ix, Iy, size_PerPixel,
         # print(D_u[0])
         # print(D_u[:,0])
         # print(D_u[0,0])
-        if type(p_p) == np.ndarray:  # p_p 投影到 E_u（因为 E_u 只允许是 某 2 个方向）
-            g_oe = g_p * np.dot(E_u, p_p)  # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
-        else:
-            g_oe = g_p
 
         n1, k1, k1_z, k1_xy = \
             output_nk_xyz(lam1, size_PerPixel,
                           k1, k1_z, k1_xy,
                           s, s_z, s_xy,
                           delta_sk_pz, PG_vz, )
+
+        # %%
+        # ------ is_air, k, g_V, g_H,
+        # from fun_linear import Cal_kz
+        # k_z, mesh_k_x_k_y = Cal_kz(g_V.shape[0], g_V.shape[1], k)
+        # g_z =  # 左手系 下的 点乘，与 右手系 一样，所以 散度 不变，所以 g_z 关于 g_x, g_y 的 关系式 不变
+
+        if type(p_p) == np.ndarray:  # p_p 投影到 E_u（因为 E_u 只允许是 某 2 个方向）
+            # print(E_u.shape)
+            # g_oe = g_p * np.dot(E_u, p_p)
+            if p_p.shape == (3,):
+                E_ux, E_uy, E_uz = split_Array_to_xyz(E_u)
+                E_xy_u = normalize_merge_vector(E_ux, E_uy, np.zeros((Ix, Iy), ))[0]  # z 分量 置 0 后，将 x,y 面的 二维分量 单位化
+
+                p_px, p_py, p_pz = split_Array_to_xyz(p_p)
+                p_p_pic = merge_array_xyz(p_px, -p_py, p_pz)  # 平面 笛卡尔 右手系，到 图片坐标系 转换，以与 k、E_u、图片 等同一坐标系
+
+                g_oe = g_p * np.dot(E_xy_u, p_p_pic)  # 两个 平面 2 维 单位向量 的 点积，即 cos
+
+                # g_oe = g_p * np.dot(E_u, p_p)
+                # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
+            else:  # 不应该 有这个分支：到这里还不涉及 加偏振片的事，只是场的 切向连续性 的 必然要求 所导致的结果，只需要 无二维分布 的 平面向量 p_p 即可
+                g_oe = g_p
+        else:
+            g_oe = g_p
+
     else:
         g_oe = 0
         E_u = 0
@@ -1367,6 +1412,81 @@ def init_AST_12oe(Ix, Iy, size_PerPixel,
     # %%
     return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
 
+
+# %%
+
+def gan_p_u_vector_field(p_p, k_nxny):
+    from fun_global_var import Get
+    k_z, k_xy = Cal_kz(Get("Ix"), Get("Iy"), k_nxny)
+    k_vector_field = merge_array_xyz(k_xy[:, :, 0], k_xy[:, :, 1], k_z)
+
+    p_p_vector_field = np.cross(np.cross(k_vector_field, p_p), k_vector_field)
+    # 经过 polarizer 后的 偏振方向，是个 二维矢量场，而不是个 定矢量
+    p_u_vector_field = normalize_merge_vector(v=p_p_vector_field)[0]
+    return k_z, k_xy, p_u_vector_field
+
+
+def gan_g_p_then_g_p_xy(g_H, g_V, g_z, p_u_vector_field):
+    g_vector_field = merge_array_xyz(g_H, g_V, g_z)
+    g_p = np.sum(g_vector_field * p_u_vector_field, -1)
+    # 两个 二维矢量场 的 点积，退化为 标量场，但，是 矢量场 g 的 模：我们只要 其 p 方向的 分量，不要 z 方向的分量
+    # （我后来感觉，仅管这很三维 而很真实，但这效果 与 2 个 二维向量 的 点积 应该是 一样的）
+    # %% 二维化，再归一化；然后 点乘，再点乘
+    p_ux, p_uy, p_uz = split_Array_to_xyz(p_u_vector_field)
+    p_xy_u = normalize_merge_vector(p_ux, p_uy, np.zeros((p_ux.shape[0], p_uy.shape[1]), ))[0]
+    # z 分量 置 0 后，将 x,y 面的 二维分量 单位化
+    g_p_xy = g_p * np.sum(p_u_vector_field * p_xy_u, -1)
+    return g_p_xy
+
+def gan_g_op_then_g_op_xy(E_uo, g_o, p_p, p_uo_vector_field=0):
+    from fun_global_var import Get
+    E_uo_x, E_uo_y, E_uo_z = split_Array_to_xyz(E_uo)
+    E_xy_uo = normalize_merge_vector(E_uo_x, E_uo_y, np.zeros((Get("Ix"), Get("Iy")), ))[0]
+    # z 分量 置 0 后，将 x,y 面的 二维分量 单位化
+    g_o_x = g_o * np.dot(E_xy_uo, np.array([1, 0, 0]))
+    g_o_y = g_o * np.dot(E_xy_uo, np.array([0, -1, 0]))
+    if np.abs(g_o_x) ** 2 > np.abs(g_o_y) ** 2:  # 用 振幅 较高的分量 的 值，去得到 g_z：尽管 g_H / E_ux == g_V / E_uy 是成立的
+        g_o_z = g_o_x / E_uo_x * E_uo_z
+    else:
+        g_o_z = g_o_y / E_uo_y * E_uo_z
+    # %%  按理不能 点乘 p_uo_vector_field：晶体内 的 E 已经 不垂直于 k 了，而 p_uo_vector_field 仍是 垂直于 k 的
+    # g_op_xy = gan_g_p_then_g_p_xy(g_o_x, g_o_y, g_o_z, p_uo_vector_field)
+    # %%
+    p_px, p_py, p_pz = split_Array_to_xyz(p_p)
+    p_p_pic = merge_array_xyz(p_px, -p_py, p_pz)  # 平面 笛卡尔 右手系，到 图片坐标系 转换，以与 k、E_u、图片 等同一坐标系
+    g_o_vector_field = merge_array_xyz(g_o_x, g_o_y, g_o_z)
+    g_op_xy = np.dot(g_o_vector_field, p_p_pic) # 得直接点乘，但这样与 二维的 有什么区别...
+    return g_o_x, g_o_y, g_o_z, g_op_xy
+
+def gan_g_p_xy(g_H, g_V, p_p, k_o=0, k_e=0, E_uo=0, E_ue=0):
+    if k_o == 0 or k_e == 0:  # 如果外面未传入 k，则需要 自己生成 空气中的 k，以生成 k_vector_field
+        from fun_global_var import Get
+        n_inc = 1
+        k_inc = 2 * np.pi * Get("size_PerPixel") / (Get("lam1") / 1000 / n_inc)  # lam / 1000 即以 mm 为单位
+        n_nxny = np.ones((Get("Ix"), Get("Iy"))) * n_inc
+        k_nxny = np.ones((Get("Ix"), Get("Iy"))) * k_inc
+        # 需要提前 Set("lam1")，已在 define_lam_n_AST 中实现
+        k_z, k_xy, p_u_vector_field = gan_p_u_vector_field(p_p, k_nxny)
+    else:
+        k_o_z, k_o_xy, p_uo_vector_field = gan_p_u_vector_field(p_p, k_o)
+        k_e_z, k_e_xy, p_ue_vector_field = gan_p_u_vector_field(p_p, k_e)
+
+    if E_uo == 0 or E_ue == 0:  # 如果外面未传入 E_u，说明 用的是 空气中的 k，则在空气中，又空气中 E 的散度为 0，所以 可以用 两个垂直分量 表示出 g_z
+        g_z = - (k_xy[:, :, 0] / k_z * g_H + k_xy[:, :, 1] / k_z * g_V)  # k 网格 与 给出 g 的 索引值 的 坐标系，都是 下增右增 的 图片坐标系
+        g_p_xy = gan_g_p_then_g_p_xy(g_H, g_V, g_z, p_u_vector_field)
+    else:  # 否则 外面 传入的是 g_o, g_e, E_uo, E_ue
+        g_o, g_e = g_H, g_V
+        g_o_x, g_o_y, g_o_z, g_op_xy = gan_g_op_then_g_op_xy(E_uo, g_o, p_p, p_uo_vector_field)
+        g_e_x, g_e_y, g_e_z, g_ep_xy = gan_g_op_then_g_op_xy(E_ue, g_e, p_p, p_ue_vector_field)
+        g_p_xy = g_op_xy + g_ep_xy
+        # %%  plot 一下 g_z，看看 g_H / E_ux == g_V / E_uy 是否成立
+        # g_o_z = g_o_x / E_uo_x * E_uo_z
+        # g_o_z = g_o_y / E_uo_y * E_uo_z
+        # from fun_os import U_test_plot
+        # U_test_plot("CHECK", "goz", g_o_z)
+    return g_p_xy
+
+# %%
 
 def output_k_xyz(k, k_z, k_xy,
                  s, s_z, s_xy,
@@ -1399,7 +1519,7 @@ def output_nk_xyz(lam1, size_PerPixel,
                   k1, k1_z, k1_xy,
                   s, s_z, s_xy,
                   delta_sk_pz, PG_vz,
-                  mode=1.1):
+                  mode=1.3):
     k1, k1_z, k1_xy = output_k_xyz(k1, k1_z, k1_xy,
                                    s, s_z, s_xy,
                                    delta_sk_pz, PG_vz,

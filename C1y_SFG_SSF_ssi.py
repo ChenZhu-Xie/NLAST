@@ -104,7 +104,7 @@ def SSF_iterate_123VHoe(is_birefringence_deduced, is_air,
         # 但 VHoe 的 情况 实在太复杂，以至于 甚至每个 k3_inc、k3_inc_z 都不同，要单独算完各个 dk_z 是很难的，计算量太大。
         # 而且这个 SSF 本来就是错的，搞它干嘛。
 
-    if is_birefringence_deduced == 1 and is_air != 1:
+    if is_birefringence_deduced == 1:  # 考虑 偏振态 的 条件；is_air == 1 时 也可以 有偏振态，与是否 所处介质 无关
         if is_add_polarizer == 1:
             if match_type == "oe" or match_type == "eo":
                 dG3_zdz = SSF_ssi(*gan_args_SSF_ssi(k1o_z, k1e_z,
@@ -664,7 +664,7 @@ if __name__ == '__main__':
          "polar3": "e", "ray": "2",
          }
 
-    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) >= 1:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena.png",

@@ -288,7 +288,7 @@ def gan_gpnkE_123VHoe_xyzinc_SFG(is_birefringence_deduced, is_air,
     # 主要是 is_add_polarizer 和 def 导致的，有些变量 没声明，却在 def 的 形参中 出现了，以致于 实参 在用到时 报错
     # 其实就是 把 pycharm 所提示的 “可能在赋值前引用” 的 局部变量 先赋好值
 
-    if is_birefringence_deduced == 1 and is_air != 1:
+    if is_birefringence_deduced == 1:  # 考虑 偏振态 的 条件；is_air == 1 时 也可以 有偏振态，与是否 所处介质 无关
         # %% 起偏
 
         if is_add_polarizer == 1:
@@ -617,7 +617,7 @@ def NLA_123VHoe(is_birefringence_deduced, is_air,
                 U_0, U2_0, modulation_squared,
                 is_print, is_linear_convolution, ]
 
-    if is_birefringence_deduced == 1 and is_air != 1:
+    if is_birefringence_deduced == 1:  # 考虑 偏振态 的 条件；is_air == 1 时 也可以 有偏振态，与是否 所处介质 无关
         if is_add_polarizer == 1:
             if match_type == "oe" or match_type == "eo":
                 NLA(*gan_args_NLA(k1o_z, k1o_xy,
@@ -1180,7 +1180,7 @@ if __name__ == '__main__':
          "polar3": "o", "ray": "3",
          }
 
-    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) >= 1:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "spaceship.png",

@@ -13,7 +13,7 @@ import inspect
 from fun_os import img_squared_bordered_Read, U_Read, U_dir, U_plot_save
 from fun_global_var import Get, init_accu, tree_print
 from fun_img_Resize import img_squared_Resize
-from fun_array_Generate import mesh_shift, Generate_r_shift, random_phase
+from fun_array_Generate import mesh_shift, Generate_rho_shift, random_phase
 from fun_linear import Cal_n, Cal_kz, fft2, ifft2
 from fun_SSI import Cal_IxIy
 
@@ -23,14 +23,13 @@ from fun_SSI import Cal_IxIy
 
 def HG_without_Gauss_profile(Ix=0, Iy=0, size_PerPixel=0.77,
                              w0=0,
-                             m=1, n=0,
+                             m=0, n=0,
                              theta_x=1, theta_y=0, ):
-    mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy,
-                                    )
+    mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy, )
 
     C_HG_mn = 1
     x, y = 2 ** 0.5 * mesh_Ix0_Iy0_shift[:, :, 0] * size_PerPixel / w0, \
-           2 ** 0.5 * mesh_Ix0_Iy0_shift[:, :, 1] * size_PerPixel / w0
+           - 2 ** 0.5 * mesh_Ix0_Iy0_shift[:, :, 1] * size_PerPixel / w0  #  图片坐标系 转 平面直角坐标系
     M, N = [0] * m, [0] * n
     M.append(m), N.append(n)
     HG_mn = C_HG_mn * np.polynomial.hermite.hermval(x, M) * np.polynomial.hermite.hermval(y, N)
@@ -43,13 +42,13 @@ def HG_without_Gauss_profile(Ix=0, Iy=0, size_PerPixel=0.77,
 
 def LG_without_Gauss_profile(Ix=0, Iy=0, size_PerPixel=0.77,
                              w0=0,
-                             l=1, p=0,
-                             theta_x=1, theta_y=0, ):
-    r_shift = Generate_r_shift(Ix, Iy, size_PerPixel,
-                               theta_x, theta_y, )
+                             l=0, p=0,
+                             theta_x=0, theta_y=0, ):
+    rho_shift = Generate_rho_shift(Ix, Iy, size_PerPixel,
+                                   theta_x, theta_y, )
 
     C_LG_pl = (2 / math.pi * math.factorial(p) / math.factorial(p + abs(l))) ** 0.5
-    x = 2 ** 0.5 * r_shift / w0
+    x = 2 ** 0.5 * rho_shift / w0
     LG_pl = C_LG_pl / w0 * x ** abs(l) * scipy.special.genlaguerre(p, abs(l), True)(x ** 2)
 
     return LG_pl
@@ -60,13 +59,13 @@ def LG_without_Gauss_profile(Ix=0, Iy=0, size_PerPixel=0.77,
 
 def Gauss(Ix=0, Iy=0, size_PerPixel=0.77,
           w0=0,
-          theta_x=1, theta_y=0, ):
-    r_shift = Generate_r_shift(Ix, Iy, size_PerPixel,
-                               theta_x, theta_y, )
+          theta_x=0, theta_y=0, ):
+    rho_shift = Generate_rho_shift(Ix, Iy, size_PerPixel,
+                                   theta_x, theta_y, )
 
     if (type(w0) == float or type(w0) == np.float64 or type(
             w0) == int) and w0 > 0:  # 如果 传进来的 w0 既不是 float 也不是 int，或者 w0 <= 0，则 图片为 1
-        U = np.power(math.e, - r_shift ** 2 / w0 ** 2)
+        U = np.power(math.e, - rho_shift ** 2 / w0 ** 2)
     else:
         U = np.ones((Ix, Iy), dtype=np.complex128)
 
@@ -78,14 +77,14 @@ def Gauss(Ix=0, Iy=0, size_PerPixel=0.77,
 
 def Gauss_profile(Ix=0, Iy=0, size_PerPixel=0.77,
                   U=0, w0=0,
-                  theta_x=1, theta_y=0, ):
+                  theta_x=0, theta_y=0, ):
     if (type(w0) == float or type(w0) == np.float64 or type(
             w0) == int) and w0 > 0:  # 如果 传进来的 w0 既不是 float 也不是 int，或者 w0 <= 0，则表示 不对原图 引入 高斯限制
 
-        r_shift = Generate_r_shift(Ix, Iy, size_PerPixel,
-                                   theta_x, theta_y, )
+        rho_shift = Generate_rho_shift(Ix, Iy, size_PerPixel,
+                                       theta_x, theta_y, )
 
-        U = U * np.power(math.e, - r_shift ** 2 / w0 ** 2)
+        U = U * np.power(math.e, - rho_shift ** 2 / w0 ** 2)
 
     return U
 
@@ -94,12 +93,12 @@ def Gauss_profile(Ix=0, Iy=0, size_PerPixel=0.77,
 # 生成 纯相位 OAM
 
 def OAM(Ix=0, Iy=0,
-        l=1,
-        theta_x=1, theta_y=0, ):
+        l=0,
+        theta_x=0, theta_y=0, ):
     mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy,
                                     theta_x, theta_y)
-    U = np.power(math.e, l * np.arctan2(mesh_Ix0_Iy0_shift[:, :, 0], mesh_Ix0_Iy0_shift[:, :, 1]) * 1j)
-
+    U = np.power(math.e, l * np.arctan2(- mesh_Ix0_Iy0_shift[:, :, 1], mesh_Ix0_Iy0_shift[:, :, 0]) * 1j)
+    # 图片坐标系 iy 转 笛卡尔坐标系 -iy，然后再 np.arctan2(-iy, ix)
     return U
 
 
@@ -108,13 +107,13 @@ def OAM(Ix=0, Iy=0,
 
 def OAM_profile(Ix=0, Iy=0,
                 U=0,
-                l=1,
+                l=0,
                 theta_x=0, theta_y=0, ):
     mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy,
                                     theta_x, theta_y)
     # print(U.shape, mesh_Ix0_Iy0_shift[:, :, 0].shape,mesh_Ix0_Iy0_shift[:, :, 1].shape)
-    U = U * np.power(math.e, l * np.arctan2(mesh_Ix0_Iy0_shift[:, :, 0], mesh_Ix0_Iy0_shift[:, :, 1]) * 1j)
-
+    U = U * np.power(math.e, l * np.arctan2(- mesh_Ix0_Iy0_shift[:, :, 1], mesh_Ix0_Iy0_shift[:, :, 0]) * 1j)
+    # 图片坐标系 iy 转 笛卡尔坐标系 -iy，然后再 np.arctan2(-iy, ix)
     return U
 
 
@@ -125,8 +124,8 @@ def OAM_profile(Ix=0, Iy=0,
 
 def OAM_profile_G(Ix=0, Iy=0,
                   U=0,
-                  l=1,
-                  theta_x=1, theta_y=0, ):
+                  l=0,
+                  theta_x=0, theta_y=0, ):
     g_shift = fft2(U)
 
     g_shift = OAM_profile(Ix, Iy,
@@ -144,7 +143,7 @@ def OAM_profile_G(Ix=0, Iy=0,
 
 def incline_profile(Ix=0, Iy=0,
                     U=0, k_inc=0,
-                    theta_x=1, theta_y=0, ):
+                    theta_x=0, theta_y=0, ):
     # 在空气中 倾斜，还是 在晶体中 倾斜，取决于 k 中的 n 是空气 还是 晶体的 折射率：
     # 同样的 倾角，n 不同，则积累的 空域 倾斜相位 梯度 不同
     # 其中 k 是 k 或 k_nxny，其正中 是 倒空间 正中
@@ -152,17 +151,18 @@ def incline_profile(Ix=0, Iy=0,
     # if type(k) != float and type(k) != np.float64 and type(k) != int:  # 如果 是 array，则 只取中心级 的 k
     #     k = k[Iy // 2, Ix // 2]  # 取中心级 的 k
     theta_x = theta_x / 180 * math.pi
-    theta_y = - theta_y / 180 * math.pi  # 笛卡尔 坐标系 转 图片 / 电脑 坐标系
+    theta_y = theta_y / 180 * math.pi  # 这里变 theta_y 到 图片坐标系，和 下面变 ix 到 笛卡尔系，是一样的
 
-    kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )
+    kx, ky, kz = Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )  # x 右，y 上 的 左手系下的 左手 球面三角坐标系 到 相应 直角坐标系 的 转换
     kx, ky, kz = k_inc * kx, k_inc * ky, k_inc * kz
     # print(kx, ky, kz)
 
     # %%
 
     mesh_Ix0_Iy0_shift = mesh_shift(Ix, Iy)
+    x, y = mesh_Ix0_Iy0_shift[:, :, 0], - mesh_Ix0_Iy0_shift[:, :, 1]  # y 颠倒：图片 / 电脑 坐标系 转 笛卡尔 坐标系（x 右，y 上）
     # k_shift = (k**2 - Kx**2 - Ky**2 + 0j )**0.5
-    U = U * np.power(math.e, (kx * mesh_Ix0_Iy0_shift[:, :, 0] + ky * mesh_Ix0_Iy0_shift[:, :, 1]) * 1j)
+    U = U * np.power(math.e, (kx * x + ky * y) * 1j)
 
     return U
 

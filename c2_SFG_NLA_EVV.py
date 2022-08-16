@@ -393,7 +393,7 @@ def SFG_NLA_EVV(U_name="",
     U_o, U_e, U_Vo, U_Ve, U_Ho, U_He = \
         gan_U_VHoe(g_o, g_e, g_Vo, g_Ho, g_Ve, g_He)  # 得写在外面，否则会传进 Fun 等的 kwargs...而这一般是空的
 
-    if is_birefringence_deduced == 1 and is_air != 1:
+    if is_birefringence_deduced == 1:  # 考虑 偏振态 的 条件；is_air == 1 时 也可以 有偏振态，与是否 所处介质 无关
         # %%
 
         if is_add_polarizer == 1:
@@ -483,7 +483,7 @@ def SFG_NLA_EVV(U_name="",
                         U1_z, U2_z, \
                         U1o_z, U1e_z, U1_Vo_z, U1_Ve_z, U1_Ho_z, U1_He_z")
 
-        if is_birefringence_deduced == 1 and is_air != 1:
+        if is_birefringence_deduced == 1:  # 考虑 偏振态 的 条件；is_air == 1 时 也可以 有偏振态，与是否 所处介质 无关
             if is_add_polarizer == 1:
                 G1o_z, G1e_z, diz, \
                 U1o_z, U1e_z = gan_g_oe(for_th2)
@@ -694,7 +694,7 @@ if __name__ == '__main__':
          "polar3": "o", "ray": "3",
          }
 
-    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) >= 1:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena1.png",

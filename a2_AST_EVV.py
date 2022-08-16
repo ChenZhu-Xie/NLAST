@@ -141,6 +141,10 @@ def AST_EVV(U_name="",
     # kwargs['ray'] = init_GLV_rmw(U_name, "~", "", "AST", **kwargs)
     init_GLV_rmw(U_name, "l", "AST", "", **kwargs)
 
+    # %% 确定 波长（得在 所有用 lam1 的 函数 之前）
+
+    lam1, n_name = define_lam_n_AST(lam1, **kwargs)
+
     # %%
 
     img_name, img_name_extension, img_squared, \
@@ -215,10 +219,6 @@ def AST_EVV(U_name="",
 
     if "U" in kwargs:  # 防止对 U_amp_plot_save 造成影响
         kwargs.pop("U")
-
-    # %% 确定 波长
-
-    lam1, n_name = define_lam_n_AST(lam1, **kwargs)
 
     # %%
     iz = z0 / size_PerPixel
@@ -331,7 +331,7 @@ def AST_EVV(U_name="",
                                   is_plot_n=1, **kwargs)
     # print(g_shift)
 
-    if is_birefringence_deduced == 1 and is_air != 1:
+    if is_birefringence_deduced == 1:  # 考虑 偏振态 的 条件；is_air == 1 时 也可以 有偏振态，与是否 所处介质 无关
         # %%
 
         if is_add_polarizer == 1:
@@ -421,7 +421,6 @@ def AST_EVV(U_name="",
 
             fU_EVV_plot(*args_fU_EVV_plot(is_energy), part_z="_oea_z", **kwargs, )
 
-            return fget("U"), fget("G"), Get("ray"), Get("method_and_way"), fkey("U")
         else:
             # 如果 传进来的 phi_a 不是数字，则说明 没加 偏振片，则 正交线偏 oe 直接叠加后，gUH 的 相位 就 没用了；只有 gU 的 能量分布 才有用
             # 并且 二者的 的 复场 和 能量，根本不满足 傅立叶变换对 的 关系；
@@ -432,14 +431,21 @@ def AST_EVV(U_name="",
 
                 if is_add_polarizer == 1:
                     Go_z, Ge_z = Gan_Gz_oe(for_th2)
+                    Set("Go_z", Go_z)
+                    Set("Ge_z", Ge_z)
                     G_oe_energy_add = np.abs(Go_z) ** 2 + np.abs(Ge_z) ** 2  # 远场 平方和
                     U_oe_energy_add = np.abs(ifft2(Go_z)) ** 2 + np.abs(ifft2(Ge_z)) ** 2  # 近场 平方和
                 else:
                     Gz_Vo, Gz_Ve, Gz_Ho, Gz_He = Gan_Gz_VHoe(for_th2)
+                    Set("Gz_Vo", Gz_Vo)
+                    Set("Gz_Ve", Gz_Ve)
+                    Set("Gz_Ho", Gz_Ho)
+                    Set("Gz_He", Gz_He)
                     G_oe_energy_add = np.abs(Gz_Vo) ** 2 + np.abs(Gz_Ho) ** 2 + \
                                       np.abs(Gz_Ve) ** 2 + np.abs(Gz_He) ** 2  # 远场 平方和
                     U_oe_energy_add = np.abs(ifft2(Gz_Vo)) ** 2 + np.abs(ifft2(Gz_Ho)) ** 2 + \
                                       np.abs(ifft2(Gz_Ve)) ** 2 + np.abs(ifft2(Gz_He)) ** 2  # 近场 平方和
+
 
                 return G_oe_energy_add, U_oe_energy_add
 
@@ -472,6 +478,11 @@ def AST_EVV(U_name="",
             fset("G", dget("G"))  # fU_EVV_plot 里要用到，但其实那里 也可以用 dget 就没有这档子事了
             fset("U", dget("U"))  # 那里不用 dget 是因为，dget 被设计来 只储存 中间结果，不一定像 fset 只储存 最后结果。
             fU_EVV_plot(*args_fU_EVV_plot(0), part_z="_oe_z_energy_add", **kwargs, )
+
+        return Get("Go_z"), Get("Ge_z"), E_uo, E_ue, \
+               Get("Gz_Vo"), Get("Gz_Ve"), E_u_Vo, E_u_Ve, \
+               Get("Gz_Ho"), Get("Gz_He"), E_u_Ho, E_u_He, \
+               Get("ray"), Get("method_and_way"), fkey("U")  # 加不加 起偏 或 检偏 器，都可能 会有 VH 两个分量，所以 将 return 写在外面
 
     else:
         # %% 开始 EVV
@@ -595,7 +606,7 @@ if __name__ == '__main__':
          "polar": "V", "ray": "1",
          }
 
-    if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "spaceship.png",

@@ -56,7 +56,7 @@ if __name__ == '__main__':
          # %%
          "is_print": 1,
          # %% 该程序 独有 -------------------------------
-         "is_EVV_SSI": 0, "is_stored": 0, "sheets_stored_num": 10,
+         "is_EVV_SSI": 0, "is_stored": 1, "sheets_stored_num": 10,
          # %%
          "sample": 1, "cmap_3d": 'rainbow',
          "elev": 10, "azim": -65, "alpha": 2,
@@ -68,7 +68,7 @@ if __name__ == '__main__':
          "loop": 0, "duration": 0.033, "fps": 5,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
-         "border_percentage": 0.1, "is_end": -1,
+         "border_percentage": 0.1, "is_end": 0,
          # %%
          "theta_z": 90, "phi_z": 90, "phi_c": 23.7,
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
@@ -80,7 +80,7 @@ if __name__ == '__main__':
          "plot_center": 1,
          }
 
-    if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("is_HOPS_AST", 0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "spaceship.png",
@@ -97,7 +97,7 @@ if __name__ == '__main__':
             "w0_2": 0.05,
             # %%
             "lam2": 1.064, "is_air_pump2": 1, "T2": 25,
-            "polar2": 'H',
+            "polar2": 'V',
             # 有双泵浦，则必然考虑偏振、起偏，和检偏，且原 "polar2": 'e'、 "polar": "e" 已再不起作用
             # 取而代之的是，既然原 "polar": "e" 不再 work 但还存在，就不能浪费 它的存在，让其 重新规定 第一束光
             # 偏振方向 为 "VHRL" 中的一个，而不再规定其 极化方向 为 “oe” 中的一个；这里 第二束 泵浦的 偏振方向 默认与之 正交，因而可以 不用填写
@@ -108,4 +108,24 @@ if __name__ == '__main__':
         kwargs.update(pump2_kwargs)
 
     kwargs = init_GLV_DICT(**kwargs)
-    AST_EVV(**kwargs)
+
+    Gz_o, Gz_e, E_uo, E_ue, \
+    Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, \
+    Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
+    ray, method_and_way, U_key = AST_EVV(**kwargs)
+
+    # %%  再次衍射 z0
+
+    import copy
+
+    if kwargs.get("is_end", -1) == 0:  # 如果 上一个 is_EVV 的 kwargs["is_end"] == -1，则不 再次衍射 z0
+        kwargs_AST = copy.deepcopy(kwargs)
+        kwargs_AST.update({"z0": 5, "is_air": 1, "ray": ray, "is_end": -1, })
+        kwargs_AST.update({"g_o": Gz_o, "g_e": Gz_e, "E_uo": E_uo, "E_ue": E_ue,
+                           "g_Vo": Gz_Vo, "g_Ve": Gz_Ve, "E_u_Vo": E_u_Vo, "E_u_Ve": E_u_Ve,
+                           "g_Ho": Gz_Ho, "g_He": Gz_He, "E_u_Ho": E_u_Ho, "E_u_He": E_u_He, })
+
+        Gz_o, Gz_e, E_uo, E_ue, \
+        Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, \
+        Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
+        ray, method_and_way, U_key = AST_EVV(**kwargs_AST)
