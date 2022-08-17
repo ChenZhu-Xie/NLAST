@@ -32,7 +32,6 @@ if __name__ == '__main__':
          "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
          # 是否 使用 起偏器（"is_HOPS": 整数 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
          "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器（"phi_a": str 则不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
-         "plot_group_AST": "r",  # m 代表 oe 的 mix，o,e 代表 ~，fb 代表 frontface / backface
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          # %%
@@ -68,7 +67,7 @@ if __name__ == '__main__':
          "loop": 0, "duration": 0.033, "fps": 5,
          # %% 该程序 作为 主入口时 -------------------------------
          "kwargs_seq": 0, "root_dir": r'1',
-         "border_percentage": 0.1, "is_end": -1,
+         "border_percentage": 0.1, "is_end": 0,
          # %%
          "theta_z": 0, "phi_z": 0, "phi_c": 0,  # "phi_z": 180 即 双轴 2
          # KTP 50 度 ：deff 最高： 90, ~, 24.3，（24.3 - 2002, 25.3 - 2000）
@@ -122,18 +121,80 @@ if __name__ == '__main__':
     Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
     ray, method_and_way, U_key = AST_EVV(**kwargs)
 
-    # %%  再次衍射 z0
+    # %%  再次衍射 z_air（这里的逻辑 与 SFG_NLA_EVV__AST_EVV 稍有不同）
 
     import copy
 
     if kwargs.get("is_end", -1) == 0:  # 如果 上一个 is_EVV 的 kwargs["is_end"] == -1，则不 再次衍射 z0
+        is_add_lens = 1
+        z_air = 10
+
         kwargs_AST = copy.deepcopy(kwargs)
-        kwargs_AST.update({"z0": 5, "is_air": 1, "ray": ray, "is_end": -1, })
+        kwargs_AST.update({"is_air": 1, "ray": ray, })
         kwargs_AST.update({"g_o": Gz_o, "g_e": Gz_e, "E_uo": E_uo, "E_ue": E_ue,
                            "g_Vo": Gz_Vo, "g_Ve": Gz_Ve, "E_u_Vo": E_u_Vo, "E_u_Ve": E_u_Ve,
                            "g_Ho": Gz_Ho, "g_He": Gz_He, "E_u_Ho": E_u_Ho, "E_u_He": E_u_He, })
 
-        Gz_o, Gz_e, E_uo, E_ue, \
-        Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, \
-        Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
-        ray, method_and_way, U_key = AST_EVV(**kwargs_AST)
+        if is_add_lens == 1:  # 如果要 加透镜，则需要 衍射两次，且在 两次衍射 中间，加透镜
+            f = z_air / 2
+            kwargs_AST.update({"z0": f, })
+
+            Gz_o, Gz_e, E_uo, E_ue, \
+            Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, \
+            Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
+            ray, method_and_way, U_key = AST_EVV(**kwargs_AST)
+
+            # %% 算空气中的 k1，再 传入 透镜 func 中，得出 透镜的 空域 传递函数
+            import numpy as np
+            from fun_global_var import Get
+
+            n_inc = 1
+            k_inc = 2 * np.pi * Get("size_PerPixel") / (Get("lam1") / 1000 / n_inc)  # lam / 1000 即以 mm 为单位
+            n_nxny = np.ones((Get("Ix"), Get("Iy"))) * n_inc
+            k_nxny = np.ones((Get("Ix"), Get("Iy"))) * k_inc
+
+            from fun_linear import Cal_H_lens
+
+            # H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), Get("k3"), z_AST / 2, Cal_mode=1)
+            H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), k_nxny, f, Cal_mode=1)
+
+
+            # %% 空域 传递函数，作用于 空域场 U 上
+            def implement_H_lens(*args):  # 按理说，经过透镜后，偏振们 也变了... 只不过 现在这个函数 只能处理 Gz 们
+                list = []
+                from fun_linear import fft2, ifft2
+                for arg in args:
+                    # print(type(arg))
+                    if type(arg) == np.ndarray:  # 如果是 数组，则可 fft2
+                        list.append(fft2(ifft2(arg) * H_lens))
+                    else:
+                        list.append(arg)  # 否则 原封不动
+                return list
+
+
+            Gz_o, Gz_e, \
+            Gz_Vo, Gz_Ve, \
+            Gz_Ho, Gz_He, \
+                = implement_H_lens(Gz_o, Gz_e,
+                                   Gz_Vo, Gz_Ve,
+                                   Gz_Ho, Gz_He, )
+
+            # %% 再次衍射
+            kwargs_AST.update({"ray": ray, "is_end": -1, })
+            kwargs_AST.update({"g_o": Gz_o, "g_e": Gz_e, "E_uo": E_uo, "E_ue": E_ue,
+                               "g_Vo": Gz_Vo, "g_Ve": Gz_Ve, "E_u_Vo": E_u_Vo, "E_u_Ve": E_u_Ve,
+                               "g_Ho": Gz_Ho, "g_He": Gz_He, "E_u_Ho": E_u_Ho, "E_u_He": E_u_He, })
+            #  偏振 看上去 没变，以至于 不需要 像这里 写出，但实际上 经过透镜后 也变了
+
+            Gz_o, Gz_e, E_uo, E_ue, \
+            Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, \
+            Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
+            ray, method_and_way, U_key = AST_EVV(**kwargs_AST)
+
+        else:
+            kwargs_AST.update({"z0": z_air, "is_end": -1, })
+
+            Gz_o, Gz_e, E_uo, E_ue, \
+            Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, \
+            Gz_Ho, Gz_He, E_u_Ho, E_u_He, \
+            ray, method_and_way, U_key = AST_EVV(**kwargs_AST)

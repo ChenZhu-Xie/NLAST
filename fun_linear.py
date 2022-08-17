@@ -1396,7 +1396,7 @@ def init_AST_12oe(Ix, Iy, size_PerPixel,
                 p_px, p_py, p_pz = split_Array_to_xyz(p_p)
                 p_p_pic = merge_array_xyz(p_px, -p_py, p_pz)  # 平面 笛卡尔 右手系，到 图片坐标系 转换，以与 k、E_u、图片 等同一坐标系
 
-                g_oe = g_p * np.dot(E_xy_u, p_p_pic)  # 两个 平面 2 维 单位向量 的 点积，即 cos
+                g_oe = g_p * np.dot(E_xy_u, p_p_pic)  # 晶体外 线偏基 p_p_pic 到 晶体内 oe 线偏基 E_xy_u 的 投影：两个 平面 2 维 单位向量 的 点积，即 cos
 
                 # g_oe = g_p * np.dot(E_u, p_p)
                 # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
@@ -1519,7 +1519,7 @@ def output_nk_xyz(lam1, size_PerPixel,
                   k1, k1_z, k1_xy,
                   s, s_z, s_xy,
                   delta_sk_pz, PG_vz,
-                  mode=1.3):
+                  mode=1.1):
     k1, k1_z, k1_xy = output_k_xyz(k1, k1_z, k1_xy,
                                    s, s_z, s_xy,
                                    delta_sk_pz, PG_vz,

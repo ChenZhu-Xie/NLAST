@@ -56,7 +56,7 @@ def gan_p_g(phi_p_cover, **kwargs):  # 不与 kwargs 中的 phi_p 冲突
 
 def gan_g_p(g_shift, p_g=np.array([0, 1, 0]), **kwargs):  # polarizer # 默认 g 的 偏振 p_g = p_y
     p_p = gan_p_xyp(**kwargs)[0]
-    g_p = g_shift * np.dot(p_p, p_g) # 默认 g 的 偏振 p_g = p_y = [0, 1, 0]
+    g_p = g_shift * np.dot(p_p, p_g)  # 默认 g 的 偏振 p_g = p_y = [0, 1, 0]
     return g_p, p_p
 
 
@@ -418,7 +418,7 @@ def gan_nkgE_VHoe(g_V, p_V, g_H, p_H, is_print,
                   args_init_AST, kwargs_init_AST,
                   **kwargs):
     from fun_linear import init_AST_12oe
-    # %%  V 的 o 分量
+    # %%  V 的 o 分量（晶体外 V 基，到 晶体内 o 基 的 投影）
     kwargs["polar"] = "o"
     kwargs_init_AST["gp"] = g_V
     n1_Vo_inc, n1_Vo, k1_Vo_inc, k1_Vo, k1_Vo_z, k1_Vo_xy, g_Vo, E_u_Vo = \
@@ -1156,7 +1156,7 @@ if __name__ == '__main__':
          "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
          # 是否 使用 起偏器（"is_HOPS": 整数 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
          "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器（"phi_a": str 则不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
-         "plot_group_AST": "r",  # m 代表 oe 的 mix，o,e 代表 ~，fb 代表 frontface / backface
+         "plot_group_AST": "r",  # m 代表 oe 的 mix，o,e 代表 ~，fb 代表 frontface / backface（AST_EVV 不需要 这个东西）
          # %%
          "is_save": 0, "is_no_data_save": 0,
          "is_save_txt": 0, "dpi": 100,

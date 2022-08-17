@@ -240,6 +240,7 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
         U1_AST, G1_AST, ray1_AST, method_and_way1_AST, U_key1_AST = \
             AST_EVV(*args_AST(f), **kwargs_AST, )
 
+        # %% 算空气中的 k3，再 传入 透镜 func 中，得出 透镜的 空域 传递函数
         from fun_nonlinear import init_SFG_3oe
         lam3, n3_inc, n3, k3_inc, k3, k3_z, k3_xy, E3_u = \
             init_SFG_3oe(Get("Ix"), Get("Iy"), Get("size_PerPixel"),
@@ -250,6 +251,8 @@ def SFG_NLA_EVV__AST_EVV(U_name="",
         from fun_linear import Cal_H_lens
         # H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), Get("k3"), z_AST / 2, Cal_mode=1)
         H_lens = Cal_H_lens(Get("Ix"), Get("Iy"), Get("size_PerPixel"), k3, f, Cal_mode=1)
+
+        # %% 空域 传递函数，作用于 空域场 U 上，并再次衍射
         U1_AST *= H_lens
 
         kwargs_AST.update({"U": U1_AST, "ray": ray1_AST, "is_end": 1, })
@@ -354,10 +357,11 @@ if __name__ == '__main__':
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
          "polar": "e", "match_type": "oe",
-         "polar3": "e", "ray": "3", 
+         "polar3": "e", "ray": "3",
          }
 
-    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG",
+                                                   0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena1.png",

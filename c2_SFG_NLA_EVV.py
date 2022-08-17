@@ -310,51 +310,51 @@ def SFG_NLA_EVV(U_name="",
     modulation, modulation_opposite, \
     modulation_squared, modulation_opposite_squared \
         = chi2_2D(U_name_Structure,
-                                     img_full_name,
-                                     is_phase_only_Structure,
-                                     # %%
-                                     z_pump_Structure,
-                                     is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
-                                     l_Structure, p_Structure,
-                                     theta_x_Structure, theta_y_Structure,
-                                     # %%
-                                     is_random_phase_Structure,
-                                     is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
-                                     # %%
-                                     U_size, w0_Structure,
-                                     structure_size_Shrink,
-                                     Duty_Cycle_x, Duty_Cycle_y,
-                                     structure_xy_mode, Depth,
-                                     # %%
-                                     is_continuous, is_target_far_field,
-                                     is_transverse_xy, is_reverse_xy,
-                                     is_positive_xy,
-                                     0, is_no_backgroud,
-                                     # %%
-                                     lam1, is_air_pump_structure, is_air, T,
-                                     Tx, Ty, Tz,
-                                     mx, my, mz,
-                                     # %%
-                                     is_save, is_save_txt, dpi,
-                                     # %%
-                                     cmap_2d,
-                                     # %%
-                                     ticks_num, is_contourf,
-                                     is_title_on, is_axes_on,
-                                     is_mm,
-                                     # %%
-                                     fontsize, font,
-                                     # %%
-                                     is_colorbar_on, is_energy,
-                                     # %%
-                                     is_print,
-                                     # %% --------------------- for Info_find_contours_SHG
-                                     deff_structure_length_expect,
-                                     is_contours, n_TzQ,
-                                     Gz_max_Enhance, match_mode,
-                                     L0_Crystal=z0, g1=g_shift, g2=g2,
-                                     # %%
-                                     is_air_pump=is_air_pump, **kwargs, )
+                  img_full_name,
+                  is_phase_only_Structure,
+                  # %%
+                  z_pump_Structure,
+                  is_LG_Structure, is_Gauss_Structure, is_OAM_Structure,
+                  l_Structure, p_Structure,
+                  theta_x_Structure, theta_y_Structure,
+                  # %%
+                  is_random_phase_Structure,
+                  is_H_l_Structure, is_H_theta_Structure, is_H_random_phase_Structure,
+                  # %%
+                  U_size, w0_Structure,
+                  structure_size_Shrink,
+                  Duty_Cycle_x, Duty_Cycle_y,
+                  structure_xy_mode, Depth,
+                  # %%
+                  is_continuous, is_target_far_field,
+                  is_transverse_xy, is_reverse_xy,
+                  is_positive_xy,
+                  0, is_no_backgroud,
+                  # %%
+                  lam1, is_air_pump_structure, is_air, T,
+                  Tx, Ty, Tz,
+                  mx, my, mz,
+                  # %%
+                  is_save, is_save_txt, dpi,
+                  # %%
+                  cmap_2d,
+                  # %%
+                  ticks_num, is_contourf,
+                  is_title_on, is_axes_on,
+                  is_mm,
+                  # %%
+                  fontsize, font,
+                  # %%
+                  is_colorbar_on, is_energy,
+                  # %%
+                  is_print,
+                  # %% --------------------- for Info_find_contours_SHG
+                  deff_structure_length_expect,
+                  is_contours, n_TzQ,
+                  Gz_max_Enhance, match_mode,
+                  L0_Crystal=z0, g1=g_shift, g2=g2,
+                  # %%
+                  is_air_pump=is_air_pump, **kwargs, )
     if is_twin_pump == 1:
         [kwargs.pop(key) for key in kwargs["pump2_keys"]]  # 及时清理 kwargs ，尽量 保持 其干净
         kwargs.pop("pump2_keys")  # 这个有点意思， "pump2_keys" 这个键本身 也会被删除。
@@ -694,7 +694,8 @@ if __name__ == '__main__':
          "polar3": "o", "ray": "3",
          }
 
-    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG", 0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3" or kwargs.get("is_HOPS_SHG",
+                                                   0) >= 1:  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena1.png",
