@@ -73,7 +73,9 @@ def gan_p_a(**kwargs):
 
 def gan_gp_a(g_oe, E_u, **kwargs):  # analyzer
     p_a = gan_p_a(**kwargs)
-    g_a = g_oe * np.dot(E_u, p_a)  # E_u 投影到 p_a
+    from fun_linear import three_D_to_2D_dot_2D
+    g_a = three_D_to_2D_dot_2D(g_oe, E_u, p_a)
+    # g_a = g_oe * np.dot(E_u, p_a)  # E_u 投影到 p_a
     # 不能是 p_a * E_u，得是 E_u * p_a，因为 E_u 的 最末维度 是 2，而 p_a 的 第一个维度 也是 2
     return g_a
 
@@ -193,26 +195,50 @@ def Gan_gp_VH(is_HOPS, U_0, U2_0, polar2, **kwargs):  # 我觉得 圆偏 是个 
 #     elif target_polar_to_refer_polar == 'HL':
 #         return RL_to_VH[1, 1]
 
+# def projection_factor(base_polar_Coeff_from_target_polar):  # target_polar 朝 refer_polar 投影的 分量，'AB' 也就是 B 的 A 分量 系数
+#     VH_to_RL = 1 / 2 ** 0.5 * np.array([[1, -1j],
+#                                         [1, 1j]])
+#     RL_to_VH = np.linalg.inv(np.array(VH_to_RL))
+#     # %%
+#     if base_polar_Coeff_from_target_polar == 'RV':  # V 的 R 分量
+#         return RL_to_VH[0, 0]
+#     elif base_polar_Coeff_from_target_polar == 'RH':
+#         return RL_to_VH[0, 1]
+#     elif base_polar_Coeff_from_target_polar == 'LV':
+#         return RL_to_VH[1, 0]
+#     elif base_polar_Coeff_from_target_polar == 'LH':
+#         return RL_to_VH[1, 1]
+#     # %%
+#     if base_polar_Coeff_from_target_polar == 'VR':  # R 的 V 分量
+#         return VH_to_RL[0, 0]
+#     elif base_polar_Coeff_from_target_polar == 'VL':
+#         return VH_to_RL[0, 1]
+#     elif base_polar_Coeff_from_target_polar == 'HR':
+#         return VH_to_RL[1, 0]
+#     elif base_polar_Coeff_from_target_polar == 'HL':
+#         return VH_to_RL[1, 1]
+#     # 按理 用 点乘 更 正宗。
+
 def projection_factor(base_polar_Coeff_from_target_polar):  # target_polar 朝 refer_polar 投影的 分量，'AB' 也就是 B 的 A 分量 系数
-    VH_to_RL = 1 / 2 ** 0.5 * np.array([[1, -1j],
-                                        [1, 1j]])
+    VH_to_RL = 1 / 2 ** 0.5 * np.array([[-1j, 1],
+                                        [1j, 1]])
     RL_to_VH = np.linalg.inv(np.array(VH_to_RL))
     # %%
     if base_polar_Coeff_from_target_polar == 'RV':  # V 的 R 分量
         return RL_to_VH[0, 0]
     elif base_polar_Coeff_from_target_polar == 'RH':
-        return RL_to_VH[0, 1]
-    elif base_polar_Coeff_from_target_polar == 'LV':
         return RL_to_VH[1, 0]
+    elif base_polar_Coeff_from_target_polar == 'LV':  # V 的 L 分量
+        return RL_to_VH[0, 1]
     elif base_polar_Coeff_from_target_polar == 'LH':
         return RL_to_VH[1, 1]
     # %%
     if base_polar_Coeff_from_target_polar == 'VR':  # R 的 V 分量
         return VH_to_RL[0, 0]
     elif base_polar_Coeff_from_target_polar == 'VL':
-        return VH_to_RL[0, 1]
-    elif base_polar_Coeff_from_target_polar == 'HR':
         return VH_to_RL[1, 0]
+    elif base_polar_Coeff_from_target_polar == 'HR':  # R 的 H 分量
+        return VH_to_RL[0, 1]
     elif base_polar_Coeff_from_target_polar == 'HL':
         return VH_to_RL[1, 1]
     # 按理 用 点乘 更 正宗。
@@ -542,11 +568,12 @@ def gan_Gz_a(is_add_polarizer,
              Gz_o, Gz_e, E_uo, E_ue,
              Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve,
              Gz_Ho, Gz_He, E_u_Ho, E_u_He, **kwargs, ):
+    kwargs_gan_g_eoa = {"phi_a": kwargs.get("phi_a", 0), }
     if is_add_polarizer == 1:
-        Gz_a = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, **kwargs)
+        Gz_a = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, **kwargs_gan_g_eoa)
     else:
-        Gz_Va = gan_g_eoa(Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, **kwargs)
-        Gz_Ha = gan_g_eoa(Gz_Ho, Gz_He, E_u_Ho, E_u_He, **kwargs)
+        Gz_Va = gan_g_eoa(Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, **kwargs_gan_g_eoa)
+        Gz_Ha = gan_g_eoa(Gz_Ho, Gz_He, E_u_Ho, E_u_He, **kwargs_gan_g_eoa)
         Gz_a = Gz_Va + Gz_Ha
     return Gz_a, Gz_Va, Gz_Ha
 
@@ -581,17 +608,31 @@ def plot_gan_Gz_a(is_add_polarizer,
 # %%
 
 def cal_GU_oe_energy_add(is_add_polarizer, Gz_o, Gz_e,
-                         Gz_Vo, Gz_Ho, Gz_Ve, Gz_He):
+                         Gz_Vo, Gz_Ho, Gz_Ve, Gz_He,
+                         E_uo, E_ue, 
+                         E_u_Vo, E_u_Ho, E_u_Ve, E_u_He, ):
     from fun_linear import ifft2
     if is_add_polarizer == 1:
-        G_oe_energy_add = np.abs(Gz_o) ** 2 + np.abs(Gz_e) ** 2  # 远场 平方和
-        # H_energy = G_oe_energy_add / g_oe_energy_add
-        U_oe_energy_add = np.abs(ifft2(Gz_o)) ** 2 + np.abs(ifft2(Gz_e)) ** 2  # 近场 平方和
+        # 下面这个不行，不知道为啥...偏要像有 analyzer 一样，再 gan_g_eoa 投影一下，哪怕 再投影到 它自己上
+        # G_oe_energy_add = np.abs(Gz_o) ** 2 + np.abs(Gz_e) ** 2  # 远场 平方和
+        # # H_energy = G_oe_energy_add / g_oe_energy_add
+        # U_oe_energy_add = np.abs(ifft2(Gz_o)) ** 2 + np.abs(ifft2(Gz_e)) ** 2  # 近场 平方和
+        
+        Gz_V = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, phi_a=90)
+        Gz_H = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, phi_a=0)
+        G_oe_energy_add = np.abs(Gz_V) ** 2 + np.abs(Gz_H) ** 2  # 远场 模方和
+        U_oe_energy_add = np.abs(ifft2(Gz_V)) ** 2 + np.abs(ifft2(Gz_H)) ** 2  # 近场 模方和
     else:
-        G_oe_energy_add = np.abs(Gz_Vo) ** 2 + np.abs(Gz_Ho) ** 2 + \
-                          np.abs(Gz_Ve) ** 2 + np.abs(Gz_He) ** 2  # 远场 平方和
-        U_oe_energy_add = np.abs(ifft2(Gz_Vo)) ** 2 + np.abs(ifft2(Gz_Ho)) ** 2 + \
-                          np.abs(ifft2(Gz_Ve)) ** 2 + np.abs(ifft2(Gz_He)) ** 2  # 近场 平方和
+        Gz_o = Gz_Vo + Gz_Ho
+        Gz_e = Gz_Ve + Gz_He  # 先求和，再平方和，而不是 先平方和，再求和
+        # 下面这个不行，不知道为啥...偏要像有 analyzer 一样，再 gan_g_eoa 投影一下，哪怕 再投影到 它自己上
+        # G_oe_energy_add = np.abs(Gz_o) ** 2 + np.abs(Gz_e) ** 2  # 远场 平方和
+        # U_oe_energy_add = np.abs(ifft2(Gz_o)) ** 2 + np.abs(ifft2(Gz_e)) ** 2  # 近场 平方和
+        
+        Gz_V = gan_g_eoa(Gz_o, Gz_e, E_u_Vo, E_u_Ve, phi_a=90)
+        Gz_H = gan_g_eoa(Gz_o, Gz_e, E_u_Ho, E_u_He, phi_a=0)
+        G_oe_energy_add = np.abs(Gz_V) ** 2 + np.abs(Gz_H) ** 2  # 远场 模方和
+        U_oe_energy_add = np.abs(ifft2(Gz_V)) ** 2 + np.abs(ifft2(Gz_H)) ** 2  # 近场 模方和
     return G_oe_energy_add, U_oe_energy_add
 
 
@@ -1041,7 +1082,9 @@ def AST(U_name="",
                 # 并且 二者的 的 复场 和 能量，根本不满足 傅立叶变换对 的 关系；
                 g_oe_energy_add, U_oe_energy_add = \
                     cal_GU_oe_energy_add(is_add_polarizer, g_o, g_e,
-                                         g_Vo, g_Ho, g_Ve, g_He)
+                                         g_Vo, g_Ho, g_Ve, g_He,
+                                         E_uo, E_ue, 
+                                         E_u_Vo, E_u_Ho, E_u_Ve, E_u_He, )
 
                 # %%
                 plot_GU_oe_energy_add(g_oe_energy_add, U_oe_energy_add,
@@ -1107,7 +1150,9 @@ def AST(U_name="",
                 # 并且 二者的 的 复场 和 能量，根本不满足 傅立叶变换对 的 关系；
                 G_oe_energy_add, U_oe_energy_add = \
                     cal_GU_oe_energy_add(is_add_polarizer, Gz_o, Gz_e,
-                                         Gz_Vo, Gz_Ho, Gz_Ve, Gz_He)
+                                         Gz_Vo, Gz_Ho, Gz_Ve, Gz_He,
+                                         E_uo, E_ue, 
+                                         E_u_Vo, E_u_Ho, E_u_Ve, E_u_He, )
 
                 # %%
                 plot_GU_oe_energy_add(G_oe_energy_add, U_oe_energy_add,

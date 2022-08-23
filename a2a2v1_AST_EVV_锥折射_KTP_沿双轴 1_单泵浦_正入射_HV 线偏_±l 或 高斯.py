@@ -17,7 +17,7 @@ if __name__ == '__main__':
          "U_pixels_x": 500, "U_pixels_y": 500,
          "is_phase_only": 0,
          # %%
-         "z_pump": -20,
+         "z_pump": -5,
          "is_LG": 1, "is_Gauss": 1, "is_OAM": 1,
          "l": 0, "p": 0,
          "theta_x": 0, "theta_y": 0,
@@ -25,13 +25,13 @@ if __name__ == '__main__':
          "is_random_phase": 0,
          "is_H_l": 0, "is_H_theta": 0, "is_H_random_phase": 0,
          # %%
-         "U_size": 2, "w0": 0.05,
+         "U_size": 1, "w0": 0.02,
          "z0": 10,
          # %%  控制 单双泵浦 和 绘图方式："is_HOPS": 0 代表 无双折射，即 "is_linear_birefringence": 0
          "is_HOPS_AST": 0,  # 0.x 代表 单泵浦，1.x 代表 高阶庞加莱球，2.x 代表 最广义情况：2 个 线偏 标量场 叠加；这些都是在 左手系下，且都是 线偏基
          "Theta": 0, "Phi": 0,  # 是否 采用 高阶加莱球、若采用，请给出 极角 和 方位角
          # 是否 使用 起偏器（"is_HOPS": 整数 即不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_p
-         "phi_p": "45", "phi_a": "45",  # 是否 使用 检偏器（"phi_a": str 则不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
+         "phi_p": "0", "phi_a": "0",  # 是否 使用 检偏器（"phi_a": str 则不使用）、若使用，请给出 其相对于 H (水平 x) 方向的 逆时针 转角 phi_a
          # %%
          "lam1": 1.064, "is_air_pump": 1, "is_air": 2, "T": 25,
          # %%
@@ -75,7 +75,7 @@ if __name__ == '__main__':
          # KTP 25 度 ：deff 最高： 90, ~, 23.7，（23.7 - 2002, 24.8 - 2000）
          #                1994 ：68.8, ~, 90，（68.8 - 2002, 68.7 - 2000）
          # LN 25 度 ：90, ~, ~
-         "polar": "H", "ray": "1",
+         "polar": "R", "ray": "1",
          "plot_center": 0,
          }
     

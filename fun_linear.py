@@ -99,7 +99,7 @@ def get_n(is_air, lam, T, p):
 
 def Cal_based_on_g(nx, ny, nz, lam, p, size_PerPixel,
                    theta_z_c, phi_z_c, phi_c_c, phi_c_def,
-                   k_nxny, g, ):
+                   k_nxny, g, is_air, ):
     from fun_statistics import find_Kxyz
     K_z, K_xy = find_Kxyz(g, k_nxny)
     kx, ky = K_xy[0], K_xy[1]  # 下增右增 的 图片坐标系
@@ -109,7 +109,8 @@ def Cal_based_on_g(nx, ny, nz, lam, p, size_PerPixel,
     # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
     theta_z_inc, = solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
                                            nx, ny, nz, lam, p, size_PerPixel,
-                                           theta_z_c, phi_z_c, phi_c_c, phi_c_def)
+                                           theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                                           is_air, )
     return theta_z_inc, phi_z_inc
 
 
@@ -182,7 +183,7 @@ def Cal_n(size_PerPixel,
         n_z, k_z = cal_nk(nx, ny, nz, lam, p, size_PerPixel,
                           theta_z_c, phi_z_c, phi_c_c,
                           0, 0, phi_c_def,
-                          record_delta_name="delta_z")
+                          is_air, record_delta_name="delta_z")
         from fun_global_var import Set
         Set("n_z", n_z)
         Set("k_z", k_z)
@@ -234,7 +235,7 @@ def Cal_n(size_PerPixel,
         n_nxny, k_nxny = cal_nk(nx, ny, nz, lam, p, size_PerPixel,
                                 theta_z_c, phi_z_c, phi_c_c,
                                 theta_z_inc_nxny, phi_z_inc_nxny, phi_c_def,
-                                record_delta_name="delta_nxny")
+                                is_air, record_delta_name="delta_nxny")
 
         # %% 实验室坐标系 c 下，中心级 相对 的 z 轴 的 方位角 和 极角
 
@@ -248,12 +249,13 @@ def Cal_n(size_PerPixel,
             # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
             theta_z_inc, = solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
                                                    nx, ny, nz, lam, p, size_PerPixel,
-                                                   theta_z_c, phi_z_c, phi_c_c, phi_c_def)
+                                                   theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                                                   is_air, )
         else:  # 否则 直接沿用 晶体内的 theta_x, theta_y
             if "gp" in kwargs:
                 theta_z_inc, phi_z_inc = Cal_based_on_g(nx, ny, nz, lam, p, size_PerPixel,
                                                         theta_z_c, phi_z_c, phi_c_c, phi_c_def,
-                                                        k_nxny, kwargs["gp"], )
+                                                        k_nxny, kwargs["gp"], is_air, )
             else:
                 theta_z_inc, phi_z_inc = Cal_theta_phi_z_inc(theta_x, theta_y, )  # 初值 沿用 空气中的 极角 和 方位角
                 # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
@@ -261,13 +263,14 @@ def Cal_n(size_PerPixel,
                     # 否则 直接沿用 晶体内的 theta_x, theta_y
                     theta_z_inc, = solve_refraction_inc_kx(theta_z_inc, phi_z_inc, theta_x, theta_y,
                                                            nx, ny, nz, lam, p, size_PerPixel,
-                                                           theta_z_c, phi_z_c, phi_c_c, phi_c_def)
+                                                           theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                                                           is_air, )
 
         # print(theta_z_inc * 180 / math.pi, phi_z_inc * 180 / math.pi)
         n_inc, k_inc = cal_nk(nx, ny, nz, lam, p, size_PerPixel,
                               theta_z_c, phi_z_c, phi_c_c,
                               theta_z_inc, phi_z_inc, phi_c_def,
-                              record_delta_name="delta_inc")
+                              is_air, record_delta_name="delta_inc")
 
         # print(np.max(np.abs(k_nxny)), k_inc)
 
@@ -331,7 +334,7 @@ def Gan_k_z_inc_u(is_air, lam, T,
             nx = get_n(is_air, lam, T, "x")  # n_a
             theta_z_inc, phi_z_inc = Cal_based_on_g(nx, ny, nz, lam, p, size_PerPixel,
                                                     theta_z_c, phi_z_c, phi_c_c, phi_c_def,
-                                                    k_z_inc, kwargs["gp"], )
+                                                    k_z_inc, kwargs["gp"], is_air, )
             k_z_inc_ux, k_z_inc_uy, k_z_inc_uz = Cal_Unit_kxkykz_based_on_theta_xy2(theta_z_inc, phi_z_inc)
             k_z_inc_u = np.array([k_z_inc_ux, k_z_inc_uy, k_z_inc_uz])
         else:
@@ -863,7 +866,8 @@ def Gan_S_vector(is_air, lam, T,
 
 def solve_refraction_inc_nxny_kx(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
                                  nx, ny, nz, lam, p, size_PerPixel,
-                                 theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc_nxny 当公有 常量，折射前后 必然相等
+                                 theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                                 is_air, ):  # phi_z_inc_nxny 当公有 常量，折射前后 必然相等
 
     def your_funcs(X):
         # from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy
@@ -873,7 +877,8 @@ def solve_refraction_inc_nxny_kx(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
 
         f = [cal_nk(nx, ny, nz, lam, p, size_PerPixel,
                     theta_z_c, phi_z_c, phi_c_c,
-                    theta_z_inc, phi_z_inc_nxny, phi_c_def)[1] * np.sin(theta_z_inc) * np.cos(phi_z_inc_nxny) \
+                    theta_z_inc, phi_z_inc_nxny, phi_c_def,
+                    is_air, )[1] * np.sin(theta_z_inc) * np.cos(phi_z_inc_nxny) \
              - (- kx_nxny)]
 
         return f
@@ -886,7 +891,8 @@ def solve_refraction_inc_nxny_kx(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
 
 def solve_refraction_inc_nxny_Kx(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
                                  nx, ny, nz, lam, p, size_PerPixel,
-                                 theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc_nxny 当公有 常量，折射前后 必然相等
+                                 theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                                 is_air, ):  # phi_z_inc_nxny 当公有 常量，折射前后 必然相等
     phi_z_inc_nxny = phi_z_inc_nxny.reshape(phi_z_inc_nxny.shape[0] * phi_z_inc_nxny.shape[1])
     kx_nxny = kx_nxny.reshape(kx_nxny.shape[0] * kx_nxny.shape[1])
 
@@ -898,7 +904,8 @@ def solve_refraction_inc_nxny_Kx(theta_z_inc_nxny, phi_z_inc_nxny, kx_nxny,
 
         f = cal_nk(nx, ny, nz, lam, p, size_PerPixel,
                    theta_z_c, phi_z_c, phi_c_c,
-                   theta_z_inc, phi_z_inc_nxny, phi_c_def)[1] * np.sin(theta_z_inc) * np.cos(phi_z_inc_nxny) \
+                   theta_z_inc, phi_z_inc_nxny, phi_c_def,
+                   is_air, )[1] * np.sin(theta_z_inc) * np.cos(phi_z_inc_nxny) \
             - (- kx_nxny)
 
         return f
@@ -932,13 +939,15 @@ def solve_refraction_inc_kx(theta_z_inc, phi_z_inc, theta_x, theta_y,
 
 def solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
                             nx, ny, nz, lam, p, size_PerPixel,
-                            theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc 当公有 常量，折射前后 必然相等
+                            theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                            is_air, ):  # phi_z_inc 当公有 常量，折射前后 必然相等
     def your_funcs(X):
         theta_z_inc, = X
 
         f = [cal_nk(nx, ny, nz, lam, p, size_PerPixel,
                     theta_z_c, phi_z_c, phi_c_c,
-                    theta_z_inc, phi_z_inc, phi_c_def)[1] * math.sin(theta_z_inc) * math.cos(phi_z_inc) \
+                    theta_z_inc, phi_z_inc, phi_c_def,
+                    is_air, )[1] * math.sin(theta_z_inc) * math.cos(phi_z_inc) \
              - (- kx)]
 
         return f
@@ -951,7 +960,8 @@ def solve_refraction_inc_Kx(theta_z_inc, phi_z_inc, kx, ky,
 
 def solve_refraction_inc_ky(theta_z_inc, phi_z_inc, theta_x, theta_y,
                             nx, ny, nz, lam, p, size_PerPixel,
-                            theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc 当公有 常量，折射前后 必然相等
+                            theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                            is_air, ):  # phi_z_inc 当公有 常量，折射前后 必然相等
     def your_funcs(X):
         from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy
         k_air = 2 * math.pi * size_PerPixel / (lam / 1000)
@@ -959,7 +969,8 @@ def solve_refraction_inc_ky(theta_z_inc, phi_z_inc, theta_x, theta_y,
 
         f = [cal_nk(nx, ny, nz, lam, p, size_PerPixel,
                     theta_z_c, phi_z_c, phi_c_c,
-                    theta_z_inc, phi_z_inc, phi_c_def)[1] * math.sin(theta_z_inc) * math.sin(phi_z_inc) \
+                    theta_z_inc, phi_z_inc, phi_c_def,
+                    is_air, )[1] * math.sin(theta_z_inc) * math.sin(phi_z_inc) \
              - k_air * Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )[1]]
 
         return f
@@ -972,7 +983,8 @@ def solve_refraction_inc_ky(theta_z_inc, phi_z_inc, theta_x, theta_y,
 
 def solve_refraction_inc_kxky(theta_z_inc, phi_z_inc, theta_x, theta_y,
                               nx, ny, nz, lam, p, size_PerPixel,
-                              theta_z_c, phi_z_c, phi_c_c, phi_c_def):  # phi_z_inc 当未知量，这样计算量 会稍大，但更 general：可验证 横向动量守恒
+                              theta_z_c, phi_z_c, phi_c_c, phi_c_def,
+                              is_air, ):  # phi_z_inc 当未知量，这样计算量 会稍大，但更 general：可验证 横向动量守恒
     def your_funcs(X):
         from fun_pump import Cal_Unit_kxkykz_based_on_theta_xy
         k_air = 2 * math.pi * size_PerPixel / (lam / 1000)
@@ -980,11 +992,13 @@ def solve_refraction_inc_kxky(theta_z_inc, phi_z_inc, theta_x, theta_y,
 
         f = [cal_nk(nx, ny, nz, lam, p, size_PerPixel,
                     theta_z_c, phi_z_c, phi_c_c,
-                    theta_z_inc, phi_z_inc, phi_c_def)[1] * math.sin(theta_z_inc) * math.cos(phi_z_inc) \
+                    theta_z_inc, phi_z_inc, phi_c_def,
+                    is_air, )[1] * math.sin(theta_z_inc) * math.cos(phi_z_inc) \
              - k_air * (- Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )[0]),
              cal_nk(nx, ny, nz, lam, p, size_PerPixel,
                     theta_z_c, phi_z_c, phi_c_c,
-                    theta_z_inc, phi_z_inc, phi_c_def)[1] * math.sin(theta_z_inc) * math.sin(phi_z_inc) \
+                    theta_z_inc, phi_z_inc, phi_c_def,
+                    is_air, )[1] * math.sin(theta_z_inc) * math.sin(phi_z_inc) \
              - k_air * Cal_Unit_kxkykz_based_on_theta_xy(theta_x, theta_y, )[1]]
 
         return f
@@ -999,7 +1013,8 @@ def solve_refraction_inc_kxky(theta_z_inc, phi_z_inc, theta_x, theta_y,
 
 def cal_nk(nx, ny, nz, lam, p, size_PerPixel,
            theta_z_c, phi_z_c, phi_c_c,
-           theta_z_inc, phi_z_inc, phi_c_def, record_delta_name=""):  # 传一个 非空名 进来，就以之为名地记录 delta
+           theta_z_inc, phi_z_inc, phi_c_def,
+           is_air, record_delta_name=""):  # 传一个 非空名 进来，就以之为名地记录 delta
     # theta_c_z, phi_c_z = theta_z_c, phi_c_def - phi_c_c  # 算 实验室坐标系 方向 z 相对 晶轴 c 的 方位角 和 极角
     # # 因为 初始时，晶体的 a,b,c 轴，分别与 -x, y, k 重合；且 极角 只沿 z - (-x) 面内 方向 倾倒 折射率椭球；
     # # 但按理说 KTP 还能 绕着 自己的 c 轴，自右手系的 a 向 b 旋，多这一个自由度：
@@ -1020,7 +1035,9 @@ def cal_nk(nx, ny, nz, lam, p, size_PerPixel,
     if record_delta_name != '':
         from fun_global_var import Set
         Set(record_delta_name, delta)
-    n_e, n_o = Cal_n_eo(nx, ny, nz, theta_c_inc, phi_c_inc, delta, )
+    n_e, n_o = Cal_n_eo(nx, ny, nz,
+                        theta_c_inc, phi_c_inc, delta,
+                        is_air, )
     # print(np.max(n_e), np.max(n_o))
 
     n_inc = n_e if p == "z" or p == "e" or p == "c" else n_o  # 基波 传播方向 上 的 折射率
@@ -1178,7 +1195,9 @@ def Cal_delta(nx, ny, nz, theta, phi, ):
     return delta
 
 
-def Cal_n_eo(nx, ny, nz, theta, phi, delta, ):
+def Cal_n_eo(nx, ny, nz,
+             theta, phi, delta,
+             is_air, is_n_continuous=0, ):
     # print(np.max(theta) / math.pi * 180, np.max(phi) / math.pi * 180, np.max(delta) / math.pi * 180)
 
     factor_1 = np.cos(phi) ** 2 / nx ** 2 + np.sin(phi) ** 2 / ny ** 2
@@ -1193,6 +1212,28 @@ def Cal_n_eo(nx, ny, nz, theta, phi, delta, ):
 
     n_e = 1 / n_e_Squared_devided_by_1 ** 0.5
     n_o = 1 / n_o_Squared_devided_by_1 ** 0.5
+
+    if is_n_continuous == 1:
+        if is_air == 2:  # 如果是 正单轴 晶体，则 同一 k_vector 方向上，n_e 始终 > n_o，但 正双轴 晶体 不一定 ？
+            def gan_n_eo_new(n_e, n_o):
+                if type(delta) == np.ndarray:
+                    n_e_new = np.where(n_e > n_o, n_e, n_o)
+                    n_o_new = np.where(n_e > n_o, n_o, n_e)
+                else:
+                    n_e_new = n_e if n_e > n_o else n_o
+                    n_o_new = n_o if n_e > n_o else n_e
+                return n_e_new, n_o_new
+        elif is_air == 0:  # 如果是 负单轴 晶体，则 同一 k_vector 方向上，n_e 始终 < n_o，但 负双轴 晶体 不一定 ？
+            def gan_n_eo_new(n_e, n_o):
+                if type(delta) == np.ndarray:
+                    n_e_new = np.where(n_e < n_o, n_e, n_o)
+                    n_o_new = np.where(n_e < n_o, n_o, n_e)
+                else:
+                    n_e_new = n_e if n_e < n_o else n_o
+                    n_o_new = n_o if n_e < n_o else n_e
+                return n_e_new, n_o_new
+
+        n_e, n_o = gan_n_eo_new(n_e, n_o)
 
     # print(np.max(n_e), np.max(n_o))
     # print(np.min(n_e), np.min(n_o))
@@ -1388,20 +1429,15 @@ def init_AST_12oe(Ix, Iy, size_PerPixel,
 
         if type(p_p) == np.ndarray:  # p_p 投影到 E_u（因为 E_u 只允许是 某 2 个方向）
             # print(E_u.shape)
-            # g_oe = g_p * np.dot(E_u, p_p)
-            if p_p.shape == (3,):
-                E_ux, E_uy, E_uz = split_Array_to_xyz(E_u)
-                E_xy_u = normalize_merge_vector(E_ux, E_uy, np.zeros((Ix, Iy), ))[0]  # z 分量 置 0 后，将 x,y 面的 二维分量 单位化
-
-                p_px, p_py, p_pz = split_Array_to_xyz(p_p)
-                p_p_pic = merge_array_xyz(p_px, -p_py, p_pz)  # 平面 笛卡尔 右手系，到 图片坐标系 转换，以与 k、E_u、图片 等同一坐标系
-
-                g_oe = g_p * np.dot(E_xy_u, p_p_pic)  # 晶体外 线偏基 p_p_pic 到 晶体内 oe 线偏基 E_xy_u 的 投影：两个 平面 2 维 单位向量 的 点积，即 cos
-
-                # g_oe = g_p * np.dot(E_u, p_p)
-                # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
-            else:  # 不应该 有这个分支：到这里还不涉及 加偏振片的事，只是场的 切向连续性 的 必然要求 所导致的结果，只需要 无二维分布 的 平面向量 p_p 即可
-                g_oe = g_p
+            # g_oe = g_p * np.dot(E_u, p_p)  # 三维偏振矢量 E 直接投影到 （⊥ z 的 二维平面上 所允许的） 偏振矢量 p
+            # 等价于：三维 E →（投影到） 所允许的 三维偏振 P = (k×p)×k →（投影到） ⊥ z 的 二维平面
+            # 也等价于：三维 E → ⊥ z 的 二维平面 → （⊥ z 的 二维平面上 所允许的） 偏振矢量 p
+            # %%
+            # 但角谱 得到的是，二维的 g（gx, gy），而不是 三维的 g
+            # 因此 尽管 实际上 发生的是，三维的 g →（投影到）单位向量 p 上，
+            # 等价的 却是，二维的 g（gx, gy） →（投影到）单位向量 p 上（gz 投影到 p 上，结果是 零）
+            # 也就是说，和 二维 g（gx, gy）对应的 不是 E_u，而是 E_xy_u ———— 因此要用 它点乘 p，而不是 用 E_u 来点乘 p
+            g_oe = three_D_to_2D_dot_2D(g_p, E_u, p_p)
         else:
             g_oe = g_p
 
@@ -1412,6 +1448,24 @@ def init_AST_12oe(Ix, Iy, size_PerPixel,
     # %%
     return n1_inc, n1, k1_inc, k1, k1_z, k1_xy, g_oe, E_u
 
+
+def three_D_to_2D_dot_2D(g_p, E_u, p_p):
+    from fun_global_var import Get
+    if p_p.shape == (3,):
+        E_ux, E_uy, E_uz = split_Array_to_xyz(E_u)
+        E_xy_u = normalize_merge_vector(E_ux, E_uy, np.zeros((Get("Ix"), Get("Iy")), ))[0]  # z 分量 置 0 后，将 x,y 面的 二维分量 单位化
+
+        p_px, p_py, p_pz = split_Array_to_xyz(p_p)
+        p_p_pic = merge_array_xyz(p_px, -p_py, p_pz)  # 平面 笛卡尔 右手系，到 图片坐标系 转换，以与 k、E_u、图片 等同一坐标系
+
+        g_oe = g_p * np.dot(E_xy_u, p_p_pic)
+        # 晶体外 线偏基 p_p_pic 到 晶体内 oe 线偏基 E_xy_u 的 投影：两个 平面 2 维 单位向量 的 点积，即 cos
+
+        # g_oe = g_p * np.dot(E_u, p_p)
+        # 不能是 p_p * D_u，得是 D_u * p_p，因为 D_u 的 最末维度 是 2，而 p_p 的 第一个维度 也是 2
+    else:  # 不应该 有这个分支：到这里还不涉及 加偏振片的事，只是场的 切向连续性 的 必然要求 所导致的结果，只需要 无二维分布 的 平面向量 p_p 即可
+        g_oe = g_p
+    return g_oe
 
 # %%
 
@@ -1438,6 +1492,7 @@ def gan_g_p_then_g_p_xy(g_H, g_V, g_z, p_u_vector_field):
     g_p_xy = g_p * np.sum(p_u_vector_field * p_xy_u, -1)
     return g_p_xy
 
+
 def gan_g_op_then_g_op_xy(E_uo, g_o, p_p, p_uo_vector_field=0):
     from fun_global_var import Get
     E_uo_x, E_uo_y, E_uo_z = split_Array_to_xyz(E_uo)
@@ -1455,8 +1510,9 @@ def gan_g_op_then_g_op_xy(E_uo, g_o, p_p, p_uo_vector_field=0):
     p_px, p_py, p_pz = split_Array_to_xyz(p_p)
     p_p_pic = merge_array_xyz(p_px, -p_py, p_pz)  # 平面 笛卡尔 右手系，到 图片坐标系 转换，以与 k、E_u、图片 等同一坐标系
     g_o_vector_field = merge_array_xyz(g_o_x, g_o_y, g_o_z)
-    g_op_xy = np.dot(g_o_vector_field, p_p_pic) # 得直接点乘，但这样与 二维的 有什么区别...
+    g_op_xy = np.dot(g_o_vector_field, p_p_pic)  # 得直接点乘，但这样与 二维的 有什么区别...
     return g_o_x, g_o_y, g_o_z, g_op_xy
+
 
 def gan_g_p_xy(g_H, g_V, p_p, k_o=0, k_e=0, E_uo=0, E_ue=0):
     if k_o == 0 or k_e == 0:  # 如果外面未传入 k，则需要 自己生成 空气中的 k，以生成 k_vector_field
@@ -1485,6 +1541,7 @@ def gan_g_p_xy(g_H, g_V, p_p, k_o=0, k_e=0, E_uo=0, E_ue=0):
         # from fun_os import U_test_plot
         # U_test_plot("CHECK", "goz", g_o_z)
     return g_p_xy
+
 
 # %%
 

@@ -253,8 +253,7 @@ def AST_EVV(U_name="",
          theta_x, theta_y, ]
     kwargs_init_AST = {"is_air_pump": is_air_pump, "gp": g_shift, }
 
-    import copy
-    kwargs_gan_g_eoa = copy.deepcopy(kwargs)
+    kwargs_gan_g_eoa = {"phi_a": kwargs.get("phi_a", 0), }
 
     def args_U_amp_plot_save(folder_address, U, U_name):
         return [U, U_name,
@@ -311,6 +310,8 @@ def AST_EVV(U_name="",
                 is_plot_YZ_XZ, is_plot_3d_XYZ,
                 # %%
                 z0, ]
+
+    # print(kwargs.get("g_o", 0))
 
     # %% 折射
 
@@ -391,19 +392,27 @@ def AST_EVV(U_name="",
             def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
                 if is_add_polarizer == 1:
-                    Go_z, Ge_z = Gan_Gz_oe(for_th2)
-                    Ga_z = gan_g_eoa(Go_z, Ge_z, E_uo, E_ue, **kwargs_gan_g_eoa)
+                    Gz_o, Gz_e = Gan_Gz_oe(for_th2)
+                    Set("Gz_o", Gz_o)
+                    Set("Gz_e", Gz_e)
+                    
+                    Gz_a = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, **kwargs_gan_g_eoa)
                 else:
                     Gz_Vo, Gz_Ve, Gz_Ho, Gz_He = Gan_Gz_VHoe(for_th2)
+                    Set("Gz_Vo", Gz_Vo)
+                    Set("Gz_Ve", Gz_Ve)
+                    Set("Gz_Ho", Gz_Ho)
+                    Set("Gz_He", Gz_He)
+                    
                     Gz_Va = gan_g_eoa(Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, **kwargs_gan_g_eoa)
                     Gz_Ha = gan_g_eoa(Gz_Ho, Gz_He, E_u_Ho, E_u_He, **kwargs_gan_g_eoa)
-                    Ga_z = Gz_Va + Gz_Ha
+                    Gz_a = Gz_Va + Gz_Ha
 
-                return Ga_z
+                return Gz_a
 
-            def Fun2(for_th2, fors_num, Ga_z, *args, **kwargs, ):
+            def Fun2(for_th2, fors_num, Gz_a, *args, **kwargs, ):
 
-                dset("G", Ga_z)
+                dset("G", Gz_a)
 
                 return dget("G")
 
@@ -430,22 +439,43 @@ def AST_EVV(U_name="",
             def Fun1(for_th2, fors_num2, *args, **kwargs, ):
 
                 if is_add_polarizer == 1:
-                    Go_z, Ge_z = Gan_Gz_oe(for_th2)
-                    Set("Go_z", Go_z)
-                    Set("Ge_z", Ge_z)
-                    G_oe_energy_add = np.abs(Go_z) ** 2 + np.abs(Ge_z) ** 2  # 远场 平方和
-                    U_oe_energy_add = np.abs(ifft2(Go_z)) ** 2 + np.abs(ifft2(Ge_z)) ** 2  # 近场 平方和
+                    Gz_o, Gz_e = Gan_Gz_oe(for_th2)
+                    Set("Gz_o", Gz_o)
+                    Set("Gz_e", Gz_e)
+                    # 下面这个不行，不知道为啥...偏要像有 analyzer 一样，再 gan_g_eoa 投影一下，哪怕 再投影到 它自己上
+                    # G_oe_energy_add = np.abs(Gz_o) ** 2 + np.abs(Gz_e) ** 2  # 远场 平方和
+                    # U_oe_energy_add = np.abs(ifft2(Gz_o)) ** 2 + np.abs(ifft2(Gz_e)) ** 2  # 近场 平方和
+                    
+                    Gz_V = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, phi_a=90)
+                    Gz_H = gan_g_eoa(Gz_o, Gz_e, E_uo, E_ue, phi_a=0)
+                    
+                    G_oe_energy_add = np.abs(Gz_V) ** 2 + np.abs(Gz_H) ** 2  # 远场 模方和
+                    U_oe_energy_add = np.abs(ifft2(Gz_V)) ** 2 + np.abs(ifft2(Gz_H)) ** 2  # 近场 模方和
                 else:
                     Gz_Vo, Gz_Ve, Gz_Ho, Gz_He = Gan_Gz_VHoe(for_th2)
                     Set("Gz_Vo", Gz_Vo)
                     Set("Gz_Ve", Gz_Ve)
                     Set("Gz_Ho", Gz_Ho)
                     Set("Gz_He", Gz_He)
-                    G_oe_energy_add = np.abs(Gz_Vo) ** 2 + np.abs(Gz_Ho) ** 2 + \
-                                      np.abs(Gz_Ve) ** 2 + np.abs(Gz_He) ** 2  # 远场 平方和
-                    U_oe_energy_add = np.abs(ifft2(Gz_Vo)) ** 2 + np.abs(ifft2(Gz_Ho)) ** 2 + \
-                                      np.abs(ifft2(Gz_Ve)) ** 2 + np.abs(ifft2(Gz_He)) ** 2  # 近场 平方和
-
+                    
+                    Gz_o = Gz_Vo + Gz_Ho
+                    Gz_e = Gz_Ve + Gz_He  # 先求和，再模方和，而不是 先模方和，再求和
+                    # 下面这个不行，不知道为啥...偏要像有 analyzer 一样，再 gan_g_eoa 投影一下，哪怕 再投影到 它自己上
+                    # G_oe_energy_add = np.abs(Gz_o) ** 2 + np.abs(Gz_e) ** 2  # 远场 平方和
+                    # U_oe_energy_add = np.abs(ifft2(Gz_o)) ** 2 + np.abs(ifft2(Gz_e)) ** 2  # 近场 平方和
+                    
+                    Gz_V = gan_g_eoa(Gz_o, Gz_e, E_u_Vo, E_u_Ve, phi_a=90)
+                    Gz_H = gan_g_eoa(Gz_o, Gz_e, E_u_Ho, E_u_He, phi_a=0)
+                    # 下面 与 上面两条语句 等效
+                    # Gz_VV = gan_g_eoa(Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, phi_a=90)
+                    # Gz_HV = gan_g_eoa(Gz_Ho, Gz_He, E_u_Ho, E_u_He, phi_a=90)
+                    # Gz_V = Gz_VV + Gz_HV
+                    # Gz_VH = gan_g_eoa(Gz_Vo, Gz_Ve, E_u_Vo, E_u_Ve, phi_a=0)
+                    # Gz_HH = gan_g_eoa(Gz_Ho, Gz_He, E_u_Ho, E_u_He, phi_a=0)
+                    # Gz_H = Gz_VH + Gz_HH
+                    
+                    G_oe_energy_add = np.abs(Gz_V) ** 2 + np.abs(Gz_H) ** 2  # 远场 模方和
+                    U_oe_energy_add = np.abs(ifft2(Gz_V)) ** 2 + np.abs(ifft2(Gz_H)) ** 2  # 近场 模方和
 
                 return G_oe_energy_add, U_oe_energy_add
 
@@ -479,7 +509,7 @@ def AST_EVV(U_name="",
             fset("U", dget("U"))  # 那里不用 dget 是因为，dget 被设计来 只储存 中间结果，不一定像 fset 只储存 最后结果。
             fU_EVV_plot(*args_fU_EVV_plot(0), part_z="_oe_z_energy_add", **kwargs, )
 
-        return Get("Go_z"), Get("Ge_z"), E_uo, E_ue, \
+        return Get("Gz_o"), Get("Gz_e"), E_uo, E_ue, \
                Get("Gz_Vo"), Get("Gz_Ve"), E_u_Vo, E_u_Ve, \
                Get("Gz_Ho"), Get("Gz_He"), E_u_Ho, E_u_He, \
                Get("ray"), Get("method_and_way"), fkey("U")  # 加不加 起偏 或 检偏 器，都可能 会有 VH 两个分量，所以 将 return 写在外面
