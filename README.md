@@ -6,9 +6,9 @@ This repo contains the official implementation of the paper (**_If one uses the 
 <!-- 这个 html 的注释，就既可以 图片链接 ![illustration](Optica.jpg)，又可以 分段 -->
 
 ## About
-The Non-linear Angular Spectrum Theory (NLAST) is the ultimate solution to calculate various non-linear process with unprecedented both accuracy and efficiency.
+The Nonlinear Angular Spectrum Theory (NLAST) is the ultimate solution to calculate various nonlinear process with unprecedented both accuracy and efficiency.
 
-In this paper, the NLAST solves the generation and linear diffraction of $\omega_3$ in SFG process simultaneously in just one step, by transforming the non-linear convolution of fundamental waves in the spatial frequency domain down to the FFT-2D form.
+In this paper, the NLAST solves the generation and linear diffraction of $\omega_3$ in SFG process simultaneously in just one step, by transforming the nonlinear convolution of fundamental waves in the spatial frequency domain down to the FFT-2D form.
 
 ## Running the code
 Run any .py file, and one shall see the bloody truth.
