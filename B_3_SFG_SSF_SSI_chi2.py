@@ -727,7 +727,7 @@ if __name__ == '__main__':
          "ray": "3", "polar3": "o",
          }
 
-    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3":  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena.png",

@@ -460,7 +460,7 @@ def SFG_NLA_EVV(U_name="",
                                                  diz, Const,
                                                  Tz=Tz, ))
 
-            elif fft_mode == 1:
+            elif fft_mode == 1:  # 不用 生成的结构，只查看 某一衍射级，或 某些级 的 叠加
 
                 if is_sum_Gm == 0:
                     Set("G" + Get("ray") + "_z" + str(for_th2) + "_" + Get("way"),
@@ -667,7 +667,7 @@ if __name__ == '__main__':
          "ray": "3", "polar3": "o", 
          }
 
-    if kwargs.get("ray", "2") == "3":  # 如果 ray == 3，则 默认 双泵浦 is_twin_pumps == 1
+    if kwargs.get("ray", "2") == "3":  # 如果 is_HOPS >= 1，则 默认 双泵浦 is_twin_pumps == 1
         pump2_kwargs = {
             "U2_name": "",
             "img2_full_name": "lena1.png",
