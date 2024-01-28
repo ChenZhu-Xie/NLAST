@@ -1,4 +1,4 @@
-![fig](https://raw.githubusercontent.com/ChenZhu-Xie/NLAST/master/img/cover.png)
+![fig](https://raw.githubusercontent.com/ChenZhu-Xie/NLAST/master/img/cover3.png)
 
 This repo contains the official implementation of the paper (**_If one uses the code, please cite this paper_. :)**):
 
