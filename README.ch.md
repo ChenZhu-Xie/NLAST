@@ -1,3 +1,5 @@
+![fig](https://raw.githubusercontent.com/ChenZhu-Xie/NLAST/master/img/cover.png)
+
 This repo contains the official implementation of the paper (**_If one uses the code, please cite this paper_. :)**):
 
 # Nonlinear Angular Spectrum Theory for Sum Frequency Generation
