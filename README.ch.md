@@ -1,7 +1,7 @@
 ![fig](https://raw.githubusercontent.com/ChenZhu-Xie/NLAST/master/img/cover3.png)
 
 This repo contains the official implementation of the paper (**_If one uses the code, please cite this paper_. :)**):
-D
+
 # Nonlinear Angular Spectrum Theory for Sum Frequency Generation
 <!-- [^_^]: # (![illustration](Optica.jpg))
 [>_>]: # (这个注释可分段，但似乎不能有 “图片链接格式”，上一个注释反之)
