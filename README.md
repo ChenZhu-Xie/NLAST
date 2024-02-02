@@ -14,3 +14,15 @@ In this paper, the NLAST solves the generation and linear diffraction of $\omega
 
 ## Running the code
 Run any .py file, and one shall see the bloody truth.
+
+## History
+* NLAST-scalar model
+    * The NLAST project launched on 2022.02. (23 years old and 9 months old)
+        * Winter vacation in the second year of graduate school. (1.5 / 5.0 years)
+    * The model basically completed around 2022.06. (24 years old and 2 months old)
+        * Summer vacation in the second year of graduate school. (2.0 / 5.0 years)
+        * [NLAST_scalar_paper](https://github.com/ChenZhu-Xie/NLAST_scalar_paper__private)
+    * The paper initiated on 2024.06. (26 years old and 4 months old)
+        * The second year of PhD Program. (3.8 / 5.0 years)
+    * The first draft was done around 2024.09. (26 years old and 7 months old)
+        * The penultimate semester of PhD Program. (4.0 / 5.0 years)
