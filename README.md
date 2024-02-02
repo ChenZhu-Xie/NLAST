@@ -8,7 +8,7 @@ This repo contains the official implementation of the paper (**_If one uses the 
 <!-- 这个 html 的注释，就既可以 图片链接 ![illustration](Optica.jpg)，又可以 分段 -->
 
 ## About
-* NLAST-scalar model 👉 Link to [NLAST-scalar paper](https://github.com/ChenZhu-Xie/NLAST_scalar_paper__private)
+* [NLAST-scalar model](https://github.com/ChenZhu-Xie/NLAST) 👉 Link to [NLAST-scalar paper](https://github.com/ChenZhu-Xie/NLAST_scalar_paper__private)
 
 ## Description
 The Nonlinear Angular Spectrum Theory (NLAST) is the ultimate solution to calculate various nonlinear process with unprecedented both accuracy and efficiency.
