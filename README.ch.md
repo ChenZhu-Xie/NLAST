@@ -1,4 +1,5 @@
-![fig](https://raw.githubusercontent.com/ChenZhu-Xie/NLAST/master/img/cover3.png "『NLAST』有多『快』和『准确』")
+<!-- ![fig](https://raw.githubusercontent.com/ChenZhu-Xie/NLAST/master/img/cover3.png "『NLAST』有多『快』和『准确』") -->
+![fig](master/img/cover3.png "『NLAST』有多『快』和『准确』")
 
 This repo contains the official implementation of the paper (**_If one uses the code, please cite this paper_. :)**):
 
