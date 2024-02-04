@@ -1,6 +1,6 @@
 <!-- ![fig](https://raw.githubusercontent.com/ChenZhu-Xie/NLAST/master/img/cover3.png "『NLAST』有多『快』和『准确』") -->
-<!-- ![fig](master/img/cover3.png "『NLAST』有多『快』和『准确』") -->
-![cover3](https://github.com/ChenZhu-Xie/NLAST/assets/81510604/59149cc7-b69c-4f28-a219-11b02fdbc051 "『NLAST』有多『快』和『准确』")
+![fig](https://gitee.com/ChenZhu-Xie/NLAST/master/img/cover3.png "『NLAST』有多『快』和『准确』")
+<!-- ![cover3](https://github.com/ChenZhu-Xie/NLAST/assets/81510604/59149cc7-b69c-4f28-a219-11b02fdbc051 "『NLAST』有多『快』和『准确』") -->
 
 This repo contains the official implementation of the paper (**_If one uses the code, please cite this paper_. :)**):
 
