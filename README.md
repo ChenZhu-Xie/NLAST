@@ -34,3 +34,7 @@ Run any .py file, and one shall see the bloody truth.
 [^_^]: # (![illustration](Optica.jpg))
 [>_>]: # (这个注释可分段，但似乎不能有 “图片链接格式”，上一个注释反之)
 <!-- 这个 html 的注释，就既可以 图片链接 ![illustration](Optica.jpg)，又可以 分段 -->
+
+<!-- [^_^]: # (![illustration](Optica.jpg))
+[>_>]: # (这个注释可分段，但似乎不能有 “图片链接格式”，上一个注释反之)
+这个 html 的注释，就既可以 图片链接 ![illustration](Optica.jpg)，又可以 分段 -->
