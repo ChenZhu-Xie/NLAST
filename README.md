@@ -1,5 +1,5 @@
-<!-- ![fig](https://raw.githubusercontent.com/ChenZhu-Xie/NLAST/master/img/cover3.png "How『Fast』and『Accurate』the『NLAST』is") -->
-![cover3](https://github.com/ChenZhu-Xie/NLAST/assets/81510604/59149cc7-b69c-4f28-a219-11b02fdbc051 "How『Fast』and『Accurate』the『NLAST』is")
+![fig](https://raw.githubusercontent.com/ChenZhu-Xie/NLAST/master/img/cover3.png "How『Fast』and『Accurate』the『NLAST』is")
+<!-- ![cover3](https://github.com/ChenZhu-Xie/NLAST/assets/81510604/59149cc7-b69c-4f28-a219-11b02fdbc051 "How『Fast』and『Accurate』the『NLAST』is") -->
 
 This repo contains the official implementation of the paper (**_If one uses the code, please cite this paper_. :)**):
 
