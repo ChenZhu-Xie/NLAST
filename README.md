@@ -10,6 +10,7 @@ This repo contains the official implementation of the paper (**_If one uses the 
     1. Contains paper ⊋ 👉 [NLAST-scalar paper (Private)](https://github.com/ChenZhu-Xie/NLAST_scalar_paper__private)
     2. Subseteq model ⊂ 👉 [NLAST-vector model (Private)](https://github.com/ChenZhu-Xie/NLAST_private)
         * Contains paper ⊋ 👉 [Berry-Mcleod paper (Private)](https://github.com/ChenZhu-Xie/Berry_Mcleod_paper__private)
+* 中文「自述文档」㊥ 👉 [NLAST-scalar 模型](https://gitee.com/ChenZhu-Xie/NLAST)
 
 ## Description
 The Nonlinear Angular Spectrum Theory (NLAST) is the ultimate solution to calculate various nonlinear process with unprecedented both accuracy and efficiency.
