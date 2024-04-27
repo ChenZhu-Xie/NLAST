@@ -29,6 +29,8 @@ Run any .py file, and one shall see the bloody truth.
 * 该模型 👉 [NLAST-scalar 模型](https://gitee.com/ChenZhu-Xie/NLAST)
     1. 代码 始建于 2022.02 (23 岁 9 月) —— 研二上寒假 (1.5 / 5.0 年)
     2. 模型 成形于 2022.06 (24 岁 2 月) —— 研二下暑假 (2.0 / 5.0 年)
+    3. 详见仓库 👉 [硕士 学术 1.5-2.0 year](https://github.com/ChenZhu-Xie/postgraduate_academia__1.5-2.0_year)
 * 包含文章 ⊋ 👉 [NLAST-scalar 文章 (私有)](https://gitee.com/ChenZhu-Xie/NLAST_scalar_paper__private)
     1. 文章 动笔于 2024.06 (26 岁 2 月) —— 博二下学期 (3.8 / 5.0 年)
     2. 初稿 成形于 2024.09 (26 岁 5 月) —— 博二下学期 (4.0 / 5.0 年)
+    3. 详见仓库 👉 [博士 学术 1.5-2.0 year](https://github.com/ChenZhu-Xie/PhD_academia__1.5-2.0_year)

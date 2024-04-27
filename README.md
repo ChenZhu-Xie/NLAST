@@ -30,11 +30,13 @@ Run any .py file, and one shall see the bloody truth.
         * Winter vacation in the second year of graduate school. (1.5 / 5.0 years)
     2. The model basically completed around 2022.06. (24 years old and 2 months old)
         * Summer vacation in the second year of graduate school. (2.0 / 5.0 years)
+    3. details can be found in repo 👉 [postgraduate academia 1.5-2.0 year](https://github.com/ChenZhu-Xie/postgraduate_academia__1.5-2.0_year)
 * Contains paper ⊋ 👉 [NLAST-scalar paper (Private)](https://github.com/ChenZhu-Xie/NLAST_scalar_paper__private)
     1. The paper initiated on 2024.06. (26 years old and 2 months old)
         * The second year of PhD Program. (3.8 / 5.0 years)
     2. The first draft was done around 2024.09. (26 years old and 5 months old)
         * The penultimate semester of PhD Program. (4.0 / 5.0 years)
+    3. details can be found in repo 👉 [PhD academia 1.5-2.0 year](https://github.com/ChenZhu-Xie/PhD_academia__1.5-2.0_year)
 
 [^_^]: # (![illustration](Optica.jpg))
 [>_>]: # (这个注释可分段，但似乎不能有 “图片链接格式”，上一个注释反之)
